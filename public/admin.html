@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - Pondok Pesantren</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"/>
+
+  <style>
+    :root{
+      --primary-gradient:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      --success-gradient:linear-gradient(135deg,#0f9d58 0%,#0a7a43 100%);
+      --danger-gradient:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);
+      --warning-gradient:linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%);
+      --info-gradient:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);
+      --sidebar-gradient:linear-gradient(180deg,#1e3c72 0%,#2a5298 100%);
+    }
+    body{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;}
+
+    /* Sidebar */
+    .sidebar{min-height:100vh;background:var(--sidebar-gradient);color:#fff;box-shadow:4px 0 20px rgba(0,0,0,.1);}
+    .sidebar-header{padding:25px 20px;background:rgba(255,255,255,.1);border-bottom:1px solid rgba(255,255,255,.1);}
+    .sidebar-header h5{font-weight:700;letter-spacing:1px;margin:0;}
+    .sidebar .nav-link{color:rgba(255,255,255,.85);padding:15px 20px;margin:5px 10px;border-radius:12px;border-left:4px solid transparent;transition:.3s;font-weight:500;}
+    .sidebar .nav-link:hover{color:#fff;background:rgba(255,255,255,.15);border-left-color:#fff;transform:translateX(5px);}
+    .sidebar .nav-link.active{color:#fff;background:rgba(255,255,255,.2);border-left-color:#fff;box-shadow:0 4px 15px rgba(0,0,0,.2);}
+    .sidebar .nav-link i{margin-right:12px;font-size:1.2rem;width:25px;text-align:center;}
+    .user-badge{background:rgba(255,255,255,.15);padding:10px 15px;border-radius:10px;margin:10px;color:#fff;font-weight:600;}
+    .user-badge i{margin-right:8px;}
+
+    /* Layout */
+    .content-area{padding:30px;min-height:100vh;}
+    .page-header{margin-bottom:30px;padding:20px;background:#fff;border-radius:15px;box-shadow:0 2px 15px rgba(0,0,0,.08);}
+    .page-header h2{color:#2a5298;font-weight:700;margin:0;}
+    .page-header p{color:#6c757d;margin:5px 0 0;}
+
+    /* Cards / Stats */
+    .stat-card{border:none;border-radius:15px;padding:25px;margin-bottom:20px;box-shadow:0 5px 20px rgba(0,0,0,.1);transition:.3s;background:#fff;position:relative;overflow:hidden;animation:fadeInUp .5s ease;}
+    .stat-card::before{content:"";position:absolute;top:0;left:0;width:5px;height:100%;background:var(--primary-gradient);}
+    .stat-card:hover{transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,0,0,.15);}
+    .stat-card.success::before{background:var(--success-gradient);}
+    .stat-card.danger::before{background:var(--danger-gradient);}
+    .stat-card.warning::before{background:var(--warning-gradient);}
+    .stat-card.info::before{background:var(--info-gradient);}
+    .stat-card .icon-box{width:60px;height:60px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:15px;color:#fff;}
+    .stat-card.success .icon-box{background:linear-gradient(135deg,#0f9d58 0%,#0a7a43 100%);}
+    .stat-card.danger .icon-box{background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);}
+    .stat-card.warning .icon-box{background:linear-gradient(135deg,#ffa726 0%,#fb8c00 100%);}
+    .stat-card.info .icon-box{background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);}
+    .stat-card.primary .icon-box{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
+    .stat-card h6{color:#6c757d;font-weight:600;font-size:.9rem;text-transform:uppercase;letter-spacing:.5px;margin:10px 0;}
+    .stat-card h3{color:#2a5298;font-weight:700;font-size:2rem;margin:0;}
+    .stat-card small{color:#28a745;font-weight:600;}
+
+    /* Tabs */
+    .nav-tabs{border:none;background:#fff;padding:10px;border-radius:15px;box-shadow:0 2px 15px rgba(0,0,0,.08);margin-bottom:25px;}
+    .nav-tabs .nav-link{border:none;color:#6c757d;padding:12px 25px;margin:0 5px;border-radius:10px;font-weight:600;transition:.3s;}
+    .nav-tabs .nav-link:hover{color:#2a5298;background:#f0f4ff;}
+    .nav-tabs .nav-link.active{color:#fff;background:var(--primary-gradient);box-shadow:0 4px 15px rgba(102,126,234,.4);}
+    .nav-tabs .nav-link i{margin-right:8px;font-size:1.1rem;}
+
+    /* Table & Cards */
+    .card{border:none;border-radius:15px;box-shadow:0 2px 15px rgba(0,0,0,.08);margin-bottom:20px;}
+    .card-header{background:var(--primary-gradient);color:#fff;border-radius:15px 15px 0 0 !important;padding:20px;font-weight:600;}
+    .table{background:#fff;border-radius:15px;overflow:hidden;}
+    .table thead{background:var(--primary-gradient);color:#fff;}
+    .table thead th{border:none;padding:15px;font-weight:600;text-transform:uppercase;font-size:.85rem;letter-spacing:.5px;}
+    .table tbody td{padding:15px;vertical-align:middle;border-bottom:1px solid #f0f0f0;}
+    .table tbody tr{transition:.3s;}
+    .table tbody tr:hover{background:#f8f9ff;transform:scale(1.01);}
+    .table-actions button{margin:0 3px;border-radius:8px;padding:8px 15px;font-weight:500;transition:.3s;}
+
+    /* Buttons & Badges */
+    .btn{border-radius:10px;padding:10px 20px;font-weight:600;border:none;transition:.3s;}
+    .btn-primary{background:var(--primary-gradient);box-shadow:0 4px 15px rgba(102,126,234,.4);}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(102,126,234,.6);}
+    .btn-success{background:var(--success-gradient);box-shadow:0 4px 15px rgba(15,157,88,.4);}
+    .btn-success:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(15,157,88,.6);}
+    .btn-danger{background:var(--danger-gradient);box-shadow:0 4px 15px rgba(245,87,108,.4);}
+    .btn-danger:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(245,87,108,.6);}
+    .btn-warning{background:linear-gradient(135deg,#ffa726 0%,#fb8c00 100%);color:#fff;box-shadow:0 4px 15px rgba(255,167,38,.4);}
+    .btn-warning:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,167,38,.6);}
+    .btn-info{background:var(--info-gradient);box-shadow:0 4px 15px rgba(79,172,254,.4);}
+    .btn-info:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(79,172,254,.6);}
+
+    .badge{padding:8px 15px;border-radius:8px;font-weight:600;font-size:.8rem;}
+    .badge.bg-success{background:var(--success-gradient)!important;}
+    .badge.bg-danger{background:var(--danger-gradient)!important;}
+    .badge.bg-warning{background:linear-gradient(135deg,#ffa726 0%,#fb8c00 100%)!important;}
+    .badge.bg-info{background:var(--info-gradient)!important;}
+
+    /* Modal */
+    .modal-header{background:var(--primary-gradient);color:#fff;border-radius:15px 15px 0 0;}
+    .modal-content{border-radius:15px;border:none;box-shadow:0 10px 40px rgba(0,0,0,.2);}
+    .modal-header .btn-close{filter:brightness(0) invert(1);}
+    .preview-img{max-width:100px;max-height:100px;object-fit:cover;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+
+    /* Forms */
+    .form-control,.form-select{border-radius:10px;border:2px solid #e0e0e0;padding:10px 15px;transition:.3s;}
+    .form-control:focus,.form-select:focus{border-color:#667eea;box-shadow:0 0 0 .2rem rgba(102,126,234,.25);}
+    .alert{border-radius:12px;border:none;padding:15px 20px;box-shadow:0 2px 10px rgba(0,0,0,.1);}
+
+    /* Logout Button */
+    #logoutBtn{background:linear-gradient(135deg,#f5576c 0%,#f093fb 100%);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:600;transition:.3s;}
+    #logoutBtn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(245,87,108,.4);}
+
+    /* Mobile */
+    .mobile-menu-toggle{display:none;position:fixed;top:15px;left:15px;z-index:1040;background:#0f9d58;color:#fff;border:none;padding:10px 15px;border-radius:5px;box-shadow:0 2px 5px rgba(0,0,0,.2);}
+    @media (max-width:768px){.mobile-menu-toggle{display:block;}}
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1040;}
+    @media (max-width:768px){.sidebar{position:fixed;left:-250px;top:0;z-index:1050;transition:left .3s;}
+      .sidebar.show{left:0;}
+      .sidebar-overlay.show{display:block;}
+      .content-area{padding:15px;width:100%;}
+      .stat-card h6{font-size:.75rem;}
+      .stat-card h3{font-size:1.25rem;}
+      .stat-card .icon-box{width:50px;height:50px;font-size:1.5rem;}
+      .table-actions{display:flex;flex-wrap:wrap;gap:5px;}
+      .nav-tabs .nav-link{padding:10px 15px;font-size:.9rem;}
+    }
+
+    /* Animation */
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .stat-card:nth-child(1){animation-delay:.1s;}
+    .stat-card:nth-child(2){animation-delay:.2s;}
+    .stat-card:nth-child(3){animation-delay:.3s;}
+    .stat-card:nth-child(4){animation-delay:.4s;}
+  </style>
+</head>
+<body>
+  <!-- Mobile Menu Toggle -->
+  <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+    <i class="bi bi-list"></i> Menu
+  </button>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <div class="d-flex">
+    <!-- Sidebar -->
+    <aside class="sidebar p-0" style="width:250px" id="sidebar">
+      <div class="sidebar-header">
+        <h5 class="text-white mb-1"><i class="bi bi-shield-lock-fill"></i> Admin Panel</h5>
+        <small style="opacity:.8">Pondok Pesantren</small>
+      </div>
+
+      <div class="user-badge">
+        <i class="bi bi-person-circle"></i>
+        <span id="adminEmail">Admin</span>
+      </div>
+
+      <ul class="nav flex-column px-2 mt-3">
+        <li class="nav-item">
+          <a class="nav-link active" href="#" data-tab="pendaftar" onclick="switchTab('pendaftar')">
+            <i class="bi bi-people-fill"></i> Data Pendaftar
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="statistik" onclick="switchTab('statistik')">
+            <i class="bi bi-bar-chart-fill"></i> Statistik
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="pembayaran" onclick="switchTab('pembayaran')">
+            <i class="bi bi-credit-card-fill"></i> Pembayaran
+          </a>
+        </li>
+      </ul>
+
+      <hr class="mx-3" style="border-color:rgba(255,255,255,.2)"/>
+
+      <ul class="nav flex-column px-2 mb-4">
+        <li class="nav-item">
+          <a class="nav-link" href="/content.html">
+            <i class="bi bi-newspaper"></i> Kelola Konten
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/">
+            <i class="bi bi-house-fill"></i> Ke Website
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" id="logoutBtn" style="background:rgba(245,87,108,.15);border-left-color:#f5576c">
+            <i class="bi bi-box-arrow-right"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1">
+      <section class="content-area">
+        <!-- Tab: Pendaftar -->
+        <div id="tab-pendaftar" class="tab-content active">
+          <div class="page-header d-flex justify-content-between align-items-center">
+            <div>
+              <h2><i class="bi bi-people-fill"></i> Data Pendaftar</h2>
+              <p>Kelola data pendaftar pondok pesantren</p>
+            </div>
+            <span id="updateTimePendaftar" class="badge bg-info text-dark">
+              <i class="bi bi-clock-history"></i> Data update: -
+            </span>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+              <div class="card stat-card primary">
+                <div class="card-body">
+                  <div class="icon-box"><i class="bi bi-people-fill"></i></div>
+                  <h6>Total Pendaftar</h6>
+                  <h3 id="totalCount">0</h3>
+                  <small><i class="bi bi-arrow-up"></i> Semua data</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="card stat-card warning">
+                <div class="card-body">
+                  <div class="icon-box"><i class="bi bi-hourglass-split"></i></div>
+                  <h6>Pending</h6>
+                  <h3 id="pendingCount">0</h3>
+                  <small><i class="bi bi-clock"></i> Menunggu</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="card stat-card info">
+                <div class="card-body">
+                  <div class="icon-box"><i class="bi bi-pencil-square"></i></div>
+                  <h6>Revisi</h6>
+                  <h3 id="revisiCount">0</h3>
+                  <small><i class="bi bi-arrow-repeat"></i> Perlu diperbaiki</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="card stat-card success">
+                <div class="card-body">
+                  <div class="icon-box"><i class="bi bi-check-circle-fill"></i></div>
+                  <h6>Diterima</h6>
+                  <h3 id="diterimaCount">0</h3>
+                  <small><i class="bi bi-trophy"></i> Berhasil</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="card stat-card danger">
+                <div class="card-body">
+                  <div class="icon-box"><i class="bi bi-x-circle-fill"></i></div>
+                  <h6>Ditolak</h6>
+                  <h3 id="ditolakCount">0</h3>
+                  <small><i class="bi bi-exclamation-triangle"></i> Tidak lolos</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0"><i class="bi bi-table"></i> Tabel Data Pendaftar</h5>
+            <button class="btn btn-success" onclick="exportToCSV()">
+              <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+            </button>
+          </div>
+
+          <div class="card">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>No. Registrasi</th>
+                      <th>Nama</th>
+                      <th>Status</th>
+                      <th>Tanggal</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pendaftarTable">
+                    <tr><td colspan="6" class="text-center">Loading...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Statistik -->
+        <div id="tab-statistik" class="tab-content" style="display:none">
+          <div class="page-header d-flex justify-content-between align-items-center">
+            <div>
+              <h2><i class="bi bi-bar-chart-fill"></i> Statistik Pendaftaran</h2>
+              <p>Statistik jumlah pendaftar berdasarkan asrama pondok dan jenjang pendidikan</p>
+            </div>
+            <span id="updateTimeStatistik" class="badge bg-info text-dark">
+              <i class="bi bi-clock-history"></i> Data update: -
+            </span>
+          </div>
+
+          <div class="row g-4">
+            <!-- Putra Induk -->
+            <div class="col-md-4">
+              <div class="card">
+                <div class="card-header" style="background:var(--primary-gradient)">
+                  <h5 class="mb-0 text-white"><i class="bi bi-building-fill"></i> Pondok Putra Induk</h5>
+                </div>
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <span><i class="bi bi-book"></i> MTs (Tsanawiyah)</span>
+                    <span class="badge bg-info fs-6" id="putraIndukMts">0</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <span><i class="bi bi-book-half"></i> MA (Aliyah)</span>
+                    <span class="badge bg-info fs-6" id="putraIndukMa">0</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <span><i class="bi bi-mortarboard"></i> Kuliah</span>
+                    <span class="badge bg-info fs-6" id="putraIndukKuliah">0</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                    <strong>Total Pendaftar</strong>
+                    <strong><span class="badge bg-primary fs-5" id="putraIndukTotal">0</span></strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Putra Tahfidz -->
+            <div class="col-md-4">
+              <div class="card">
+                <div class="card-header" style="background:var(--success-gradient)">
+                  <h5 class="mb-0 text-white"><i class="bi bi-journal-bookmark-fill"></i> Pondok Putra Tahfidz</h5>
+                </div>
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <span>MTs (Tsanawiyah)</span>
+                    <span class="badge bg-info fs-6" id="putraTahfidzMts">0</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <span>MA (Aliyah)</span>
+                    <span class="badge bg-info fs-6" id="putraTahfidzMa">0</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <span>Kuliah</span>
+                    <span class="badge bg-info fs-6" id="putraTahfidzKuliah">0</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                    <strong>Total Pendaftar</strong>
+                    <strong><span class="badge bg-success fs-5" id="putraTahfidzTotal">0</span></strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Putri -->
+            <div class="col-md-4">
+              <div class="card">
+                <div class="card-header" style="background:var(--danger-gradient)">
+                  <h5 class="mb-0 text-white"><i class="bi bi-person-hearts"></i> Pondok Putri</h5>
+                </div>
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <span>MTs (Tsanawiyah)</span>
+                    <span class="badge bg-info fs-6" id="putriMts">0</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <span>MA (Aliyah)</span>
+                    <span class="badge bg-info fs-6" id="putriMa">0</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <span>Kuliah</span>
+                    <span class="badge bg-info fs-6" id="putriKuliah">0</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                    <strong>Total Pendaftar</strong>
+                    <strong><span class="badge bg-danger fs-5" id="putriTotal">0</span></strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hanya Sekolah -->
+            <div class="col-md-4">
+              <div class="card">
+                <div class="card-header" style="background:linear-gradient(135deg,#ffa726 0%,#fb8c00 100%)">
+                  <h5 class="mb-0 text-white"><i class="bi bi-mortarboard-fill"></i> Hanya Sekolah</h5>
+                </div>
+                <div class="card-body">
+                  <h6 class="mb-3" style="color:#2a5298;font-weight:600"><i class="bi bi-book"></i> MTs (Tsanawiyah)</h6>
+                  <div class="d-flex justify-content-between align-items-center mb-2 ps-3">
+                    <span style="color:#495057;font-weight:500"><i class="bi bi-gender-male text-primary"></i> Laki-laki</span>
+                    <span class="badge bg-primary" id="hanyaSekolahMtsL">0</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom ps-3">
+                    <span style="color:#495057;font-weight:500"><i class="bi bi-gender-female text-danger"></i> Perempuan</span>
+                    <span class="badge bg-danger" id="hanyaSekolahMtsP">0</span>
+                  </div>
+
+                  <h6 class="mb-3" style="color:#2a5298;font-weight:600"><i class="bi bi-book-half"></i> MA (Aliyah)</h6>
+                  <div class="d-flex justify-content-between align-items-center mb-2 ps-3">
+                    <span style="color:#495057;font-weight:500"><i class="bi bi-gender-male text-primary"></i> Laki-laki</span>
+                    <span class="badge bg-primary" id="hanyaSekolahMaL">0</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom ps-3">
+                    <span style="color:#495057;font-weight:500"><i class="bi bi-gender-female text-danger"></i> Perempuan</span>
+                    <span class="badge bg-danger" id="hanyaSekolahMaP">0</span>
+                  </div>
+
+                  <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                    <strong style="color:#2a5298">Total Pendaftar</strong>
+                    <strong><span class="badge bg-warning text-dark fs-5" id="hanyaSekolahTotal">0</span></strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Pembayaran -->
+        <div id="tab-pembayaran" class="tab-content" style="display:none">
+          <div class="page-header d-flex justify-content-between align-items-center">
+            <div>
+              <h2><i class="bi bi-credit-card-fill"></i> Data Pembayaran</h2>
+              <p>Kelola data pembayaran dan verifikasi
+                <span class="badge bg-success ms-2"><i class="bi bi-arrow-repeat"></i> Auto Refresh 30s</span>
+              </p>
+            </div>
+            <span id="updateTimePembayaran" class="badge bg-info text-dark">
+              <i class="bi bi-clock-history"></i> Data update: -
+            </span>
+          </div>
+
+          <div class="row mb-4 g-3">
+            <div class="col-md-3">
+              <div class="card stat-card warning">
+                <div class="card-body">
+                  <div class="icon-box"><i class="bi bi-hourglass-split"></i></div>
+                  <h6>Pending</h6>
+                  <h3 id="statPending">0</h3>
+                  <small><i class="bi bi-clock"></i> Menunggu verifikasi</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card stat-card success">
+                <div class="card-body">
+                  <div class="icon-box"><i class="bi bi-check-circle-fill"></i></div>
+                  <h6>Verified</h6>
+                  <h3 id="statVerified">0</h3>
+                  <small><i class="bi bi-shield-check"></i> Terverifikasi</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card stat-card danger">
+                <div class="card-body">
+                  <div class="icon-box"><i class="bi bi-x-circle-fill"></i></div>
+                  <h6>Rejected</h6>
+                  <h3 id="statRejected">0</h3>
+                  <small><i class="bi bi-exclamation-triangle"></i> Ditolak</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card stat-card primary">
+                <div class="card-body">
+                  <div class="icon-box"><i class="bi bi-currency-dollar"></i></div>
+                  <h6>Total Revenue</h6>
+                  <h3 class="mb-0" id="statRevenue">Rp 0</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      <th>Nomor Pembayaran</th>
+                      <th>Nomor Registrasi</th>
+                      <th>Nama Lengkap</th>
+                      <th>Jumlah</th>
+                      <th>Status</th>
+                      <th>Tanggal Upload</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pembayaranTableBody">
+                    <tr>
+                      <td colspan="8" class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                          <span class="visually-hidden">Loading...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal: Detail Pendaftar -->
+  <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-person-badge"></i> Detail Pendaftar</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <div id="detailContent"><!-- populated by JS --></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Verifikasi Pendaftar -->
+  <div class="modal fade" id="verifikasiModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="verifikasiModalTitle">Verifikasi Pendaftar</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <form id="verifikasiForm">
+            <input type="hidden" id="verifikasi-id"/>
+            <input type="hidden" id="verifikasi-status"/>
+
+            <div class="mb-3">
+              <label class="form-label">Status Verifikasi</label>
+              <input type="text" class="form-control" id="verifikasi-status-display" readonly/>
+            </div>
+
+            <div class="mb-3" id="catatanContainer">
+              <label class="form-label" id="catatanLabel">Catatan</label>
+              <textarea class="form-control" id="verifikasi-catatan" rows="4" placeholder="Masukkan catatan..."></textarea>
+              <small class="text-muted">Opsional: Berikan alasan atau catatan untuk keputusan ini</small>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-primary" onclick="confirmVerifikasi()" id="btnConfirmVerifikasi">Konfirmasi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Detail Pembayaran -->
+  <div class="modal fade" id="detailPembayaranModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-credit-card"></i> Detail Pembayaran</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <table class="table table-borderless">
+                <tr><th width="40%">Nomor Pembayaran:</th><td id="detail-nomor-pembayaran"></td></tr>
+                <tr><th>Nomor Registrasi:</th><td id="detail-nomor-registrasi"></td></tr>
+                <tr><th>Nama Lengkap:</th><td id="detail-nama-lengkap"></td></tr>
+                <tr><th>Jumlah:</th><td id="detail-jumlah"></td></tr>
+                <tr><th>Metode:</th><td id="detail-metode"></td></tr>
+                <tr><th>Status:</th><td id="detail-status"></td></tr>
+                <tr><th>Tanggal Upload:</th><td id="detail-tanggal-upload"></td></tr>
+                <tr><th>Tanggal Verifikasi:</th><td id="detail-tanggal-verifikasi"></td></tr>
+                <tr><th>Verified By:</th><td id="detail-verified-by"></td></tr>
+                <tr><th>Catatan Admin:</th><td id="detail-catatan-admin"></td></tr>
+              </table>
+            </div>
+            <div class="col-md-6">
+              <h6 class="mb-3">Bukti Pembayaran:</h6>
+              <div class="text-center">
+                <img id="detail-bukti-img" src="" alt="Bukti Pembayaran" class="img-fluid rounded shadow"
+                     style="max-height:400px;cursor:pointer" onclick="window.open(this.src,'_blank')"/>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kembali</button>
+          <button type="button" class="btn btn-success" onclick="openVerifikasiPembayaran('VERIFIED')" id="btnVerifyPayment">
+            <i class="bi bi-check-circle"></i> Terima
+          </button>
+          <button type="button" class="btn btn-danger" onclick="openVerifikasiPembayaran('REJECTED')" id="btnRejectPayment">
+            <i class="bi bi-x-circle"></i> Tolak
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Konfirmasi Verifikasi Pembayaran -->
+  <div class="modal fade" id="verifikasiPembayaranModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="verifikasiPembayaranTitle">Konfirmasi Verifikasi</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="verify-nomor-pembayaran"/>
+          <input type="hidden" id="verify-status"/>
+
+          <div class="mb-3">
+            <label class="form-label">Catatan Admin:</label>
+            <textarea class="form-control" id="verify-catatan" rows="3" placeholder="Masukkan catatan (opsional)"></textarea>
+          </div>
+
+          <div class="alert" id="verify-alert" role="alert" style="display:none"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-primary" onclick="confirmVerifikasiPembayaran()" id="btnConfirmVerifyPayment">Konfirmasi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS & App Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/assets/js/admin.js" defer></script>
+  <script src="/assets/js/admin-content.js" defer></script>
+</body>
+</html>

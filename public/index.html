@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="csrf-token" content="{{CSRF_TOKEN}}" />
+  <meta name="description" content="PPDB Pondok Pesantren Al Ikhsan Beji. Daftar santri baru tahun ajaran 2026/2027. Pendidikan diniyah & formal berlandaskan akhlak dan adab." />
+  <meta name="keywords" content="PPDB, Penerimaan Santri Baru, Pondok Pesantren Al Ikhsan Beji, pendaftaran santri, pesantren, Banyumas, Beji" />
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <!-- TODO: Ganti favicon/logo di bawah dengan aset milik pesantren -->
+  <link rel="icon" href="/assets/img/favicon.png" />
+
+  <title>Beranda - PPDB Pondok Pesantren Al Ikhsan Beji</title>
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Optional: Tailwind config tweak
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              300: '#6ee7b7',
+              400: '#34d399',
+              500: '#10b981', // emerald
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+  <!-- Choices.js / Flatpickr / Toastify (opsional, kompatibel dgn snippet lama) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --tw-font-sans: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+    }
+    html, body { font-family: var(--tw-font-sans); }
+    [x-cloak] { display: none !important; }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col bg-white text-gray-800">
+  <!-- NAVBAR -->
+  <nav class="bg-white shadow-lg sticky top-0 z-50" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo -->
+        <div class="flex-shrink-0 flex items-center">
+          <a href="/" class="flex items-center">
+            <!-- TODO: ganti src logo -->
+            <img src="/assets/img/logo-alikhsan.png" alt="Logo Al Ikhsan Beji" class="h-10 w-auto" />
+            <span class="ml-2 text-sm sm:text-xl font-bold text-gray-800">Pondok Pesantren Al Ikhsan Beji</span>
+          </a>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <div class="hidden md:block">
+          <div class="flex items-baseline space-x-4">
+            <a href="/" class="text-brand-700 px-3 py-2 rounded-md text-sm font-medium">Beranda</a>
+
+            <!-- Dropdown Informasi -->
+            <div class="relative" @mouseleave="profileDropdownOpen=false">
+              <button @click="profileDropdownOpen=!profileDropdownOpen" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                Informasi
+                <i class="bi bi-caret-down-fill ml-1 text-xs" :class="{'rotate-180': profileDropdownOpen}"></i>
+              </button>
+              <div x-cloak x-show="profileDropdownOpen" x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100">
+                <a href="/alur-pendaftaran" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Alur Pendaftaran</a>
+                <a href="/syarat-pendaftaran" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Syarat Pendaftaran</a>
+                <a href="/biaya" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Biaya</a>
+              </div>
+            </div>
+
+            <a href="#" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Brosur</a>
+            <a href="/kontak" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Kontak</a>
+          </div>
+        </div>
+
+        <!-- CTA Button Desktop -->
+        <div class="hidden md:block">
+          <a href="/login" class="bg-brand-700 hover:bg-brand-800 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg">Admin</a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <div class="md:hidden">
+          <button @click="mobileMenuOpen=!mobileMenuOpen" class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-brand-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <i class="bi" :class="mobileMenuOpen ? 'bi-x-lg' : 'bi-list'"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Backdrop -->
+    <div x-cloak x-show="mobileMenuOpen" @click="mobileMenuOpen=false" class="md:hidden fixed inset-0 z-40 bg-black/50"></div>
+
+    <!-- Mobile Menu -->
+    <div x-cloak x-show="mobileMenuOpen" x-transition class="md:hidden fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-xl border-r border-gray-200 overflow-y-auto">
+      <div class="flex items-center justify-between p-4 border-b border-gray-200">
+        <div class="flex items-center">
+          <img src="/assets/img/logo-alikhsan.png" alt="Logo Al Ikhsan Beji" class="h-8 w-auto" />
+          <span class="ml-2 text-base font-bold text-gray-800">PP. Al Ikhsan Beji</span>
+        </div>
+        <button @click="mobileMenuOpen=false" class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      <div class="px-2 pt-4 pb-3 space-y-1">
+        <a href="/" class="bg-brand-100 text-brand-700 block px-3 py-2 rounded-md text-base font-medium">Beranda</a>
+
+        <details class="px-1">
+          <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium">Informasi</summary>
+          <div class="pl-6 space-y-1 mt-2">
+            <a href="/alur-pendaftaran" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Alur Pendaftaran</a>
+            <a href="/syarat-pendaftaran" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Syarat Pendaftaran</a>
+            <a href="/biaya" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Biaya</a>
+          </div>
+        </details>
+
+        <a href="#" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50">Brosur</a>
+        <a href="/kontak" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50">Kontak</a>
+
+        <div class="pt-4 pb-2 px-2">
+          <a href="/login" class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center">Masuk</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="flex-1">
+    <!-- HERO -->
+    <section class="relative bg-gradient-to-br from-brand-800 to-brand-900 min-h-[50vh] flex items-center overflow-hidden">
+      <!-- Background Pattern / Banner -->
+      <div class="absolute inset-0 opacity-10 z-10">
+        <!-- TODO: ganti banner -->
+        <div class="absolute inset-0 bg-center bg-cover" style="background-image:url('/assets/img/banner.webp');"></div>
+      </div>
+
+      <!-- Content -->
+      <div class="relative z-20 container mx-auto px-4">
+        <div class="flex justify-center">
+          <div class="w-full lg:w-5/6 text-center">
+            <div class="inline-flex items-center bg-white text-brand-700 mb-3 px-5 py-1 rounded-lg font-medium">
+              <i class="bi bi-calendar-event mr-2"></i> Tahun Ajaran 2026/2027
+            </div>
+            <h1 class="text-4xl lg:text-6xl font-bold text-white mb-4 leading-tight">
+              <span class="text-yellow-400">Penerimaan Peserta Didik Baru</span><br/>
+              (PPDB) Pondok Pesantren Al Ikhsan Beji
+            </h1>
+            <p class="text-lg lg:text-xl text-gray-200 mb-4">
+              Bergabunglah menjadi santri Al Ikhsan Beji. Pendidikan diniyah & formal berlandaskan Al-Qur'an dan Sunnah dengan pembinaan akhlak dan adab.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+              <a href="/daftar.html" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-brand-900 font-semibold px-6 py-3 rounded-lg shadow">Daftar Sekarang</a>
+              <a href="/cek-status.html" class="inline-block bg-white/10 hover:bg-white/20 border border-white/30 text-white font-medium px-6 py-3 rounded-lg">Cek Status</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY SECTION -->
+    <section class="py-12">
+      <div class="container mx-auto px-4">
+        <div class="flex justify-center mb-12">
+          <div class="w-full lg:w-2/3 text-center">
+            <h2 class="text-3xl lg:text-5xl font-bold mb-3">Mengapa Memilih Al Ikhsan Beji?</h2>
+            <p class="text-lg text-gray-600">Pendidikan menyeluruh: diniyah, sains, karakter, dan kemandirian.</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+            <div class="w-20 h-20 bg-gradient-to-br from-brand-800 to-brand-900 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="bi bi-journal-text text-white text-2xl"></i>
+            </div>
+            <h3 class="text-center mb-3 text-xl font-semibold">Kurikulum Terintegrasi</h3>
+            <p class="text-center text-gray-600">Diniyah & formal terstruktur untuk membentuk pemahaman agama dan akademik yang kuat.</p>
+          </div>
+          <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+            <div class="w-20 h-20 bg-gradient-to-br from-brand-800 to-brand-900 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="bi bi-heart text-white text-2xl"></i>
+            </div>
+            <h3 class="text-center mb-3 text-xl font-semibold">Pembinaan Akhlak & Adab</h3>
+            <p class="text-center text-gray-600">Pendampingan harian untuk membentuk karakter yang santun, disiplin, dan mandiri.</p>
+          </div>
+          <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+            <div class="w-20 h-20 bg-gradient-to-br from-brand-800 to-brand-900 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="bi bi-buildings text-white text-2xl"></i>
+            </div>
+            <h3 class="text-center mb-3 text-xl font-semibold">Asrama & Fasilitas Nyaman</h3>
+            <p class="text-center text-gray-600">Lingkungan kondusif dengan sarana ibadah, belajar, dan olahraga.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GELOMBANG PENDAFTARAN -->
+    <section class="py-12 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <div class="flex justify-center mb-12">
+          <div class="w-full lg:w-2/3 text-center">
+            <h2 class="text-3xl lg:text-4xl font-bold mb-3 text-gray-800">Gelombang Pendaftaran</h2>
+            <p class="text-lg text-gray-600">Pilih gelombang sesuai jadwal keluarga Anda.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <!-- Gelombang 1 -->
+          <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-green-200 relative overflow-hidden">
+            <div class="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 rounded-bl-lg text-sm font-semibold">Aktif</div>
+            <div class="text-center">
+              <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-1-circle text-white text-2xl"></i>
+              </div>
+              <h3 class="text-xl font-bold mb-2 text-gray-800">Gelombang 1</h3>
+              <div class="space-y-2 mb-4">
+                <div class="flex items-center justify-center text-gray-600">
+                  <i class="bi bi-calendar-event mr-2 text-green-500"></i>
+                  <span class="text-sm">01 Oktober 2025 - 31 Desember 2025</span>
+                </div>
+                <div class="flex items-center justify-center text-gray-600">
+                  <i class="bi bi-mortarboard mr-2 text-green-500"></i>
+                  <span class="text-sm font-semibold">T.A. 2026/2027</span>
+                </div>
+              </div>
+              <div class="bg-green-50 rounded-lg p-3 mb-4">
+                <p class="text-sm text-green-700 font-medium">Pendaftaran Dibuka</p>
+              </div>
+              <a href="/daftar.html" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg inline-block text-center">Daftar Sekarang</a>
+            </div>
+          </div>
+
+          <!-- Gelombang 2 -->
+          <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-blue-200 relative overflow-hidden">
+            <div class="absolute top-0 right-0 bg-blue-500 text-white px-3 py-1 rounded-bl-lg text-sm font-semibold">Segera</div>
+            <div class="text-center">
+              <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-2-circle text-white text-2xl"></i>
+              </div>
+              <h3 class="text-xl font-bold mb-2 text-gray-800">Gelombang 2</h3>
+              <div class="space-y-2 mb-4">
+                <div class="flex items-center justify-center text-gray-600">
+                  <i class="bi bi-calendar-event mr-2 text-blue-500"></i>
+                  <span class="text-sm">01 Januari 2026 - 31 Maret 2026</span>
+                </div>
+                <div class="flex items-center justify-center text-gray-600">
+                  <i class="bi bi-mortarboard mr-2 text-blue-500"></i>
+                  <span class="text-sm font-semibold">T.A. 2026/2027</span>
+                </div>
+              </div>
+              <div class="bg-blue-50 rounded-lg p-3 mb-4">
+                <p class="text-sm text-blue-700 font-medium">Segera Dibuka</p>
+              </div>
+              <button class="w-full bg-gray-300 text-gray-500 cursor-not-allowed font-semibold py-2 px-4 rounded-lg" disabled>Belum Dibuka</button>
+            </div>
+          </div>
+
+          <!-- Gelombang 3 -->
+          <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-blue-200 relative overflow-hidden">
+            <div class="absolute top-0 right-0 bg-blue-500 text-white px-3 py-1 rounded-bl-lg text-sm font-semibold">Segera</div>
+            <div class="text-center">
+              <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-3-circle text-white text-2xl"></i>
+              </div>
+              <h3 class="text-xl font-bold mb-2 text-gray-800">Gelombang 3</h3>
+              <div class="space-y-2 mb-4">
+                <div class="flex items-center justify-center text-gray-600">
+                  <i class="bi bi-calendar-event mr-2 text-blue-500"></i>
+                  <span class="text-sm">01 April 2026 - 31 Mei 2026</span>
+                </div>
+                <div class="flex items-center justify-center text-gray-600">
+                  <i class="bi bi-mortarboard mr-2 text-blue-500"></i>
+                  <span class="text-sm font-semibold">T.A. 2026/2027</span>
+                </div>
+              </div>
+              <div class="bg-blue-50 rounded-lg p-3 mb-4">
+                <p class="text-sm text-blue-700 font-medium">Segera Dibuka</p>
+              </div>
+              <button class="w-full bg-gray-300 text-gray-500 cursor-not-allowed font-semibold py-2 px-4 rounded-lg" disabled>Belum Dibuka</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white text-gray-600 py-6 shadow-2xl border-t border-gray-200 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <p class="text-sm">&copy; 2025 Pondok Pesantren Al Ikhsan Beji. All rights reserved. <span class="hidden sm:inline">Development by Tim IT Pesantren</span></p>
+    </div>
+  </footer>
+
+  <!-- WhatsApp Widget (Floating) -->
+  <!-- TODO: Ganti nomor WA di href sesuai kontak resmi pesantren -->
+  <div class="fixed bottom-6 right-6 z-50">
+    <a
+      href="https://wa.me/6281218768593?text=Assalamualaikum,%20saya%20ingin%20menanyakan%20informasi%20PPDB%20Pondok%20Pesantren%20Al%20Ikhsan%20Beji"
+      target="_blank"
+      class="flex items-center bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl px-4 py-3">
+      <div class="flex items-center justify-center w-8 h-8 mr-3">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.515" />
+        </svg>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-sm font-semibold">Butuh Bantuan?</span>
+        <span class="text-xs">Chat Admin PPDB Al Ikhsan</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- Vendors JS (optional) -->
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script>
+    // Shim toastr -> toastify agar kompatibel dgn snippet lama
+    window.toastr = {
+      success(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#10b981', color: '#fff' }}).showToast(); },
+      error(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#ef4444', color: '#fff' }}).showToast(); },
+      warning(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#f59e0b', color: '#fff' }}).showToast(); },
+      info(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#3b82f6', color: '#fff' }}).showToast(); }
+    }
+  </script>
+
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</body>
+</html>

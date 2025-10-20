@@ -1,0 +1,2015 @@
+
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>Formulir Pendaftaran</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    />
+    <link href="/assets/css/styles.css" rel="stylesheet" />
+  </head>
+  <body class="bg-light">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky top-0 z-50" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
+      <div class="container">
+        <a class="navbar-brand text-dark fw-bold" href="/">Pendaftaran Al Ikhsan Beji</a>
+        <a class="btn btn-light" style="color: black;" href="/">Kembali</a>
+      </div>
+    </nav>
+
+    <div class="container py-4" style="color: #064e3b;">
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <div class="card shadow border-0">
+            <div class="card-body p-4 p-md-5">
+              <h1 class="mb-4 text-center" style="color: #0f9d58">
+                Formulir Pendaftaran
+              </h1>
+              <p class="text-center text-muted mb-4">
+                Silakan isi formulir di bawah ini dengan lengkap dan benar
+              </p>
+
+              <form id="formPendaftar" class="needs-validation" novalidate>
+                <div class="row g-3">
+                  <!-- Data Pribadi -->
+                  <div class="col-12">
+                    <h5 class="border-bottom pb-2 mb-3">
+                      Data Pribadi Calon Santri
+                    </h5>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >NIK Calon Santri
+                      <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="nikCalon"
+                      required
+                      maxlength="16"
+                      pattern="[0-9]{16}"
+                    />
+                    <div class="form-text">16 digit</div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >Nomor KK <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="kkNo"
+                      required
+                      maxlength="16"
+                      pattern="[0-9]{16}"
+                    />
+                    <div class="form-text">16 digit</div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >NISN <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="nisn"
+                      maxlength="10"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >Nama Lengkap <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="namaLengkap"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-md-3">
+                    <label class="form-label"
+                      >Provinsi Tempat Lahir
+                      <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-select"
+                      id="provinsiTempatLahir"
+                      name="provinsiTempatLahir"
+                      required
+                    >
+                      <option value="">Pilih Provinsi...</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-3">
+                    <label class="form-label"
+                      >Kota/Kab Tempat Lahir
+                      <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-select"
+                      id="tempatLahir"
+                      name="tempatLahir"
+                      required
+                      disabled
+                    >
+                      <option value="">Pilih Provinsi Dulu...</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-3">
+                    <label class="form-label"
+                      >Tanggal Lahir <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="date"
+                      class="form-control"
+                      name="tanggalLahir"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-md-3">
+                    <label class="form-label"
+                      >Jenis Kelamin <span class="text-danger">*</span></label
+                    >
+                    <select class="form-select" name="jenisKelamin" required>
+                      <option value="">Pilih...</option>
+                      <option value="L">Laki-laki</option>
+                      <option value="P">Perempuan</option>
+                    </select>
+                  </div>
+
+                  <!-- Alamat -->
+                  <div class="col-12 mt-4">
+                    <h5 class="border-bottom pb-2 mb-3">Alamat</h5>
+                  </div>
+
+                  <div class="col-12">
+                    <label class="form-label"
+                      >Alamat Jalan <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="alamatJalan"
+                      placeholder="Contoh: Jl. Merdeka No. 123"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >Provinsi <span class="text-danger">*</span></label
+                    >
+                    <select class="form-select" id="provinsiAlamat" required>
+                      <option value="">Pilih Provinsi...</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >Kota/Kabupaten <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-select"
+                      id="kotaAlamat"
+                      required
+                      disabled
+                    >
+                      <option value="">Pilih Provinsi Dulu...</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >Kecamatan <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-select"
+                      id="kecamatanAlamat"
+                      required
+                      disabled
+                    >
+                      <option value="">Pilih Kota Dulu...</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >Desa/Kelurahan <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-select"
+                      id="desaAlamat"
+                      name="desa"
+                      required
+                      disabled
+                    >
+                      <option value="">Pilih Kecamatan Dulu...</option>
+                    </select>
+                  </div>
+
+                  <!-- Pendidikan -->
+                  <div class="col-12 mt-4">
+                    <h5 class="border-bottom pb-2 mb-3">
+                      Pendidikan & Rencana
+                    </h5>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >Ijazah Formal Terakhir
+                      <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-select"
+                      name="ijazahFormalTerakhir"
+                      required
+                    >
+                      <option value="">Pilih...</option>
+                      <option value="SD">SD/MI</option>
+                      <option value="SMP">SMP/MTs</option>
+                      <option value="SMA">SMA/MA</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >Tingkat Pendidikan <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-select"
+                      id="rencanaTingkat"
+                      name="rencanaTingkat"
+                      required
+                      onchange="handleTingkatChange()"
+                    >
+                      <option value="">Pilih...</option>
+                      <option value="MTs">MTs (Tsanawiyah)</option>
+                      <option value="MA">MA (Aliyah)</option>
+                      <option value="Kuliah">Kuliah</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >Jenis Asrama <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-select"
+                      id="rencanaProgram"
+                      name="rencanaProgram"
+                      required
+                    >
+                      <option value="">Pilih...</option>
+                      <option value="Asrama Putra Induk">
+                        Asrama Putra Induk
+                      </option>
+                      <option value="Asrama Putra Tahfidz">
+                        Asrama Putra Tahfidz
+                      </option>
+                      <option value="Asrama Putri">Asrama Putri</option>
+                      <option value="Hanya Sekolah" id="optionHanyaSekolah">
+                        Non Asrama
+                      </option>
+                    </select>
+                  </div>
+
+                  <!-- Data Orang Tua -->
+                  <div class="col-12 mt-4">
+                    <h5 class="border-bottom pb-2 mb-3">Data Orang Tua</h5>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >Nama Ayah <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="namaAyah"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >NIK Ayah <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="nikAyah"
+                      required
+                      maxlength="16"
+                      pattern="[0-9]{16}"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >Status Ayah <span class="text-danger">*</span></label
+                    >
+                    <select class="form-select" name="statusAyah" required>
+                      <option value="">Pilih...</option>
+                      <option value="Hidup">Hidup</option>
+                      <option value="Meninggal">Meninggal</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >Pekerjaan Ayah <span class="text-danger">*</span></label
+                    >
+                    <select class="form-select" name="pekerjaanAyah" required>
+                      <option value="">Pilih...</option>
+                      <option value="PNS">PNS</option>
+                      <option value="TNI/Polri">TNI/Polri</option>
+                      <option value="Guru/Dosen">Guru/Dosen</option>
+                      <option value="Pegawai Swasta">Pegawai Swasta</option>
+                      <option value="Wiraswasta">Wiraswasta</option>
+                      <option value="Petani">Petani</option>
+                      <option value="Nelayan">Nelayan</option>
+                      <option value="Pedagang">Pedagang</option>
+                      <option value="Buruh">Buruh</option>
+                      <option value="Sopir">Sopir</option>
+                      <option value="Tukang">Tukang</option>
+                      <option value="Pensiunan">Pensiunan</option>
+                      <option value="Tidak Bekerja">Tidak Bekerja</option>
+                      <option value="Lainnya">Lainnya</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >Nama Ibu <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="namaIbu"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >NIK Ibu <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="nikIbu"
+                      required
+                      maxlength="16"
+                      pattern="[0-9]{16}"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >Status Ibu <span class="text-danger">*</span></label
+                    >
+                    <select class="form-select" name="statusIbu" required>
+                      <option value="">Pilih...</option>
+                      <option value="Hidup">Hidup</option>
+                      <option value="Meninggal">Meninggal</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >Pekerjaan Ibu <span class="text-danger">*</span></label
+                    >
+                    <select class="form-select" name="pekerjaanIbu" required>
+                      <option value="">Pilih...</option>
+                      <option value="PNS">PNS</option>
+                      <option value="TNI/Polri">TNI/Polri</option>
+                      <option value="Guru/Dosen">Guru/Dosen</option>
+                      <option value="Pegawai Swasta">Pegawai Swasta</option>
+                      <option value="Wiraswasta">Wiraswasta</option>
+                      <option value="Petani">Petani</option>
+                      <option value="Pedagang">Pedagang</option>
+                      <option value="Ibu Rumah Tangga">Ibu Rumah Tangga</option>
+                      <option value="Buruh">Buruh</option>
+                      <option value="Pensiunan">Pensiunan</option>
+                      <option value="Tidak Bekerja">Tidak Bekerja</option>
+                      <option value="Lainnya">Lainnya</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label"
+                      >No Telepon Orang Tua
+                      <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="tel"
+                      class="form-control"
+                      name="teleponOrtu"
+                      required
+                    />
+                  </div>
+
+                  <!-- Upload Berkas -->
+                  <div class="col-12 mt-4">
+                    <h5 class="border-bottom pb-2 mb-3">
+                      <i class="bi bi-file-earmark-arrow-up"></i> Upload Berkas
+                      (Opsional)
+                    </h5>
+                    <p class="text-muted small">
+                      Format: PDF, JPG, PNG. Maksimal 2MB per file.
+                    </p>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">
+                      <i class="bi bi-file-pdf"></i> Scan Ijazah Terakhir
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="file"
+                      class="form-control"
+                      name="fileIjazah"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      required
+                    />
+                    <small class="text-muted"
+                      >PDF, JPG, atau PNG (max 2MB)</small
+                    >
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">
+                      <i class="bi bi-file-pdf"></i> Scan Kartu Keluarga (KK)
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="file"
+                      class="form-control"
+                      name="fileKK"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      required
+                    />
+                    <small class="text-muted"
+                      >PDF, JPG, atau PNG (max 2MB)</small
+                    >
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">
+                      <i class="bi bi-file-pdf"></i> Scan Akta Kelahiran
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="file"
+                      class="form-control"
+                      name="fileAkta"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      required
+                    />
+                    <small class="text-muted"
+                      >PDF, JPG, atau PNG (max 2MB)</small
+                    >
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">
+                      <i class="bi bi-image"></i> Pas Foto 3x4
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="file"
+                      class="form-control"
+                      name="fileFoto"
+                      accept=".jpg,.jpeg,.png"
+                      required
+                    />
+                    <small class="text-muted">JPG atau PNG (max 2MB)</small>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">
+                      <i class="bi bi-file-medical"></i> Scan Kartu BPJS
+                    </label>
+                    <input
+                      type="file"
+                      class="form-control"
+                      name="fileBpjs"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                    />
+                    <small class="text-muted"
+                      >PDF, JPG, atau PNG (max 2MB) - Opsional</small
+                    >
+                  </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                  <button
+                    class="btn btn-lg px-5"
+                    type="button"
+                    onclick="showKonfirmasi()"
+                    style="background: #0f9d58; color: white"
+                  >
+                    <i class="bi bi-check-circle"></i> Lanjut ke Konfirmasi
+                  </button>
+                  <a href="/" class="btn btn-danger btn-lg"
+                    ><i class="bi bi-arrow-left"></i> Kembali</a
+                  >
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Sukses -->
+    <div
+      class="modal fade"
+      id="suksesModal"
+      tabindex="-1"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title">
+              <i class="bi bi-check-circle-fill"></i> Pendaftaran Berhasil!
+            </h5>
+          </div>
+          <div class="modal-body text-center py-4">
+            <div class="mb-4">
+              <i
+                class="bi bi-check-circle-fill text-success"
+                style="font-size: 5rem"
+              ></i>
+            </div>
+            <h4 class="mb-3">🎉 Selamat!</h4>
+            <p class="mb-2">Pendaftaran Anda telah berhasil disimpan.</p>
+            <div class="alert alert-info">
+              <strong>Nomor Registrasi Anda:</strong><br />
+              <h3 class="text-primary mb-2" id="regNo"></h3>
+              <button
+                class="btn btn-sm btn-outline-primary"
+                id="btnSalinReg"
+                onclick="salinNomorRegistrasi()"
+              >
+                <i class="bi bi-clipboard"></i> Salin Nomor Registrasi
+              </button>
+            </div>
+            <p class="text-muted small">
+              <i class="bi bi-info-circle"></i> Simpan nomor registrasi ini
+              untuk tracking status pendaftaran Anda.
+            </p>
+          </div>
+          <div class="modal-footer justify-content-center">
+            <a href="/cek-status.html" class="btn btn-success btn-lg">
+              <i class="bi bi-search"></i> Cek Status Pendaftaran
+            </a>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+              onclick="window.location.reload()"
+            >
+              <i class="bi bi-arrow-clockwise"></i> Daftar Lagi
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Konfirmasi -->
+    <div
+      class="modal fade"
+      id="konfirmasiModal"
+      tabindex="-1"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title">
+              <i class="bi bi-clipboard-check"></i> Konfirmasi Data Pendaftaran
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle"></i>
+              <strong>Perhatian!</strong> Pastikan semua data sudah benar
+              sebelum mengirim. Periksa kembali data Anda di bawah ini.
+            </div>
+            <div id="konfirmasiContent"></div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              <i class="bi bi-pencil"></i> Edit Data
+            </button>
+            <button
+              type="button"
+              class="btn btn-success btn-lg"
+              onclick="submitFinal()"
+            >
+              <i class="bi bi-send"></i> Ya, Kirim Pendaftaran
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+      <div class="container text-center">
+        <p class="mb-0">&copy; 2025 Pondok Pesantren. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const form = document.getElementById("formPendaftar");
+      let formDataGlobal = null;
+
+      // Fungsi untuk mengontrol pilihan Rencana Program berdasarkan Rencana Tingkat
+      function handleTingkatChange() {
+        const tingkatSelect = document.getElementById("rencanaTingkat");
+        const programSelect = document.getElementById("rencanaProgram");
+        const hanyaSekolahOption =
+          document.getElementById("optionHanyaSekolah");
+
+        if (tingkatSelect.value === "Kuliah") {
+          // Jika pilih Kuliah, disable dan reset jika memilih Hanya Sekolah
+          hanyaSekolahOption.disabled = true;
+          hanyaSekolahOption.style.display = "none";
+
+          // Reset jika sudah memilih Hanya Sekolah
+          if (programSelect.value === "Hanya Sekolah") {
+            programSelect.value = "";
+          }
+        } else {
+          // Jika pilih MTs atau MA, enable Hanya Sekolah
+          hanyaSekolahOption.disabled = false;
+          hanyaSekolahOption.style.display = "block";
+        }
+      }
+
+      // Data wilayah Indonesia (provinsi dan kota/kabupaten)
+      const wilayahIndonesia = {
+        Aceh: [
+          "Banda Aceh",
+          "Sabang",
+          "Lhokseumawe",
+          "Langsa",
+          "Aceh Besar",
+          "Aceh Barat",
+          "Aceh Selatan",
+          "Aceh Tengah",
+          "Aceh Timur",
+          "Aceh Utara",
+        ],
+        "Sumatera Utara": [
+          "Medan",
+          "Binjai",
+          "Pematang Siantar",
+          "Tebing Tinggi",
+          "Tanjung Balai",
+          "Deli Serdang",
+          "Karo",
+          "Labuhanbatu",
+          "Simalungun",
+          "Tapanuli Utara",
+        ],
+        "Sumatera Barat": [
+          "Padang",
+          "Bukittinggi",
+          "Padang Panjang",
+          "Payakumbuh",
+          "Solok",
+          "Agam",
+          "Lima Puluh Kota",
+          "Pasaman",
+          "Sijunjung",
+          "Tanah Datar",
+        ],
+        Riau: [
+          "Pekanbaru",
+          "Dumai",
+          "Bengkalis",
+          "Indragiri Hilir",
+          "Kampar",
+          "Pelalawan",
+          "Rokan Hilir",
+          "Rokan Hulu",
+          "Siak",
+          "Kuantan Singingi",
+        ],
+        "Kepulauan Riau": [
+          "Batam",
+          "Tanjung Pinang",
+          "Bintan",
+          "Karimun",
+          "Lingga",
+          "Natuna",
+          "Kepulauan Anambas",
+        ],
+        Jambi: [
+          "Jambi",
+          "Sungai Penuh",
+          "Batang Hari",
+          "Bungo",
+          "Kerinci",
+          "Merangin",
+          "Muaro Jambi",
+          "Sarolangun",
+          "Tanjung Jabung Barat",
+          "Tanjung Jabung Timur",
+          "Tebo",
+        ],
+        "Sumatera Selatan": [
+          "Palembang",
+          "Lubuklinggau",
+          "Pagar Alam",
+          "Prabumulih",
+          "Banyuasin",
+          "Empat Lawang",
+          "Lahat",
+          "Muara Enim",
+          "Musi Banyuasin",
+          "Ogan Ilir",
+          "Ogan Komering Ilir",
+          "Ogan Komering Ulu",
+        ],
+        "Bangka Belitung": [
+          "Pangkal Pinang",
+          "Bangka",
+          "Bangka Barat",
+          "Bangka Selatan",
+          "Bangka Tengah",
+          "Belitung",
+          "Belitung Timur",
+        ],
+        Bengkulu: [
+          "Bengkulu",
+          "Bengkulu Selatan",
+          "Bengkulu Tengah",
+          "Bengkulu Utara",
+          "Kaur",
+          "Kepahiang",
+          "Lebong",
+          "Mukomuko",
+          "Rejang Lebong",
+          "Seluma",
+        ],
+        Lampung: [
+          "Bandar Lampung",
+          "Metro",
+          "Lampung Barat",
+          "Lampung Selatan",
+          "Lampung Tengah",
+          "Lampung Timur",
+          "Lampung Utara",
+          "Pesawaran",
+          "Pringsewu",
+          "Tanggamus",
+          "Tulang Bawang",
+          "Way Kanan",
+        ],
+        "DKI Jakarta": [
+          "Jakarta Pusat",
+          "Jakarta Utara",
+          "Jakarta Barat",
+          "Jakarta Selatan",
+          "Jakarta Timur",
+          "Kepulauan Seribu",
+        ],
+        Banten: [
+          "Tangerang",
+          "Tangerang Selatan",
+          "Cilegon",
+          "Serang",
+          "Lebak",
+          "Pandeglang",
+        ],
+        "Jawa Barat": [
+          "Bandung",
+          "Bekasi",
+          "Bogor",
+          "Cimahi",
+          "Cirebon",
+          "Depok",
+          "Sukabumi",
+          "Tasikmalaya",
+          "Bandung Barat",
+          "Ciamis",
+          "Cianjur",
+          "Garut",
+          "Indramayu",
+          "Karawang",
+          "Kuningan",
+          "Majalengka",
+          "Purwakarta",
+          "Subang",
+          "Sumedang",
+        ],
+        "Jawa Tengah": [
+          "Semarang",
+          "Magelang",
+          "Pekalongan",
+          "Salatiga",
+          "Surakarta",
+          "Tegal",
+          "Banjarnegara",
+          "Banyumas",
+          "Batang",
+          "Blora",
+          "Boyolali",
+          "Brebes",
+          "Cilacap",
+          "Demak",
+          "Grobogan",
+          "Jepara",
+          "Karanganyar",
+          "Kebumen",
+          "Kendal",
+          "Klaten",
+          "Kudus",
+          "Pati",
+          "Pemalang",
+          "Purbalingga",
+          "Purworejo",
+          "Rembang",
+          "Sragen",
+          "Sukoharjo",
+          "Temanggung",
+          "Wonogiri",
+          "Wonosobo",
+        ],
+        "DI Yogyakarta": [
+          "Yogyakarta",
+          "Bantul",
+          "Gunungkidul",
+          "Kulon Progo",
+          "Sleman",
+        ],
+        "Jawa Timur": [
+          "Surabaya",
+          "Batu",
+          "Blitar",
+          "Kediri",
+          "Madiun",
+          "Malang",
+          "Mojokerto",
+          "Pasuruan",
+          "Probolinggo",
+          "Bangkalan",
+          "Banyuwangi",
+          "Bojonegoro",
+          "Bondowoso",
+          "Gresik",
+          "Jember",
+          "Jombang",
+          "Lamongan",
+          "Lumajang",
+          "Magetan",
+          "Nganjuk",
+          "Ngawi",
+          "Pacitan",
+          "Pamekasan",
+          "Ponorogo",
+          "Sampang",
+          "Sidoarjo",
+          "Situbondo",
+          "Sumenep",
+          "Trenggalek",
+          "Tuban",
+          "Tulungagung",
+        ],
+        Bali: [
+          "Denpasar",
+          "Badung",
+          "Bangli",
+          "Buleleng",
+          "Gianyar",
+          "Jembrana",
+          "Karangasem",
+          "Klungkung",
+          "Tabanan",
+        ],
+        "Nusa Tenggara Barat": [
+          "Mataram",
+          "Bima",
+          "Dompu",
+          "Lombok Barat",
+          "Lombok Tengah",
+          "Lombok Timur",
+          "Lombok Utara",
+          "Sumbawa",
+          "Sumbawa Barat",
+        ],
+        "Nusa Tenggara Timur": [
+          "Kupang",
+          "Alor",
+          "Belu",
+          "Ende",
+          "Flores Timur",
+          "Kupang",
+          "Lembata",
+          "Manggarai",
+          "Manggarai Barat",
+          "Manggarai Timur",
+          "Nagekeo",
+          "Ngada",
+          "Rote Ndao",
+          "Sabu Raijua",
+          "Sikka",
+          "Sumba Barat",
+          "Sumba Tengah",
+          "Sumba Timur",
+          "Timor Tengah Selatan",
+          "Timor Tengah Utara",
+        ],
+        "Kalimantan Barat": [
+          "Pontianak",
+          "Singkawang",
+          "Bengkayang",
+          "Kapuas Hulu",
+          "Kayong Utara",
+          "Ketapang",
+          "Kubu Raya",
+          "Landak",
+          "Melawi",
+          "Sambas",
+          "Sanggau",
+          "Sekadau",
+          "Sintang",
+        ],
+        "Kalimantan Tengah": [
+          "Palangkaraya",
+          "Barito Selatan",
+          "Barito Timur",
+          "Barito Utara",
+          "Gunung Mas",
+          "Kapuas",
+          "Katingan",
+          "Kotawaringin Barat",
+          "Kotawaringin Timur",
+          "Lamandau",
+          "Murung Raya",
+          "Pulang Pisau",
+          "Seruyan",
+          "Sukamara",
+        ],
+        "Kalimantan Selatan": [
+          "Banjarmasin",
+          "Banjarbaru",
+          "Balangan",
+          "Banjar",
+          "Barito Kuala",
+          "Hulu Sungai Selatan",
+          "Hulu Sungai Tengah",
+          "Hulu Sungai Utara",
+          "Kotabaru",
+          "Tabalong",
+          "Tanah Bumbu",
+          "Tanah Laut",
+          "Tapin",
+        ],
+        "Kalimantan Timur": [
+          "Balikpapan",
+          "Bontang",
+          "Samarinda",
+          "Berau",
+          "Kutai Barat",
+          "Kutai Kartanegara",
+          "Kutai Timur",
+          "Mahakam Ulu",
+          "Paser",
+          "Penajam Paser Utara",
+        ],
+        "Kalimantan Utara": [
+          "Tarakan",
+          "Bulungan",
+          "Malinau",
+          "Nunukan",
+          "Tana Tidung",
+        ],
+        "Sulawesi Utara": [
+          "Manado",
+          "Bitung",
+          "Kotamobagu",
+          "Tomohon",
+          "Bolaang Mongondow",
+          "Bolaang Mongondow Selatan",
+          "Bolaang Mongondow Timur",
+          "Bolaang Mongondow Utara",
+          "Kepulauan Sangihe",
+          "Kepulauan Siau Tagulandang Biaro",
+          "Kepulauan Talaud",
+          "Minahasa",
+          "Minahasa Selatan",
+          "Minahasa Tenggara",
+          "Minahasa Utara",
+        ],
+        "Sulawesi Barat": [
+          "Majene",
+          "Mamasa",
+          "Mamuju",
+          "Mamuju Tengah",
+          "Pasangkayu",
+          "Polewali Mandar",
+        ],
+        "Sulawesi Tengah": [
+          "Palu",
+          "Banggai",
+          "Banggai Kepulauan",
+          "Banggai Laut",
+          "Buol",
+          "Donggala",
+          "Morowali",
+          "Morowali Utara",
+          "Parigi Moutong",
+          "Poso",
+          "Sigi",
+          "Tojo Una-Una",
+          "Toli-Toli",
+        ],
+        "Sulawesi Tenggara": [
+          "Kendari",
+          "Bau-Bau",
+          "Bombana",
+          "Buton",
+          "Buton Selatan",
+          "Buton Tengah",
+          "Buton Utara",
+          "Kolaka",
+          "Kolaka Timur",
+          "Kolaka Utara",
+          "Konawe",
+          "Konawe Kepulauan",
+          "Konawe Selatan",
+          "Konawe Utara",
+          "Muna",
+          "Muna Barat",
+          "Wakatobi",
+        ],
+        "Sulawesi Selatan": [
+          "Makassar",
+          "Palopo",
+          "Parepare",
+          "Bantaeng",
+          "Barru",
+          "Bone",
+          "Bulukumba",
+          "Enrekang",
+          "Gowa",
+          "Jeneponto",
+          "Kepulauan Selayar",
+          "Luwu",
+          "Luwu Timur",
+          "Luwu Utara",
+          "Maros",
+          "Pangkajene dan Kepulauan",
+          "Pinrang",
+          "Sidenreng Rappang",
+          "Sinjai",
+          "Soppeng",
+          "Takalar",
+          "Tana Toraja",
+          "Toraja Utara",
+          "Wajo",
+        ],
+        Gorontalo: [
+          "Gorontalo",
+          "Boalemo",
+          "Bone Bolango",
+          "Gorontalo Utara",
+          "Pohuwato",
+        ],
+        Maluku: [
+          "Ambon",
+          "Tual",
+          "Buru",
+          "Buru Selatan",
+          "Kepulauan Aru",
+          "Maluku Barat Daya",
+          "Maluku Tengah",
+          "Maluku Tenggara",
+          "Maluku Tenggara Barat",
+          "Seram Bagian Barat",
+          "Seram Bagian Timur",
+        ],
+        "Maluku Utara": [
+          "Ternate",
+          "Tidore Kepulauan",
+          "Halmahera Barat",
+          "Halmahera Tengah",
+          "Halmahera Timur",
+          "Halmahera Selatan",
+          "Halmahera Utara",
+          "Kepulauan Sula",
+          "Pulau Morotai",
+          "Pulau Taliabu",
+        ],
+        Papua: [
+          "Jayapura",
+          "Asmat",
+          "Biak Numfor",
+          "Boven Digoel",
+          "Deiyai",
+          "Dogiyai",
+          "Intan Jaya",
+          "Jayapura",
+          "Jayawijaya",
+          "Keerom",
+          "Kepulauan Yapen",
+          "Lanny Jaya",
+          "Mamberamo Raya",
+          "Mamberamo Tengah",
+          "Mappi",
+          "Merauke",
+          "Mimika",
+          "Nabire",
+          "Nduga",
+          "Paniai",
+          "Pegunungan Bintang",
+          "Puncak",
+          "Puncak Jaya",
+          "Sarmi",
+          "Supiori",
+          "Tolikara",
+          "Waropen",
+          "Yahukimo",
+          "Yalimo",
+        ],
+        "Papua Barat": [
+          "Manokwari",
+          "Sorong",
+          "Fakfak",
+          "Kaimana",
+          "Manokwari Selatan",
+          "Maybrat",
+          "Pegunungan Arfak",
+          "Raja Ampat",
+          "Sorong Selatan",
+          "Tambrauw",
+          "Teluk Bintuni",
+          "Teluk Wondama",
+        ],
+        "Papua Selatan": ["Merauke", "Asmat", "Boven Digoel", "Mappi"],
+        "Papua Tengah": [
+          "Nabire",
+          "Dogiyai",
+          "Intan Jaya",
+          "Mimika",
+          "Paniai",
+          "Puncak",
+          "Puncak Jaya",
+          "Deiyai",
+        ],
+        "Papua Pegunungan": [
+          "Jayawijaya",
+          "Lanny Jaya",
+          "Mamberamo Tengah",
+          "Nduga",
+          "Tolikara",
+          "Yalimo",
+          "Yahukimo",
+          "Pegunungan Bintang",
+        ],
+      };
+
+      // Populate provinsi dropdown untuk tempat lahir
+      const provinsiTempatLahirSelect = document.getElementById(
+        "provinsiTempatLahir"
+      );
+      const tempatLahirSelect = document.getElementById("tempatLahir");
+
+      Object.keys(wilayahIndonesia)
+        .sort()
+        .forEach((prov) => {
+          const option = document.createElement("option");
+          option.value = prov;
+          option.textContent = prov;
+          provinsiTempatLahirSelect.appendChild(option);
+        });
+
+      // Event listener untuk provinsi tempat lahir
+      provinsiTempatLahirSelect.addEventListener("change", function () {
+        const selectedProv = this.value;
+        tempatLahirSelect.innerHTML =
+          '<option value="">Pilih Kota/Kabupaten...</option>';
+        tempatLahirSelect.disabled = false;
+
+        if (selectedProv && wilayahIndonesia[selectedProv]) {
+          wilayahIndonesia[selectedProv].sort().forEach((kota) => {
+            const option = document.createElement("option");
+            option.value = kota;
+            option.textContent = kota;
+            tempatLahirSelect.appendChild(option);
+          });
+        } else {
+          tempatLahirSelect.disabled = true;
+          tempatLahirSelect.innerHTML =
+            '<option value="">Pilih Provinsi Dulu...</option>';
+        }
+      });
+
+      // Alamat wilayah dengan API Indonesia
+      const provinsiAlamatSelect = document.getElementById("provinsiAlamat");
+      const kotaAlamatSelect = document.getElementById("kotaAlamat");
+      const kecamatanAlamatSelect = document.getElementById("kecamatanAlamat");
+      const desaAlamatSelect = document.getElementById("desaAlamat");
+
+      // Load provinsi dari API
+      async function loadProvinsi() {
+        try {
+          const response = await fetch(
+            "https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json"
+          );
+          const provinsi = await response.json();
+
+          provinsi.forEach((prov) => {
+            const option = document.createElement("option");
+            option.value = prov.id;
+            option.textContent = prov.name;
+            option.dataset.name = prov.name;
+            provinsiAlamatSelect.appendChild(option);
+          });
+        } catch (error) {
+          console.error("Error loading provinsi:", error);
+          alert("Gagal memuat data provinsi");
+        }
+      }
+
+      // Load kota/kabupaten berdasarkan provinsi
+      async function loadKota(provinsiId) {
+        try {
+          kotaAlamatSelect.innerHTML = '<option value="">Memuat...</option>';
+          const response = await fetch(
+            `https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${provinsiId}.json`
+          );
+          const kota = await response.json();
+
+          kotaAlamatSelect.innerHTML =
+            '<option value="">Pilih Kota/Kabupaten...</option>';
+          kota.forEach((k) => {
+            const option = document.createElement("option");
+            option.value = k.id;
+            option.textContent = k.name;
+            option.dataset.name = k.name;
+            kotaAlamatSelect.appendChild(option);
+          });
+          kotaAlamatSelect.disabled = false;
+        } catch (error) {
+          console.error("Error loading kota:", error);
+          kotaAlamatSelect.innerHTML =
+            '<option value="">Gagal memuat data</option>';
+        }
+      }
+
+      // Load kecamatan berdasarkan kota
+      async function loadKecamatan(kotaId) {
+        try {
+          kecamatanAlamatSelect.innerHTML =
+            '<option value="">Memuat...</option>';
+          const response = await fetch(
+            `https://www.emsifa.com/api-wilayah-indonesia/api/districts/${kotaId}.json`
+          );
+          const kecamatan = await response.json();
+
+          kecamatanAlamatSelect.innerHTML =
+            '<option value="">Pilih Kecamatan...</option>';
+          kecamatan.forEach((kec) => {
+            const option = document.createElement("option");
+            option.value = kec.id;
+            option.textContent = kec.name;
+            option.dataset.name = kec.name;
+            kecamatanAlamatSelect.appendChild(option);
+          });
+          kecamatanAlamatSelect.disabled = false;
+        } catch (error) {
+          console.error("Error loading kecamatan:", error);
+          kecamatanAlamatSelect.innerHTML =
+            '<option value="">Gagal memuat data</option>';
+        }
+      }
+
+      // Load desa/kelurahan berdasarkan kecamatan
+      async function loadDesa(kecamatanId) {
+        try {
+          desaAlamatSelect.innerHTML = '<option value="">Memuat...</option>';
+          const response = await fetch(
+            `https://www.emsifa.com/api-wilayah-indonesia/api/villages/${kecamatanId}.json`
+          );
+          const desa = await response.json();
+
+          desaAlamatSelect.innerHTML =
+            '<option value="">Pilih Desa/Kelurahan...</option>';
+          desa.forEach((d) => {
+            const option = document.createElement("option");
+            option.value = d.name;
+            option.textContent = d.name;
+            desaAlamatSelect.appendChild(option);
+          });
+          desaAlamatSelect.disabled = false;
+        } catch (error) {
+          console.error("Error loading desa:", error);
+          desaAlamatSelect.innerHTML =
+            '<option value="">Gagal memuat data</option>';
+        }
+      }
+
+      // Event listeners untuk dropdown alamat
+      provinsiAlamatSelect.addEventListener("change", function () {
+        const provinsiId = this.value;
+        const provinsiName = this.options[this.selectedIndex].dataset.name;
+
+        // Update hidden input untuk nama provinsi
+        document.querySelector('input[name="provinsi"]')?.remove();
+        if (provinsiName) {
+          const hiddenInput = document.createElement("input");
+          hiddenInput.type = "hidden";
+          hiddenInput.name = "provinsi";
+          hiddenInput.value = provinsiName;
+          form.appendChild(hiddenInput);
+        }
+
+        // Reset dropdown berikutnya
+        kotaAlamatSelect.innerHTML =
+          '<option value="">Pilih Provinsi Dulu...</option>';
+        kotaAlamatSelect.disabled = true;
+        kecamatanAlamatSelect.innerHTML =
+          '<option value="">Pilih Kota Dulu...</option>';
+        kecamatanAlamatSelect.disabled = true;
+        desaAlamatSelect.innerHTML =
+          '<option value="">Pilih Kecamatan Dulu...</option>';
+        desaAlamatSelect.disabled = true;
+
+        if (provinsiId) {
+          loadKota(provinsiId);
+        }
+      });
+
+      kotaAlamatSelect.addEventListener("change", function () {
+        const kotaId = this.value;
+        const kotaName = this.options[this.selectedIndex].dataset.name;
+
+        // Update hidden input untuk nama kota
+        document.querySelector('input[name="kotaKabupaten"]')?.remove();
+        if (kotaName) {
+          const hiddenInput = document.createElement("input");
+          hiddenInput.type = "hidden";
+          hiddenInput.name = "kotaKabupaten";
+          hiddenInput.value = kotaName;
+          form.appendChild(hiddenInput);
+        }
+
+        // Reset dropdown berikutnya
+        kecamatanAlamatSelect.innerHTML =
+          '<option value="">Pilih Kota Dulu...</option>';
+        kecamatanAlamatSelect.disabled = true;
+        desaAlamatSelect.innerHTML =
+          '<option value="">Pilih Kecamatan Dulu...</option>';
+        desaAlamatSelect.disabled = true;
+
+        if (kotaId) {
+          loadKecamatan(kotaId);
+        }
+      });
+
+      kecamatanAlamatSelect.addEventListener("change", function () {
+        const kecamatanId = this.value;
+        const kecamatanName = this.options[this.selectedIndex].dataset.name;
+
+        // Update hidden input untuk nama kecamatan
+        document.querySelector('input[name="kecamatan"]')?.remove();
+        if (kecamatanName) {
+          const hiddenInput = document.createElement("input");
+          hiddenInput.type = "hidden";
+          hiddenInput.name = "kecamatan";
+          hiddenInput.value = kecamatanName;
+          form.appendChild(hiddenInput);
+        }
+
+        // Reset dropdown berikutnya
+        desaAlamatSelect.innerHTML =
+          '<option value="">Pilih Kecamatan Dulu...</option>';
+        desaAlamatSelect.disabled = true;
+
+        if (kecamatanId) {
+          loadDesa(kecamatanId);
+        }
+      });
+
+      // Load provinsi saat halaman dimuat
+      loadProvinsi();
+
+      // Function to show konfirmasi modal
+      function showKonfirmasi() {
+        // Validate form first
+        if (!form.checkValidity()) {
+          form.classList.add("was-validated");
+          alert("Mohon lengkapi semua field yang wajib diisi!");
+          return;
+        }
+
+        const formData = new FormData(form);
+        formDataGlobal = formData;
+
+        // Build konfirmasi HTML
+        let html = `
+          <div class="row g-3">
+            <!-- Data Calon Santri -->
+            <div class="col-12">
+              <h6 class="bg-success text-white p-2 rounded">
+                <i class="bi bi-person"></i> Data Calon Santri
+              </h6>
+            </div>
+            <div class="col-md-6">
+              <strong>NIK Calon:</strong><br>${formData.get("nikCalon") || "-"}
+            </div>
+            <div class="col-md-6">
+              <strong>No KK:</strong><br>${formData.get("kkNo") || "-"}
+            </div>
+            <div class="col-md-12">
+              <strong>Nama Lengkap:</strong><br>
+              <span class="fs-5 text-primary">${
+                formData.get("namaLengkap") || "-"
+              }</span>
+            </div>
+            <div class="col-md-6">
+              <strong>Tempat Lahir:</strong><br>${
+                formData.get("tempatLahir") || "-"
+              }, ${formData.get("provinsiTempatLahir") || "-"}
+            </div>
+            <div class="col-md-6">
+              <strong>Tanggal Lahir:</strong><br>${
+                formData.get("tanggalLahir") || "-"
+              }
+            </div>
+            <div class="col-md-6">
+              <strong>Jenis Kelamin:</strong><br>${
+                formData.get("jenisKelamin") === "L" ? "Laki-laki" : "Perempuan"
+              }
+            </div>
+
+            <!-- Alamat -->
+            <div class="col-12 mt-3">
+              <h6 class="bg-success text-white p-2 rounded">
+                <i class="bi bi-geo-alt"></i> Alamat
+              </h6>
+            </div>
+            <div class="col-md-12">
+              <strong>Alamat Lengkap:</strong><br>
+              ${formData.get("alamatJalan") || "-"}, ${
+          formData.get("desa") || "-"
+        }, ${formData.get("kecamatan") || "-"}, ${
+          formData.get("kotaKabupaten") || "-"
+        }, ${formData.get("provinsi") || "-"}
+            </div>
+
+            <!-- Pendidikan -->
+            <div class="col-12 mt-3">
+              <h6 class="bg-success text-white p-2 rounded">
+                <i class="bi bi-mortarboard"></i> Pendidikan & Rencana
+              </h6>
+            </div>
+            <div class="col-md-6">
+              <strong>Ijazah Formal Terakhir:</strong><br>${
+                formData.get("ijazahFormalTerakhir") || "-"
+              }
+            </div>
+            <div class="col-md-6">
+            <div class="col-md-6">
+              <strong>Rencana Tingkat:</strong><br>${
+                formData.get("rencanaTingkat") || "-"
+              }
+            </div>
+            <div class="col-md-6">
+              <strong>Rencana Program:</strong><br>${
+                formData.get("rencanaProgram") || "-"
+              }
+            </div>
+
+            <!-- Data Orang Tua -->
+            <div class="col-12 mt-3">
+              <h6 class="bg-success text-white p-2 rounded">
+                <i class="bi bi-people"></i> Data Orang Tua
+              </h6>
+            </div>
+            <div class="col-md-6">
+              <strong>Nama Ayah:</strong><br>${formData.get("namaAyah") || "-"}
+            </div>
+            <div class="col-md-6">
+              <strong>NIK Ayah:</strong><br>${formData.get("nikAyah") || "-"}
+            </div>
+            <div class="col-md-6">
+              <strong>Status Ayah:</strong><br>${
+                formData.get("statusAyah") || "-"
+              }
+            </div>
+            <div class="col-md-6">
+              <strong>Pekerjaan Ayah:</strong><br>${
+                formData.get("pekerjaanAyah") || "-"
+              }
+            </div>
+            <div class="col-md-6">
+              <strong>Nama Ibu:</strong><br>${formData.get("namaIbu") || "-"}
+            </div>
+            <div class="col-md-6">
+              <strong>NIK Ibu:</strong><br>${formData.get("nikIbu") || "-"}
+            </div>
+            <div class="col-md-6">
+              <strong>Status Ibu:</strong><br>${
+                formData.get("statusIbu") || "-"
+              }
+            </div>
+            <div class="col-md-6">
+              <strong>Pekerjaan Ibu:</strong><br>${
+                formData.get("pekerjaanIbu") || "-"
+              }
+            </div>
+            <div class="col-md-6">
+              <strong>No Telepon Orang Tua:</strong><br>${
+                formData.get("teleponOrtu") || "-"
+              }
+            </div>
+
+            <!-- Berkas Upload -->
+            <div class="col-12 mt-3">
+              <h6 class="bg-success text-white p-2 rounded">
+                <i class="bi bi-file-earmark-arrow-up"></i> Berkas yang Akan Diupload
+              </h6>
+            </div>
+        `;
+
+        const files = [
+          { key: "fileIjazah", label: "Scan Ijazah" },
+          { key: "fileKK", label: "Scan KK" },
+          { key: "fileAkta", label: "Scan Akta" },
+          { key: "fileFoto", label: "Pas Foto" },
+          { key: "fileBpjs", label: "Scan Kartu BPJS" },
+        ];
+
+        let hasFiles = false;
+        files.forEach((file) => {
+          const uploadedFile = formData.get(file.key);
+          if (uploadedFile && uploadedFile.size > 0) {
+            hasFiles = true;
+            html += `
+              <div class="col-md-6">
+                <div class="alert alert-success mb-0">
+                  <i class="bi bi-check-circle"></i> ${file.label}: <strong>${
+              uploadedFile.name
+            }</strong> (${(uploadedFile.size / 1024).toFixed(2)} KB)
+                </div>
+              </div>
+            `;
+          }
+        });
+
+        if (!hasFiles) {
+          html += `
+            <div class="col-12">
+              <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> Tidak ada berkas yang diupload
+              </div>
+            </div>
+          `;
+        }
+
+        html += `</div>`;
+
+        document.getElementById("konfirmasiContent").innerHTML = html;
+        new bootstrap.Modal(document.getElementById("konfirmasiModal")).show();
+      }
+
+      // Function to convert file to base64
+      function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => {
+            // Remove data:image/png;base64, prefix
+            const base64 = reader.result.split(",")[1];
+            resolve(base64);
+          };
+          reader.onerror = (error) => reject(error);
+        });
+      }
+
+      // Function to copy nomor registrasi to clipboard
+      function salinNomorRegistrasi() {
+        const regNo = document.getElementById("regNo").textContent;
+        const btnSalin = document.getElementById("btnSalinReg");
+
+        navigator.clipboard
+          .writeText(regNo)
+          .then(() => {
+            // Show success feedback
+            const originalHTML = btnSalin.innerHTML;
+            btnSalin.innerHTML =
+              '<i class="bi bi-check-circle-fill"></i> Tersalin!';
+            btnSalin.classList.remove("btn-outline-primary");
+            btnSalin.classList.add("btn-success");
+
+            // Reset button after 2 seconds
+            setTimeout(() => {
+              btnSalin.innerHTML = originalHTML;
+              btnSalin.classList.remove("btn-success");
+              btnSalin.classList.add("btn-outline-primary");
+            }, 2000);
+          })
+          .catch((err) => {
+            alert("Gagal menyalin: " + err);
+          });
+      }
+
+      // Function to upload file via backend API
+      async function uploadFile(file, type, nomorRegistrasi) {
+        if (!file) return null;
+
+        // Validate nomor registrasi
+        if (!nomorRegistrasi || nomorRegistrasi === "undefined") {
+          throw new Error(`Nomor registrasi tidak valid: ${nomorRegistrasi}`);
+        }
+
+        // Validate file size (max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+          throw new Error(`File ${type} terlalu besar (max 2MB)`);
+        }
+
+        console.log(`Uploading ${type}: ${file.name} untuk ${nomorRegistrasi}`);
+
+        // Convert to base64
+        const base64Data = await fileToBase64(file);
+
+        // Upload via backend API
+        const response = await fetch("/api/upload_file", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            file: base64Data,
+            fileName: file.name,
+            fileType: type,
+            mimeType: file.type,
+            nomorRegistrasi: nomorRegistrasi,
+          }),
+        });
+
+        const result = await response.json();
+        console.log(`Upload ${type} result:`, result);
+
+        if (!result.ok) {
+          throw new Error(result.error || `Upload ${type} gagal`);
+        }
+
+        return result.url;
+      }
+
+      // Function to submit final
+      async function submitFinal() {
+        const modal = bootstrap.Modal.getInstance(
+          document.getElementById("konfirmasiModal")
+        );
+        const modalFooter = document.querySelector(
+          "#konfirmasiModal .modal-footer"
+        );
+        const submitBtn = modalFooter.querySelector(".btn-success");
+        const originalText = submitBtn.innerHTML;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML =
+          '<span class="spinner-border spinner-border-sm me-2"></span>Mengirim...';
+
+        try {
+          const formData = formDataGlobal;
+          const data = {};
+
+          // Get text data
+          for (let [key, value] of formData.entries()) {
+            if (!key.startsWith("file")) {
+              data[key] = value;
+            }
+          }
+
+          console.log("Data yang akan dikirim:", data);
+
+          // Step 1: Create pendaftar record first
+          submitBtn.innerHTML =
+            '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan data...';
+
+          const res = await fetch("/api/pendaftar_create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+
+          const json = await res.json();
+          console.log("Response dari server:", json);
+
+          if (!json.ok) {
+            throw new Error(json.error || "Gagal menyimpan data");
+          }
+
+          // Get nomor registrasi with fallback
+          const nomorRegistrasi = json.nomorRegistrasi || json.nomor_registrasi;
+          const pendaftarId = json.id;
+
+          if (!nomorRegistrasi) {
+            throw new Error("Nomor registrasi tidak diterima dari server");
+          }
+
+          console.log("Nomor Registrasi:", nomorRegistrasi);
+          console.log("Pendaftar ID:", pendaftarId);
+
+          // Step 2: Upload files if any
+          const fileIjazah = formData.get("fileIjazah");
+          const fileKK = formData.get("fileKK");
+          const fileAkta = formData.get("fileAkta");
+          const fileFoto = formData.get("fileFoto");
+
+          const fileUrls = {};
+
+          if (fileIjazah?.size > 0) {
+            submitBtn.innerHTML =
+              '<span class="spinner-border spinner-border-sm me-2"></span>Upload ijazah...';
+            fileUrls.file_ijazah = await uploadFile(
+              fileIjazah,
+              "ijazah",
+              nomorRegistrasi
+            );
+          }
+
+          if (fileKK?.size > 0) {
+            submitBtn.innerHTML =
+              '<span class="spinner-border spinner-border-sm me-2"></span>Upload KK...';
+            fileUrls.file_kk = await uploadFile(fileKK, "kk", nomorRegistrasi);
+          }
+
+          if (fileAkta?.size > 0) {
+            submitBtn.innerHTML =
+              '<span class="spinner-border spinner-border-sm me-2"></span>Upload akta...';
+            fileUrls.file_akta = await uploadFile(
+              fileAkta,
+              "akta",
+              nomorRegistrasi
+            );
+          }
+
+          if (fileFoto?.size > 0) {
+            submitBtn.innerHTML =
+              '<span class="spinner-border spinner-border-sm me-2"></span>Upload foto...';
+            fileUrls.file_foto = await uploadFile(
+              fileFoto,
+              "foto",
+              nomorRegistrasi
+            );
+          }
+
+          // Upload BPJS (required)
+          const fileBpjs = formData.get("fileBpjs");
+          if (fileBpjs?.size > 0) {
+            submitBtn.innerHTML =
+              '<span class="spinner-border spinner-border-sm me-2"></span>Upload BPJS...';
+            fileUrls.file_bpjs = await uploadFile(
+              fileBpjs,
+              "bpjs",
+              nomorRegistrasi
+            );
+          }
+
+          // Step 3: Update pendaftar with file URLs and telepon ortu if any
+          if (Object.keys(fileUrls).length > 0) {
+            submitBtn.innerHTML =
+              '<span class="spinner-border spinner-border-sm me-2"></span>Finalisasi...';
+
+            const updateRes = await fetch("/api/pendaftar_update_files", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id: pendaftarId,
+                ...fileUrls,
+              }),
+            });
+
+            const updateJson = await updateRes.json();
+            if (!updateJson.ok) {
+              console.warn("Warning: File URLs not saved", updateJson.error);
+            }
+          }
+
+          // Success! Show modal
+          modal.hide();
+
+          // Set nomor registrasi dan show success modal
+          document.getElementById("regNo").textContent = nomorRegistrasi;
+
+          // Reset form
+          form.reset();
+          form.classList.remove("was-validated");
+
+          // Show success modal
+          const suksesModal = new bootstrap.Modal(
+            document.getElementById("suksesModal")
+          );
+          suksesModal.show();
+        } catch (error) {
+          console.error("Submit error:", error);
+
+          // Show detailed error
+          let errorMsg = error.message || "Terjadi kesalahan";
+          if (
+            errorMsg.includes("nomor registrasi tidak valid") ||
+            errorMsg.includes("undefined")
+          ) {
+            errorMsg =
+              "Gagal membuat nomor registrasi. Pastikan database trigger sudah diperbaiki.\n\nSilakan jalankan SQL fix di Supabase SQL Editor.";
+          }
+
+          alert(
+            "❌ Error: " +
+              errorMsg +
+              "\n\nCek Console (F12) untuk detail lebih lanjut."
+          );
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        }
+      }
+
+      // Remove old submit handler
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        // Do nothing, use button onclick instead
+      });
+
+      // Load data from localStorage if editing
+      window.addEventListener("load", () => {
+        if (window.location.hash === "#edit") {
+          const editData = localStorage.getItem("editPendaftaran");
+          if (editData) {
+            try {
+              const data = JSON.parse(editData);
+              console.log("Loading edit data:", data);
+
+              // Fill form with existing data
+              if (data.nik)
+                document.querySelector('[name="nikCalon"]').value = data.nik;
+              if (data.kk)
+                document.querySelector('[name="kkNo"]').value = data.kk;
+              if (data.nisn)
+                document.querySelector('[name="nisn"]').value = data.nisn;
+              if (data.nama)
+                document.querySelector('[name="namaLengkap"]').value =
+                  data.nama;
+
+              // Tempat Lahir dropdowns
+              if (data.provinsiTempatLahir) {
+                const provinsiSelect = document.querySelector(
+                  '[name="provinsiTempatLahir"]'
+                );
+                provinsiSelect.value = data.provinsiTempatLahir;
+                // Trigger change to load kota
+                provinsiSelect.dispatchEvent(new Event("change"));
+                // Set kota after a brief delay
+                setTimeout(() => {
+                  if (data.tempatLahir) {
+                    document.querySelector('[name="tempatLahir"]').value =
+                      data.tempatLahir;
+                  }
+                }, 100);
+              }
+
+              if (data.tanggalLahir)
+                document.querySelector('[name="tanggalLahir"]').value =
+                  data.tanggalLahir;
+              if (data.jenisKelamin)
+                document.querySelector('[name="jenisKelamin"]').value =
+                  data.jenisKelamin;
+              if (data.teleponOrtu)
+                document.querySelector('[name="teleponOrtu"]').value =
+                  data.teleponOrtu;
+
+              // Alamat
+              if (data.alamatJalan)
+                document.querySelector('[name="alamatJalan"]').value =
+                  data.alamatJalan;
+
+              // Alamat dropdowns - provinsi
+              if (data.provinsi) {
+                const provinsiSelect =
+                  document.querySelector('[name="provinsi"]');
+                provinsiSelect.value = data.provinsi;
+                provinsiSelect.dispatchEvent(new Event("change"));
+
+                // Load kota after provinsi loads
+                setTimeout(() => {
+                  if (data.kotaKabupaten) {
+                    const kotaSelect = document.querySelector(
+                      '[name="kotaKabupaten"]'
+                    );
+                    kotaSelect.value = data.kotaKabupaten;
+                    kotaSelect.dispatchEvent(new Event("change"));
+
+                    // Load kecamatan after kota loads
+                    setTimeout(() => {
+                      if (data.kecamatan) {
+                        const kecamatanSelect =
+                          document.querySelector('[name="kecamatan"]');
+                        kecamatanSelect.value = data.kecamatan;
+                        kecamatanSelect.dispatchEvent(new Event("change"));
+
+                        // Load desa after kecamatan loads
+                        setTimeout(() => {
+                          if (data.desa) {
+                            document.querySelector('[name="desa"]').value =
+                              data.desa;
+                          }
+                        }, 100);
+                      }
+                    }, 100);
+                  }
+                }, 100);
+              }
+
+              // Pendidikan
+              if (data.ijazahFormalTerakhir)
+                document.querySelector('[name="ijazahFormalTerakhir"]').value =
+                  data.ijazahFormalTerakhir;
+              if (data.rencanaProgram)
+                document.querySelector('[name="rencanaProgram"]').value =
+                  data.rencanaProgram;
+              if (data.rencanaDomisili)
+                document.querySelector('[name="rencanaDomisili"]').value =
+                  data.rencanaDomisili;
+              if (data.rencanaTingkat)
+                document.querySelector('[name="rencanaTingkat"]').value =
+                  data.rencanaTingkat;
+
+              // Orang Tua
+              if (data.nikAyah)
+                document.querySelector('[name="nikAyah"]').value = data.nikAyah;
+              if (data.namaAyah)
+                document.querySelector('[name="namaAyah"]').value =
+                  data.namaAyah;
+              if (data.nikIbu)
+                document.querySelector('[name="nikIbu"]').value = data.nikIbu;
+              if (data.namaIbu)
+                document.querySelector('[name="namaIbu"]').value = data.namaIbu;
+
+              // Clear localStorage after loading
+              localStorage.removeItem("editPendaftaran");
+
+              // Show info alert
+              const alertDiv = document.createElement("div");
+              alertDiv.className =
+                "alert alert-info alert-dismissible fade show";
+              alertDiv.innerHTML = `
+                <i class="bi bi-info-circle"></i>
+                <strong>Mode Perbaikan:</strong> Data pendaftaran Anda yang sebelumnya telah dimuat. Silakan perbaiki data yang diperlukan dan submit ulang.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              `;
+              document
+                .querySelector(".card-body")
+                .insertBefore(alertDiv, document.querySelector("form"));
+
+              // Scroll to top
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            } catch (error) {
+              console.error("Error loading edit data:", error);
+              localStorage.removeItem("editPendaftaran");
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

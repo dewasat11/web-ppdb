@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "functions": {
+    "api/**/*.py": {
+      "runtime": "@vercel/python@4.3.1"
+    }
+  },
+  "routes": [
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/daftar", "dest": "/daftar.html" },
+    { "src": "/admin", "dest": "/admin.html" },
+    { "src": "/login", "dest": "/login.html" },
+    { "src": "/cek-status", "dest": "/cek-status.html" },
+    { "src": "/api/(.*)", "dest": "/api/$1.py" }
+  ]
+}

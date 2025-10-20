@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cek Status Pendaftaran - Pondok Pesantren</title>
+
+    <!-- Bootstrap 5 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+
+    <style>
+      .status-card {
+        border-left: 5px solid;
+        margin-top: 2rem;
+      }
+      .status-pending {
+        border-color: #ffc107;
+      }
+      .status-diterima {
+        border-color: #28a745;
+      }
+      .status-ditolak {
+        border-color: #dc3545;
+      }
+      .hero-section {
+        background: linear-gradient(135deg, #064e3b 0%, #064e3b 100%);
+        color: white;
+        padding: 4rem 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar (white background, black text) -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky top-0 z-50" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
+      <div class="container">
+        <a class="navbar-brand fw-bold text-dark" href="/">Cek Status Pendaftaran</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link link-dark" href="/">Beranda</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link link-dark" href="/daftar">Daftar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link link-dark active" href="/cek-status">Cek Status</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link link-dark" href="/login">Admin</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container text-center">
+        <h1 class="display-5 fw-bold mb-3">
+          <i class="bi bi-search"></i> Cek Status Pendaftaran
+        </h1>
+        <p class="lead">
+          Masukkan nomor registrasi Anda untuk melihat status pendaftaran
+        </p>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+          <!-- Form Cek Status -->
+          <div class="card shadow">
+            <div class="card-body p-4">
+              <h5 class="card-title mb-4">
+                <i class="bi bi-card-text text-success"></i> Cek Status Anda
+              </h5>
+
+              <form id="cekStatusForm">
+                <div class="mb-4">
+                  <label for="nomorRegistrasi" class="form-label fw-bold"
+                    >Nomor Registrasi</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control form-control-lg"
+                    id="nomorRegistrasi"
+                    placeholder="REG-20241014-000001"
+                    required
+                    pattern="^(P?REG-\d{8}-\d{6})$"
+                    title="Gunakan format REG-YYYYMMDD-XXXXXX atau PREG-YYYYMMDD-XXXXXX"
+                  />
+                  <div class="form-text">
+                    Format utama: <strong>REG</strong>-YYYYMMDD-XXXXXX (contoh: <code>REG-20241014-000001</code>).
+                    Juga mendukung <strong>PREG</strong>-YYYYMMDD-XXXXXX.
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-success btn-lg w-100" style="color: #064e3b;">
+                  <i class="bi bi-search" style="color: #fff;"></i> Cek Status
+                </button>
+              </form>
+
+              <!-- Loading -->
+              <div id="loading" class="text-center mt-4" style="display: none">
+                <div class="spinner-border text-success" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Mencari data...</p>
+              </div>
+
+              <!-- Error Alert -->
+              <div
+                id="errorAlert"
+                class="alert alert-danger mt-4"
+                style="display: none"
+              >
+                <i class="bi bi-exclamation-triangle"></i>
+                <span id="errorMessage"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Result Card -->
+          <div id="resultCard" style="display: none"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      document
+        .getElementById("cekStatusForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const nomorRegistrasi = document
+            .getElementById("nomorRegistrasi")
+            .value.trim()
+            .toUpperCase();
+          const loading = document.getElementById("loading");
+          const errorAlert = document.getElementById("errorAlert");
+          const resultCard = document.getElementById("resultCard");
+
+          // Reset
+          loading.style.display = "block";
+          errorAlert.style.display = "none";
+          resultCard.style.display = "none";
+
+          try {
+            const response = await fetch(
+              `/api/pendaftar_cek_status?nomor=${encodeURIComponent(
+                nomorRegistrasi
+              )}`
+            );
+            const result = await response.json();
+
+            loading.style.display = "none";
+
+            if (result.success && result.data) {
+              // Check payment status
+              checkPaymentStatus(result.data);
+            } else {
+              showError(
+                result.error ||
+                  "Nomor registrasi tidak ditemukan. Pastikan Anda memasukkan nomor yang benar."
+              );
+            }
+          } catch (error) {
+            loading.style.display = "none";
+            showError("Terjadi kesalahan: " + error.message);
+          }
+        });
+
+      async function checkPaymentStatus(registrationData) {
+        try {
+          // Check if payment exists for this registration
+          const response = await fetch("/api/pembayaran_list");
+          const result = await response.json();
+
+          if (response.ok && result.data) {
+            // Find payment for this registration number
+            const payment = result.data.find(
+              (p) => p.nomor_registrasi === registrationData.nomorRegistrasi
+            );
+            showResult(registrationData, payment);
+          } else {
+            showResult(registrationData, null);
+          }
+        } catch (error) {
+          console.error("Error checking payment:", error);
+          showResult(registrationData, null);
+        }
+      }
+
+      function showResult(data, payment) {
+        const statusClass =
+          data.status === "pending"
+            ? "status-pending"
+            : data.status === "revisi"
+            ? "status-pending"
+            : data.status === "diterima"
+            ? "status-diterima"
+            : "status-ditolak";
+        const statusBadge =
+          data.status === "pending"
+            ? "warning"
+            : data.status === "revisi"
+            ? "info"
+            : data.status === "diterima"
+            ? "success"
+            : "danger";
+        const statusIcon =
+          data.status === "pending"
+            ? "hourglass-split"
+            : data.status === "revisi"
+            ? "arrow-repeat"
+            : data.status === "diterima"
+            ? "check-circle"
+            : "x-circle";
+        const statusText =
+          data.status === "pending"
+            ? "Menunggu Verifikasi"
+            : data.status === "revisi"
+            ? "Perlu Revisi"
+            : data.status === "diterima"
+            ? "Diterima"
+            : "Ditolak";
+        
+        const payStatus = (payment?.status_pembayaran || payment?.status || "").toUpperCase();
+
+        document.getElementById("resultCard").innerHTML = `
+                <div class="card shadow-lg status-card ${statusClass} mt-4">
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-${statusIcon} text-${statusBadge}" style="font-size: 4rem;"></i>
+                            <h3 class="mt-3">Status: <span class="badge bg-${statusBadge}">${statusText}</span></h3>
+                        </div>
+
+                        <hr>
+
+                        <dl class="row mb-0">
+                            <dt class="col-sm-5">Nomor Registrasi</dt>
+                            <dd class="col-sm-7"><strong>${
+                              data.nomorRegistrasi
+                            }</strong></dd>
+
+                            <dt class="col-sm-5">Nama Lengkap</dt>
+                            <dd class="col-sm-7">${data.nama}</dd>
+
+                            <dt class="col-sm-5">NIK</dt>
+                            <dd class="col-sm-7">${data.nik}</dd>
+
+                            <dt class="col-sm-5">Tanggal Lahir</dt>
+                            <dd class="col-sm-7">${
+                              data.tanggalLahir ? new Date(
+                                data.tanggalLahir
+                              ).toLocaleDateString("id-ID", {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              }) : "Belum ada data"
+                            }</dd>
+
+                            <dt class="col-sm-5">Tanggal Daftar</dt>
+                            <dd class="col-sm-7">${
+                              data.createdat ? new Date(data.createdat).toLocaleString("id-ID") : "Belum ada data"
+                            }</dd>
+
+                            ${
+                              data.alasan
+                                ? `
+                                <dt class="col-sm-5">Keterangan</dt>
+                                <dd class="col-sm-7">${data.alasan}</dd>
+                            `
+                                : ""
+                            }
+                        </dl>
+
+                        ${
+                          data.status === "pending"
+                            ? `
+                            <div class="alert alert-info mt-4 mb-0">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Status sedang diproses.</strong> Mohon tunggu konfirmasi dari admin.
+                            </div>
+                        `
+                            : ""
+                        }
+
+                        ${
+                          data.status === "revisi"
+                            ? `
+                            <div class="alert alert-warning mt-4">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <strong>Pendaftaran Anda perlu diperbaiki.</strong>
+                                ${
+                                  data.alasan
+                                    ? `<hr><small><strong>Catatan Admin:</strong> ${data.alasan}</small>`
+                                    : ""
+                                }
+                            </div>
+                            <div class="d-grid gap-2 mt-3">
+                                <button onclick="perbaikiPendaftaran('${
+                                  data.nomorRegistrasi
+                                }')" class="btn btn-warning btn-lg">
+                                    <i class="bi bi-pencil-square"></i> Perbaiki Pendaftaran
+                                </button>
+                            </div>
+                        `
+                            : ""
+                        }
+
+                        ${
+                          data.status === "diterima" && !payment
+                            ? `
+                            <div class="alert alert-success mt-4">
+                                <i class="bi bi-check-circle"></i>
+                                <strong>Selamat!</strong> Pendaftaran Anda telah diterima. 
+                                Silakan lanjutkan ke pembayaran.
+                            </div>
+                            <div class="d-grid gap-2 mt-3">
+                                <a href="/pembayaran.html?nomor=${encodeURIComponent(
+                                  data.nomorRegistrasi
+                                )}&nama=${encodeURIComponent(data.nama)}" 
+                                   class="btn btn-success btn-lg">
+                                    <i class="bi bi-credit-card"></i> Lanjut ke Pembayaran
+                                </a>
+                            </div>
+                        `
+                            : ""
+                        }
+
+                        ${
+                          data.status === "diterima" &&
+                          payment &&
+                          payStatus === "PENDING"
+                            ? `
+                            <div class="alert alert-warning mt-4">
+                                <i class="bi bi-clock-history"></i>
+                                <strong>Pembayaran Sedang Diproses</strong>
+                                <hr>
+                                <dl class="row mb-0 small">
+                                    <dt class="col-sm-5">Nomor Pembayaran</dt>
+                                    <dd class="col-sm-7"><strong>${
+                                      payment.nomor_pembayaran
+                                    }</strong></dd>
+                                    
+                                    <dt class="col-sm-5">Jumlah</dt>
+                                    <dd class="col-sm-7">Rp ${parseFloat(
+                                      payment.jumlah || 0
+                                    ).toLocaleString("id-ID")}</dd>
+                                    
+                                    <dt class="col-sm-5">Tanggal Upload</dt>
+                                    <dd class="col-sm-7">${
+                                      payment.tanggal_upload ? new Date(payment.tanggal_upload).toLocaleString("id-ID") : "Belum ada data"
+                                    }</dd>
+                                    
+                                    <dt class="col-sm-5">Status</dt>
+                                    <dd class="col-sm-7"><span class="badge bg-warning">Menunggu Verifikasi</span></dd>
+                                </dl>
+                                <hr>
+                                <small><i class="bi bi-info-circle"></i> Bukti pembayaran Anda sedang diverifikasi oleh admin. Mohon tunggu maksimal 2x24 jam.</small>
+                            </div>
+                        `
+                            : ""
+                        }
+
+                        ${
+                          data.status === "diterima" &&
+                          payment &&
+                          payStatus === "VERIFIED"
+                            ? `
+                            <div class="alert alert-success mt-4">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <strong>🎉 PROSES PENDAFTARAN SELESAI!</strong>
+                                <hr>
+                                <p class="mb-2">Selamat! Semua proses telah selesai:</p>
+                                <ul class="mb-3">
+                                    <li>✅ Pendaftaran: <strong>Diterima</strong></li>
+                                    <li>✅ Pembayaran: <strong>Berhasil (Terverifikasi)</strong></li>
+                                </ul>
+                                <dl class="row mb-0 small">
+                                    <dt class="col-sm-5">Nomor Pembayaran</dt>
+                                    <dd class="col-sm-7"><strong>${
+                                      payment.nomor_pembayaran
+                                    }</strong></dd>
+                                    
+                                    <dt class="col-sm-5">Jumlah</dt>
+                                    <dd class="col-sm-7">Rp ${parseFloat(
+                                      payment.jumlah || 0
+                                    ).toLocaleString("id-ID")}</dd>
+                                    
+                                    <dt class="col-sm-5">Tanggal Verifikasi</dt>
+                                    <dd class="col-sm-7">${
+                                      payment.tanggal_verifikasi
+                                        ? new Date(
+                                            payment.tanggal_verifikasi
+                                          ).toLocaleString("id-ID")
+                                        : "-"
+                                    }</dd>
+                                    
+                                    <dt class="col-sm-5">Verified By</dt>
+                                    <dd class="col-sm-7">${
+                                      payment.verified_by || "-"
+                                    }</dd>
+                                    
+                                    ${
+                                      payment.catatan_admin
+                                        ? `
+                                    <dt class="col-sm-5">Catatan Admin</dt>
+                                    <dd class="col-sm-7">${payment.catatan_admin}</dd>
+                                    `
+                                        : ""
+                                    }
+                                </dl>
+                                <hr>
+                                <small><i class="bi bi-envelope"></i> Anda akan segera dihubungi untuk langkah selanjutnya. Terima kasih!</small>
+                            </div>
+                            ${
+                              data.teleponOrtu
+                                ? `
+                            <div class="d-grid gap-2 mt-3">
+                                <a href="https://wa.me/62${data.teleponOrtu.replace(
+                                  /^0/,
+                                  ""
+                                )}?text=${encodeURIComponent(
+                                    `Assalamualaikum,\n\nSelamat! Pendaftaran santri atas nama *${data.nama}* (${data.nomorRegistrasi}) telah *SELESAI* dan pembayaran telah *TERVERIFIKASI*.\n\nSilakan hubungi kami untuk informasi lebih lanjut mengenai proses selanjutnya.\n\nTerima kasih.`
+                                  )}" 
+                                   target="_blank"
+                                   class="btn btn-success btn-lg">
+                                    <i class="bi bi-whatsapp"></i> Hubungi Orang Tua via WhatsApp
+                                </a>
+                            </div>
+                            `
+                                : ""
+                            }
+                        `
+                            : ""
+                        }
+
+                        ${
+                          data.status === "diterima" &&
+                          payment &&
+                          payStatus === "REJECTED"
+                            ? `
+                            <div class="alert alert-danger mt-4">
+                                <i class="bi bi-x-circle"></i>
+                                <strong>Pembayaran Ditolak</strong>
+                                <hr>
+                                <dl class="row mb-0 small">
+                                    <dt class="col-sm-5">Nomor Pembayaran</dt>
+                                    <dd class="col-sm-7"><strong>${
+                                      payment.nomor_pembayaran
+                                    }</strong></dd>
+                                    
+                                    <dt class="col-sm-5">Alasan</dt>
+                                    <dd class="col-sm-7">${
+                                      payment.catatan_admin ||
+                                      "Bukti pembayaran tidak valid"
+                                    }</dd>
+                                </dl>
+                                <hr>
+                                <small><i class="bi bi-info-circle"></i> Silakan upload ulang bukti pembayaran yang valid.</small>
+                            </div>
+                            <div class="d-grid gap-2 mt-3">
+                                <a href="/pembayaran.html?nomor=${encodeURIComponent(
+                                  data.nomorRegistrasi
+                                )}&nama=${encodeURIComponent(data.nama)}" 
+                                   class="btn btn-primary btn-lg">
+                                    <i class="bi bi-arrow-repeat"></i> Upload Ulang Bukti Pembayaran
+                                </a>
+                            </div>
+                        `
+                            : ""
+                        }
+
+                        ${
+                          data.status === "ditolak"
+                            ? `
+                            <div class="alert alert-danger mt-4 mb-0">
+                                <i class="bi bi-x-circle"></i>
+                                <strong>Maaf,</strong> pendaftaran Anda ditolak.
+                                ${
+                                  data.alasan
+                                    ? `<hr><small><strong>Alasan:</strong> ${data.alasan}</small>`
+                                    : ""
+                                }
+                            </div>
+                        `
+                            : ""
+                        }
+                    </div>
+                </div>
+            `;
+
+        document.getElementById("resultCard").style.display = "block";
+      }
+
+      function showError(message) {
+        document.getElementById("errorMessage").textContent = message;
+        document.getElementById("errorAlert").style.display = "block";
+      }
+
+      async function perbaikiPendaftaran(nomorRegistrasi) {
+        try {
+          // Fetch full registration data
+          const response = await fetch(
+            `/api/pendaftar_cek_status?nomor=${encodeURIComponent(
+              nomorRegistrasi
+            )}`
+          );
+          const result = await response.json();
+
+          if (result.success && result.data) {
+            // Store data in localStorage for form to retrieve
+            localStorage.setItem(
+              "editPendaftaran",
+              JSON.stringify(result.data)
+            );
+
+            // Redirect to registration form
+            window.location.href = "/daftar#edit";
+          } else {
+            alert("Gagal mengambil data pendaftaran");
+          }
+        } catch (error) {
+          alert("Terjadi kesalahan: " + error.message);
+        }
+      }
+    </script>
+  </body>
+</html>

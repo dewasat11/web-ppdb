@@ -1,0 +1,31 @@
+# Environment
+.env
+.vercel
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+.Python
+env/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*-old*.html
+*-new*.html
+*-backup*.html
+*.bak
+*.tmp
+
+# Logs
+*.log
