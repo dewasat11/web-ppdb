@@ -1,21 +1,31 @@
-# File backup dan draft
-*-old*.html
-*-new*.html
-*-backup*.html
-
 # Python cache
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
 
-# Environment
-.env
-.venv
-env/
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
 venv/
 ENV/
+env/
 
 # IDE
 .vscode/
@@ -24,26 +34,33 @@ ENV/
 *.swo
 *~
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Git
-.git/
-.gitignore
+# Backup files
+*.bak
+*.backup
 
-# Documentation (opsional, bisa di-deploy atau tidak)
+# Old/deprecated API files (safety)
+api/old/
+api/dev/
+pages/api/
+app/api/
+app/_api_disabled/
+
+# Test files
+*_test.py
+test_*.py
+tests/
+
+# Documentation (already in repo)
 *.md
 !README.md
 
 # Logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# Test files
-test/
-tests/
-*.test.js
-*.spec.js
+# Temporary files
+.tmp/
+temp/

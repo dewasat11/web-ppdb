@@ -1,82 +1,37 @@
 {
   "version": 2,
   "functions": {
-    "api/index.py": {
-      "runtime": "@vercel/python@4.3.1"
-    }
+    "api/index.py": { "runtime": "@vercel/python@4.3.1" }
   },
+  "excludeFiles": [
+    "pages/api/**",
+    "app/api/**",
+    "app/**/route.*",
+    "api/handlers/**",
+    "api/_supabase.py",
+    "api/**/__pycache__/**",
+    "api/**/*.pyc",
+    "api/**/*.bak",
+    "api/**/*~"
+  ],
   "rewrites": [
-    {
-      "source": "/api/pendaftar_create",
-      "destination": "/api/index?action=pendaftar_create"
-    },
-    {
-      "source": "/api/pendaftar_list",
-      "destination": "/api/index?action=pendaftar_list"
-    },
-    {
-      "source": "/api/pendaftar_cek_status",
-      "destination": "/api/index?action=pendaftar_cek_status"
-    },
-    {
-      "source": "/api/pendaftar_status",
-      "destination": "/api/index?action=pendaftar_status"
-    },
-    {
-      "source": "/api/pendaftar_update_files",
-      "destination": "/api/index?action=pendaftar_update_files"
-    },
-    {
-      "source": "/api/pendaftar_files_list",
-      "destination": "/api/index?action=pendaftar_files_list"
-    },
-    {
-      "source": "/api/pendaftar_download_zip",
-      "destination": "/api/index?action=pendaftar_download_zip"
-    },
-    {
-      "source": "/api/export_pendaftar_csv",
-      "destination": "/api/index?action=export_pendaftar_csv"
-    },
-    {
-      "source": "/api/upload_file",
-      "destination": "/api/index?action=upload_file"
-    },
-    {
-      "source": "/api/pembayaran_list",
-      "destination": "/api/index?action=pembayaran_list"
-    },
-    {
-      "source": "/api/pembayaran_submit",
-      "destination": "/api/index?action=pembayaran_submit"
-    },
-    {
-      "source": "/api/pembayaran_verify",
-      "destination": "/api/index?action=pembayaran_verify"
-    },
-    {
-      "source": "/api/supa_proxy",
-      "destination": "/api/index?action=supa_proxy"
-    },
-    {
-      "source": "/",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/daftar",
-      "destination": "/daftar.html"
-    },
-    {
-      "source": "/admin",
-      "destination": "/admin.html"
-    },
-    {
-      "source": "/login",
-      "destination": "/login.html"
-    },
-    {
-      "source": "/cek-status",
-      "destination": "/cek-status.html"
-    }
+    { "source": "/api/pendaftar_create", "destination": "/api/index?action=pendaftar_create" },
+    { "source": "/api/pendaftar_list", "destination": "/api/index?action=pendaftar_list" },
+    { "source": "/api/pendaftar_cek_status", "destination": "/api/index?action=pendaftar_cek_status" },
+    { "source": "/api/pendaftar_status", "destination": "/api/index?action=pendaftar_status" },
+    { "source": "/api/pendaftar_update_files", "destination": "/api/index?action=pendaftar_update_files" },
+    { "source": "/api/pendaftar_files_list", "destination": "/api/index?action=pendaftar_files_list" },
+    { "source": "/api/pendaftar_download_zip", "destination": "/api/index?action=pendaftar_download_zip" },
+    { "source": "/api/export_pendaftar_csv", "destination": "/api/index?action=export_pendaftar_csv" },
+    { "source": "/api/upload_file", "destination": "/api/index?action=upload_file" },
+    { "source": "/api/pembayaran_list", "destination": "/api/index?action=pembayaran_list" },
+    { "source": "/api/pembayaran_submit", "destination": "/api/index?action=pembayaran_submit" },
+    { "source": "/api/pembayaran_verify", "destination": "/api/index?action=pembayaran_verify" },
+    { "source": "/api/supa_proxy", "destination": "/api/index?action=supa_proxy" },
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/daftar", "destination": "/daftar.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/cek-status", "destination": "/cek-status.html" }
   ]
 }

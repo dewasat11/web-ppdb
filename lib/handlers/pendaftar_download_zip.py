@@ -4,7 +4,7 @@ from urllib.parse import parse_qs, urlparse
 from io import BytesIO
 import zipfile
 import re
-from .._supabase import supabase_client
+from lib._supabase import supabase_client
 
 
 def slugify(text):

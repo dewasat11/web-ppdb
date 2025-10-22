@@ -32,55 +32,55 @@ class handler(BaseHTTPRequestHandler):
             
             # Route to appropriate handler
             if action == 'pendaftar_create':
-                from api.handlers.pendaftar_create import handler as PendaftarCreateHandler
+                from lib.handlers.pendaftar_create import handler as PendaftarCreateHandler
                 PendaftarCreateHandler.do_POST(self) if self.command == 'POST' else PendaftarCreateHandler.do_OPTIONS(self)
                 
             elif action == 'pendaftar_list':
-                from api.handlers.pendaftar_list import handler as PendaftarListHandler
+                from lib.handlers.pendaftar_list import handler as PendaftarListHandler
                 PendaftarListHandler.do_GET(self) if self.command == 'GET' else PendaftarListHandler.do_OPTIONS(self)
                 
             elif action == 'pendaftar_cek_status':
-                from api.handlers.pendaftar_cek_status import handler as CekStatusHandler
+                from lib.handlers.pendaftar_cek_status import handler as CekStatusHandler
                 CekStatusHandler.do_GET(self) if self.command == 'GET' else CekStatusHandler.do_OPTIONS(self)
                 
             elif action == 'pendaftar_status':
-                from api.handlers.pendaftar_status import handler as StatusHandler
+                from lib.handlers.pendaftar_status import handler as StatusHandler
                 StatusHandler.do_POST(self) if self.command == 'POST' else StatusHandler.do_OPTIONS(self)
                 
             elif action == 'pendaftar_update_files':
-                from api.handlers.pendaftar_update_files import handler as UpdateFilesHandler
+                from lib.handlers.pendaftar_update_files import handler as UpdateFilesHandler
                 UpdateFilesHandler.do_POST(self) if self.command == 'POST' else UpdateFilesHandler.do_OPTIONS(self)
                 
             elif action == 'pendaftar_files_list':
-                from api.handlers.pendaftar_files_list import handler as FilesListHandler
+                from lib.handlers.pendaftar_files_list import handler as FilesListHandler
                 FilesListHandler.do_GET(self) if self.command == 'GET' else FilesListHandler.do_OPTIONS(self)
                 
             elif action == 'pendaftar_download_zip':
-                from api.handlers.pendaftar_download_zip import handler as DownloadZipHandler
+                from lib.handlers.pendaftar_download_zip import handler as DownloadZipHandler
                 DownloadZipHandler.do_GET(self) if self.command == 'GET' else DownloadZipHandler.do_OPTIONS(self)
                 
             elif action == 'export_pendaftar_csv':
-                from api.handlers.export_pendaftar_csv import handler as ExportCSVHandler
+                from lib.handlers.export_pendaftar_csv import handler as ExportCSVHandler
                 ExportCSVHandler.do_GET(self) if self.command == 'GET' else ExportCSVHandler.do_OPTIONS(self)
                 
             elif action == 'upload_file':
-                from api.handlers.upload_file import handler as UploadHandler
+                from lib.handlers.upload_file import handler as UploadHandler
                 UploadHandler.do_POST(self) if self.command == 'POST' else UploadHandler.do_OPTIONS(self)
                 
             elif action == 'pembayaran_list':
-                from api.handlers.pembayaran_list import handler as PembayaranListHandler
+                from lib.handlers.pembayaran_list import handler as PembayaranListHandler
                 PembayaranListHandler.do_GET(self) if self.command == 'GET' else PembayaranListHandler.do_OPTIONS(self)
                 
             elif action == 'pembayaran_submit':
-                from api.handlers.pembayaran_submit import handler as PembayaranSubmitHandler
+                from lib.handlers.pembayaran_submit import handler as PembayaranSubmitHandler
                 PembayaranSubmitHandler.do_POST(self) if self.command == 'POST' else PembayaranSubmitHandler.do_OPTIONS(self)
                 
             elif action == 'pembayaran_verify':
-                from api.handlers.pembayaran_verify import handler as PembayaranVerifyHandler
+                from lib.handlers.pembayaran_verify import handler as PembayaranVerifyHandler
                 PembayaranVerifyHandler.do_POST(self) if self.command == 'POST' else PembayaranVerifyHandler.do_OPTIONS(self)
                 
             elif action == 'supa_proxy':
-                from api.handlers.supa_proxy import handler as SupaProxyHandler
+                from lib.handlers.supa_proxy import handler as SupaProxyHandler
                 if self.command == 'POST':
                     SupaProxyHandler.do_POST(self)
                 elif self.command == 'GET':

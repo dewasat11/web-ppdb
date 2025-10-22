@@ -3,7 +3,7 @@ import json
 import base64
 import re
 from datetime import datetime
-from .._supabase import supabase_client
+from lib._supabase import supabase_client
 
 
 class handler(BaseHTTPRequestHandler):
