@@ -2,7 +2,7 @@ from http.server import BaseHTTPRequestHandler
 import json
 import re
 from typing import Any, Dict
-from ._supabase import supabase_client
+from .._supabase import supabase_client
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):

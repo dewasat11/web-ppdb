@@ -2,7 +2,7 @@ from http.server import BaseHTTPRequestHandler
 import csv
 from io import StringIO
 from datetime import datetime
-from ._supabase import supabase_client
+from .._supabase import supabase_client
 
 
 def sanitize_csv_value(value):

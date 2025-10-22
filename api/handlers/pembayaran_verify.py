@@ -1,6 +1,6 @@
 from http.server import BaseHTTPRequestHandler
 import json
-from ._supabase import supabase_client
+from .._supabase import supabase_client
 import re
 
 class handler(BaseHTTPRequestHandler):

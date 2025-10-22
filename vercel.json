@@ -1,16 +1,69 @@
 {
   "version": 2,
   "functions": {
-    "api/**/*.py": {
+    "api/index.py": {
       "runtime": "@vercel/python@4.3.1"
     }
   },
+  "rewrites": [
+    {
+      "source": "/api/pendaftar_create",
+      "destination": "/api/index?action=pendaftar_create"
+    },
+    {
+      "source": "/api/pendaftar_list",
+      "destination": "/api/index?action=pendaftar_list"
+    },
+    {
+      "source": "/api/pendaftar_cek_status",
+      "destination": "/api/index?action=pendaftar_cek_status"
+    },
+    {
+      "source": "/api/pendaftar_status",
+      "destination": "/api/index?action=pendaftar_status"
+    },
+    {
+      "source": "/api/pendaftar_update_files",
+      "destination": "/api/index?action=pendaftar_update_files"
+    },
+    {
+      "source": "/api/pendaftar_files_list",
+      "destination": "/api/index?action=pendaftar_files_list"
+    },
+    {
+      "source": "/api/pendaftar_download_zip",
+      "destination": "/api/index?action=pendaftar_download_zip"
+    },
+    {
+      "source": "/api/export_pendaftar_csv",
+      "destination": "/api/index?action=export_pendaftar_csv"
+    },
+    {
+      "source": "/api/upload_file",
+      "destination": "/api/index?action=upload_file"
+    },
+    {
+      "source": "/api/pembayaran_list",
+      "destination": "/api/index?action=pembayaran_list"
+    },
+    {
+      "source": "/api/pembayaran_submit",
+      "destination": "/api/index?action=pembayaran_submit"
+    },
+    {
+      "source": "/api/pembayaran_verify",
+      "destination": "/api/index?action=pembayaran_verify"
+    },
+    {
+      "source": "/api/supa_proxy",
+      "destination": "/api/index?action=supa_proxy"
+    }
+  ],
   "routes": [
     { "src": "/", "dest": "/index.html" },
     { "src": "/daftar", "dest": "/daftar.html" },
     { "src": "/admin", "dest": "/admin.html" },
     { "src": "/login", "dest": "/login.html" },
-    { "src": "/cek-status", "dest": "/cek-status.html" },
-    { "src": "/api/(.*)", "dest": "/api/$1.py" }
+    { "src": "/cek-status", "dest": "/cek-status.html" }
   ]
 }
