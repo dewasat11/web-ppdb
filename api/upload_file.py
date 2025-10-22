@@ -32,7 +32,7 @@ class handler(BaseHTTPRequestHandler):
                 )
                 return
 
-            # Validasi nomor registrasi
+            # Validasi nomor registrasi (now using NISN as registration number)
             if nomor_registrasi == "undefined" or not nomor_registrasi.strip():
                 self.send_response(400)
                 self.send_header("Content-type", "application/json")
@@ -43,14 +43,14 @@ class handler(BaseHTTPRequestHandler):
                 )
                 return
 
-            # Validasi format nomor registrasi
-            if not re.match(r'^REG-\d{8}-\d{6}$', nomor_registrasi):
+            # Validasi format nomor registrasi (NISN - 10 digit)
+            if not re.match(r'^\d{10}$', nomor_registrasi):
                 self.send_response(400)
                 self.send_header("Content-type", "application/json")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(
-                    json.dumps({"ok": False, "error": "Format nomor registrasi tidak valid. Harus dalam format REG-YYYYMMDD-XXXXXX"}).encode()
+                    json.dumps({"ok": False, "error": "Format nomor registrasi tidak valid. Harus NISN 10 digit angka"}).encode()
                 )
                 return
 

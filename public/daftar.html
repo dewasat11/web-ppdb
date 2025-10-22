@@ -74,17 +74,16 @@
 
                   <div class="col-md-6">
                     <label class="form-label"
-                      >Nomor KK <span class="text-danger">*</span></label
+                      >Nomor KK</label
                     >
                     <input
                       type="text"
                       class="form-control"
                       name="kkNo"
-                      required
                       maxlength="16"
                       pattern="[0-9]{16}"
                     />
-                    <div class="form-text">16 digit</div>
+                    <div class="form-text">16 digit (opsional)</div>
                   </div>
 
                   <div class="col-md-6">
@@ -515,20 +514,7 @@
                     <small class="text-muted">JPG atau PNG (max 2MB)</small>
                   </div>
 
-                  <div class="col-md-6">
-                    <label class="form-label">
-                      <i class="bi bi-file-medical"></i> Scan Kartu BPJS
-                    </label>
-                    <input
-                      type="file"
-                      class="form-control"
-                      name="fileBpjs"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                    />
-                    <small class="text-muted"
-                      >PDF, JPG, atau PNG (max 2MB) - Opsional</small
-                    >
-                  </div>
+                  <!-- BPJS file upload removed - not in database schema -->
                 </div>
 
                 <div class="mt-4 d-flex gap-2">
@@ -1585,7 +1571,6 @@
           { key: "fileKK", label: "Scan KK" },
           { key: "fileAkta", label: "Scan Akta" },
           { key: "fileFoto", label: "Pas Foto" },
-          { key: "fileBpjs", label: "Scan Kartu BPJS" },
         ];
 
         let hasFiles = false;
@@ -1800,18 +1785,6 @@
             fileUrls.file_foto = await uploadFile(
               fileFoto,
               "foto",
-              nomorRegistrasi
-            );
-          }
-
-          // Upload BPJS (required)
-          const fileBpjs = formData.get("fileBpjs");
-          if (fileBpjs?.size > 0) {
-            submitBtn.innerHTML =
-              '<span class="spinner-border spinner-border-sm me-2"></span>Upload BPJS...';
-            fileUrls.file_bpjs = await uploadFile(
-              fileBpjs,
-              "bpjs",
               nomorRegistrasi
             );
           }

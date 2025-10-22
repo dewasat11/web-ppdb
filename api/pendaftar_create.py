@@ -17,14 +17,14 @@ class handler(BaseHTTPRequestHandler):
             body = self.rfile.read(content_length).decode('utf-8')
             data = json.loads(body)
             
-            # Validasi data wajib
+            # Validasi data wajib (NIK Calon and KK No are now optional based on schema)
             required_fields = [
                 "nisn", "namaLengkap", "tempatLahir", "tanggalLahir", 
                 "jenisKelamin", "alamatJalan", "desa", "kecamatan", 
                 "kotaKabupaten", "provinsi", "ijazahFormalTerakhir",
                 "rencanaTingkat", "rencanaProgram", "namaAyah", 
                 "nikAyah", "statusAyah", "pekerjaanAyah", "namaIbu", 
-                "nikIbu", "statusIbu", "pekerjaanIbu"
+                "nikIbu", "statusIbu", "pekerjaanIbu", "nikCalon"
             ]
             
             missing_fields = [field for field in required_fields if not data.get(field)]
@@ -42,11 +42,10 @@ class handler(BaseHTTPRequestHandler):
             # Validasi format data
             errors = []
             
-            # Validasi NIK calon (16 digit)
-            if data.get("nikCalon"):
-                nik_calon = str(data["nikCalon"]).strip()
-                if not re.match(r'^\d{16}$', nik_calon):
-                    errors.append("NIK Calon harus 16 digit angka")
+            # Validasi NIK calon (16 digit) - Required
+            nik_calon = str(data["nikCalon"]).strip()
+            if not re.match(r'^\d{16}$', nik_calon):
+                errors.append("NIK Calon harus 16 digit angka")
             
             # Validasi NIK Ayah (16 digit)
             nik_ayah = str(data["nikAyah"]).strip()
@@ -57,12 +56,6 @@ class handler(BaseHTTPRequestHandler):
             nik_ibu = str(data["nikIbu"]).strip()
             if not re.match(r'^\d{16}$', nik_ibu):
                 errors.append("NIK Ibu harus 16 digit angka")
-            
-            # Validasi KK No (16 digit)
-            if data.get("kkNo"):
-                kk_no = str(data["kkNo"]).strip()
-                if not re.match(r'^\d{16}$', kk_no):
-                    errors.append("Nomor KK harus 16 digit angka")
             
             # Validasi NISN (10 digit)
             nisn = str(data["nisn"]).strip()
@@ -102,8 +95,7 @@ class handler(BaseHTTPRequestHandler):
             
             # Prepare payload with all required fields (use lowercase for PostgreSQL)
             payload = {
-                "nikcalon": data.get("nikCalon", "").strip() if data.get("nikCalon") else "",
-                "kkno": data.get("kkNo", "").strip() if data.get("kkNo") else "",
+                "nikcalon": nik_calon,
                 "nisn": nisn,
                 "namalengkap": data["namaLengkap"].strip(),
                 "tempatlahir": data["tempatLahir"].strip(),
@@ -129,9 +121,6 @@ class handler(BaseHTTPRequestHandler):
             }
             
             # Add optional fields if provided
-            if data.get("rencanaDomisili"):
-                payload["rencanadomisili"] = data.get("rencanaDomisili", "").strip()
-            
             if data.get("teleponOrtu"):
                 payload["telepon_orang_tua"] = data.get("teleponOrtu", "").strip()
             
@@ -148,7 +137,7 @@ class handler(BaseHTTPRequestHandler):
             
             result_data: Dict[str, Any] = result.data[0]  # type: ignore
             
-            # Response success
+            # Response success - Use NISN as registration number
             self.send_response(201)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
@@ -156,7 +145,7 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({
                 "ok": True,
                 "id": result_data["id"],
-                "nomorRegistrasi": result_data.get("nomor_registrasi") or result_data.get("nomorRegistrasi")
+                "nomorRegistrasi": result_data["nisn"]  # NISN is the registration number
             }).encode())
             
         except Exception as e:
