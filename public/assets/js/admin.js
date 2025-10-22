@@ -165,6 +165,11 @@
                   })" title="Lihat Detail & Berkas">
                     <i class="bi bi-eye"></i>
                   </button>
+                  <button class="btn btn-sm btn-primary" onclick="downloadFotoZip('${
+                    item.nisn || item.nikcalon || item.nik
+                  }', '${(item.nama || '').replace(/'/g, "\\'")}', ${item.id})" title="Download Foto (ZIP)">
+                    <i class="bi bi-download"></i>
+                  </button>
                   ${
                     item.status === "pending" || item.status === "revisi"
                       ? `
@@ -365,10 +370,9 @@
         const r = await fetch("/api/pembayaran_list");
         const result = await r.json();
         if (r.ok && result.data) {
-          const nomorReg =
-            pendaftar.nomor_registrasi || pendaftar.nomorRegistrasi;
+          const nisn = pendaftar.nisn;
           const payment = result.data.find(
-            (p) => p.nomor_registrasi === nomorReg
+            (p) => p.nisn === nisn
           );
           if (payment) {
             const raw = (payment.status || "PENDING").toUpperCase();
@@ -659,11 +663,147 @@
     }
   }
 
+  /* =========================
+     DOWNLOAD FOTO ZIP
+     ========================= */
+  
+  /**
+   * Helper function to create slug from name
+   */
+  function slugify(text) {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')        // Replace spaces with -
+      .replace(/[^\w\-]+/g, '')    // Remove all non-word chars
+      .replace(/\-\-+/g, '-')      // Replace multiple - with single -
+      .replace(/^-+/, '')          // Trim - from start of text
+      .replace(/-+$/, '');         // Trim - from end of text
+  }
+
+  /**
+   * Download all photos for a pendaftar as ZIP
+   * @param {string} nisn - NISN of the pendaftar
+   * @param {string} nama - Name of the pendaftar
+   * @param {number} id - ID of the pendaftar
+   */
+  async function downloadFotoZip(nisn, nama, id) {
+    try {
+      // Show loading indicator
+      const originalButton = event.target.closest('button');
+      const originalHTML = originalButton.innerHTML;
+      originalButton.disabled = true;
+      originalButton.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+      console.log(`Downloading photos for: ${nama} (NISN: ${nisn})`);
+
+      // Fetch file list from API
+      const response = await fetch(`/api/pendaftar_files_list?nisn=${encodeURIComponent(nisn)}`);
+      const result = await response.json();
+
+      if (!result.ok) {
+        throw new Error(result.error || 'Gagal mengambil daftar file');
+      }
+
+      const files = result.files || [];
+      const pendaftar = result.pendaftar || { nama: nama };
+
+      // Filter only image files
+      const imageFiles = files.filter(f => f.is_image);
+
+      if (imageFiles.length === 0) {
+        alert('Tidak ada foto yang tersedia untuk pendaftar ini.');
+        originalButton.disabled = false;
+        originalButton.innerHTML = originalHTML;
+        return;
+      }
+
+      console.log(`Found ${imageFiles.length} image files`);
+
+      // Create ZIP using JSZip
+      const zip = new JSZip();
+      const slugName = slugify(pendaftar.nama || nama);
+      const rootFolder = zip.folder(slugName);
+
+      let successCount = 0;
+      let failedFiles = [];
+
+      // Download each file and add to ZIP
+      for (const file of imageFiles) {
+        try {
+          console.log(`Downloading: ${file.name}`);
+          
+          // Fetch file from signed URL
+          const fileResponse = await fetch(file.url);
+          if (!fileResponse.ok) {
+            throw new Error(`HTTP ${fileResponse.status}`);
+          }
+
+          const blob = await fileResponse.blob();
+          
+          // Create folder structure based on file type
+          const typeFolder = rootFolder.folder(file.type);
+          typeFolder.file(file.name, blob);
+          
+          successCount++;
+          console.log(`✓ Added: ${file.type}/${file.name}`);
+        } catch (error) {
+          console.error(`✗ Failed to download ${file.name}:`, error);
+          failedFiles.push(file.name);
+        }
+      }
+
+      if (successCount === 0) {
+        throw new Error('Semua file gagal didownload. Silakan coba lagi.');
+      }
+
+      // Generate ZIP file
+      console.log('Generating ZIP file...');
+      const zipBlob = await zip.generateAsync({ 
+        type: 'blob',
+        compression: 'DEFLATE',
+        compressionOptions: { level: 6 }
+      });
+
+      // Download ZIP using FileSaver
+      const zipFilename = `${slugName}.zip`;
+      saveAs(zipBlob, zipFilename);
+
+      console.log(`✓ ZIP downloaded: ${zipFilename}`);
+
+      // Show success message with details
+      let message = `✓ Berhasil mendownload ${successCount} foto dalam ${zipFilename}`;
+      if (failedFiles.length > 0) {
+        message += `\n\n⚠️ ${failedFiles.length} file gagal didownload:\n${failedFiles.join(', ')}`;
+      }
+      alert(message);
+
+      // Restore button
+      originalButton.disabled = false;
+      originalButton.innerHTML = originalHTML;
+
+    } catch (error) {
+      console.error('Error downloading ZIP:', error);
+      alert('❌ Error: ' + error.message);
+      
+      // Restore button
+      if (event && event.target) {
+        const btn = event.target.closest('button');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-download"></i>';
+        }
+      }
+    }
+  }
+
   // expose
   window.lihatDetail = lihatDetail;
   window.openVerifikasiModal = openVerifikasiModal;
   window.confirmVerifikasi = confirmVerifikasi;
   window.updateStatus = updateStatus;
+  window.downloadFotoZip = downloadFotoZip;
 
   /* =========================
      4) EXPORT CSV PENDAFTAR
@@ -680,7 +820,7 @@
     };
 
     const headers = [
-      "Nomor Registrasi",
+      "NISN",
       "Tanggal Daftar",
       "Status",
       "NIK",
@@ -711,7 +851,7 @@
 
     allPendaftarData.forEach((item) => {
       const row = [
-        item.nomor_registrasi,
+        item.nisn,
         item.tanggal_daftar,
         item.status,
         item.nik,
@@ -753,6 +893,37 @@
     URL.revokeObjectURL(url);
   }
   window.exportToCSV = exportToCSV;
+
+  /**
+   * Export CSV via Server-side API (with file check)
+   * Format sesuai requirement: nisn,nama,tanggal_lahir,tempat_lahir,nama_ayah,nama_ibu,nomor_orangtua,rencana_tingkat,rencana_program,file_akte,file_ijazah,file_foto,file_bpjs
+   */
+  function exportToCSVServer() {
+    try {
+      // Show loading indicator
+      const btn = document.querySelector('#btnExportCSVServer');
+      if (btn) {
+        const originalHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengunduh...';
+        
+        // Restore button after download starts
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.innerHTML = originalHTML;
+        }, 2000);
+      }
+
+      // Trigger server-side CSV download
+      window.location.href = '/api/export_pendaftar_csv';
+      
+      console.log('✓ CSV export initiated via server');
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      alert('❌ Error: ' + error.message);
+    }
+  }
+  window.exportToCSVServer = exportToCSVServer;
 
   /* =========================
      5) PEMBAYARAN

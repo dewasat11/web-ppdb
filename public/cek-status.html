@@ -94,7 +94,7 @@
           <i class="bi bi-search"></i> Cek Status Pendaftaran!
         </h1>
         <p class="lead">
-          Masukkan nomor registrasi Anda untuk melihat status pendaftaran
+          Masukkan NISN Anda untuk melihat status pendaftaran
         </p>
       </div>
     </section>
@@ -444,7 +444,7 @@
                                   /^0/,
                                   ""
                                 )}?text=${encodeURIComponent(
-                                    `Assalamualaikum,\n\nSelamat! Pendaftaran santri atas nama *${data.nama}* (${data.nomorRegistrasi}) telah *SELESAI* dan pembayaran telah *TERVERIFIKASI*.\n\nSilakan hubungi kami untuk informasi lebih lanjut mengenai proses selanjutnya.\n\nTerima kasih.`
+                                    `Assalamualaikum,\n\nSelamat! Pendaftaran santri atas nama *${data.nama}* (NISN: ${data.nisn}) telah *SELESAI* dan pembayaran telah *TERVERIFIKASI*.\n\nSilakan hubungi kami untuk informasi lebih lanjut mengenai proses selanjutnya.\n\nTerima kasih.`
                                   )}" 
                                    target="_blank"
                                    class="btn btn-success btn-lg">

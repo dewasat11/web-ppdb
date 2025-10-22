@@ -76,7 +76,18 @@ class handler(BaseHTTPRequestHandler):
                     )
                     return
                     
-            # Note: file_bpjs is not in the database schema, so it's not supported
+            if data.get("file_bpjs"):
+                # Validasi URL file_bpjs (opsional)
+                if data["file_bpjs"].startswith(('http://', 'https://')):
+                    update_data["file_bpjs"] = data["file_bpjs"]
+                else:
+                    self.send_response(400)
+                    self.send_header("Content-type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(
+                        json.dumps({"ok": False, "error": "URL file_bpjs tidak valid"}).encode()
+                    )
+                    return
 
             if not update_data:
                 self.send_response(400)

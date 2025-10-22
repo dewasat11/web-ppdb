@@ -514,7 +514,19 @@
                     <small class="text-muted">JPG atau PNG (max 2MB)</small>
                   </div>
 
-                  <!-- BPJS file upload removed - not in database schema -->
+                  <div class="col-md-6">
+                    <label class="form-label">
+                      <i class="bi bi-file-medical"></i> Kartu BPJS
+                      <span class="text-muted">(Opsional)</span>
+                    </label>
+                    <input
+                      type="file"
+                      class="form-control"
+                      name="fileBPJS"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                    />
+                    <small class="text-muted">PDF, JPG, atau PNG (max 2MB) - Tidak wajib</small>
+                  </div>
                 </div>
 
                 <div class="mt-4 d-flex gap-2">
@@ -562,18 +574,18 @@
             <h4 class="mb-3">🎉 Selamat!</h4>
             <p class="mb-2">Pendaftaran Anda telah berhasil disimpan.</p>
             <div class="alert alert-info">
-              <strong>Nomor Registrasi Anda:</strong><br />
+              <strong>NISN Anda:</strong><br />
               <h3 class="text-primary mb-2" id="regNo"></h3>
               <button
                 class="btn btn-sm btn-outline-primary"
                 id="btnSalinReg"
-                onclick="salinNomorRegistrasi()"
+                onclick="salinNISN()"
               >
-                <i class="bi bi-clipboard"></i> Salin Nomor Registrasi
+                <i class="bi bi-clipboard"></i> Salin NISN
               </button>
             </div>
             <p class="text-muted small">
-              <i class="bi bi-info-circle"></i> Simpan nomor registrasi ini
+              <i class="bi bi-info-circle"></i> Simpan NISN ini
               untuk tracking status pendaftaran Anda.
             </p>
           </div>
@@ -1571,6 +1583,7 @@
           { key: "fileKK", label: "Scan KK" },
           { key: "fileAkta", label: "Scan Akta" },
           { key: "fileFoto", label: "Pas Foto" },
+          { key: "fileBPJS", label: "Kartu BPJS (Opsional)" },
         ];
 
         let hasFiles = false;
@@ -1620,8 +1633,8 @@
         });
       }
 
-      // Function to copy nomor registrasi to clipboard
-      function salinNomorRegistrasi() {
+      // Function to copy NISN to clipboard
+      function salinNISN() {
         const regNo = document.getElementById("regNo").textContent;
         const btnSalin = document.getElementById("btnSalinReg");
 
@@ -1648,12 +1661,12 @@
       }
 
       // Function to upload file via backend API
-      async function uploadFile(file, type, nomorRegistrasi) {
+      async function uploadFile(file, type, nisn) {
         if (!file) return null;
 
-        // Validate nomor registrasi
-        if (!nomorRegistrasi || nomorRegistrasi === "undefined") {
-          throw new Error(`Nomor registrasi tidak valid: ${nomorRegistrasi}`);
+        // Validate NISN
+        if (!nisn || nisn === "undefined") {
+          throw new Error(`NISN tidak valid: ${nisn}`);
         }
 
         // Validate file size (max 2MB)
@@ -1661,7 +1674,7 @@
           throw new Error(`File ${type} terlalu besar (max 2MB)`);
         }
 
-        console.log(`Uploading ${type}: ${file.name} untuk ${nomorRegistrasi}`);
+        console.log(`Uploading ${type}: ${file.name} untuk NISN ${nisn}`);
 
         // Convert to base64
         const base64Data = await fileToBase64(file);
@@ -1675,7 +1688,7 @@
             fileName: file.name,
             fileType: type,
             mimeType: file.type,
-            nomorRegistrasi: nomorRegistrasi,
+            nisn: nisn,
           }),
         });
 
@@ -1734,15 +1747,15 @@
             throw new Error(json.error || "Gagal menyimpan data");
           }
 
-          // Get nomor registrasi with fallback
-          const nomorRegistrasi = json.nomorRegistrasi || json.nomor_registrasi;
+          // Get NISN from response
+          const nisn = json.nisn;
           const pendaftarId = json.id;
 
-          if (!nomorRegistrasi) {
-            throw new Error("Nomor registrasi tidak diterima dari server");
+          if (!nisn) {
+            throw new Error("NISN tidak diterima dari server");
           }
 
-          console.log("Nomor Registrasi:", nomorRegistrasi);
+          console.log("NISN:", nisn);
           console.log("Pendaftar ID:", pendaftarId);
 
           // Step 2: Upload files if any
@@ -1750,6 +1763,7 @@
           const fileKK = formData.get("fileKK");
           const fileAkta = formData.get("fileAkta");
           const fileFoto = formData.get("fileFoto");
+          const fileBPJS = formData.get("fileBPJS");
 
           const fileUrls = {};
 
@@ -1759,14 +1773,14 @@
             fileUrls.file_ijazah = await uploadFile(
               fileIjazah,
               "ijazah",
-              nomorRegistrasi
+              nisn
             );
           }
 
           if (fileKK?.size > 0) {
             submitBtn.innerHTML =
               '<span class="spinner-border spinner-border-sm me-2"></span>Upload KK...';
-            fileUrls.file_kk = await uploadFile(fileKK, "kk", nomorRegistrasi);
+            fileUrls.file_kk = await uploadFile(fileKK, "kk", nisn);
           }
 
           if (fileAkta?.size > 0) {
@@ -1775,7 +1789,7 @@
             fileUrls.file_akta = await uploadFile(
               fileAkta,
               "akta",
-              nomorRegistrasi
+              nisn
             );
           }
 
@@ -1785,7 +1799,17 @@
             fileUrls.file_foto = await uploadFile(
               fileFoto,
               "foto",
-              nomorRegistrasi
+              nisn
+            );
+          }
+
+          if (fileBPJS?.size > 0) {
+            submitBtn.innerHTML =
+              '<span class="spinner-border spinner-border-sm me-2"></span>Upload BPJS...';
+            fileUrls.file_bpjs = await uploadFile(
+              fileBPJS,
+              "bpjs",
+              nisn
             );
           }
 
@@ -1812,8 +1836,8 @@
           // Success! Show modal
           modal.hide();
 
-          // Set nomor registrasi dan show success modal
-          document.getElementById("regNo").textContent = nomorRegistrasi;
+          // Set NISN dan show success modal
+          document.getElementById("regNo").textContent = nisn;
 
           // Reset form
           form.reset();
@@ -1830,11 +1854,11 @@
           // Show detailed error
           let errorMsg = error.message || "Terjadi kesalahan";
           if (
-            errorMsg.includes("nomor registrasi tidak valid") ||
+            errorMsg.includes("NISN tidak valid") ||
             errorMsg.includes("undefined")
           ) {
             errorMsg =
-              "Gagal membuat nomor registrasi. Pastikan database trigger sudah diperbaiki.\n\nSilakan jalankan SQL fix di Supabase SQL Editor.";
+              "Gagal mendapatkan NISN dari server. Pastikan NISN sudah diisi dengan benar.";
           }
 
           alert(

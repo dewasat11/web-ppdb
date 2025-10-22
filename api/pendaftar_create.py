@@ -9,7 +9,7 @@ class handler(BaseHTTPRequestHandler):
         """
         POST /api/pendaftar_create
         Body: Comprehensive registration data with NIK, family info, education, etc.
-        Response: { ok: true, id: ..., nomorRegistrasi: ... }
+        Response: { ok: true, id: ..., nisn: ... }
         """
         try:
             # Parse request body
@@ -145,7 +145,7 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({
                 "ok": True,
                 "id": result_data["id"],
-                "nomorRegistrasi": result_data["nisn"]  # NISN is the registration number
+                "nisn": result_data["nisn"]
             }).encode())
             
         except Exception as e:

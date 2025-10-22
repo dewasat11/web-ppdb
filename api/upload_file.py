@@ -17,40 +17,40 @@ class handler(BaseHTTPRequestHandler):
             file_base64 = data.get("file")
             file_name = data.get("fileName")
             file_type = data.get("fileType")
-            nomor_registrasi = data.get("nomorRegistrasi")
+            nisn = data.get("nisn")
 
-            print(f"Upload request - File: {file_name}, Type: {file_type}, Reg: {nomor_registrasi}")
+            print(f"Upload request - File: {file_name}, Type: {file_type}, NISN: {nisn}")
 
             # Validasi input wajib
-            if not all([file_base64, file_name, nomor_registrasi]):
+            if not all([file_base64, file_name, nisn]):
                 self.send_response(400)
                 self.send_header("Content-type", "application/json")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(
-                    json.dumps({"ok": False, "error": "Missing required fields: file, fileName, nomorRegistrasi"}).encode()
+                    json.dumps({"ok": False, "error": "Missing required fields: file, fileName, nisn"}).encode()
                 )
                 return
 
-            # Validasi nomor registrasi (now using NISN as registration number)
-            if nomor_registrasi == "undefined" or not nomor_registrasi.strip():
+            # Validasi NISN
+            if nisn == "undefined" or not nisn.strip():
                 self.send_response(400)
                 self.send_header("Content-type", "application/json")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(
-                    json.dumps({"ok": False, "error": "Nomor registrasi tidak valid"}).encode()
+                    json.dumps({"ok": False, "error": "NISN tidak valid"}).encode()
                 )
                 return
 
-            # Validasi format nomor registrasi (NISN - 10 digit)
-            if not re.match(r'^\d{10}$', nomor_registrasi):
+            # Validasi format NISN (10 digit)
+            if not re.match(r'^\d{10}$', nisn):
                 self.send_response(400)
                 self.send_header("Content-type", "application/json")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(
-                    json.dumps({"ok": False, "error": "Format nomor registrasi tidak valid. Harus NISN 10 digit angka"}).encode()
+                    json.dumps({"ok": False, "error": "Format NISN tidak valid. Harus 10 digit angka"}).encode()
                 )
                 return
 
@@ -98,7 +98,7 @@ class handler(BaseHTTPRequestHandler):
 
             # Generate unique filename dengan format yang konsisten
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            unique_filename = f"{nomor_registrasi}/{file_type}_{timestamp}.{file_ext}"
+            unique_filename = f"{nisn}/{file_type}_{timestamp}.{file_ext}"
 
             print(f"Uploading to: {unique_filename}")
 
