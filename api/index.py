@@ -59,9 +59,21 @@ class handler(BaseHTTPRequestHandler):
                 from lib.handlers.pendaftar_download_zip import handler as DownloadZipHandler
                 DownloadZipHandler.do_GET(self) if self.command == 'GET' else DownloadZipHandler.do_OPTIONS(self)
                 
-            elif action == 'export_pendaftar_csv':
-                from lib.handlers.export_pendaftar_csv import handler as ExportCSVHandler
-                ExportCSVHandler.do_GET(self) if self.command == 'GET' else ExportCSVHandler.do_OPTIONS(self)
+            elif action == 'export_pendaftar_xlsx':
+                from lib.handlers.export_pendaftar_xlsx import handler as ExportXLSXHandler
+                ExportXLSXHandler.do_GET(self) if self.command == 'GET' else ExportXLSXHandler.do_OPTIONS(self)
+                
+            elif action == 'get_gelombang_list':
+                from lib.handlers.gelombang_list import handler as GelombangListHandler
+                GelombangListHandler.do_GET(self) if self.command == 'GET' else GelombangListHandler.do_OPTIONS(self)
+                
+            elif action == 'update_gelombang':
+                from lib.handlers.gelombang_update import handler as GelombangUpdateHandler
+                GelombangUpdateHandler.do_POST(self) if self.command == 'POST' else GelombangUpdateHandler.do_OPTIONS(self)
+                
+            elif action == 'set_gelombang_active':
+                from lib.handlers.gelombang_set_active import handler as GelombangSetActiveHandler
+                GelombangSetActiveHandler.do_POST(self) if self.command == 'POST' else GelombangSetActiveHandler.do_OPTIONS(self)
                 
             elif action == 'upload_file':
                 from lib.handlers.upload_file import handler as UploadHandler

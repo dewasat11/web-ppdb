@@ -138,7 +138,7 @@ Expected results:
 - ✅ CORS headers present
 - ✅ File uploads work
 - ✅ ZIP download works
-- ✅ CSV export works
+- ✅ Excel (.xlsx) export works
 
 ---
 
@@ -153,7 +153,7 @@ Expected results:
 | `/api/pendaftar_update_files` | `/api/index?action=pendaftar_update_files` | `lib.handlers.pendaftar_update_files` |
 | `/api/pendaftar_files_list` | `/api/index?action=pendaftar_files_list` | `lib.handlers.pendaftar_files_list` |
 | `/api/pendaftar_download_zip` | `/api/index?action=pendaftar_download_zip` | `lib.handlers.pendaftar_download_zip` |
-| `/api/export_pendaftar_csv` | `/api/index?action=export_pendaftar_csv` | `lib.handlers.export_pendaftar_csv` |
+| `/api/export_pendaftar_xlsx` | `/api/index?action=export_pendaftar_xlsx` | `lib.handlers.export_pendaftar_xlsx` |
 | `/api/upload_file` | `/api/index?action=upload_file` | `lib.handlers.upload_file` |
 | `/api/pembayaran_list` | `/api/index?action=pembayaran_list` | `lib.handlers.pembayaran_list` |
 | `/api/pembayaran_submit` | `/api/index?action=pembayaran_submit` | `lib.handlers.pembayaran_submit` |

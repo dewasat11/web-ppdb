@@ -165,11 +165,6 @@
                   })" title="Lihat Detail & Berkas">
                     <i class="bi bi-eye"></i>
                   </button>
-                  <button class="btn btn-sm btn-primary" onclick="downloadFotoZip('${
-                    item.nisn || item.nikcalon || item.nik
-                  }', '${(item.nama || '').replace(/'/g, "\\'")}', ${item.id})" title="Download Foto (ZIP)">
-                    <i class="bi bi-download"></i>
-                  </button>
                   ${
                     item.status === "pending" || item.status === "revisi"
                       ? `
@@ -682,248 +677,34 @@
       .replace(/-+$/, '');         // Trim - from end of text
   }
 
-  /**
-   * Download all photos for a pendaftar as ZIP
-   * @param {string} nisn - NISN of the pendaftar
-   * @param {string} nama - Name of the pendaftar
-   * @param {number} id - ID of the pendaftar
-   */
-  async function downloadFotoZip(nisn, nama, id) {
-    try {
-      // Show loading indicator
-      const originalButton = event.target.closest('button');
-      const originalHTML = originalButton.innerHTML;
-      originalButton.disabled = true;
-      originalButton.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-
-      console.log(`Downloading photos for: ${nama} (NISN: ${nisn})`);
-
-      // Fetch file list from API
-      const response = await fetch(`/api/pendaftar_files_list?nisn=${encodeURIComponent(nisn)}`);
-      const result = await response.json();
-
-      if (!result.ok) {
-        throw new Error(result.error || 'Gagal mengambil daftar file');
-      }
-
-      const files = result.files || [];
-      const pendaftar = result.pendaftar || { nama: nama };
-
-      // Filter only image files
-      const imageFiles = files.filter(f => f.is_image);
-
-      if (imageFiles.length === 0) {
-        alert('Tidak ada foto yang tersedia untuk pendaftar ini.');
-        originalButton.disabled = false;
-        originalButton.innerHTML = originalHTML;
-        return;
-      }
-
-      console.log(`Found ${imageFiles.length} image files`);
-
-      // Create ZIP using JSZip
-      const zip = new JSZip();
-      const slugName = slugify(pendaftar.nama || nama);
-      const rootFolder = zip.folder(slugName);
-
-      let successCount = 0;
-      let failedFiles = [];
-
-      // Download each file and add to ZIP
-      for (const file of imageFiles) {
-        try {
-          console.log(`Downloading: ${file.name}`);
-          
-          // Fetch file from signed URL
-          const fileResponse = await fetch(file.url);
-          if (!fileResponse.ok) {
-            throw new Error(`HTTP ${fileResponse.status}`);
-          }
-
-          const blob = await fileResponse.blob();
-          
-          // Create folder structure based on file type
-          const typeFolder = rootFolder.folder(file.type);
-          typeFolder.file(file.name, blob);
-          
-          successCount++;
-          console.log(`✓ Added: ${file.type}/${file.name}`);
-        } catch (error) {
-          console.error(`✗ Failed to download ${file.name}:`, error);
-          failedFiles.push(file.name);
-        }
-      }
-
-      if (successCount === 0) {
-        throw new Error('Semua file gagal didownload. Silakan coba lagi.');
-      }
-
-      // Generate ZIP file
-      console.log('Generating ZIP file...');
-      const zipBlob = await zip.generateAsync({ 
-        type: 'blob',
-        compression: 'DEFLATE',
-        compressionOptions: { level: 6 }
-      });
-
-      // Download ZIP using FileSaver
-      const zipFilename = `${slugName}.zip`;
-      saveAs(zipBlob, zipFilename);
-
-      console.log(`✓ ZIP downloaded: ${zipFilename}`);
-
-      // Show success message with details
-      let message = `✓ Berhasil mendownload ${successCount} foto dalam ${zipFilename}`;
-      if (failedFiles.length > 0) {
-        message += `\n\n⚠️ ${failedFiles.length} file gagal didownload:\n${failedFiles.join(', ')}`;
-      }
-      alert(message);
-
-      // Restore button
-      originalButton.disabled = false;
-      originalButton.innerHTML = originalHTML;
-
-    } catch (error) {
-      console.error('Error downloading ZIP:', error);
-      alert('❌ Error: ' + error.message);
-      
-      // Restore button
-      if (event && event.target) {
-        const btn = event.target.closest('button');
-        if (btn) {
-          btn.disabled = false;
-          btn.innerHTML = '<i class="bi bi-download"></i>';
-        }
-      }
-    }
-  }
-
   // expose
   window.lihatDetail = lihatDetail;
   window.openVerifikasiModal = openVerifikasiModal;
   window.confirmVerifikasi = confirmVerifikasi;
   window.updateStatus = updateStatus;
-  window.downloadFotoZip = downloadFotoZip;
 
   /* =========================
      4) EXPORT CSV PENDAFTAR
      ========================= */
-  function exportToCSV() {
-    if (!allPendaftarData.length) {
-      alert("Tidak ada data untuk di-export");
-      return;
-    }
-    const esc = (v) => {
-      if (v === null || v === undefined) return "";
-      const s = String(v);
-      return /["\n,]/.test(s) ? `"${s.replace(/"/g, '""')}"` : `"${s}"`;
-    };
-
-    const headers = [
-      "NISN",
-      "Tanggal Daftar",
-      "Status",
-      "NIK",
-      "Nama Lengkap",
-      "Tempat Lahir",
-      "Tanggal Lahir",
-      "Jenis Kelamin",
-      "No HP",
-      "Alamat Jalan",
-      "Desa",
-      "Kecamatan",
-      "Kabupaten/Kota",
-      "Provinsi",
-      "Ijazah Terakhir",
-      "Sekolah Domisili",
-      "Tingkat",
-      "Kelas",
-      "NIK Ayah",
-      "Nama Ayah",
-      "NIK Ibu",
-      "Nama Ibu",
-      "Catatan Admin",
-      "Tanggal Verifikasi",
-      "Verifikasi Oleh",
-    ];
-
-    const rows = [headers.map(esc).join(",")];
-
-    allPendaftarData.forEach((item) => {
-      const row = [
-        item.nisn,
-        item.tanggal_daftar,
-        item.status,
-        item.nik,
-        item.nama_lengkap,
-        item.tempat_lahir,
-        item.tanggal_lahir,
-        item.jenis_kelamin,
-        item.no_hp,
-        item.alamat_jalan,
-        item.desa,
-        item.kecamatan,
-        item.kab_kota,
-        item.provinsi,
-        item.ijazah_terakhir,
-        item.sekolah_domisili,
-        item.tingkat,
-        item.kelas,
-        item.nik_ayah,
-        item.nama_ayah,
-        item.nik_ibu,
-        item.nama_ibu,
-        item.alasan,
-        item.verifiedat,
-        item.verifiedby,
-      ].map(esc);
-      rows.push(row.join(","));
-    });
-
-    const csv = "\uFEFF" + rows.join("\r\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const date = new Date().toISOString().split("T")[0];
-    a.href = url;
-    a.download = `pendaftar_${date}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-  window.exportToCSV = exportToCSV;
-
   /**
-   * Export CSV via Server-side API (with file check)
-   * Format sesuai requirement: nisn,nama,tanggal_lahir,tempat_lahir,nama_ayah,nama_ibu,nomor_orangtua,rencana_tingkat,rencana_program,file_akte,file_ijazah,file_foto,file_bpjs
+   * Export to Excel (.xlsx) via Server-side API
+   * Data from v_pendaftar_export view, sorted by rencana_program A-Z
    */
-  function exportToCSVServer() {
+  function exportToExcel() {
     try {
-      // Show loading indicator
-      const btn = document.querySelector('#btnExportCSVServer');
-      if (btn) {
-        const originalHTML = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengunduh...';
-        
-        // Restore button after download starts
-        setTimeout(() => {
-          btn.disabled = false;
-          btn.innerHTML = originalHTML;
-        }, 2000);
-      }
-
-      // Trigger server-side CSV download
-      window.location.href = '/api/export_pendaftar_csv';
+      // Show alert notification
+      alert('Memproses export Excel...\nFile akan segera diunduh.');
       
-      console.log('✓ CSV export initiated via server');
+      // Trigger server-side Excel download
+      window.location.href = '/api/export_pendaftar_xlsx';
+      
+      console.log('✓ Excel export initiated via server');
     } catch (error) {
-      console.error('Error exporting CSV:', error);
+      console.error('Error exporting Excel:', error);
       alert('❌ Error: ' + error.message);
     }
   }
-  window.exportToCSVServer = exportToCSVServer;
+  window.exportToExcel = exportToExcel;
 
   /**
    * Download ALL files from ALL pendaftar as ZIP
@@ -1327,7 +1108,191 @@ SMP SAINS AN NAJAH PURWOKERTO`
   });
 
   /* =========================
-     7) INIT
+     7) GELOMBANG MANAGEMENT
+     ========================= */
+  let gelombangModalInstance = null;
+  let currentGelombangData = [];
+
+  /**
+   * Open gelombang management modal
+   */
+  async function openGelombangModal() {
+    const modal = document.getElementById('modalGelombang');
+    if (!modal) return;
+    
+    gelombangModalInstance = new bootstrap.Modal(modal);
+    gelombangModalInstance.show();
+    
+    await loadGelombangData();
+  }
+  window.openGelombangModal = openGelombangModal;
+
+  /**
+   * Load gelombang data and render forms
+   */
+  async function loadGelombangData() {
+    const container = document.getElementById('gelombangFormContainer');
+    if (!container) return;
+    
+    try {
+      const response = await fetch('/api/get_gelombang_list');
+      const result = await response.json();
+      
+      if (!result.ok || !result.data) {
+        throw new Error(result.error || 'Failed to load gelombang');
+      }
+      
+      currentGelombangData = result.data;
+      renderGelombangForms(result.data);
+    } catch (error) {
+      console.error('Error loading gelombang:', error);
+      container.innerHTML = `
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle"></i> 
+          Gagal memuat data gelombang: ${error.message}
+        </div>
+      `;
+    }
+  }
+
+  /**
+   * Render gelombang forms
+   */
+  function renderGelombangForms(gelombangList) {
+    const container = document.getElementById('gelombangFormContainer');
+    if (!container) return;
+    
+    const formsHTML = gelombangList.map((gelombang, index) => {
+      const isActive = gelombang.is_active;
+      const badgeClass = isActive ? 'bg-success' : 'bg-secondary';
+      const badgeText = isActive ? 'Aktif' : 'Nonaktif';
+      
+      return `
+        <div class="card mb-3 border-${isActive ? 'success' : 'secondary'}">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">
+              <i class="bi bi-${index + 1}-circle"></i> ${gelombang.nama}
+            </h6>
+            <span class="badge ${badgeClass}">${badgeText}</span>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Tanggal Mulai</label>
+                <input type="date" class="form-control" id="start_date_${gelombang.id}" 
+                       value="${gelombang.start_date}" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Tanggal Akhir</label>
+                <input type="date" class="form-control" id="end_date_${gelombang.id}" 
+                       value="${gelombang.end_date}" required>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Tahun Ajaran</label>
+                <input type="text" class="form-control" id="tahun_ajaran_${gelombang.id}" 
+                       value="${gelombang.tahun_ajaran}" placeholder="2026/2027" required>
+              </div>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+              <button class="btn btn-primary btn-sm" onclick="updateGelombang(${gelombang.id})">
+                <i class="bi bi-save"></i> Simpan Perubahan
+              </button>
+              ${!isActive ? `
+              <button class="btn btn-success btn-sm" onclick="setGelombangActive(${gelombang.id})">
+                <i class="bi bi-check-circle"></i> Jadikan Aktif
+              </button>
+              ` : `
+              <button class="btn btn-secondary btn-sm" disabled>
+                <i class="bi bi-check-circle-fill"></i> Gelombang Aktif
+              </button>
+              `}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    container.innerHTML = formsHTML;
+  }
+
+  /**
+   * Update gelombang data
+   */
+  async function updateGelombang(id) {
+    const startDate = document.getElementById(`start_date_${id}`).value;
+    const endDate = document.getElementById(`end_date_${id}`).value;
+    const tahunAjaran = document.getElementById(`tahun_ajaran_${id}`).value;
+    
+    // Validate
+    if (!startDate || !endDate || !tahunAjaran) {
+      toastr.error('Semua field harus diisi');
+      return;
+    }
+    
+    if (new Date(startDate) > new Date(endDate)) {
+      toastr.error('Tanggal mulai harus lebih kecil atau sama dengan tanggal akhir');
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/update_gelombang', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: id,
+          start_date: startDate,
+          end_date: endDate,
+          tahun_ajaran: tahunAjaran
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (!result.ok) {
+        throw new Error(result.error || 'Gagal mengupdate gelombang');
+      }
+      
+      toastr.success(result.message || 'Gelombang berhasil diupdate');
+      await loadGelombangData(); // Reload data
+    } catch (error) {
+      console.error('Error updating gelombang:', error);
+      toastr.error(`Gagal mengupdate: ${error.message}`);
+    }
+  }
+  window.updateGelombang = updateGelombang;
+
+  /**
+   * Set gelombang as active
+   */
+  async function setGelombangActive(id) {
+    if (!confirm('Yakin ingin mengaktifkan gelombang ini? Gelombang lain akan dinonaktifkan.')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/set_gelombang_active', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id })
+      });
+      
+      const result = await response.json();
+      
+      if (!result.ok) {
+        throw new Error(result.error || 'Gagal mengaktifkan gelombang');
+      }
+      
+      toastr.success(result.message || 'Gelombang berhasil diaktifkan');
+      await loadGelombangData(); // Reload data
+    } catch (error) {
+      console.error('Error activating gelombang:', error);
+      toastr.error(`Gagal mengaktifkan: ${error.message}`);
+    }
+  }
+  window.setGelombangActive = setGelombangActive;
+
+  /* =========================
+     8) INIT
      ========================= */
   document.addEventListener("DOMContentLoaded", () => {
     // default tab load

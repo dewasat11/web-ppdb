@@ -9,7 +9,7 @@ Web application untuk pendaftaran siswa baru SMP dengan sistem pembayaran online
 - ✅ Cek Status Pendaftaran
 - ✅ Sistem Pembayaran dengan Upload Bukti
 - ✅ Dashboard Admin untuk Verifikasi
-- ✅ Export Data ke CSV
+- ✅ Export Data ke Excel (.xlsx)
 - ✅ Responsive Design
 
 ## 🛠️ Tech Stack

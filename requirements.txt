@@ -3,3 +3,4 @@ requests
 bcrypt
 python-jose
 python-multipart==0.0.9
+openpyxl

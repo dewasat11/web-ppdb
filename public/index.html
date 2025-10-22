@@ -224,80 +224,14 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <!-- Gelombang 1 -->
-          <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-green-200 relative overflow-hidden">
-            <div class="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 rounded-bl-lg text-sm font-semibold">Aktif</div>
-            <div class="text-center">
-              <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="bi bi-1-circle text-white text-2xl"></i>
-              </div>
-              <h3 class="text-xl font-bold mb-2 text-gray-800">Gelombang 1</h3>
-              <div class="space-y-2 mb-4">
-                <div class="flex items-center justify-center text-gray-600">
-                  <i class="bi bi-calendar-event mr-2 text-green-500"></i>
-                  <span class="text-sm">01 Oktober 2025 - 31 Desember 2025</span>
-                </div>
-                <div class="flex items-center justify-center text-gray-600">
-                  <i class="bi bi-mortarboard mr-2 text-green-500"></i>
-                  <span class="text-sm font-semibold">T.A. 2026/2027</span>
-                </div>
-              </div>
-              <div class="bg-green-50 rounded-lg p-3 mb-4">
-                <p class="text-sm text-green-700 font-medium">Pendaftaran Dibuka.</p>
-              </div>
-              <a href="/daftar.html" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg inline-block text-center">Daftar Sekarang</a>
+        <!-- Dynamic Gelombang Cards -->
+        <div id="gelombangContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <!-- Loading skeleton -->
+          <div class="text-center py-12 col-span-full">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Memuat data gelombang...</span>
             </div>
-          </div>
-
-          <!-- Gelombang 2 -->
-          <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-blue-200 relative overflow-hidden">
-            <div class="absolute top-0 right-0 bg-blue-500 text-white px-3 py-1 rounded-bl-lg text-sm font-semibold">Segera</div>
-            <div class="text-center">
-              <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="bi bi-2-circle text-white text-2xl"></i>
-              </div>
-              <h3 class="text-xl font-bold mb-2 text-gray-800">Gelombang 2</h3>
-              <div class="space-y-2 mb-4">
-                <div class="flex items-center justify-center text-gray-600">
-                  <i class="bi bi-calendar-event mr-2 text-blue-500"></i>
-                  <span class="text-sm">01 Januari 2026 - 31 Maret 2026</span>
-                </div>
-                <div class="flex items-center justify-center text-gray-600">
-                  <i class="bi bi-mortarboard mr-2 text-blue-500"></i>
-                  <span class="text-sm font-semibold">T.A. 2026/2027</span>
-                </div>
-              </div>
-              <div class="bg-blue-50 rounded-lg p-3 mb-4">
-                <p class="text-sm text-blue-700 font-medium">Segera Dibuka</p>
-              </div>
-              <button class="w-full bg-gray-300 text-gray-500 cursor-not-allowed font-semibold py-2 px-4 rounded-lg" disabled>Belum Dibuka</button>
-            </div>
-          </div>
-
-          <!-- Gelombang 3 -->
-          <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-blue-200 relative overflow-hidden">
-            <div class="absolute top-0 right-0 bg-blue-500 text-white px-3 py-1 rounded-bl-lg text-sm font-semibold">Segera</div>
-            <div class="text-center">
-              <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="bi bi-3-circle text-white text-2xl"></i>
-              </div>
-              <h3 class="text-xl font-bold mb-2 text-gray-800">Gelombang 3</h3>
-              <div class="space-y-2 mb-4">
-                <div class="flex items-center justify-center text-gray-600">
-                  <i class="bi bi-calendar-event mr-2 text-blue-500"></i>
-                  <span class="text-sm">01 April 2026 - 31 Mei 2026</span>
-                </div>
-                <div class="flex items-center justify-center text-gray-600">
-                  <i class="bi bi-mortarboard mr-2 text-blue-500"></i>
-                  <span class="text-sm font-semibold">T.A. 2026/2027</span>
-                </div>
-              </div>
-              <div class="bg-blue-50 rounded-lg p-3 mb-4">
-                <p class="text-sm text-blue-700 font-medium">Segera Dibuka</p>
-              </div>
-              <button class="w-full bg-gray-300 text-gray-500 cursor-not-allowed font-semibold py-2 px-4 rounded-lg" disabled>Belum Dibuka</button>
-            </div>
+            <p class="text-gray-500 mt-3">Memuat data gelombang...</p>
           </div>
         </div>
       </div>
@@ -346,5 +280,114 @@
 
   <!-- Alpine.js -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Gelombang Data Loader -->
+  <script>
+    /**
+     * Fetch and render gelombang cards dynamically
+     */
+    async function loadGelombangData() {
+      try {
+        const response = await fetch('/api/get_gelombang_list');
+        const result = await response.json();
+        
+        if (!result.ok || !result.data) {
+          throw new Error(result.error || 'Failed to load gelombang data');
+        }
+        
+        renderGelombangCards(result.data);
+      } catch (error) {
+        console.error('Error loading gelombang:', error);
+        document.getElementById('gelombangContainer').innerHTML = `
+          <div class="text-center py-12 col-span-full">
+            <i class="bi bi-exclamation-triangle text-red-500 text-4xl mb-3"></i>
+            <p class="text-gray-600">Gagal memuat data gelombang. Silakan refresh halaman.</p>
+          </div>
+        `;
+      }
+    }
+
+    function renderGelombangCards(gelombangList) {
+      const container = document.getElementById('gelombangContainer');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const cardsHTML = gelombangList.map((gelombang, index) => {
+        const startDate = new Date(gelombang.start_date);
+        const endDate = new Date(gelombang.end_date);
+        const isActive = gelombang.is_active;
+        const isInDateRange = today >= startDate && today <= endDate;
+        const isUpcoming = today < startDate;
+        const isClosed = today > endDate;
+        
+        // Determine badge status
+        let badgeColor = 'blue';
+        let badgeText = 'Segera';
+        if (isActive && isInDateRange) {
+          badgeColor = 'green';
+          badgeText = 'Aktif';
+        } else if (isClosed) {
+          badgeColor = 'gray';
+          badgeText = 'Ditutup';
+        }
+        
+        // Determine button state
+        let buttonHTML = '';
+        let statusHTML = '';
+        if (isActive && isInDateRange) {
+          buttonHTML = `<a href="/daftar.html" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg inline-block text-center transition">Daftar Sekarang</a>`;
+          statusHTML = `<div class="bg-green-50 rounded-lg p-3 mb-4"><p class="text-sm text-green-700 font-medium">✓ Pendaftaran Dibuka</p></div>`;
+        } else if (isUpcoming) {
+          buttonHTML = `<button class="w-full bg-gray-300 text-gray-500 cursor-not-allowed font-semibold py-2 px-4 rounded-lg" disabled>Belum Dibuka</button>`;
+          statusHTML = `<div class="bg-blue-50 rounded-lg p-3 mb-4"><p class="text-sm text-blue-700 font-medium">📅 Segera Dibuka</p></div>`;
+        } else {
+          buttonHTML = `<button class="w-full bg-gray-300 text-gray-500 cursor-not-allowed font-semibold py-2 px-4 rounded-lg" disabled>Sudah Ditutup</button>`;
+          statusHTML = `<div class="bg-gray-50 rounded-lg p-3 mb-4"><p class="text-sm text-gray-500 font-medium">⏱ Pendaftaran Ditutup</p></div>`;
+        }
+        
+        // Format dates
+        const startFormatted = formatDate(gelombang.start_date);
+        const endFormatted = formatDate(gelombang.end_date);
+        
+        // Icon numbers (1, 2, 3)
+        const iconNumber = index + 1;
+        
+        return `
+          <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-${badgeColor}-200 relative overflow-hidden hover:shadow-xl transition">
+            <div class="absolute top-0 right-0 bg-${badgeColor}-500 text-white px-3 py-1 rounded-bl-lg text-sm font-semibold">${badgeText}</div>
+            <div class="text-center">
+              <div class="w-16 h-16 bg-gradient-to-br from-${badgeColor}-500 to-${badgeColor}-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-${iconNumber}-circle text-white text-2xl"></i>
+              </div>
+              <h3 class="text-xl font-bold mb-2 text-gray-800">${gelombang.nama}</h3>
+              <div class="space-y-2 mb-4">
+                <div class="flex items-center justify-center text-gray-600">
+                  <i class="bi bi-calendar-event mr-2 text-${badgeColor}-500"></i>
+                  <span class="text-sm">${startFormatted} - ${endFormatted}</span>
+                </div>
+                <div class="flex items-center justify-center text-gray-600">
+                  <i class="bi bi-mortarboard mr-2 text-${badgeColor}-500"></i>
+                  <span class="text-sm font-semibold">T.A. ${gelombang.tahun_ajaran}</span>
+                </div>
+              </div>
+              ${statusHTML}
+              ${buttonHTML}
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      container.innerHTML = cardsHTML;
+    }
+
+    function formatDate(dateString) {
+      const options = { day: 'numeric', month: 'long', year: 'numeric' };
+      const date = new Date(dateString);
+      return date.toLocaleDateString('id-ID', options);
+    }
+
+    // Load gelombang data when page loads
+    document.addEventListener('DOMContentLoaded', loadGelombangData);
+  </script>
 </body>
 </html>
