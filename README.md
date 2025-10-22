@@ -1,10 +1,10 @@
-# Sistem Pendaftaran Pondok Pesantren
+# Sistem Pendaftaran SMP SAINS AN NAJAH PURWOKERTO
 
-Web application untuk pendaftaran santri baru dengan sistem pembayaran online.
+Web application untuk pendaftaran siswa baru SMP dengan sistem pembayaran online.
 
 ## 🚀 Fitur
 
-- ✅ Pendaftaran Santri Online
+- ✅ Pendaftaran Siswa Online
 - ✅ Upload Dokumen (KTP, KK, Foto, dll)
 - ✅ Cek Status Pendaftaran
 - ✅ Sistem Pembayaran dengan Upload Bukti
@@ -53,10 +53,11 @@ Perlu setup di Vercel:
 
 ---
 
-**Developed with ❤️ for Pondok Pesantren**
+**Developed with ❤️ for SMP SAINS AN NAJAH PURWOKERTO**
 
 # ppdsb-pondok
 
 # ppdsb-pondok
 
 # updated last
+# smp-sains
