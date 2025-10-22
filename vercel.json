@@ -3,17 +3,6 @@
   "functions": {
     "api/index.py": { "runtime": "@vercel/python@4.3.1" }
   },
-  "excludeFiles": [
-    "pages/api/**",
-    "app/api/**",
-    "app/**/route.*",
-    "api/handlers/**",
-    "api/_supabase.py",
-    "api/**/__pycache__/**",
-    "api/**/*.pyc",
-    "api/**/*.bak",
-    "api/**/*~"
-  ],
   "rewrites": [
     { "source": "/api/pendaftar_create", "destination": "/api/index?action=pendaftar_create" },
     { "source": "/api/pendaftar_list", "destination": "/api/index?action=pendaftar_list" },

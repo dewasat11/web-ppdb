@@ -4,28 +4,9 @@ __pycache__/
 *$py.class
 *.so
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual environments
-venv/
-ENV/
-env/
+# Backup files
+*.bak
+*.backup
 
 # IDE
 .vscode/
@@ -38,29 +19,17 @@ env/
 .DS_Store
 Thumbs.db
 
-# Backup files
-*.bak
-*.backup
+# Logs
+*.log
 
 # Old/deprecated API files (safety)
 api/old/
 api/dev/
+api/handlers/
 pages/api/
 app/api/
 app/_api_disabled/
 
 # Test files
-*_test.py
 test_*.py
 tests/
-
-# Documentation (already in repo)
-*.md
-!README.md
-
-# Logs
-*.log
-
-# Temporary files
-.tmp/
-temp/
