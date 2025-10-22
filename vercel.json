@@ -57,13 +57,26 @@
     {
       "source": "/api/supa_proxy",
       "destination": "/api/index?action=supa_proxy"
+    },
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/daftar",
+      "destination": "/daftar.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/login.html"
+    },
+    {
+      "source": "/cek-status",
+      "destination": "/cek-status.html"
     }
-  ],
-  "routes": [
-    { "src": "/", "dest": "/index.html" },
-    { "src": "/daftar", "dest": "/daftar.html" },
-    { "src": "/admin", "dest": "/admin.html" },
-    { "src": "/login", "dest": "/login.html" },
-    { "src": "/cek-status", "dest": "/cek-status.html" }
   ]
 }
