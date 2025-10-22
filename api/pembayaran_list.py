@@ -16,8 +16,8 @@ class handler(BaseHTTPRequestHandler):
             for item in raw_data:
                 mapped = {
                     'id': item.get('id'),
-                    'nomor_pembayaran': item.get('nomor_pembayaran'),
-                    'nomor_registrasi': item.get('nomor_registrasi'),
+                    'nisn': item.get('nisn'),
+                    'nik': item.get('nik'),
                     'nama_lengkap': item.get('nama_lengkap'),
                     'jumlah': float(item.get('jumlah', 0)),
                     'status': item.get('status_pembayaran'),  # Gunakan field yang benar

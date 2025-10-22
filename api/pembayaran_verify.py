@@ -12,12 +12,12 @@ class handler(BaseHTTPRequestHandler):
             data = json.loads(post_data.decode('utf-8'))
             
             # Validasi required fields dengan pengecekan lebih ketat
-            if 'nomor_pembayaran' not in data or not data['nomor_pembayaran']:
+            if 'nisn' not in data or not data['nisn']:
                 self.send_response(400)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(json.dumps({
-                    'error': 'nomor_pembayaran is required'
+                    'error': 'NISN is required'
                 }).encode())
                 return
             
@@ -30,14 +30,14 @@ class handler(BaseHTTPRequestHandler):
                 }).encode())
                 return
             
-            # Validasi format nomor pembayaran
-            nomor_pembayaran = data['nomor_pembayaran'].strip()
-            if not re.match(r'^PREG-\d{8}-\d{6}$', nomor_pembayaran):
+            # Validasi format NISN (10 digit)
+            nisn = data['nisn'].strip()
+            if not re.match(r'^\d{10}$', nisn):
                 self.send_response(400)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(json.dumps({
-                    'error': 'Format nomor pembayaran tidak valid'
+                    'error': 'Format NISN tidak valid. Harus 10 digit angka'
                 }).encode())
                 return
             
@@ -57,15 +57,15 @@ class handler(BaseHTTPRequestHandler):
             # Get Supabase client with service role for admin operations
             supa = supabase_client(service_role=True)
             
-            # Cek apakah pembayaran dengan nomor tersebut ada
-            existing_payment = supa.table('pembayaran').select('id').eq('nomor_pembayaran', nomor_pembayaran).execute()
+            # Cek apakah pembayaran dengan NISN tersebut ada
+            existing_payment = supa.table('pembayaran').select('*').or_(f'nisn.eq.{nisn},nik.eq.{nisn}').execute()
             
             if not existing_payment.data:
                 self.send_response(404)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(json.dumps({
-                    'error': 'Nomor pembayaran tidak ditemukan'
+                    'error': 'Pembayaran dengan NISN tersebut tidak ditemukan'
                 }).encode())
                 return
             
@@ -73,12 +73,12 @@ class handler(BaseHTTPRequestHandler):
             update_data = {
                 'status_pembayaran': status,
                 'verified_by': data.get('verified_by', data.get('verifiedBy', 'admin')),
-                'catatan_admin': data.get('catatan', ''),
+                'catatan_admin': data.get('catatan_admin', ''),
                 'tanggal_verifikasi': 'now()',  # Set timestamp verifikasi
                 'updated_at': 'now()'           # Update timestamp
             }
             
-            result = supa.table('pembayaran').update(update_data).eq('nomor_pembayaran', nomor_pembayaran).execute()
+            result = supa.table('pembayaran').update(update_data).or_(f'nisn.eq.{nisn},nik.eq.{nisn}').execute()
             
             # Validasi hasil update
             if not result.data:
@@ -93,21 +93,15 @@ class handler(BaseHTTPRequestHandler):
             # Jika pembayaran VERIFIED, update juga status pendaftar terkait
             if status == 'VERIFIED':
                 try:
-                    # Ambil nomor registrasi dari pembayaran untuk update pendaftar
-                    payment_info = supa.table('pembayaran').select('nomor_registrasi').eq('nomor_pembayaran', nomor_pembayaran).execute()
+                    # Update status pendaftar berdasarkan NISN
+                    pendaftar_update = {
+                        'statusberkas': 'DITERIMA',
+                        'verifiedby': data.get('verified_by', data.get('verifiedBy', 'admin')),
+                        'verifiedat': 'now()',
+                        'updatedat': 'now()'
+                    }
                     
-                    if payment_info.data:
-                        nomor_registrasi = payment_info.data[0]['nomor_registrasi']
-                        
-                        # Update status pendaftar menjadi DITERIMA
-                        pendaftar_update = {
-                            'statusberkas': 'DITERIMA',
-                            'verifiedby': data.get('verified_by', data.get('verifiedBy', 'admin')),
-                            'verifiedat': 'now()',
-                            'updatedat': 'now()'
-                        }
-                        
-                        supa.table('pendaftar').update(pendaftar_update).eq('nomor_registrasi', nomor_registrasi).execute()
+                    supa.table('pendaftar').update(pendaftar_update).or_(f'nisn.eq.{nisn},nikcalon.eq.{nisn}').execute()
                 except Exception as e:
                     # Jika terjadi error saat update pendaftar, log error tapi tidak menggagalkan request
                     print(f"Warning: Gagal update status pendaftar: {str(e)}")
@@ -119,7 +113,7 @@ class handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({
                 'message': f'Pembayaran berhasil di{status.lower()}',
-                'nomor_pembayaran': nomor_pembayaran,
+                'nisn': nisn,
                 'status': status
             }).encode())
             

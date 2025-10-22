@@ -200,8 +200,8 @@
                 </h6>
                 <div class="row">
                   <div class="col-md-6">
-                    <small class="text-muted">Nomor Registrasi</small>
-                    <p class="mb-1 fw-bold" id="nomorRegistrasi">-</p>
+                    <small class="text-muted">NISN</small>
+                    <p class="mb-1 fw-bold" id="nisnDisplay">-</p>
                   </div>
                   <div class="col-md-6">
                     <small class="text-muted">Nama Lengkap</small>
@@ -364,17 +364,17 @@
     <script>
       // Get data from URL params
       const urlParams = new URLSearchParams(window.location.search);
-      const nomorReg = urlParams.get("nomor");
+      const nisn = urlParams.get("nisn");
       const nama = urlParams.get("nama");
 
       // Redirect if no params
       if (!nomorReg || !nama) {
         alert("Data tidak lengkap. Silakan cek status terlebih dahulu.");
-        window.location.href = "/cekstatus.html";
+        window.location.href = "/cek-status.html";
       }
 
       // Set data pendaftar
-      document.getElementById("nomorRegistrasi").textContent = nomorReg;
+      document.getElementById("nisnDisplay").textContent = nisn;
       document.getElementById("namaLengkap").textContent = nama;
 
       // Function to get biaya based on rencana program
@@ -402,7 +402,7 @@
           console.log("Full response:", data);
           console.log("data.ok:", data.ok);
           console.log("data.data:", data.data);
-          console.log("Mencari nomor registrasi:", nomorReg);
+          console.log("Mencari NISN:", nisn);
           
           // Cek apakah data ada (bisa jadi struktur berbeda)
           const dataArray = data.ok ? data.data : (data.items || data.results || data);
@@ -411,9 +411,9 @@
             console.log("Jumlah data:", dataArray.length);
             
             const pendaftar = dataArray.find(p => {
-              const nomorFromDB = p.nomor_registrasi || p.nomorRegistrasi || "";
-              console.log("Comparing:", nomorFromDB, "vs", nomorReg);
-              return nomorFromDB === nomorReg;
+              const nisnFromDB = p.nisn || p.nikcalon || p.nik || "";
+              console.log("Comparing:", nisnFromDB, "vs", nisn);
+              return nisnFromDB === nisn;
             });
             
             console.log("Pendaftar ditemukan:", pendaftar);
@@ -453,10 +453,10 @@
                 document.getElementById("rencanaTingkat").textContent = rencanaTingkat;
               }
             } else {
-              console.error("Pendaftar tidak ditemukan dengan nomor:", nomorReg);
-              console.log("Semua nomor registrasi yang ada:", dataArray.map(p => p.nomor_registrasi || p.nomorRegistrasi));
+              console.error("Pendaftar tidak ditemukan dengan NISN:", nisn);
+              console.log("Semua NISN yang ada:", dataArray.map(p => p.nisn || p.nikcalon || p.nik));
               // Set default values
-              document.getElementById("rencanaProgram").textContent = "Pondok Putra Induk";
+              document.getElementById("rencanaProgram").textContent = "SMP Reguler";
               document.getElementById("biayaPendaftaran").textContent = "Rp 500.000,-";
             }
           } else {
@@ -579,7 +579,7 @@
                 fileName: file.name,
                 fileType: "bukti_pembayaran",
                 mimeType: file.type,
-                nomorRegistrasi: nomorReg,
+                nisn: nisn,
               }),
             });
 
@@ -594,7 +594,7 @@
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                nomor_registrasi: nomorReg,
+                nisn: nisn,
                 nama_lengkap: nama,
                 nomor_rekening: "",
                 nama_rekening: "",
@@ -607,11 +607,9 @@
 
             if (response.ok) {
               alert(
-                "✅ Bukti pembayaran berhasil dikirim!\n\nNomor Pembayaran: " +
-                  result.nomor_pembayaran +
-                  "\n\nMohon tunggu verifikasi dari admin maksimal 2x24 jam."
+                "✅ Bukti pembayaran berhasil dikirim!\n\nMohon tunggu verifikasi dari admin maksimal 2x24 jam."
               );
-              window.location.href = "/cek-status.html?nomor=" + nomorReg;
+              window.location.href = "/cek-status.html?nisn=" + nisn;
             } else {
               throw new Error(result.error || "Gagal mengirim data");
             }

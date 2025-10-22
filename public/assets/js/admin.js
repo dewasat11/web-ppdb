@@ -154,7 +154,7 @@
               <tr>
                 <td>${i + 1}</td>
                 <td><strong>${
-                  item.nomor_registrasi || item.nomorRegistrasi || "-"
+                  item.nisn || item.nikcalon || item.nik || "-"
                 }</strong></td>
                 <td>${item.nama}</td>
                 <td>${badge(item.status, statusClass)}</td>
@@ -418,13 +418,13 @@
           }</div>
 
           <div class="col-12 mt-3"><h6 class="bg-success text-white p-2 rounded">
-            <i class="bi bi-person"></i> Data Calon Santri
+            <i class="bi bi-person"></i> Data Calon Siswa
           </h6></div>
-          <div class="col-md-6"><strong>No. Registrasi:</strong><br><span class="badge bg-primary">${
-            pendaftar.nomor_registrasi || pendaftar.nomorRegistrasi || "-"
+          <div class="col-md-6"><strong>NISN:</strong><br><span class="badge bg-primary">${
+            pendaftar.nisn || pendaftar.nikcalon || pendaftar.nik || "-"
           }</span></div>
-          <div class="col-md-6"><strong>NIK Calon:</strong><br>${
-            pendaftar.nikcalon || "-"
+          <div class="col-md-6"><strong>NIK:</strong><br>${
+            pendaftar.nikcalon || pendaftar.nik || "-"
           }</div>
           <div class="col-md-12"><strong>Nama Lengkap:</strong><br><span class="fs-5 text-primary">${
             pendaftar.namalengkap || "-"
@@ -778,8 +778,7 @@
             return `
             <tr>
               <td>${i + 1}</td>
-              <td>${item.nomor_pembayaran || "-"}</td>
-              <td>${item.nomor_registrasi || "-"}</td>
+              <td>${item.nisn || item.nik || "-"}</td>
               <td>${item.nama_lengkap || "-"}</td>
               <td>${rupiah(item.jumlah)}</td>
               <td>${badge(
@@ -793,7 +792,7 @@
               <td>${formatIDDate(item.tanggal_upload)}</td>
               <td>
                 <button class="btn btn-sm btn-success" onclick="loadPembayaranDetail('${
-                  item.nomor_pembayaran
+                  item.nisn || item.nik
                 }')">Lihat Detail</button>
               </td>
             </tr>
@@ -843,8 +842,7 @@
       if (el) el.textContent = v;
     };
 
-    setText("detail-nomor-pembayaran", payment.nomor_pembayaran || "-");
-    setText("detail-nomor-registrasi", payment.nomor_registrasi || "-");
+    setText("detail-nisn", payment.nisn || payment.nik || "-");
     setText("detail-nama-lengkap", payment.nama_lengkap || "-");
     setText("detail-jumlah", rupiah(payment.jumlah));
     setText("detail-metode", payment.metode_pembayaran || "-");
@@ -908,8 +906,8 @@
       );
       return;
     }
-    $("#verify-nomor-pembayaran").value =
-      currentPembayaranData.nomor_pembayaran;
+    $("#verify-nisn").value =
+      currentPembayaranData.nisn || currentPembayaranData.nik;
     $("#verify-status").value = status;
     $("#verify-catatan").value = "";
 
@@ -944,7 +942,7 @@
   }
 
   async function confirmVerifikasiPembayaran() {
-    const nomor = $("#verify-nomor-pembayaran").value;
+    const nisn = $("#verify-nisn").value;
     const status = $("#verify-status").value;
     const catatan = $("#verify-catatan").value;
     const btn = $("#btnConfirmVerifyPayment");
@@ -958,7 +956,7 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          nomor_pembayaran: nomor,
+          nisn: nisn,
           status,
           catatan_admin: catatan,
           verified_by: localStorage.getItem("adminEmail") || "admin",
@@ -985,8 +983,7 @@
           if (pJson.success && pJson.data) {
             const pendaftar = pJson.data.find(
               (p) =>
-                p.nomor_registrasi === currentPembayaranData.nomor_registrasi ||
-                p.nomorRegistrasi === currentPembayaranData.nomor_registrasi
+                (p.nisn || p.nikcalon || p.nik) === (currentPembayaranData.nisn || currentPembayaranData.nik)
             );
             if (pendaftar && pendaftar.telepon_orang_tua) {
               const phone = pendaftar.telepon_orang_tua.replace(/^0/, "62");
@@ -995,16 +992,15 @@
 
 ✅ *Pembayaran telah TERVERIFIKASI*
 
-• Nama Santri: *${currentPembayaranData.nama_lengkap}*
-• Nomor Registrasi: ${currentPembayaranData.nomor_registrasi}
-• Nomor Pembayaran: ${currentPembayaranData.nomor_pembayaran}
+• Nama Siswa: *${currentPembayaranData.nama_lengkap}*
+• NISN: ${currentPembayaranData.nisn || currentPembayaranData.nik}
 • Jumlah: ${rupiah(currentPembayaranData.jumlah)}
 
 🎉 *Proses pendaftaran telah SELESAI!*
 Kami akan menghubungi Anda kembali untuk informasi lebih lanjut.
 
 Jazakumullahu khairan,
-Pondok Pesantren`
+SMP SAINS AN NAJAH PURWOKERTO`
               );
 
               // coba buka WA app, fallback ke web
@@ -1046,13 +1042,13 @@ Pondok Pesantren`
     }
   }
 
-  async function loadPembayaranDetail(nomorPembayaran) {
+  async function loadPembayaranDetail(nisn) {
     try {
       const r = await fetch("/api/pembayaran_list");
       const result = await r.json();
       if (result.success && result.data) {
         const payment = result.data.find(
-          (p) => p.nomor_pembayaran === nomorPembayaran
+          (p) => (p.nisn || p.nik) === nisn
         );
         if (payment) {
           currentPembayaranData = payment;

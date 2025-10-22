@@ -15,46 +15,46 @@ class handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         """
-        GET /api/pendaftar_cek_status?nomor=REG-20241014-000001
+        GET /api/pendaftar_cek_status?nisn=1234567890
         Response: { success: true, data: {...} }
         """
         try:
             # Parse query parameters
             parsed = urlparse(self.path)
             params = parse_qs(parsed.query)
-            nomor = (params.get("nomor", [""])[0] or "").strip()
+            nisn = (params.get("nisn", [""])[0] or "").strip()
 
             # Wajib diisi
-            if not nomor:
+            if not nisn:
                 return self._send_json(400, {
                     "success": False,
-                    "error": "Nomor registrasi harus diisi"
+                    "error": "NISN harus diisi"
                 })
 
-            # Validasi format nomor registrasi (REG atau PREG)
-            # Contoh: REG-20241014-000001 atau PREG-20241014-000001
-            pattern = r'^(?:P?REG-\d{8}-\d{6})$'
-            if not re.match(pattern, nomor.upper()):
+            # Validasi format NISN (10 digit angka)
+            pattern = r'^\d{10}$'
+            if not re.match(pattern, nisn):
                 return self._send_json(400, {
                     "success": False,
-                    "error": "Format nomor registrasi tidak valid. Gunakan format REG-YYYYMMDD-XXXXXX atau PREG-YYYYMMDD-XXXXXX"
+                    "error": "Format NISN tidak valid. NISN harus terdiri dari 10 digit angka"
                 })
 
             # Query Supabase (pakai anon key / public access)
             supa = supabase_client(service_role=False)
-            result = supa.table("pendaftar").select("*").eq("nomor_registrasi", nomor).execute()
+            # Cari berdasarkan nisn atau nikcalon
+            result = supa.table("pendaftar").select("*").or_(f"nisn.eq.{nisn},nikcalon.eq.{nisn}").execute()
 
             if not result.data:  # type: ignore
                 return self._send_json(404, {
                     "success": False,
-                    "error": "Nomor registrasi tidak ditemukan"
+                    "error": "NISN tidak ditemukan"
                 })
 
             row: Dict[str, Any] = result.data[0]  # type: ignore
 
             # Transform data dengan field konsisten untuk frontend
             data = {
-                "nomorRegistrasi": row.get("nomor_registrasi", ""),
+                "nisn": row.get("nisn") or row.get("nikcalon", ""),
                 "nama": row.get("namalengkap", ""),
                 "nik": row.get("nikcalon", ""),
                 "tanggalLahir": row.get("tanggallahir", ""),
@@ -62,6 +62,7 @@ class handler(BaseHTTPRequestHandler):
                 "alasan": row.get("alasan") or row.get("deskripsistatus") or "",
                 "createdat": row.get("createdat", ""),
                 "telepon_orang_tua": row.get("telepon_orang_tua", ""),
+                "teleponOrtu": row.get("telepon_orang_tua", ""),
                 "email": row.get("emailcalon", ""),
                 "alamat": ", ".join(filter(None, [
                     row.get("alamatjalan", ""),

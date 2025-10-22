@@ -1,18 +1,6 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
-CREATE TABLE public.berita (
-  id bigint NOT NULL DEFAULT nextval('berita_id_seq'::regclass),
-  judul character varying NOT NULL,
-  konten text NOT NULL,
-  foto text,
-  tanggal_publish date DEFAULT CURRENT_DATE,
-  penulis character varying,
-  status character varying DEFAULT 'draft'::character varying CHECK (status::text = ANY (ARRAY['draft'::character varying, 'published'::character varying]::text[])),
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT berita_pkey PRIMARY KEY (id)
-);
 CREATE TABLE public.konfigurasi_pembayaran (
   id integer NOT NULL DEFAULT nextval('konfigurasi_pembayaran_id_seq'::regclass),
   nama_setting character varying NOT NULL UNIQUE,
@@ -83,41 +71,4 @@ CREATE TABLE public.pendaftar (
   rencanaprogram character varying,
   CONSTRAINT pendaftar_pkey PRIMARY KEY (id)
 );
-CREATE TABLE public.prestasi (
-  id bigint NOT NULL DEFAULT nextval('prestasi_id_seq'::regclass),
-  nama_santri character varying NOT NULL,
-  jenis_prestasi character varying NOT NULL,
-  tingkat character varying NOT NULL CHECK (tingkat::text = ANY (ARRAY['Kecamatan'::character varying, 'Kabupaten'::character varying, 'Provinsi'::character varying, 'Nasional'::character varying, 'Internasional'::character varying]::text[])),
-  tahun integer NOT NULL,
-  deskripsi text,
-  foto text,
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT prestasi_pkey PRIMARY KEY (id)
-);
-CREATE TABLE public.profile_pondok (
-  id bigint NOT NULL DEFAULT nextval('profile_pondok_id_seq'::regclass),
-  nama_pondok character varying NOT NULL,
-  alamat text NOT NULL,
-  telepon character varying,
-  email character varying,
-  sejarah text,
-  visi text,
-  misi text,
-  logo text,
-  foto_pondok text,
-  updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT profile_pondok_pkey PRIMARY KEY (id)
-);
-CREATE TABLE public.sambutan (
-  id bigint NOT NULL DEFAULT nextval('sambutan_id_seq'::regclass),
-  jabatan character varying NOT NULL,
-  nama character varying NOT NULL,
-  isi_sambutan text NOT NULL,
-  foto text,
-  urutan integer DEFAULT 1,
-  status character varying DEFAULT 'active'::character varying CHECK (status::text = ANY (ARRAY['active'::character varying, 'inactive'::character varying]::text[])),
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT sambutan_pkey PRIMARY KEY (id)
-);
+

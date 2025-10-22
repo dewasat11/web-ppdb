@@ -14,7 +14,7 @@ class handler(BaseHTTPRequestHandler):
             data = json.loads(post_data.decode('utf-8'))
             
             # Validasi required fields dengan pengecekan lebih ketat
-            required_fields = ['nomor_registrasi', 'nama_lengkap', 'bukti_pembayaran']
+            required_fields = ['nisn', 'nama_lengkap', 'bukti_pembayaran']
             missing_fields = []
             for field in required_fields:
                 if field not in data or not data[field]:
@@ -29,14 +29,14 @@ class handler(BaseHTTPRequestHandler):
                 }).encode())
                 return
             
-            # Validasi format nomor registrasi
-            nomor_registrasi = data['nomor_registrasi'].strip()
-            if not re.match(r'^REG-\d{8}-\d{6}$', nomor_registrasi):
+            # Validasi format NISN (10 digit)
+            nisn = data['nisn'].strip()
+            if not re.match(r'^\d{10}$', nisn):
                 self.send_response(400)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(json.dumps({
-                    'error': 'Format nomor registrasi tidak valid. Harus dalam format REG-YYYYMMDD-XXXXXX'
+                    'error': 'Format NISN tidak valid. Harus 10 digit angka'
                 }).encode())
                 return
             
@@ -65,8 +65,8 @@ class handler(BaseHTTPRequestHandler):
             # Get Supabase client with service role for admin operations
             supa = supabase_client(service_role=True)
             
-            # Check if pendaftar exists (kolom sudah diubah jadi nomor_registrasi)
-            pendaftar = supa.table('pendaftar').select('*').eq('nomor_registrasi', nomor_registrasi).execute()
+            # Check if pendaftar exists berdasarkan NISN
+            pendaftar = supa.table('pendaftar').select('*').or_(f'nisn.eq.{nisn},nikcalon.eq.{nisn}').execute()
             
             pendaftar_data = getattr(pendaftar, 'data', None)
             if not pendaftar_data:
@@ -74,12 +74,12 @@ class handler(BaseHTTPRequestHandler):
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(json.dumps({
-                    'error': 'Nomor registrasi tidak ditemukan'
+                    'error': 'NISN tidak ditemukan di database pendaftar'
                 }).encode())
                 return
             
-            # Check if payment already exists
-            existing_payment = supa.table('pembayaran').select('*').eq('nomor_registrasi', nomor_registrasi).execute()
+            # Check if payment already exists berdasarkan NISN
+            existing_payment = supa.table('pembayaran').select('*').or_(f'nisn.eq.{nisn},nik.eq.{nisn}').execute()
             
             existing_data = getattr(existing_payment, 'data', None)
             if existing_data:
@@ -89,49 +89,18 @@ class handler(BaseHTTPRequestHandler):
                     'status_pembayaran': 'PENDING',
                     'catatan_admin': data.get('catatan', ''),
                     'updated_at': 'now()'  # Update timestamp
-                }).eq('nomor_registrasi', nomor_registrasi).execute()
+                }).or_(f'nisn.eq.{nisn},nik.eq.{nisn}').execute()
                 
                 response_data = {
                     'message': 'Pembayaran berhasil diupdate',
-                    'nomor_pembayaran': existing_data[0]['nomor_pembayaran'],
+                    'nisn': nisn,
                     'status': 'updated'
                 }
             else:
-                # Generate nomor pembayaran secara otomatis di sisi aplikasi
-                now = datetime.datetime.now()
-                
-                # Coba buat nomor pembayaran unik dengan pendekatan retry
-                max_attempts = 10
-                nomor_pembayaran = None
-                
-                for attempt in range(max_attempts):
-                    # Gunakan timestamp untuk membuat ID unik
-                    timestamp_part = str(int(time.time() * 1000000))[-6:]  # Ambil 6 digit dari mikrodetik
-                    nomor_pembayaran = f"PREG-{now.strftime('%Y%m%d')}-{timestamp_part.zfill(6)}"
-                    
-                    # Cek apakah nomor pembayaran sudah ada
-                    existing = supa.table('pembayaran').select('id').eq('nomor_pembayaran', nomor_pembayaran).execute()
-                    if not existing.data:
-                        # Nomor unik ditemukan, keluar dari loop
-                        break
-                    else:
-                        # Tunggu sebentar sebelum mencoba lagi untuk mencegah collision
-                        time.sleep(0.01)
-                else:
-                    # Jika semua percobaan gagal, kirim error
-                    self.send_response(500)
-                    self.send_header('Content-Type', 'application/json')
-                    self.send_header('Access-Control-Allow-Origin', '*')
-                    self.end_headers()
-                    self.wfile.write(json.dumps({
-                        'error': 'Gagal membuat nomor pembayaran unik'
-                    }).encode())
-                    return
-                
                 # Insert new payment dengan field yang konsisten
                 payment_data = {
-                    'nomor_pembayaran': nomor_pembayaran,
-                    'nomor_registrasi': nomor_registrasi,
+                    'nisn': nisn,
+                    'nik': nisn,  # Fallback jika nisn kosong
                     'nama_lengkap': nama_lengkap,
                     'jumlah': 500000.00,
                     'metode_pembayaran': 'Transfer Bank BRI',
@@ -147,7 +116,7 @@ class handler(BaseHTTPRequestHandler):
                 
                 response_data = {
                     'message': 'Pembayaran berhasil disubmit',
-                    'nomor_pembayaran': nomor_pembayaran,
+                    'nisn': nisn,
                     'status': 'created'
                 }
             

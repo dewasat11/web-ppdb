@@ -270,7 +270,7 @@
                   <thead>
                     <tr>
                       <th>#</th>
-                      <th>No. Registrasi</th>
+                      <th>NISN</th>
                       <th>Nama</th>
                       <th>Status</th>
                       <th>Tanggal</th>
@@ -480,8 +480,7 @@
                   <thead>
                     <tr>
                       <th>No</th>
-                      <th>Nomor Pembayaran</th>
-                      <th>Nomor Registrasi</th>
+                      <th>NISN</th>
                       <th>Nama Lengkap</th>
                       <th>Jumlah</th>
                       <th>Status</th>
@@ -491,7 +490,7 @@
                   </thead>
                   <tbody id="pembayaranTableBody">
                     <tr>
-                      <td colspan="8" class="text-center">
+                      <td colspan="7" class="text-center">
                         <div class="spinner-border text-primary" role="status">
                           <span class="visually-hidden">Loading...</span>
                         </div>
@@ -570,8 +569,7 @@
           <div class="row g-3">
             <div class="col-md-6">
               <table class="table table-borderless">
-                <tr><th width="40%">Nomor Pembayaran:</th><td id="detail-nomor-pembayaran"></td></tr>
-                <tr><th>Nomor Registrasi:</th><td id="detail-nomor-registrasi"></td></tr>
+                <tr><th width="40%">NISN:</th><td id="detail-nisn"></td></tr>
                 <tr><th>Nama Lengkap:</th><td id="detail-nama-lengkap"></td></tr>
                 <tr><th>Jumlah:</th><td id="detail-jumlah"></td></tr>
                 <tr><th>Metode:</th><td id="detail-metode"></td></tr>
@@ -613,7 +611,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
         </div>
         <div class="modal-body">
-          <input type="hidden" id="verify-nomor-pembayaran"/>
+          <input type="hidden" id="verify-nisn"/>
           <input type="hidden" id="verify-status"/>
 
           <div class="mb-3">

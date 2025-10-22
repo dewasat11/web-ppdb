@@ -112,21 +112,21 @@
 
               <form id="cekStatusForm">
                 <div class="mb-4">
-                  <label for="nomorRegistrasi" class="form-label fw-bold"
-                    >Nomor Registrasi</label
+                  <label for="nisn" class="form-label fw-bold"
+                    >NISN (Nomor Induk Siswa Nasional)</label
                   >
                   <input
                     type="text"
                     class="form-control form-control-lg"
-                    id="nomorRegistrasi"
-                    placeholder="REG-20241014-000001"
+                    id="nisn"
+                    placeholder="Masukkan NISN (10 digit)"
                     required
-                    pattern="^(P?REG-\d{8}-\d{6})$"
-                    title="Gunakan format REG-YYYYMMDD-XXXXXX atau PREG-YYYYMMDD-XXXXXX"
+                    pattern="^\d{10}$"
+                    title="NISN harus 10 digit angka"
+                    maxlength="10"
                   />
                   <div class="form-text">
-                    Format utama: <strong>REG</strong>-YYYYMMDD-XXXXXX (contoh: <code>REG-20241014-000001</code>).
-                    Juga mendukung <strong>PREG</strong>-YYYYMMDD-XXXXXX.
+                    Masukkan NISN Anda yang terdiri dari <strong>10 digit angka</strong> (contoh: <code>1234567890</code>).
                   </div>
                 </div>
 
@@ -170,10 +170,9 @@
         .addEventListener("submit", async (e) => {
           e.preventDefault();
 
-          const nomorRegistrasi = document
-            .getElementById("nomorRegistrasi")
-            .value.trim()
-            .toUpperCase();
+          const nisn = document
+            .getElementById("nisn")
+            .value.trim();
           const loading = document.getElementById("loading");
           const errorAlert = document.getElementById("errorAlert");
           const resultCard = document.getElementById("resultCard");
@@ -185,9 +184,7 @@
 
           try {
             const response = await fetch(
-              `/api/pendaftar_cek_status?nomor=${encodeURIComponent(
-                nomorRegistrasi
-              )}`
+              `/api/pendaftar_cek_status?nisn=${encodeURIComponent(nisn)}`
             );
             const result = await response.json();
 
@@ -199,7 +196,7 @@
             } else {
               showError(
                 result.error ||
-                  "Nomor registrasi tidak ditemukan. Pastikan Anda memasukkan nomor yang benar."
+                  "NISN tidak ditemukan. Pastikan Anda memasukkan NISN yang benar."
               );
             }
           } catch (error) {
@@ -210,14 +207,15 @@
 
       async function checkPaymentStatus(registrationData) {
         try {
-          // Check if payment exists for this registration
+          // Check if payment exists for this NISN
           const response = await fetch("/api/pembayaran_list");
           const result = await response.json();
 
           if (response.ok && result.data) {
-            // Find payment for this registration number
+            // Find payment for this NISN
+            const nisn = registrationData.nisn || registrationData.nik;
             const payment = result.data.find(
-              (p) => p.nomor_registrasi === registrationData.nomorRegistrasi
+              (p) => (p.nisn || p.nik) === nisn
             );
             showResult(registrationData, payment);
           } else {
@@ -276,16 +274,11 @@
                         <hr>
 
                         <dl class="row mb-0">
-                            <dt class="col-sm-5">Nomor Registrasi</dt>
-                            <dd class="col-sm-7"><strong>${
-                              data.nomorRegistrasi
-                            }</strong></dd>
+                            <dt class="col-sm-5">NISN</dt>
+                            <dd class="col-sm-7"><strong>${data.nisn || data.nik || '-'}</strong></dd>
 
                             <dt class="col-sm-5">Nama Lengkap</dt>
                             <dd class="col-sm-7">${data.nama}</dd>
-
-                            <dt class="col-sm-5">NIK</dt>
-                            <dd class="col-sm-7">${data.nik}</dd>
 
                             <dt class="col-sm-5">Tanggal Lahir</dt>
                             <dd class="col-sm-7">${
@@ -338,7 +331,7 @@
                             </div>
                             <div class="d-grid gap-2 mt-3">
                                 <button onclick="perbaikiPendaftaran('${
-                                  data.nomorRegistrasi
+                                  data.nisn || data.nik
                                 }')" class="btn btn-warning btn-lg">
                                     <i class="bi bi-pencil-square"></i> Perbaiki Pendaftaran
                                 </button>
@@ -356,8 +349,8 @@
                                 Silakan lanjutkan ke pembayaran.
                             </div>
                             <div class="d-grid gap-2 mt-3">
-                                <a href="/pembayaran.html?nomor=${encodeURIComponent(
-                                  data.nomorRegistrasi
+                                <a href="/pembayaran.html?nisn=${encodeURIComponent(
+                                  data.nisn || data.nik
                                 )}&nama=${encodeURIComponent(data.nama)}" 
                                    class="btn btn-success btn-lg">
                                     <i class="bi bi-credit-card"></i> Lanjut ke Pembayaran
@@ -377,11 +370,6 @@
                                 <strong>Pembayaran Sedang Diproses</strong>
                                 <hr>
                                 <dl class="row mb-0 small">
-                                    <dt class="col-sm-5">Nomor Pembayaran</dt>
-                                    <dd class="col-sm-7"><strong>${
-                                      payment.nomor_pembayaran
-                                    }</strong></dd>
-                                    
                                     <dt class="col-sm-5">Jumlah</dt>
                                     <dd class="col-sm-7">Rp ${parseFloat(
                                       payment.jumlah || 0
@@ -417,11 +405,6 @@
                                     <li>✅ Pembayaran: <strong>Berhasil (Terverifikasi)</strong></li>
                                 </ul>
                                 <dl class="row mb-0 small">
-                                    <dt class="col-sm-5">Nomor Pembayaran</dt>
-                                    <dd class="col-sm-7"><strong>${
-                                      payment.nomor_pembayaran
-                                    }</strong></dd>
-                                    
                                     <dt class="col-sm-5">Jumlah</dt>
                                     <dd class="col-sm-7">Rp ${parseFloat(
                                       payment.jumlah || 0
@@ -485,11 +468,6 @@
                                 <strong>Pembayaran Ditolak</strong>
                                 <hr>
                                 <dl class="row mb-0 small">
-                                    <dt class="col-sm-5">Nomor Pembayaran</dt>
-                                    <dd class="col-sm-7"><strong>${
-                                      payment.nomor_pembayaran
-                                    }</strong></dd>
-                                    
                                     <dt class="col-sm-5">Alasan</dt>
                                     <dd class="col-sm-7">${
                                       payment.catatan_admin ||
@@ -500,8 +478,8 @@
                                 <small><i class="bi bi-info-circle"></i> Silakan upload ulang bukti pembayaran yang valid.</small>
                             </div>
                             <div class="d-grid gap-2 mt-3">
-                                <a href="/pembayaran.html?nomor=${encodeURIComponent(
-                                  data.nomorRegistrasi
+                                <a href="/pembayaran.html?nisn=${encodeURIComponent(
+                                  data.nisn || data.nik
                                 )}&nama=${encodeURIComponent(data.nama)}" 
                                    class="btn btn-primary btn-lg">
                                     <i class="bi bi-arrow-repeat"></i> Upload Ulang Bukti Pembayaran
@@ -538,13 +516,11 @@
         document.getElementById("errorAlert").style.display = "block";
       }
 
-      async function perbaikiPendaftaran(nomorRegistrasi) {
+      async function perbaikiPendaftaran(nisn) {
         try {
           // Fetch full registration data
           const response = await fetch(
-            `/api/pendaftar_cek_status?nomor=${encodeURIComponent(
-              nomorRegistrasi
-            )}`
+            `/api/pendaftar_cek_status?nisn=${encodeURIComponent(nisn)}`
           );
           const result = await response.json();
 
