@@ -113,6 +113,9 @@
       );
     } else if (tab === "pendaftar") {
       loadPendaftar();
+    } else if (tab === "statistik") {
+      // Load data pendaftar untuk update statistik
+      loadPendaftar();
     }
 
     // Tutup sidebar di mobile
