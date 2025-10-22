@@ -6,27 +6,80 @@ from lib._supabase import supabase_client
 
 
 def sanitize_csv_value(value):
-    """Sanitize value for CSV to prevent injection and handle special chars"""
+    """Sanitize value for CSV - trim whitespace, replace newlines/tabs"""
     if value is None:
         return ""
     
-    # Convert to string
+    # Convert to string and trim
     value_str = str(value).strip()
     
+    # Replace newlines and tabs with spaces
+    value_str = value_str.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
+    
+    # Collapse multiple spaces
+    while '  ' in value_str:
+        value_str = value_str.replace('  ', ' ')
+    
     # Remove potential CSV injection patterns
-    if value_str and value_str[0] in ['=', '+', '-', '@', '\t', '\r']:
+    if value_str and value_str[0] in ['=', '+', '-', '@']:
         value_str = "'" + value_str
     
     return value_str
 
 
-def check_file_exists(file_url):
-    """Check if file URL exists (not null/empty)"""
+def get_file_path(file_url):
+    """Get file path/URL or empty string"""
     if file_url and isinstance(file_url, str) and file_url.strip():
-        # Check if it's a valid URL (starts with http)
-        if file_url.startswith('http://') or file_url.startswith('https://'):
-            return "YA"
-    return "TIDAK"
+        return file_url.strip()
+    return ""
+
+
+def build_alamat_lengkap(data):
+    """Build smart full address from components"""
+    parts = []
+    
+    # Jalan
+    jalan = sanitize_csv_value(data.get('alamat_jalan') or data.get('alamat'))
+    if jalan:
+        parts.append(jalan)
+    
+    # RT/RW
+    rt = sanitize_csv_value(data.get('rt'))
+    rw = sanitize_csv_value(data.get('rw'))
+    if rt and rw:
+        parts.append(f"RT {rt}/RW {rw}")
+    elif rt:
+        parts.append(f"RT {rt}")
+    elif rw:
+        parts.append(f"RW {rw}")
+    
+    # Kelurahan
+    kelurahan = sanitize_csv_value(data.get('kelurahan') or data.get('desa'))
+    if kelurahan:
+        parts.append(kelurahan)
+    
+    # Kecamatan
+    kecamatan = sanitize_csv_value(data.get('kecamatan'))
+    if kecamatan:
+        parts.append(kecamatan)
+    
+    # Kota/Kabupaten (prioritas kota_kabupaten, fallback ke kabupaten)
+    kota_kab = sanitize_csv_value(data.get('kota_kabupaten') or data.get('kabupaten'))
+    if kota_kab:
+        parts.append(kota_kab)
+    
+    # Provinsi
+    provinsi = sanitize_csv_value(data.get('provinsi'))
+    if provinsi:
+        parts.append(provinsi)
+    
+    # Kode Pos
+    kode_pos = sanitize_csv_value(data.get('kode_pos'))
+    if kode_pos:
+        parts.append(kode_pos)
+    
+    # Join with comma-space
+    return ', '.join(parts)
 
 
 class handler(BaseHTTPRequestHandler):
@@ -65,13 +118,13 @@ class handler(BaseHTTPRequestHandler):
             # Add UTF-8 BOM for Excel compatibility
             csv_buffer.write('\ufeff')
             
-            # Define CSV writer
+            # Define CSV writer with semicolon delimiter for Excel Indonesia
             csv_writer = csv.writer(
                 csv_buffer,
-                delimiter=',',
+                delimiter=';',
                 quotechar='"',
                 quoting=csv.QUOTE_MINIMAL,
-                lineterminator='\n'
+                lineterminator='\r\n'  # CRLF for Excel
             )
 
             # Write header (exact as requested)
@@ -85,6 +138,16 @@ class handler(BaseHTTPRequestHandler):
                 'nomor_orangtua',
                 'rencana_tingkat',
                 'rencana_program',
+                'alamat_jalan',
+                'rt',
+                'rw',
+                'kelurahan',
+                'kecamatan',
+                'kota_kabupaten',
+                'kabupaten',
+                'provinsi',
+                'kode_pos',
+                'alamat_lengkap',
                 'file_akte',
                 'file_ijazah',
                 'file_foto',
@@ -94,21 +157,18 @@ class handler(BaseHTTPRequestHandler):
 
             # Write data rows
             for pendaftar in pendaftar_list:
-                # Extract and sanitize values
+                # Extract and sanitize basic values
                 nisn = sanitize_csv_value(pendaftar.get('nisn', ''))
                 nama = sanitize_csv_value(pendaftar.get('namalengkap', ''))
                 
                 # Format tanggal_lahir as YYYY-MM-DD
                 tanggal_lahir_raw = pendaftar.get('tanggallahir', '')
                 if tanggal_lahir_raw:
-                    # Try to parse and format date
                     try:
                         if isinstance(tanggal_lahir_raw, str):
-                            # If already in YYYY-MM-DD format
                             if len(tanggal_lahir_raw) == 10 and tanggal_lahir_raw[4] == '-':
                                 tanggal_lahir = tanggal_lahir_raw
                             else:
-                                # Try to parse other formats
                                 date_obj = datetime.fromisoformat(tanggal_lahir_raw.replace('Z', '+00:00'))
                                 tanggal_lahir = date_obj.strftime('%Y-%m-%d')
                         else:
@@ -121,15 +181,32 @@ class handler(BaseHTTPRequestHandler):
                 tempat_lahir = sanitize_csv_value(pendaftar.get('tempatlahir', ''))
                 nama_ayah = sanitize_csv_value(pendaftar.get('namaayah', ''))
                 nama_ibu = sanitize_csv_value(pendaftar.get('namaibu', ''))
+                
+                # Preserve leading zeros in phone number (format as text)
                 nomor_orangtua = sanitize_csv_value(pendaftar.get('telepon_orang_tua', ''))
+                
                 rencana_tingkat = sanitize_csv_value(pendaftar.get('rencanatingkat', ''))
                 rencana_program = sanitize_csv_value(pendaftar.get('rencanaprogram', ''))
                 
-                # Check file existence (YA/TIDAK)
-                file_akte = check_file_exists(pendaftar.get('file_akta'))
-                file_ijazah = check_file_exists(pendaftar.get('file_ijazah'))
-                file_foto = check_file_exists(pendaftar.get('file_foto'))
-                file_bpjs = check_file_exists(pendaftar.get('file_bpjs'))
+                # Address components
+                alamat_jalan = sanitize_csv_value(pendaftar.get('alamat_jalan') or pendaftar.get('alamat', ''))
+                rt = sanitize_csv_value(pendaftar.get('rt', ''))
+                rw = sanitize_csv_value(pendaftar.get('rw', ''))
+                kelurahan = sanitize_csv_value(pendaftar.get('kelurahan') or pendaftar.get('desa', ''))
+                kecamatan = sanitize_csv_value(pendaftar.get('kecamatan', ''))
+                kota_kabupaten = sanitize_csv_value(pendaftar.get('kota_kabupaten', ''))
+                kabupaten = sanitize_csv_value(pendaftar.get('kabupaten', ''))
+                provinsi = sanitize_csv_value(pendaftar.get('provinsi', ''))
+                kode_pos = sanitize_csv_value(pendaftar.get('kode_pos', ''))
+                
+                # Build smart full address
+                alamat_lengkap = build_alamat_lengkap(pendaftar)
+                
+                # Get file paths/URLs (not YA/TIDAK)
+                file_akte = get_file_path(pendaftar.get('file_akta'))
+                file_ijazah = get_file_path(pendaftar.get('file_ijazah'))
+                file_foto = get_file_path(pendaftar.get('file_foto'))
+                file_bpjs = get_file_path(pendaftar.get('file_bpjs'))
 
                 # Write row
                 row = [
@@ -142,6 +219,16 @@ class handler(BaseHTTPRequestHandler):
                     nomor_orangtua,
                     rencana_tingkat,
                     rencana_program,
+                    alamat_jalan,
+                    rt,
+                    rw,
+                    kelurahan,
+                    kecamatan,
+                    kota_kabupaten,
+                    kabupaten,
+                    provinsi,
+                    kode_pos,
+                    alamat_lengkap,
                     file_akte,
                     file_ijazah,
                     file_foto,
@@ -155,7 +242,7 @@ class handler(BaseHTTPRequestHandler):
 
             # Generate filename with current date
             today = datetime.now().strftime('%Y%m%d')
-            filename = f"pendaftar_all_{today}.csv"
+            filename = f"pendaftar_{today}.csv"
 
             # Send CSV response
             self.send_response(200)

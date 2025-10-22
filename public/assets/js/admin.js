@@ -925,6 +925,47 @@
   }
   window.exportToCSVServer = exportToCSVServer;
 
+  /**
+   * Download ALL files from ALL pendaftar as ZIP
+   */
+  function downloadAllZip(filters = {}) {
+    try {
+      // Build query string
+      const params = new URLSearchParams();
+      
+      if (filters.status) {
+        params.append('status', filters.status);
+      }
+      
+      if (filters.date_from) {
+        params.append('date_from', filters.date_from);
+      }
+      
+      if (filters.date_to) {
+        params.append('date_to', filters.date_to);
+      }
+      
+      if (filters.only) {
+        params.append('only', filters.only);
+      }
+      
+      const queryString = params.toString();
+      const url = `/api/pendaftar_download_zip${queryString ? '?' + queryString : ''}`;
+      
+      // Show notification
+      alert('Memproses download ZIP semua berkas...\nProses ini mungkin memakan waktu beberapa saat.');
+      
+      // Trigger download
+      window.location.href = url;
+      
+      console.log('✓ ZIP download initiated via server');
+    } catch (error) {
+      console.error('Error downloading ZIP:', error);
+      alert('❌ Error: ' + error.message);
+    }
+  }
+  window.downloadAllZip = downloadAllZip;
+
   /* =========================
      5) PEMBAYARAN
      ========================= */
