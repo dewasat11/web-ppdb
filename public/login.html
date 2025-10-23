@@ -260,18 +260,18 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      // ===== SESSION MANAGEMENT =====
-      // Session menggunakan sessionStorage (hilang saat tab ditutup)
-      // Tapi tetap persist selama tab masih terbuka
-      
-      // Check if already logged in - redirect to admin
-      if (sessionStorage.getItem("isAdminLoggedIn") === "true") {
-        console.log("[LOGIN] Already logged in, redirecting to admin...");
-        window.location.href = "/admin.html";
-      }
+      // ===== PREVENT INFINITE REDIRECT LOOP =====
+      // Set flag to track if we're already redirecting
+      let isRedirecting = false;
 
       document.getElementById("loginForm").addEventListener("submit", (e) => {
         e.preventDefault();
+
+        // Prevent double submission
+        if (isRedirecting) {
+          console.log("[LOGIN] Already redirecting, ignoring duplicate submission...");
+          return;
+        }
 
         const email = document.getElementById("email").value.trim();
         const password = document.getElementById("password").value;
@@ -282,15 +282,25 @@
         if (email === "admin" && password === "admin123") {
           console.log("[LOGIN] Login successful, setting session...");
           
-          // Set session in sessionStorage (will persist during browser tab session)
+          // Set redirect flag
+          isRedirecting = true;
+          
+          // Clear any existing session first (to prevent conflicts)
+          sessionStorage.clear();
+          localStorage.clear();
+          
+          // Set NEW session in sessionStorage
           sessionStorage.setItem("isAdminLoggedIn", "true");
           sessionStorage.setItem("adminEmail", email);
           sessionStorage.setItem("loginTimestamp", Date.now().toString());
 
-          console.log("[LOGIN] Session set, redirecting to admin.html...");
+          console.log("[LOGIN] Session set successfully");
+          console.log("[LOGIN] isAdminLoggedIn:", sessionStorage.getItem("isAdminLoggedIn"));
+          console.log("[LOGIN] Redirecting to /admin.html...");
           
-          // Redirect to admin dashboard
-          window.location.href = "/admin.html";
+          // Use window.location.replace to prevent back button loop
+          // This replaces current history entry instead of adding new one
+          window.location.replace("/admin.html");
         } else {
           console.log("[LOGIN] Login failed - invalid credentials");
           errorMessage.textContent = "Email atau password salah!";

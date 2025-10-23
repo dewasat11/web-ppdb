@@ -1122,19 +1122,40 @@
     // Block direct access to /admin.html
     // User MUST login via /login.html first
     (function() {
+      // Prevent infinite redirect loop
+      const redirectFlag = sessionStorage.getItem("__admin_redirect_flag");
+      
+      if (redirectFlag === "redirecting") {
+        console.error("[ADMIN AUTH] ⚠️ REDIRECT LOOP DETECTED! Clearing flag...");
+        sessionStorage.removeItem("__admin_redirect_flag");
+        // Don't redirect again - show error instead
+        document.body.innerHTML = '<div style="padding:40px;text-align:center;font-family:Arial"><h1>🔄 Redirect Loop Detected</h1><p>Please clear your browser cache and try again.</p><a href="/login.html" onclick="sessionStorage.clear();localStorage.clear();">Clear Session & Login Again</a></div>';
+        return;
+      }
+      
       const isLoggedIn = sessionStorage.getItem("isAdminLoggedIn");
       const adminEmail = sessionStorage.getItem("adminEmail");
       
       console.log("[ADMIN AUTH] Checking session...");
+      console.log("[ADMIN AUTH] Current URL:", window.location.href);
       console.log("[ADMIN AUTH] isLoggedIn:", isLoggedIn);
       console.log("[ADMIN AUTH] adminEmail:", adminEmail);
       
       if (isLoggedIn !== "true" || !adminEmail) {
         console.log("[ADMIN AUTH] ❌ NO SESSION - Redirecting to login...");
+        
+        // Set redirect flag to detect loops
+        sessionStorage.setItem("__admin_redirect_flag", "redirecting");
+        
         alert("⚠️ Akses ditolak!\n\nAnda harus login terlebih dahulu untuk mengakses halaman admin.");
-        window.location.href = "/login.html";
+        
+        // Use replace to avoid back button issues
+        window.location.replace("/login.html");
       } else {
         console.log("[ADMIN AUTH] ✅ SESSION VALID - Access granted");
+        
+        // Clear redirect flag on successful access
+        sessionStorage.removeItem("__admin_redirect_flag");
       }
     })();
     
@@ -1144,10 +1165,15 @@
      */
     function logout() {
       console.log("[ADMIN AUTH] Logging out...");
+      
+      // Clear all session data
       sessionStorage.clear();
       localStorage.clear();
+      
       alert("✅ Anda telah logout.\n\nSilakan login kembali untuk mengakses admin panel.");
-      window.location.href = "/login.html";
+      
+      // Use replace to prevent back button issues
+      window.location.replace("/login.html");
     }
   </script>
   
