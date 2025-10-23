@@ -280,27 +280,49 @@
 
         // Simple validation (hardcoded for demo)
         if (email === "admin" && password === "admin123") {
-          console.log("[LOGIN] Login successful, setting session...");
+          console.log("[LOGIN] ✅ Login successful!");
           
           // Set redirect flag
           isRedirecting = true;
           
-          // Clear any existing session first (to prevent conflicts)
+          // Step 1: Clear old session AND redirect flags
+          console.log("[LOGIN] Step 1: Clearing old session...");
           sessionStorage.clear();
           localStorage.clear();
           
-          // Set NEW session in sessionStorage
+          // IMPORTANT: Clear redirect loop flag to prevent false loop detection
+          sessionStorage.removeItem("__admin_redirect_flag");
+          
+          // Step 2: Set NEW session (IMPORTANT: Do this AFTER clear)
+          console.log("[LOGIN] Step 2: Setting new session...");
           sessionStorage.setItem("isAdminLoggedIn", "true");
           sessionStorage.setItem("adminEmail", email);
           sessionStorage.setItem("loginTimestamp", Date.now().toString());
-
-          console.log("[LOGIN] Session set successfully");
-          console.log("[LOGIN] isAdminLoggedIn:", sessionStorage.getItem("isAdminLoggedIn"));
-          console.log("[LOGIN] Redirecting to /admin.html...");
           
-          // Use window.location.replace to prevent back button loop
-          // This replaces current history entry instead of adding new one
-          window.location.replace("/admin.html");
+          // Step 3: Verify session was set correctly
+          const verifyLogin = sessionStorage.getItem("isAdminLoggedIn");
+          const verifyEmail = sessionStorage.getItem("adminEmail");
+          
+          console.log("[LOGIN] Step 3: Verifying session...");
+          console.log("[LOGIN] → isAdminLoggedIn:", verifyLogin);
+          console.log("[LOGIN] → adminEmail:", verifyEmail);
+          
+          if (verifyLogin === "true" && verifyEmail === email) {
+            console.log("[LOGIN] ✅ Session verified successfully!");
+            console.log("[LOGIN] Step 4: Redirecting to /admin.html in 100ms...");
+            
+            // Small delay to ensure session is fully saved
+            setTimeout(function() {
+              console.log("[LOGIN] 🚀 Redirecting NOW...");
+              window.location.replace("/admin.html");
+            }, 100);
+          } else {
+            console.error("[LOGIN] ❌ SESSION VERIFICATION FAILED!");
+            console.error("[LOGIN] Expected: isAdminLoggedIn='true', adminEmail='" + email + "'");
+            console.error("[LOGIN] Got: isAdminLoggedIn='" + verifyLogin + "', adminEmail='" + verifyEmail + "'");
+            alert("❌ Error: Session tidak dapat disimpan. Silakan coba lagi atau hubungi admin.");
+            isRedirecting = false;
+          }
         } else {
           console.log("[LOGIN] Login failed - invalid credentials");
           errorMessage.textContent = "Email atau password salah!";

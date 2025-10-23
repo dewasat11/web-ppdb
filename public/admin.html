@@ -1118,46 +1118,62 @@
   
   <!-- AUTH GUARD - Must be logged in to access admin panel -->
   <script>
-    // ===== AUTHENTICATION CHECK =====
-    // Block direct access to /admin.html
-    // User MUST login via /login.html first
-    (function() {
-      // Prevent infinite redirect loop
-      const redirectFlag = sessionStorage.getItem("__admin_redirect_flag");
-      
-      if (redirectFlag === "redirecting") {
-        console.error("[ADMIN AUTH] ⚠️ REDIRECT LOOP DETECTED! Clearing flag...");
-        sessionStorage.removeItem("__admin_redirect_flag");
-        // Don't redirect again - show error instead
-        document.body.innerHTML = '<div style="padding:40px;text-align:center;font-family:Arial"><h1>🔄 Redirect Loop Detected</h1><p>Please clear your browser cache and try again.</p><a href="/login.html" onclick="sessionStorage.clear();localStorage.clear();">Clear Session & Login Again</a></div>';
-        return;
-      }
-      
-      const isLoggedIn = sessionStorage.getItem("isAdminLoggedIn");
-      const adminEmail = sessionStorage.getItem("adminEmail");
-      
-      console.log("[ADMIN AUTH] Checking session...");
-      console.log("[ADMIN AUTH] Current URL:", window.location.href);
-      console.log("[ADMIN AUTH] isLoggedIn:", isLoggedIn);
-      console.log("[ADMIN AUTH] adminEmail:", adminEmail);
-      
-      if (isLoggedIn !== "true" || !adminEmail) {
-        console.log("[ADMIN AUTH] ❌ NO SESSION - Redirecting to login...");
+      // ===== AUTHENTICATION CHECK =====
+      // Block direct access to /admin.html
+      // User MUST login via /login.html first
+      (function() {
+        console.log("[ADMIN AUTH] 🔍 Starting authentication check...");
         
-        // Set redirect flag to detect loops
-        sessionStorage.setItem("__admin_redirect_flag", "redirecting");
+        // Prevent infinite redirect loop
+        const redirectFlag = sessionStorage.getItem("__admin_redirect_flag");
         
-        alert("⚠️ Akses ditolak!\n\nAnda harus login terlebih dahulu untuk mengakses halaman admin.");
+        if (redirectFlag === "redirecting") {
+          console.error("[ADMIN AUTH] ⚠️ REDIRECT LOOP DETECTED! Clearing flag...");
+          sessionStorage.removeItem("__admin_redirect_flag");
+          // Don't redirect again - show error instead
+          document.body.innerHTML = '<div style="padding:40px;text-align:center;font-family:Arial"><h1>🔄 Redirect Loop Detected</h1><p>Please clear your browser cache and try again.</p><a href="/login.html" onclick="sessionStorage.clear();localStorage.clear();">Clear Session & Login Again</a></div>';
+          return;
+        }
         
-        // Use replace to avoid back button issues
-        window.location.replace("/login.html");
-      } else {
-        console.log("[ADMIN AUTH] ✅ SESSION VALID - Access granted");
-        
-        // Clear redirect flag on successful access
-        sessionStorage.removeItem("__admin_redirect_flag");
-      }
-    })();
+        // Small delay to ensure session is fully loaded (especially after redirect from login)
+        setTimeout(function() {
+          const isLoggedIn = sessionStorage.getItem("isAdminLoggedIn");
+          const adminEmail = sessionStorage.getItem("adminEmail");
+          const loginTimestamp = sessionStorage.getItem("loginTimestamp");
+          
+          console.log("[ADMIN AUTH] Session Status:");
+          console.log("[ADMIN AUTH] → URL:", window.location.href);
+          console.log("[ADMIN AUTH] → isLoggedIn:", isLoggedIn);
+          console.log("[ADMIN AUTH] → adminEmail:", adminEmail);
+          console.log("[ADMIN AUTH] → loginTimestamp:", loginTimestamp);
+          
+          // Check if session is valid
+          if (isLoggedIn === "true" && adminEmail) {
+            console.log("[ADMIN AUTH] ✅ SESSION VALID - Access granted");
+            console.log("[ADMIN AUTH] → User: " + adminEmail);
+            console.log("[ADMIN AUTH] → Login time: " + (loginTimestamp ? new Date(parseInt(loginTimestamp)).toLocaleString() : 'N/A'));
+            
+            // Clear redirect flag on successful access
+            sessionStorage.removeItem("__admin_redirect_flag");
+            
+            // Show success message (optional, remove in production)
+            console.log("[ADMIN AUTH] 🎉 Welcome to Admin Panel!");
+          } else {
+            console.log("[ADMIN AUTH] ❌ NO VALID SESSION - Blocking access");
+            console.log("[ADMIN AUTH] → Reason: isLoggedIn=" + isLoggedIn + ", adminEmail=" + adminEmail);
+            
+            // Set redirect flag to detect loops
+            sessionStorage.setItem("__admin_redirect_flag", "redirecting");
+            
+            alert("⚠️ Akses ditolak!\n\nAnda harus login terlebih dahulu untuk mengakses halaman admin.");
+            
+            console.log("[ADMIN AUTH] 🔄 Redirecting to /login.html...");
+            
+            // Use replace to avoid back button issues
+            window.location.replace("/login.html");
+          }
+        }, 50); // 50ms delay to ensure session is loaded
+      })();
     
     /**
      * Logout Function
