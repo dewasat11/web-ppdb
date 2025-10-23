@@ -1135,8 +1135,14 @@
           return;
         }
         
-        // Small delay to ensure session is fully loaded (especially after redirect from login)
-        setTimeout(function() {
+        // Check session with retry mechanism (to handle timing issues)
+        let retryCount = 0;
+        const maxRetries = 5;
+        
+        function checkSession() {
+          retryCount++;
+          console.log("[ADMIN AUTH] Check attempt #" + retryCount);
+          
           const isLoggedIn = sessionStorage.getItem("isAdminLoggedIn");
           const adminEmail = sessionStorage.getItem("adminEmail");
           const loginTimestamp = sessionStorage.getItem("loginTimestamp");
@@ -1156,10 +1162,18 @@
             // Clear redirect flag on successful access
             sessionStorage.removeItem("__admin_redirect_flag");
             
-            // Show success message (optional, remove in production)
+            // Show success message
             console.log("[ADMIN AUTH] 🎉 Welcome to Admin Panel!");
           } else {
-            console.log("[ADMIN AUTH] ❌ NO VALID SESSION - Blocking access");
+            // If no session yet and we haven't exceeded max retries, try again
+            if (retryCount < maxRetries) {
+              console.log("[ADMIN AUTH] ⏳ Session not ready yet, retrying in 100ms... (attempt " + retryCount + "/" + maxRetries + ")");
+              setTimeout(checkSession, 100);
+              return;
+            }
+            
+            // Max retries exceeded, block access
+            console.log("[ADMIN AUTH] ❌ NO VALID SESSION after " + maxRetries + " attempts - Blocking access");
             console.log("[ADMIN AUTH] → Reason: isLoggedIn=" + isLoggedIn + ", adminEmail=" + adminEmail);
             
             // Set redirect flag to detect loops
@@ -1172,7 +1186,10 @@
             // Use replace to avoid back button issues
             window.location.replace("/login.html");
           }
-        }, 50); // 50ms delay to ensure session is loaded
+        }
+        
+        // Start checking session after initial delay
+        setTimeout(checkSession, 150); // 150ms initial delay (longer than login's 100ms)
       })();
     
     /**
