@@ -67,7 +67,7 @@ class handler(BaseHTTPRequestHandler):
             
             try:
                 result = supa.table("pendaftar").select(
-                    "nisn,namalengkap,tanggallahir,tempatlahir,statusberkas,verifiedby,verifiedat,createdat,updatedat"
+                    "nisn,namalengkap,tanggallahir,tempatlahir,statusberkas,alasan,verifiedby,verifiedat,createdat,updatedat"
                 ).eq("nisn", nisn).execute()
                 
                 print(f"[CEK_STATUS] Query result: {len(result.data) if result.data else 0} rows")
@@ -90,6 +90,7 @@ class handler(BaseHTTPRequestHandler):
 
             row: Dict[str, Any] = result.data[0]
             print(f"[CEK_STATUS] Found data for: {row.get('namalengkap')}")
+            print(f"[CEK_STATUS] Catatan Admin (alasan): {row.get('alasan')}")
 
             # Transform sesuai spec
             data = {
@@ -98,6 +99,7 @@ class handler(BaseHTTPRequestHandler):
                 "tanggalLahir": row.get("tanggallahir"),
                 "tempatLahir": row.get("tempatlahir"),
                 "status": row.get("statusberkas") or "PENDING",
+                "alasan": row.get("alasan"),  # Catatan admin
                 "verified_by": row.get("verifiedby"),
                 "verified_at": row.get("verifiedat"),
                 "created_at": row.get("createdat"),

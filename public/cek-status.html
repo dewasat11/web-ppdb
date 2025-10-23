@@ -331,6 +331,9 @@
         function showResult(data, payment) {
           const ui = mapStatusToUI(data.status);
 
+          console.log('[CEK_STATUS] Data received:', data);
+          console.log('[CEK_STATUS] Catatan Admin (alasan):', data.alasan);
+
           // Fill basic info
           fNisn.textContent = data.nisn || "-";
           fNama.textContent = data.nama || "-";

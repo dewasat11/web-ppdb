@@ -1123,14 +1123,28 @@ SMP SAINS AN NAJAH PURWOKERTO`
     const container = document.getElementById('gelombangContainer');
     if (!container) return;
     
+    // Show loading state
+    container.innerHTML = `
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+          <span class="visually-hidden">Memuat...</span>
+        </div>
+        <p class="text-muted mt-3"><i class="bi bi-arrow-repeat"></i> ${forceRefresh ? 'Memperbarui' : 'Memuat'} data gelombang...</p>
+      </div>
+    `;
+    
     try {
       // Add cache busting when forcing refresh
       const url = forceRefresh 
         ? `/api/get_gelombang_list?_t=${new Date().getTime()}` 
         : '/api/get_gelombang_list';
       
+      console.log('[GELOMBANG] Fetching data from:', url);
+      
       const response = await fetch(url);
       const result = await response.json();
+      
+      console.log('[GELOMBANG] API Response:', result);
       
       if (!result.ok || !result.data) {
         throw new Error(result.error || 'Failed to load gelombang');
@@ -1139,13 +1153,17 @@ SMP SAINS AN NAJAH PURWOKERTO`
       currentGelombangData = result.data;
       renderGelombangForms(result.data);
       
-      console.log('[GELOMBANG] Data loaded:', result.data.length, 'items');
+      console.log('[GELOMBANG] Data rendered successfully:', result.data.length, 'items');
     } catch (error) {
-      console.error('Error loading gelombang:', error);
+      console.error('[GELOMBANG] Error loading:', error);
       container.innerHTML = `
         <div class="alert alert-danger">
           <i class="bi bi-exclamation-triangle"></i> 
-          Gagal memuat data gelombang: ${error.message}
+          <strong>Gagal memuat data gelombang:</strong> ${error.message}
+          <hr>
+          <button class="btn btn-sm btn-danger" onclick="loadGelombangData(true)">
+            <i class="bi bi-arrow-repeat"></i> Coba Lagi
+          </button>
         </div>
       `;
     }
@@ -1241,6 +1259,8 @@ SMP SAINS AN NAJAH PURWOKERTO`
       return;
     }
     
+    console.log('[GELOMBANG] Updating gelombang:', id, { startDate, endDate, tahunAjaran });
+    
     // Find the button and show loading state
     const button = event.target.closest('button');
     const originalHTML = button.innerHTML;
@@ -1261,6 +1281,8 @@ SMP SAINS AN NAJAH PURWOKERTO`
       
       const result = await response.json();
       
+      console.log('[GELOMBANG] Update response:', result);
+      
       if (!result.ok) {
         throw new Error(result.error || 'Gagal mengupdate gelombang');
       }
@@ -1271,30 +1293,32 @@ SMP SAINS AN NAJAH PURWOKERTO`
         progressBar: true
       });
       
-      // Reload data with cache busting
+      // Reload data with cache busting (this will replace the entire container)
       await loadGelombangData(true);
       
       // Visual feedback: highlight the updated card
       setTimeout(() => {
-        const updatedCard = document.querySelector(`#start_date_${id}`).closest('.card');
+        const updatedCard = document.querySelector(`#start_date_${id}`);
         if (updatedCard) {
-          updatedCard.style.animation = 'pulse 1s ease-in-out';
-          setTimeout(() => {
-            updatedCard.style.animation = '';
-          }, 1000);
+          const card = updatedCard.closest('.card');
+          if (card) {
+            card.style.animation = 'pulse 1s ease-in-out';
+            setTimeout(() => {
+              card.style.animation = '';
+            }, 1000);
+          }
         }
-      }, 300);
+      }, 500);
       
     } catch (error) {
-      console.error('Error updating gelombang:', error);
+      console.error('[GELOMBANG] Error updating:', error);
       toastr.error(`✗ Gagal menyimpan: ${error.message}`, '', {
         timeOut: 4000,
         progressBar: true
       });
       
-      // Restore button on error
-      button.disabled = false;
-      button.innerHTML = originalHTML;
+      // Reload data to restore original state
+      await loadGelombangData(true);
     }
   }
   window.updateGelombang = updateGelombang;
@@ -1306,6 +1330,8 @@ SMP SAINS AN NAJAH PURWOKERTO`
     if (!confirm('Yakin ingin mengaktifkan gelombang ini? Gelombang lain akan dinonaktifkan.')) {
       return;
     }
+    
+    console.log('[GELOMBANG] Activating gelombang:', id);
     
     // Find the button that was clicked and show loading state
     const button = event.target.closest('button');
@@ -1322,6 +1348,8 @@ SMP SAINS AN NAJAH PURWOKERTO`
       
       const result = await response.json();
       
+      console.log('[GELOMBANG] Activate response:', result);
+      
       if (!result.ok) {
         throw new Error(result.error || 'Gagal mengaktifkan gelombang');
       }
@@ -1332,8 +1360,8 @@ SMP SAINS AN NAJAH PURWOKERTO`
         progressBar: true
       });
       
-      // Reload data with cache busting
-      await loadGelombangData(true); // Pass true to force refresh
+      // Reload data with cache busting (this will replace the entire container)
+      await loadGelombangData(true);
       
       // Scroll to the activated gelombang (smooth scroll)
       setTimeout(() => {
@@ -1347,15 +1375,17 @@ SMP SAINS AN NAJAH PURWOKERTO`
             activatedCard.style.animation = '';
           }, 1000);
         }
-      }, 300);
+      }, 500);
       
     } catch (error) {
-      console.error('Error activating gelombang:', error);
-      toastr.error(`Gagal mengaktifkan: ${error.message}`);
+      console.error('[GELOMBANG] Error activating:', error);
+      toastr.error(`Gagal mengaktifkan: ${error.message}`, '', {
+        timeOut: 4000,
+        progressBar: true
+      });
       
-      // Restore button
-      button.disabled = false;
-      button.innerHTML = originalHTML;
+      // Reload data to restore original state
+      await loadGelombangData(true);
     }
   }
   window.setGelombangActive = setGelombangActive;

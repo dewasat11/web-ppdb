@@ -281,68 +281,79 @@
   <!-- Alpine.js -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-  <!-- Gelombang Data Loader (Single Active Wave - WIB Timezone) -->
+  <!-- Gelombang Data Loader (Business Logic: Active-based Status) -->
   <script>
+    /* ===== UI MAPPING ===== */
+    const UI = {
+      label: {
+        ACTIVE: "Pendaftaran Dibuka",
+        UPCOMING: "Segera Dibuka",
+        CLOSED: "Ditutup",
+        NOT_ACTIVE: "Belum Aktif",
+      },
+      color: {
+        ACTIVE: "green",
+        UPCOMING: "blue",
+        CLOSED: "gray",
+        NOT_ACTIVE: "gray",
+      }
+    };
+
     /**
-     * Get current date in Asia/Jakarta timezone (normalized to date only, no time)
+     * Decorate gelombang dengan status berdasarkan activeId
+     * KONDISI BISNIS:
+     * - Jika Gelombang 1 AKTIF → Gelombang 2 & 3 = "Segera Dibuka"
+     * - Jika Gelombang 2 AKTIF → Gelombang 1 = "Ditutup", Gelombang 3 = "Segera Dibuka"
+     * - Jika Gelombang 3 AKTIF → Gelombang 1 & 2 = "Ditutup"
+     * - TIDAK pakai logika tanggal untuk label
      */
-    function todayWIB() {
-      const nowStr = new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
-      const t = new Date(nowStr);
-      t.setHours(0, 0, 0, 0);
-      return t;
+    function decorateGelombang(waves, activeId) {
+      const byId = Object.fromEntries(waves.map(w => [w.id, w]));
+
+      function setState(id, stateKey) {
+        const w = byId[id]; 
+        if (!w) return;
+        w._state = stateKey;
+        w._label = UI.label[stateKey];
+        w._color = UI.color[stateKey];
+      }
+
+      // Default semua "NOT_ACTIVE"
+      waves.forEach(w => setState(w.id, "NOT_ACTIVE"));
+
+      // Aturan bisnis
+      if (activeId === 1) {
+        setState(1, "ACTIVE");
+        setState(2, "UPCOMING");
+        setState(3, "UPCOMING");
+      } else if (activeId === 2) {
+        setState(2, "ACTIVE");
+        setState(1, "CLOSED");
+        setState(3, "UPCOMING");
+      } else if (activeId === 3) {
+        setState(3, "ACTIVE");
+        setState(1, "CLOSED");
+        setState(2, "CLOSED");
+      }
+
+      return waves;
     }
     
     /**
-     * Determine status badge and color for gelombang
-     * Priority: is_active (admin choice) overrides date logic
-     */
-    function statusByDate(gelombang) {
-      const today = todayWIB();
-      const startDate = new Date(gelombang.start_date + 'T00:00:00');
-      const endDate = new Date(gelombang.end_date + 'T23:59:59');
-      
-      // If admin marked this as active → GREEN, "Aktif"
-      if (gelombang.is_active) {
-        // Check if within date range
-        if (today >= startDate && today <= endDate) {
-          return { label: 'Aktif', color: 'green', status: 'active' };
-        } else if (today < startDate) {
-          return { label: 'Segera Dibuka', color: 'green', status: 'active-upcoming' };
-        } else {
-          // Active but past end date (edge case)
-          return { label: 'Aktif', color: 'green', status: 'active' };
-        }
-      }
-      
-      // Not active by admin → check dates only
-      if (today < startDate) {
-        return { label: 'Belum Dibuka', color: 'blue', status: 'upcoming' };
-      }
-      if (today > endDate) {
-        return { label: 'Ditutup', color: 'gray', status: 'closed' };
-      }
-      
-      // Within date range but not active
-      return { label: 'Belum Aktif', color: 'blue', status: 'upcoming' };
-    }
-    
-    /**
-     * Fetch and render ALL 3 gelombang (highlight active one as GREEN)
+     * Fetch and render ALL 3 gelombang dengan status berdasarkan active gelombang
      */
     async function loadGelombangAktif() {
       try {
-        // Add cache buster to force fresh data
-        const cacheBuster = new Date().getTime();
-        const response = await fetch(`/api/get_gelombang_list?_t=${cacheBuster}`);
-        const result = await response.json();
-        
-        console.log('[GELOMBANG_LIST] API Response:', result);
-        
         const container = document.getElementById('gelombangContainer');
         
-        // Handle no data or error
-        if (!result.ok || !result.data || result.data.length === 0) {
+        // 1) Fetch all gelombang (3 waves)
+        const cacheBuster = new Date().getTime();
+        const listResponse = await fetch(`/api/get_gelombang_list?_t=${cacheBuster}`);
+        const listResult = await listResponse.json();
+        
+        console.log('[GELOMBANG_LIST] API Response:', listResult);
+        
+        if (!listResult.ok || !listResult.data || listResult.data.length === 0) {
           console.log('[GELOMBANG_LIST] No gelombang data found');
           container.innerHTML = `
             <div class="text-center py-12 col-span-full">
@@ -356,10 +367,23 @@
           return;
         }
         
-        // Render ALL gelombang (3 cards)
-        const gelombangList = result.data;
+        // 2) Fetch active gelombang ID
+        let activeId = null;
+        try {
+          const activeResponse = await fetch(`/api/gelombang_active?_t=${cacheBuster}`);
+          const activeResult = await activeResponse.json();
+          if (activeResult.ok && activeResult.data && typeof activeResult.data.id === "number") {
+            activeId = activeResult.data.id;
+            console.log('[GELOMBANG_ACTIVE] Active ID:', activeId);
+          }
+        } catch (e) {
+          console.warn('[GELOMBANG_ACTIVE] Failed to fetch active gelombang:', e);
+        }
         
-        console.log('[GELOMBANG_LIST] Rendering', gelombangList.length, 'gelombang');
+        // 3) Decorate gelombang with business logic
+        const gelombangList = decorateGelombang(listResult.data, activeId);
+        
+        console.log('[GELOMBANG_LIST] Rendering', gelombangList.length, 'gelombang with activeId:', activeId);
         
         // Map colors to CSS classes
         const colorMap = {
@@ -383,34 +407,38 @@
           }
         };
         
-        // Generate HTML for all gelombang cards
+        // 4) Generate HTML for all gelombang cards
         let cardsHTML = '';
         
         gelombangList.forEach(gelombang => {
-          const st = statusByDate(gelombang);
-          const colors = colorMap[st.color] || colorMap.gray;
+          const colors = colorMap[gelombang._color] || colorMap.gray;
           
-          console.log('[GELOMBANG_LIST] Rendering:', gelombang.nama, '| is_active:', gelombang.is_active, '| status:', st);
+          console.log('[GELOMBANG_LIST] Rendering:', gelombang.nama, '| state:', gelombang._state, '| label:', gelombang._label);
           
-          // Determine button state
+          // Determine button state based on _state
           let buttonHTML = '';
           let statusHTML = '';
           
-          if (st.status === 'active' || st.status === 'active-upcoming') {
+          if (gelombang._state === 'ACTIVE') {
             buttonHTML = `<a href="/daftar.html" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg inline-block text-center transition shadow-md hover:shadow-lg">
               <i class="bi bi-pencil-square mr-2"></i>Daftar Sekarang
             </a>`;
             statusHTML = `<div class="bg-green-50 rounded-lg p-3 mb-4"><p class="text-sm text-green-700 font-medium">✓ Pendaftaran Dibuka</p></div>`;
-          } else if (st.status === 'upcoming') {
-            buttonHTML = `<button class="w-full bg-gray-300 text-gray-600 cursor-not-allowed font-semibold py-3 px-6 rounded-lg" disabled>
-              <i class="bi bi-clock mr-2"></i>Belum Dibuka
+          } else if (gelombang._state === 'UPCOMING') {
+            buttonHTML = `<button class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg cursor-default" disabled>
+              <i class="bi bi-clock mr-2"></i>Segera Dibuka
             </button>`;
             statusHTML = `<div class="bg-blue-50 rounded-lg p-3 mb-4"><p class="text-sm text-blue-700 font-medium">📅 Segera Dibuka</p></div>`;
-          } else {
+          } else if (gelombang._state === 'CLOSED') {
             buttonHTML = `<button class="w-full bg-gray-300 text-gray-600 cursor-not-allowed font-semibold py-3 px-6 rounded-lg" disabled>
-              <i class="bi bi-x-circle mr-2"></i>Sudah Ditutup
+              <i class="bi bi-x-circle mr-2"></i>Ditutup
             </button>`;
             statusHTML = `<div class="bg-gray-50 rounded-lg p-3 mb-4"><p class="text-sm text-gray-500 font-medium">⏱ Pendaftaran Ditutup</p></div>`;
+          } else { // NOT_ACTIVE
+            buttonHTML = `<button class="w-full bg-gray-300 text-gray-600 cursor-not-allowed font-semibold py-3 px-6 rounded-lg" disabled>
+              <i class="bi bi-info-circle mr-2"></i>Belum Aktif
+            </button>`;
+            statusHTML = `<div class="bg-gray-50 rounded-lg p-3 mb-4"><p class="text-sm text-gray-500 font-medium">ℹ️ Belum Aktif</p></div>`;
           }
           
           // Format dates
@@ -420,7 +448,7 @@
           // Build card HTML
           cardsHTML += `
             <div class="bg-white rounded-2xl p-6 shadow-xl border-2 ${colors.border} relative overflow-hidden hover:shadow-2xl transition">
-              <div class="absolute top-0 right-0 ${colors.badge} text-white px-4 py-2 rounded-bl-lg text-sm font-semibold">${st.label}</div>
+              <div class="absolute top-0 right-0 ${colors.badge} text-white px-4 py-2 rounded-bl-lg text-sm font-semibold">${gelombang._label}</div>
               <div class="text-center mt-4">
                 <div class="w-16 h-16 ${colors.icon} rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <i class="bi bi-calendar-check text-white text-2xl"></i>
