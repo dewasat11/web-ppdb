@@ -31,7 +31,10 @@ class handler(BaseHTTPRequestHandler):
             
             # Validasi format NISN (10 digit)
             nisn = data['nisn'].strip()
+            print(f"[PEMBAYARAN_SUBMIT] NISN: {nisn}")
+            
             if not re.match(r'^\d{10}$', nisn):
+                print(f"[PEMBAYARAN_SUBMIT] Invalid NISN format: {nisn}")
                 self.send_response(400)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
@@ -66,7 +69,7 @@ class handler(BaseHTTPRequestHandler):
             supa = supabase_client(service_role=True)
             
             # Check if pendaftar exists berdasarkan NISN
-            pendaftar = supa.table('pendaftar').select('*').or_(f'nisn.eq.{nisn},nikcalon.eq.{nisn}').execute()
+            pendaftar = supa.table('pendaftar').select('*').eq('nisn', nisn).execute()
             
             pendaftar_data = getattr(pendaftar, 'data', None)
             if not pendaftar_data:
@@ -79,18 +82,20 @@ class handler(BaseHTTPRequestHandler):
                 return
             
             # Check if payment already exists berdasarkan NISN
-            existing_payment = supa.table('pembayaran').select('*').or_(f'nisn.eq.{nisn},nik.eq.{nisn}').execute()
+            existing_payment = supa.table('pembayaran').select('*').eq('nisn', nisn).execute()
             
             existing_data = getattr(existing_payment, 'data', None)
             if existing_data:
                 # Update existing payment
+                print(f"[PEMBAYARAN_SUBMIT] Updating existing payment for NISN: {nisn}")
                 result = supa.table('pembayaran').update({
                     'bukti_pembayaran': bukti_pembayaran,
                     'status_pembayaran': 'PENDING',
                     'catatan_admin': data.get('catatan', ''),
                     'updated_at': 'now()'  # Update timestamp
-                }).or_(f'nisn.eq.{nisn},nik.eq.{nisn}').execute()
+                }).eq('nisn', nisn).execute()
                 
+                print(f"[PEMBAYARAN_SUBMIT] Payment updated successfully for NISN: {nisn}")
                 response_data = {
                     'message': 'Pembayaran berhasil diupdate',
                     'nisn': nisn,
@@ -98,9 +103,10 @@ class handler(BaseHTTPRequestHandler):
                 }
             else:
                 # Insert new payment dengan field yang konsisten
+                print(f"[PEMBAYARAN_SUBMIT] Creating new payment for NISN: {nisn}")
                 payment_data = {
                     'nisn': nisn,
-                    'nik': nisn,  # Fallback jika nisn kosong
+                    'nik': None,  # NIK tidak wajib, set NULL untuk avoid constraint violation
                     'nama_lengkap': nama_lengkap,
                     'jumlah': 500000.00,
                     'metode_pembayaran': 'Transfer Bank BRI',
@@ -112,8 +118,10 @@ class handler(BaseHTTPRequestHandler):
                     'updated_at': 'now()'        # Set timestamp diupdate
                 }
                 
+                print(f"[PEMBAYARAN_SUBMIT] Payment data: nisn={nisn}, nik=None, nama={nama_lengkap}")
                 result = supa.table('pembayaran').insert(payment_data).execute()
                 
+                print(f"[PEMBAYARAN_SUBMIT] Payment created successfully for NISN: {nisn}")
                 response_data = {
                     'message': 'Pembayaran berhasil disubmit',
                     'nisn': nisn,
