@@ -1114,6 +1114,20 @@
   <!-- Toastr JS for notifications (load before admin.js) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
   
+  <!-- Supabase Client for Gelombang Management -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    
+    // ⚠️ IMPORTANT: Replace with your actual Supabase credentials
+    const SUPABASE_URL = 'https://sxbvadzcwpaovkhghttv.supabase.co'; // e.g., https://xxxxx.supabase.co
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4YnZhZHpjd3Bhb3ZraGdodHR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMDg4MDYsImV4cCI6MjA3NjY4NDgwNn0.miJeKmsNgjgS4fWegGlwrxF_cPUoZBT0YKl1oxmmXTE'; // Public anon key
+    
+    // Initialize Supabase client
+    window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    console.log('[SUPABASE] Client initialized for gelombang management');
+  </script>
+  
   <!-- Client-side ZIP generation removed - now using server-side download -->
   
   <!-- AUTH GUARD - Must be logged in to access admin panel -->

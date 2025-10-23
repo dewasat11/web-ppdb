@@ -1117,7 +1117,7 @@ SMP SAINS AN NAJAH PURWOKERTO`
   let currentGelombangData = [];
 
   /**
-   * Load gelombang data and render forms
+   * Load gelombang data from Supabase and render forms
    */
   async function loadGelombangData(forceRefresh = false) {
     const container = document.getElementById('gelombangContainer');
@@ -1129,31 +1129,39 @@ SMP SAINS AN NAJAH PURWOKERTO`
         <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
           <span class="visually-hidden">Memuat...</span>
         </div>
-        <p class="text-muted mt-3"><i class="bi bi-arrow-repeat"></i> ${forceRefresh ? 'Memperbarui' : 'Memuat'} data gelombang...</p>
+        <p class="text-muted mt-3"><i class="bi bi-arrow-repeat"></i> ${forceRefresh ? 'Memperbarui' : 'Memuat'} data gelombang dari Supabase...</p>
       </div>
     `;
     
     try {
-      // Add cache busting when forcing refresh
-      const url = forceRefresh 
-        ? `/api/get_gelombang_list?_t=${new Date().getTime()}` 
-        : '/api/get_gelombang_list';
+      console.log('[GELOMBANG] Loading data from Supabase...', forceRefresh ? '(force refresh)' : '');
       
-      console.log('[GELOMBANG] Fetching data from:', url);
-      
-      const response = await fetch(url);
-      const result = await response.json();
-      
-      console.log('[GELOMBANG] API Response:', result);
-      
-      if (!result.ok || !result.data) {
-        throw new Error(result.error || 'Failed to load gelombang');
+      // Check if Supabase client is available
+      if (!window.supabase) {
+        throw new Error('Supabase client not initialized. Please check your Supabase credentials in admin.html.');
       }
       
-      currentGelombangData = result.data;
-      renderGelombangForms(result.data);
+      // Fetch gelombang data from Supabase
+      const { data, error } = await window.supabase
+        .from('gelombang')
+        .select('*')
+        .order('id', { ascending: true });
       
-      console.log('[GELOMBANG] Data rendered successfully:', result.data.length, 'items');
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+      
+      if (!data || data.length === 0) {
+        throw new Error('No gelombang data found in database');
+      }
+      
+      console.log('[GELOMBANG] Data loaded from Supabase:', data);
+      console.table(data);
+      
+      currentGelombangData = data;
+      renderGelombangForms(data);
+      
+      console.log('[GELOMBANG] Data rendered successfully:', data.length, 'items');
     } catch (error) {
       console.error('[GELOMBANG] Error loading:', error);
       container.innerHTML = `
@@ -1170,45 +1178,61 @@ SMP SAINS AN NAJAH PURWOKERTO`
   }
 
   /**
-   * Render gelombang forms
+   * Render gelombang forms with status-based styling
    */
   function renderGelombangForms(gelombangList) {
     const container = document.getElementById('gelombangContainer');
     if (!container) return;
     
     const formsHTML = gelombangList.map((gelombang, index) => {
-      const isActive = gelombang.is_active;
-      const badgeClass = isActive ? 'bg-success' : 'bg-secondary';
-      const badgeText = isActive ? 'Aktif' : 'Nonaktif';
+      // Map status to colors
+      const status = (gelombang.status || 'ditutup').toLowerCase();
+      let statusColor, statusBadge, borderColor;
+      
+      if (status === 'aktif') {
+        statusColor = 'success';  // Green
+        statusBadge = 'Aktif';
+        borderColor = 'success';
+      } else if (status === 'dibuka') {
+        statusColor = 'primary';  // Blue
+        statusBadge = 'Dibuka';
+        borderColor = 'primary';
+      } else { // ditutup
+        statusColor = 'secondary'; // Gray
+        statusBadge = 'Ditutup';
+        borderColor = 'secondary';
+      }
+      
+      const isActive = gelombang.is_active || status === 'aktif';
       
       return `
-        <div class="card mb-3 border-${isActive ? 'success' : 'secondary'}">
-          <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card mb-3 border-${borderColor}">
+          <div class="card-header bg-${borderColor} bg-opacity-10 d-flex justify-content-between align-items-center">
             <h6 class="mb-0">
               <i class="bi bi-${index + 1}-circle"></i> ${gelombang.nama}
             </h6>
-            <span class="badge ${badgeClass}">${badgeText}</span>
+            <span class="badge bg-${statusColor}">${statusBadge}</span>
           </div>
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label">Tanggal Mulai</label>
+                <label class="form-label"><i class="bi bi-calendar-event"></i> Tanggal Mulai</label>
                 <input type="date" class="form-control" id="start_date_${gelombang.id}" 
                        value="${gelombang.start_date}" required>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Tanggal Akhir</label>
+                <label class="form-label"><i class="bi bi-calendar-x"></i> Tanggal Akhir</label>
                 <input type="date" class="form-control" id="end_date_${gelombang.id}" 
                        value="${gelombang.end_date}" required>
               </div>
               <div class="col-md-12">
-                <label class="form-label">Tahun Ajaran</label>
+                <label class="form-label"><i class="bi bi-book"></i> Tahun Ajaran</label>
                 <input type="text" class="form-control" id="tahun_ajaran_${gelombang.id}" 
                        value="${gelombang.tahun_ajaran}" placeholder="2026/2027" required>
               </div>
             </div>
-            <div class="d-flex gap-2 mt-3">
-              <button type="button" class="btn btn-primary btn-sm" onclick="updateGelombang(${gelombang.id})">
+            <div class="d-flex gap-2 mt-3 flex-wrap">
+              <button type="button" class="btn btn-outline-primary btn-sm" onclick="updateGelombang(${gelombang.id})">
                 <i class="bi bi-save"></i> Simpan Perubahan
               </button>
               ${!isActive ? `
@@ -1327,107 +1351,63 @@ SMP SAINS AN NAJAH PURWOKERTO`
   window.updateGelombang = updateGelombang;
 
   /**
-   * Set gelombang as active (INSTANT - optimistic update)
+   * Set gelombang as active using Supabase RPC
    */
   async function setGelombangActive(id) {
     // Ensure ID is a number (convert from string if needed)
     id = parseInt(id, 10);
     
     // Confirmation dialog
-    if (!confirm('Jadikan gelombang ini aktif? Gelombang lain akan otomatis dinonaktifkan.')) {
+    if (!confirm('Jadikan gelombang ini aktif? Gelombang lain akan otomatis diatur statusnya.')) {
       return;
     }
     
-    console.log('[GELOMBANG] Activating gelombang (ID as number):', id, typeof id);
+    console.log('[GELOMBANG] Activating gelombang via Supabase RPC:', id);
     
-    // Find the button that was clicked
-    const button = event.target.closest('button');
-    const card = button.closest('.card');
-    
-    // OPTIMISTIC UPDATE: Immediately update UI before API call
-    // 1. Update the clicked card to active state
-    card.classList.remove('border-secondary');
-    card.classList.add('border-success');
-    const badge = card.querySelector('.badge');
-    if (badge) {
-      badge.className = 'badge bg-success';
-      badge.textContent = 'Aktif';
-    }
-    
-    // 2. Change button to disabled "Gelombang Aktif" state
-    button.className = 'btn btn-secondary btn-sm';
-    button.disabled = true;
-    button.innerHTML = '<i class="bi bi-check-circle-fill"></i> Gelombang Aktif';
-    
-    // 3. Update all other cards to inactive state
-    document.querySelectorAll('.card.border-success').forEach(otherCard => {
-      if (otherCard !== card) {
-        otherCard.classList.remove('border-success');
-        otherCard.classList.add('border-secondary');
-        const otherBadge = otherCard.querySelector('.badge');
-        if (otherBadge) {
-          otherBadge.className = 'badge bg-secondary';
-          otherBadge.textContent = 'Nonaktif';
-        }
-        
-        // Find and re-enable "Jadikan Aktif" button for inactive cards
-        const disabledBtn = otherCard.querySelector('.btn-secondary.btn-sm[disabled]');
-        if (disabledBtn && disabledBtn.innerHTML.includes('Gelombang Aktif')) {
-          // Get the gelombang ID from the card's input
-          const startDateInput = otherCard.querySelector('input[id^="start_date_"]');
-          if (startDateInput) {
-            const gelombangId = parseInt(startDateInput.id.replace('start_date_', ''), 10);
-            disabledBtn.className = 'btn btn-success btn-sm';
-            disabledBtn.disabled = false;
-            disabledBtn.setAttribute('onclick', `setGelombangActive(${gelombangId})`);
-            disabledBtn.innerHTML = '<i class="bi bi-check-circle"></i> Jadikan Aktif';
-            console.log('[GELOMBANG] Re-enabled button for gelombang ID:', gelombangId);
-          }
-        }
-      }
-    });
-    
-    // 4. Quick visual feedback
-    card.style.animation = 'pulse 0.3s ease-in-out';
-    setTimeout(() => {
-      card.style.animation = '';
-    }, 300);
-    
-    // Update local cache
-    currentGelombangData.forEach(g => {
-      g.is_active = (g.id === id);
-    });
-    
-    // 5. Show instant success notification
-    toastr.success('✓ Gelombang berhasil diaktifkan!', '', {
-      timeOut: 2000,
-      progressBar: true
-    });
-    
-    // 6. Call API in background (no await, fire-and-forget with error handling)
-    fetch('/api/set_gelombang_active', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: id })
-    })
-    .then(response => response.json())
-    .then(result => {
-      console.log('[GELOMBANG] Activate response:', result);
-      if (!result.ok) {
-        throw new Error(result.error || 'Gagal mengaktifkan gelombang');
-      }
-    })
-    .catch(error => {
-      console.error('[GELOMBANG] Error activating (background):', error);
-      // If background API fails, revert UI
-      toastr.error(`⚠️ Terjadi error di server: ${error.message}. Memuat ulang data...`, '', {
+    // Check if Supabase client is available
+    if (!window.supabase) {
+      toastr.error('❌ Supabase client not initialized!', '', {
         timeOut: 3000,
         progressBar: true
       });
-      setTimeout(() => {
-        loadGelombangData(true);
-      }, 2000);
-    });
+      return;
+    }
+    
+    try {
+      // Show loading indicator
+      toastr.info('⏳ Mengaktifkan gelombang...', '', {
+        timeOut: 2000,
+        progressBar: true
+      });
+      
+      // Call Supabase RPC function
+      const { data, error } = await window.supabase.rpc('set_gelombang_status', { p_id: id });
+      
+      if (error) {
+        throw new Error(`Supabase RPC error: ${error.message}`);
+      }
+      
+      console.log('[GELOMBANG] RPC success:', data);
+      
+      // Show success notification
+      toastr.success(`✅ Gelombang ${id} berhasil diaktifkan!`, '', {
+        timeOut: 2000,
+        progressBar: true
+      });
+      
+      // Reload data to show updated status and colors
+      await loadGelombangData(true);
+      
+      console.log('[GELOMBANG] UI refreshed successfully');
+      
+    } catch (error) {
+      console.error('[GELOMBANG] Error activating:', error);
+      
+      toastr.error(`❌ Gagal mengubah gelombang: ${error.message}`, '', {
+        timeOut: 4000,
+        progressBar: true
+      });
+    }
   }
   window.setGelombangActive = setGelombangActive;
 
