@@ -45,10 +45,9 @@ class handler(BaseHTTPRequestHandler):
                 
             elif action == 'pendaftar_status':
                 from lib.handlers.pendaftar_status import handler as StatusHandler
+                # Use unbound method call pattern (consistent with other handlers)
                 if self.command == 'PATCH':
                     StatusHandler.do_PATCH(self)
-                elif self.command == 'POST':
-                    StatusHandler.do_POST(self)
                 else:
                     StatusHandler.do_OPTIONS(self)
                 
@@ -135,6 +134,9 @@ class handler(BaseHTTPRequestHandler):
         self._route_request()
     
     def do_POST(self):
+        self._route_request()
+    
+    def do_PATCH(self):
         self._route_request()
     
     def do_OPTIONS(self):

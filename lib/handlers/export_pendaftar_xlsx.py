@@ -62,11 +62,21 @@ class handler(BaseHTTPRequestHandler):
                     alamat_parts.append(item['desa'].strip())
                 alamat_lengkap = ', '.join(filter(None, alamat_parts))
                 
-                # Check if files exist (has URL starting with http)
-                has_file_akta = bool(item.get('file_akta') and str(item['file_akta']).strip() and str(item['file_akta']).startswith('http'))
-                has_file_ijazah = bool(item.get('file_ijazah') and str(item['file_ijazah']).strip() and str(item['file_ijazah']).startswith('http'))
-                has_file_foto = bool(item.get('file_foto') and str(item['file_foto']).strip() and str(item['file_foto']).startswith('http'))
-                has_file_bpjs = bool(item.get('file_bpjs') and str(item['file_bpjs']).strip() and str(item['file_bpjs']).startswith('http'))
+                # Check if files exist (any non-empty value counts as file exists)
+                def has_file(field_value):
+                    """Check if file exists: not null, not empty, not 'null' string"""
+                    if not field_value:
+                        return False
+                    str_value = str(field_value).strip().lower()
+                    # Exclude common "empty" values
+                    if str_value in ['', 'null', 'none', 'undefined']:
+                        return False
+                    return True
+                
+                has_file_akta = has_file(item.get('file_akta'))
+                has_file_ijazah = has_file(item.get('file_ijazah'))
+                has_file_foto = has_file(item.get('file_foto'))
+                has_file_bpjs = has_file(item.get('file_bpjs'))
                 
                 rows.append({
                     'nisn': item.get('nisn', ''),

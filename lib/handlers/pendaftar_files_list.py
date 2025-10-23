@@ -63,7 +63,6 @@ class handler(BaseHTTPRequestHandler):
             # Map of file types to friendly names
             file_type_map = {
                 "ijazah": "Ijazah",
-                "kk": "Kartu Keluarga",
                 "akta": "Akta Kelahiran",
                 "foto": "Pas Foto 3x4",
                 "bpjs": "BPJS",

@@ -26,7 +26,6 @@ def detect_file_type(filename):
     # File type mapping
     type_map = {
         "Ijazah": ["ijazah", "raport", "sttb"],
-        "Kartu Keluarga": ["kk", "kartu_keluarga", "kartu-keluarga"],
         "Akta Kelahiran": ["akta", "akte", "kelahiran"],
         "Pas Foto 3x4": ["foto", "pasfoto", "pas-foto", "3x4"],
         "BPJS": ["bpjs", "kartu-bpjs"],

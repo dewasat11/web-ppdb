@@ -21,19 +21,6 @@
     <link rel="stylesheet" href="/assets/css/styles.css" />
 
     <style>
-      .status-card {
-        border-left: 5px solid;
-        margin-top: 2rem;
-      }
-      .status-pending {
-        border-color: #ffc107;
-      }
-      .status-diterima {
-        border-color: #28a745;
-      }
-      .status-ditolak {
-        border-color: #dc3545;
-      }
       .hero-section {
         background: linear-gradient(135deg, #064e3b 0%, #064e3b 100%);
         color: white;
@@ -91,7 +78,7 @@
     <section class="hero-section">
       <div class="container text-center">
         <h1 class="display-5 fw-bold mb-3">
-          <i class="bi bi-search"></i> Cek Status Pendaftaran!
+          <i class="bi bi-search"></i> Cek Status Pendaftaran
         </h1>
         <p class="lead">
           Masukkan NISN Anda untuk melihat status pendaftaran
@@ -107,18 +94,18 @@
           <div class="card shadow">
             <div class="card-body p-4">
               <h5 class="card-title mb-4">
-                <i class="bi bi-card-text text-success"></i> Cek Status Anda!
+                <i class="bi bi-card-text text-success"></i> Cek Status Anda
               </h5>
 
               <form id="cekStatusForm">
                 <div class="mb-4">
-                  <label for="nisn" class="form-label fw-bold"
+                  <label for="nisnInput" class="form-label fw-bold"
                     >NISN (Nomor Induk Siswa Nasional)</label
                   >
                   <input
                     type="text"
                     class="form-control form-control-lg"
-                    id="nisn"
+                    id="nisnInput"
                     placeholder="Masukkan NISN (10 digit)"
                     required
                     pattern="^\d{10}$"
@@ -130,33 +117,98 @@
                   </div>
                 </div>
 
-                <button type="submit" class="btn btn-lg w-100 text-white" style="background-color: #0f9d58; border: none;">
+                <button type="button" id="btnCekStatus" class="btn btn-lg w-100 text-white" style="background-color: #0f9d58; border: none;">
                   <i class="bi bi-search"></i> Cek Status
                 </button>
               </form>
-
-              <!-- Loading -->
-              <div id="loading" class="text-center mt-4" style="display: none">
-                <div class="spinner-border text-success" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mt-2 text-muted">Mencari data...</p>
-              </div>
-
-              <!-- Error Alert -->
-              <div
-                id="errorAlert"
-                class="alert alert-danger mt-4"
-                style="display: none"
-              >
-                <i class="bi bi-exclamation-triangle"></i>
-                <span id="errorMessage"></span>
-              </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
 
-          <!-- Result Card -->
-          <div id="resultCard" style="display: none"></div>
+    <!-- Modal: Hasil Cek Status -->
+    <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+          <div class="modal-header" style="background: linear-gradient(135deg, #0f9d58 0%, #0a7a43 100%); color: white;">
+            <h5 class="modal-title" id="statusModalLabel">
+              <i class="bi bi-clipboard-check"></i> Hasil Cek Status Pendaftaran
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Loading state -->
+            <div id="statusLoading" class="text-center py-4">
+              <div class="spinner-border text-success" style="width: 3rem; height: 3rem;" role="status"></div>
+              <p class="mt-3 text-muted fw-bold">Mengambil data status Anda...</p>
+            </div>
+
+            <!-- Hasil sukses -->
+            <div id="statusResult" class="d-none">
+              <div class="text-center mb-4">
+                <i id="statusIcon" class="bi bi-hourglass-split text-warning" style="font-size: 5rem;"></i>
+              </div>
+              <div class="d-flex justify-content-center mb-4">
+                <h4><span id="statusBadge" class="badge rounded-pill px-4 py-2 bg-secondary">-</span></h4>
+              </div>
+              
+              <div class="card shadow-sm mb-3">
+                <div class="card-header bg-light">
+                  <strong><i class="bi bi-person-badge"></i> Informasi Pendaftar</strong>
+                </div>
+                <div class="list-group list-group-flush">
+                  <div class="list-group-item d-flex justify-content-between">
+                    <span class="text-muted">NISN</span>
+                    <strong id="f_nisn">-</strong>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between">
+                    <span class="text-muted">Nama Lengkap</span>
+                    <strong id="f_nama">-</strong>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between">
+                    <span class="text-muted">Tanggal Lahir</span>
+                    <span id="f_tanggal_lahir">-</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between">
+                    <span class="text-muted">Tanggal Daftar</span>
+                    <span id="f_tanggal_daftar">-</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                  <strong><i class="bi bi-clipboard-data"></i> Status & Catatan</strong>
+                </div>
+                <div class="list-group list-group-flush">
+                  <div class="list-group-item">
+                    <span class="text-muted d-block mb-2">Status Verifikasi</span>
+                    <span id="f_status_text" class="badge bg-secondary">-</span>
+                  </div>
+                  <div class="list-group-item" id="catatanContainer">
+                    <span class="text-muted d-block mb-2">Catatan Admin</span>
+                    <p id="f_catatan" class="mb-0 text-dark">-</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Payment Status Section (dinamis) -->
+              <div id="paymentStatusSection"></div>
+            </div>
+
+            <!-- Error -->
+            <div id="statusError" class="alert alert-warning d-none" role="alert">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              <strong>Perhatian!</strong>
+              <p class="mb-0 mt-2" id="statusErrorMsg">Terjadi kesalahan.</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <i class="bi bi-x-circle"></i> Tutup
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -165,393 +217,269 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      document
-        .getElementById("cekStatusForm")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
+      (function() {
+        const nisnInput = document.getElementById("nisnInput");
+        const btnCekStatus = document.getElementById("btnCekStatus");
+        const modalEl = document.getElementById("statusModal");
+        const statusModal = new bootstrap.Modal(modalEl);
 
-          const nisn = document
-            .getElementById("nisn")
-            .value.trim();
-          const loading = document.getElementById("loading");
-          const errorAlert = document.getElementById("errorAlert");
-          const resultCard = document.getElementById("resultCard");
+        // Modal elements
+        const loadingBox = document.getElementById("statusLoading");
+        const resultBox = document.getElementById("statusResult");
+        const errorBox = document.getElementById("statusError");
+        const errorMsg = document.getElementById("statusErrorMsg");
 
-          // Reset
-          loading.style.display = "block";
-          errorAlert.style.display = "none";
-          resultCard.style.display = "none";
+        // Result elements
+        const statusBadge = document.getElementById("statusBadge");
+        const statusIcon = document.getElementById("statusIcon");
+        const fNisn = document.getElementById("f_nisn");
+        const fNama = document.getElementById("f_nama");
+        const fTglLahir = document.getElementById("f_tanggal_lahir");
+        const fTglDaftar = document.getElementById("f_tanggal_daftar");
+        const fStatusText = document.getElementById("f_status_text");
+        const fCatatan = document.getElementById("f_catatan");
+        const paymentSection = document.getElementById("paymentStatusSection");
+
+        function resetModal() {
+          loadingBox.classList.remove("d-none");
+          resultBox.classList.add("d-none");
+          errorBox.classList.add("d-none");
+          statusBadge.className = "badge rounded-pill px-4 py-2 bg-secondary";
+          statusIcon.className = "bi bi-hourglass-split text-warning";
+          paymentSection.innerHTML = "";
+          [fNisn, fNama, fTglLahir, fTglDaftar, fStatusText, fCatatan].forEach(el => el.textContent = "-");
+        }
+
+        function mapStatusToUI(status) {
+          const s = String(status || "").toLowerCase();
+          
+          if (s.includes("diterima") || s.includes("approved") || s.includes("lolos")) {
+            return { 
+              badge: "bg-success", 
+              icon: "bi-check-circle text-success", 
+              text: "Diterima" 
+            };
+          }
+          if (s.includes("ditolak") || s.includes("rejected") || s.includes("tidak lolos")) {
+            return { 
+              badge: "bg-danger", 
+              icon: "bi-x-circle text-danger", 
+              text: "Ditolak" 
+            };
+          }
+          if (s.includes("revisi") || s.includes("perlu revisi")) {
+            return { 
+              badge: "bg-info", 
+              icon: "bi-arrow-repeat text-info", 
+              text: "Perlu Revisi" 
+            };
+          }
+          // Default: pending/menunggu
+          return { 
+            badge: "bg-warning text-dark", 
+            icon: "bi-hourglass-split text-warning", 
+            text: "Menunggu Verifikasi Admin" 
+          };
+        }
+
+        async function fetchStatus(nisn) {
+          const url = `/api/pendaftar_cek_status?nisn=${encodeURIComponent(nisn)}`;
+          const r = await fetch(url, { headers: { "Accept": "application/json" }});
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.json();
+        }
+
+        async function fetchPaymentStatus(nisn) {
+          try {
+            const r = await fetch("/api/pembayaran_list");
+            const result = await r.json();
+            if (r.ok && result.data) {
+              return result.data.find(p => (p.nisn || p.nik) === nisn);
+            }
+          } catch (e) {
+            console.error("Payment check failed:", e);
+          }
+          return null;
+        }
+
+        function validateNISN(v) {
+          return /^\d{10}$/.test(String(v).trim());
+        }
+
+        function formatDate(dateStr) {
+          if (!dateStr) return "-";
+          try {
+            return new Date(dateStr).toLocaleDateString("id-ID", {
+              day: "numeric",
+              month: "long",
+              year: "numeric"
+            });
+          } catch {
+            return dateStr;
+          }
+        }
+
+        function formatDateTime(dateStr) {
+          if (!dateStr) return "-";
+          try {
+            return new Date(dateStr).toLocaleString("id-ID");
+          } catch {
+            return dateStr;
+          }
+        }
+
+        function showResult(data, payment) {
+          const ui = mapStatusToUI(data.status);
+
+          // Fill basic info
+          fNisn.textContent = data.nisn || "-";
+          fNama.textContent = data.nama || "-";
+          fTglLahir.textContent = formatDate(data.tanggalLahir);
+          fTglDaftar.textContent = formatDateTime(data.createdat);
+          fStatusText.textContent = ui.text;
+          fStatusText.className = `badge ${ui.badge}`;
+          fCatatan.textContent = data.alasan || "-";
+
+          // Style icon & badge
+          statusBadge.className = `badge rounded-pill px-4 py-2 ${ui.badge}`;
+          statusBadge.textContent = ui.text;
+          statusIcon.className = `bi ${ui.icon}`;
+          statusIcon.style.fontSize = "5rem";
+
+          // Payment section (if applicable)
+          renderPaymentSection(data, payment);
+
+          // Hide loading, show result
+          loadingBox.classList.add("d-none");
+          resultBox.classList.remove("d-none");
+        }
+
+        function renderPaymentSection(data, payment) {
+          if (!payment && data.status && data.status.toLowerCase() !== "diterima") {
+            return; // No payment section for non-accepted registrations
+          }
+
+          const payStatus = (payment?.status_pembayaran || payment?.status || "").toUpperCase();
+          let html = "";
+
+          // Case 1: Diterima but no payment yet
+          if (data.status && data.status.toLowerCase() === "diterima" && !payment) {
+            html = `
+              <div class="alert alert-success mt-3">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong>Selamat!</strong> Pendaftaran Anda telah diterima. Silakan lanjutkan ke pembayaran.
+              </div>
+              <div class="d-grid gap-2">
+                <a href="/pembayaran.html?nisn=${encodeURIComponent(data.nisn || data.nik)}&nama=${encodeURIComponent(data.nama)}" 
+                   class="btn btn-success btn-lg">
+                  <i class="bi bi-credit-card me-2"></i>Lanjut ke Pembayaran
+                </a>
+              </div>
+            `;
+          }
+
+          // Case 2: Payment PENDING
+          else if (payStatus === "PENDING") {
+            html = `
+              <div class="alert alert-warning mt-3">
+                <i class="bi bi-clock-history me-2"></i>
+                <strong>Pembayaran Sedang Diproses</strong>
+                <hr>
+                <small class="d-block"><strong>Jumlah:</strong> Rp ${parseFloat(payment.jumlah || 0).toLocaleString("id-ID")}</small>
+                <small class="d-block"><strong>Status:</strong> <span class="badge bg-warning">Menunggu Verifikasi</span></small>
+                <hr>
+                <small><i class="bi bi-info-circle me-1"></i>Bukti pembayaran sedang diverifikasi. Mohon tunggu maksimal 2x24 jam.</small>
+              </div>
+            `;
+          }
+
+          // Case 3: Payment VERIFIED
+          else if (payStatus === "VERIFIED") {
+            html = `
+              <div class="alert alert-success mt-3">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong>🎉 PROSES PENDAFTARAN SELESAI!</strong>
+                <hr>
+                <p class="mb-2">Selamat! Semua proses telah selesai:</p>
+                <ul class="mb-3">
+                  <li>✅ Pendaftaran: <strong>Diterima</strong></li>
+                  <li>✅ Pembayaran: <strong>Terverifikasi</strong></li>
+                </ul>
+                <small class="d-block"><strong>Jumlah:</strong> Rp ${parseFloat(payment.jumlah || 0).toLocaleString("id-ID")}</small>
+                <small class="d-block"><strong>Verified By:</strong> ${payment.verified_by || "-"}</small>
+                <hr>
+                <small><i class="bi bi-envelope me-1"></i>Anda akan segera dihubungi untuk langkah selanjutnya. Terima kasih!</small>
+              </div>
+            `;
+          }
+
+          // Case 4: Payment REJECTED
+          else if (payStatus === "REJECTED") {
+            html = `
+              <div class="alert alert-danger mt-3">
+                <i class="bi bi-x-circle me-2"></i>
+                <strong>Pembayaran Ditolak</strong>
+                <hr>
+                <small class="d-block"><strong>Alasan:</strong> ${payment.catatan_admin || "Bukti pembayaran tidak valid"}</small>
+                <hr>
+                <small><i class="bi bi-info-circle me-1"></i>Silakan upload ulang bukti pembayaran yang valid.</small>
+              </div>
+              <div class="d-grid gap-2">
+                <a href="/pembayaran.html?nisn=${encodeURIComponent(data.nisn || data.nik)}&nama=${encodeURIComponent(data.nama)}" 
+                   class="btn btn-primary btn-lg">
+                  <i class="bi bi-arrow-repeat me-2"></i>Upload Ulang Bukti Pembayaran
+                </a>
+              </div>
+            `;
+          }
+
+          paymentSection.innerHTML = html;
+        }
+
+        // Button click handler
+        btnCekStatus.addEventListener("click", async () => {
+          const nisn = (nisnInput?.value || "").trim();
+          resetModal();
+          statusModal.show(); // Show modal immediately in loading state
+
+          if (!validateNISN(nisn)) {
+            loadingBox.classList.add("d-none");
+            errorMsg.textContent = "NISN harus 10 digit angka.";
+            errorBox.classList.remove("d-none");
+            return;
+          }
 
           try {
-            const response = await fetch(
-              `/api/pendaftar_cek_status?nisn=${encodeURIComponent(nisn)}`
-            );
-            const result = await response.json();
+            const result = await fetchStatus(nisn);
 
-            loading.style.display = "none";
-
-            // Check if response is ok and has data
-            if (result.ok && result.data) {
-              // Check payment status
-              checkPaymentStatus(result.data);
-            } else if (result.ok && result.data === null) {
-              // NISN not found
-              showError(
-                "NISN tidak ditemukan. Pastikan Anda memasukkan NISN yang benar."
-              );
-            } else {
-              // Error response
-              showError(
-                result.error ||
-                  "Terjadi kesalahan saat mengecek status."
-              );
+            if (!result.ok || !result.data) {
+              loadingBox.classList.add("d-none");
+              errorMsg.textContent = result.error || "Data tidak ditemukan. Pastikan NISN Anda benar.";
+              errorBox.classList.remove("d-none");
+              return;
             }
-          } catch (error) {
-            loading.style.display = "none";
-            showError("Terjadi kesalahan: " + error.message);
+
+            // Fetch payment status in parallel
+            const payment = await fetchPaymentStatus(nisn);
+            showResult(result.data, payment);
+
+          } catch (e) {
+            loadingBox.classList.add("d-none");
+            errorMsg.textContent = "Gagal mengambil data. Coba lagi nanti.";
+            errorBox.classList.remove("d-none");
+            console.error("[CEK_STATUS] Error:", e);
           }
         });
 
-      async function checkPaymentStatus(registrationData) {
-        try {
-          // Check if payment exists for this NISN
-          const response = await fetch("/api/pembayaran_list");
-          const result = await response.json();
-
-          if (response.ok && result.data) {
-            // Find payment for this NISN
-            const nisn = registrationData.nisn || registrationData.nik;
-            const payment = result.data.find(
-              (p) => (p.nisn || p.nik) === nisn
-            );
-            showResult(registrationData, payment);
-          } else {
-            showResult(registrationData, null);
+        // Enter key to submit
+        nisnInput?.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            btnCekStatus.click();
           }
-        } catch (error) {
-          console.error("Error checking payment:", error);
-          showResult(registrationData, null);
-        }
-      }
+        });
 
-      function showResult(data, payment) {
-        // Normalize status to lowercase and handle null/undefined
-        const status = (data.status || "pending").toLowerCase();
-        
-        // Determine status display based on normalized value
-        let statusClass, statusBadge, statusIcon, statusText;
-        
-        if (status === "pending" || status === "menunggu" || !data.status) {
-          // Default: Menunggu Verifikasi (untuk data baru atau pending)
-          statusClass = "status-pending";
-          statusBadge = "warning";
-          statusIcon = "hourglass-split";
-          statusText = "Menunggu Verifikasi Admin";
-        } else if (status === "revisi" || status === "perlu revisi") {
-          // Revisi: Perlu perbaikan dokumen
-          statusClass = "status-pending";
-          statusBadge = "info";
-          statusIcon = "arrow-repeat";
-          statusText = "Perlu Revisi";
-        } else if (status === "diterima" || status === "approved") {
-          // Diterima: Lolos verifikasi
-          statusClass = "status-diterima";
-          statusBadge = "success";
-          statusIcon = "check-circle";
-          statusText = "Diterima";
-        } else if (status === "ditolak" || status === "rejected") {
-          // Ditolak: Tidak lolos verifikasi
-          statusClass = "status-ditolak";
-          statusBadge = "danger";
-          statusIcon = "x-circle";
-          statusText = "Ditolak";
-        } else {
-          // Fallback: Treat unknown status as pending
-          statusClass = "status-pending";
-          statusBadge = "warning";
-          statusIcon = "hourglass-split";
-          statusText = "Menunggu Verifikasi Admin";
-        }
-        
-        const payStatus = (payment?.status_pembayaran || payment?.status || "").toUpperCase();
-
-        document.getElementById("resultCard").innerHTML = `
-                <div class="card shadow-lg status-card ${statusClass} mt-4">
-                    <div class="card-body p-4">
-                        <div class="text-center mb-4">
-                            <i class="bi bi-${statusIcon} text-${statusBadge}" style="font-size: 4rem;"></i>
-                            <h3 class="mt-3">Status: <span class="badge bg-${statusBadge}">${statusText}</span></h3>
-                        </div>
-
-                        <hr>
-
-                        <dl class="row mb-0">
-                            <dt class="col-sm-5">NISN</dt>
-                            <dd class="col-sm-7"><strong>${data.nisn || data.nik || '-'}</strong></dd>
-
-                            <dt class="col-sm-5">Nama Lengkap</dt>
-                            <dd class="col-sm-7">${data.nama}</dd>
-
-                            <dt class="col-sm-5">Tanggal Lahir</dt>
-                            <dd class="col-sm-7">${
-                              data.tanggalLahir ? new Date(
-                                data.tanggalLahir
-                              ).toLocaleDateString("id-ID", {
-                                day: "numeric",
-                                month: "long",
-                                year: "numeric",
-                              }) : "Belum ada data"
-                            }</dd>
-
-                            <dt class="col-sm-5">Tanggal Daftar</dt>
-                            <dd class="col-sm-7">${
-                              data.createdat ? new Date(data.createdat).toLocaleString("id-ID") : "Belum ada data"
-                            }</dd>
-
-                            ${
-                              data.alasan
-                                ? `
-                                <dt class="col-sm-5">Keterangan</dt>
-                                <dd class="col-sm-7">${data.alasan}</dd>
-                            `
-                                : ""
-                            }
-                        </dl>
-
-                        ${
-                          data.status === "pending"
-                            ? `
-                            <div class="alert alert-info mt-4 mb-0">
-                                <i class="bi bi-info-circle"></i>
-                                <strong>Status sedang diproses.</strong> Mohon tunggu konfirmasi dari admin.
-                            </div>
-                        `
-                            : ""
-                        }
-
-                        ${
-                          data.status === "revisi"
-                            ? `
-                            <div class="alert alert-warning mt-4">
-                                <i class="bi bi-exclamation-triangle"></i>
-                                <strong>Pendaftaran Anda perlu diperbaiki.</strong>
-                                ${
-                                  data.alasan
-                                    ? `<hr><small><strong>Catatan Admin:</strong> ${data.alasan}</small>`
-                                    : ""
-                                }
-                            </div>
-                            <div class="d-grid gap-2 mt-3">
-                                <button onclick="perbaikiPendaftaran('${
-                                  data.nisn || data.nik
-                                }')" class="btn btn-warning btn-lg">
-                                    <i class="bi bi-pencil-square"></i> Perbaiki Pendaftaran
-                                </button>
-                            </div>
-                        `
-                            : ""
-                        }
-
-                        ${
-                          data.status === "diterima" && !payment
-                            ? `
-                            <div class="alert alert-success mt-4">
-                                <i class="bi bi-check-circle"></i>
-                                <strong>Selamat!</strong> Pendaftaran Anda telah diterima. 
-                                Silakan lanjutkan ke pembayaran.
-                            </div>
-                            <div class="d-grid gap-2 mt-3">
-                                <a href="/pembayaran.html?nisn=${encodeURIComponent(
-                                  data.nisn || data.nik
-                                )}&nama=${encodeURIComponent(data.nama)}" 
-                                   class="btn btn-success btn-lg">
-                                    <i class="bi bi-credit-card"></i> Lanjut ke Pembayaran
-                                </a>
-                            </div>
-                        `
-                            : ""
-                        }
-
-                        ${
-                          data.status === "diterima" &&
-                          payment &&
-                          payStatus === "PENDING"
-                            ? `
-                            <div class="alert alert-warning mt-4">
-                                <i class="bi bi-clock-history"></i>
-                                <strong>Pembayaran Sedang Diproses</strong>
-                                <hr>
-                                <dl class="row mb-0 small">
-                                    <dt class="col-sm-5">Jumlah</dt>
-                                    <dd class="col-sm-7">Rp ${parseFloat(
-                                      payment.jumlah || 0
-                                    ).toLocaleString("id-ID")}</dd>
-                                    
-                                    <dt class="col-sm-5">Tanggal Upload</dt>
-                                    <dd class="col-sm-7">${
-                                      payment.tanggal_upload ? new Date(payment.tanggal_upload).toLocaleString("id-ID") : "Belum ada data"
-                                    }</dd>
-                                    
-                                    <dt class="col-sm-5">Status</dt>
-                                    <dd class="col-sm-7"><span class="badge bg-warning">Menunggu Verifikasi</span></dd>
-                                </dl>
-                                <hr>
-                                <small><i class="bi bi-info-circle"></i> Bukti pembayaran Anda sedang diverifikasi oleh admin. Mohon tunggu maksimal 2x24 jam.</small>
-                            </div>
-                        `
-                            : ""
-                        }
-
-                        ${
-                          data.status === "diterima" &&
-                          payment &&
-                          payStatus === "VERIFIED"
-                            ? `
-                            <div class="alert alert-success mt-4">
-                                <i class="bi bi-check-circle-fill"></i>
-                                <strong>🎉 PROSES PENDAFTARAN SELESAI!</strong>
-                                <hr>
-                                <p class="mb-2">Selamat! Semua proses telah selesai:</p>
-                                <ul class="mb-3">
-                                    <li>✅ Pendaftaran: <strong>Diterima</strong></li>
-                                    <li>✅ Pembayaran: <strong>Berhasil (Terverifikasi)</strong></li>
-                                </ul>
-                                <dl class="row mb-0 small">
-                                    <dt class="col-sm-5">Jumlah</dt>
-                                    <dd class="col-sm-7">Rp ${parseFloat(
-                                      payment.jumlah || 0
-                                    ).toLocaleString("id-ID")}</dd>
-                                    
-                                    <dt class="col-sm-5">Tanggal Verifikasi</dt>
-                                    <dd class="col-sm-7">${
-                                      payment.tanggal_verifikasi
-                                        ? new Date(
-                                            payment.tanggal_verifikasi
-                                          ).toLocaleString("id-ID")
-                                        : "-"
-                                    }</dd>
-                                    
-                                    <dt class="col-sm-5">Verified By</dt>
-                                    <dd class="col-sm-7">${
-                                      payment.verified_by || "-"
-                                    }</dd>
-                                    
-                                    ${
-                                      payment.catatan_admin
-                                        ? `
-                                    <dt class="col-sm-5">Catatan Admin</dt>
-                                    <dd class="col-sm-7">${payment.catatan_admin}</dd>
-                                    `
-                                        : ""
-                                    }
-                                </dl>
-                                <hr>
-                                <small><i class="bi bi-envelope"></i> Anda akan segera dihubungi untuk langkah selanjutnya. Terima kasih!</small>
-                            </div>
-                            ${
-                              data.teleponOrtu
-                                ? `
-                            <div class="d-grid gap-2 mt-3">
-                                <a href="https://wa.me/62${data.teleponOrtu.replace(
-                                  /^0/,
-                                  ""
-                                )}?text=${encodeURIComponent(
-                                    `Assalamualaikum,\n\nSelamat! Pendaftaran santri atas nama *${data.nama}* (NISN: ${data.nisn}) telah *SELESAI* dan pembayaran telah *TERVERIFIKASI*.\n\nSilakan hubungi kami untuk informasi lebih lanjut mengenai proses selanjutnya.\n\nTerima kasih.`
-                                  )}" 
-                                   target="_blank"
-                                   class="btn btn-success btn-lg">
-                                    <i class="bi bi-whatsapp"></i> Hubungi Orang Tua via WhatsApp
-                                </a>
-                            </div>
-                            `
-                                : ""
-                            }
-                        `
-                            : ""
-                        }
-
-                        ${
-                          data.status === "diterima" &&
-                          payment &&
-                          payStatus === "REJECTED"
-                            ? `
-                            <div class="alert alert-danger mt-4">
-                                <i class="bi bi-x-circle"></i>
-                                <strong>Pembayaran Ditolak</strong>
-                                <hr>
-                                <dl class="row mb-0 small">
-                                    <dt class="col-sm-5">Alasan</dt>
-                                    <dd class="col-sm-7">${
-                                      payment.catatan_admin ||
-                                      "Bukti pembayaran tidak valid"
-                                    }</dd>
-                                </dl>
-                                <hr>
-                                <small><i class="bi bi-info-circle"></i> Silakan upload ulang bukti pembayaran yang valid.</small>
-                            </div>
-                            <div class="d-grid gap-2 mt-3">
-                                <a href="/pembayaran.html?nisn=${encodeURIComponent(
-                                  data.nisn || data.nik
-                                )}&nama=${encodeURIComponent(data.nama)}" 
-                                   class="btn btn-primary btn-lg">
-                                    <i class="bi bi-arrow-repeat"></i> Upload Ulang Bukti Pembayaran
-                                </a>
-                            </div>
-                        `
-                            : ""
-                        }
-
-                        ${
-                          data.status === "ditolak"
-                            ? `
-                            <div class="alert alert-danger mt-4 mb-0">
-                                <i class="bi bi-x-circle"></i>
-                                <strong>Maaf,</strong> pendaftaran Anda ditolak.
-                                ${
-                                  data.alasan
-                                    ? `<hr><small><strong>Alasan:</strong> ${data.alasan}</small>`
-                                    : ""
-                                }
-                            </div>
-                        `
-                            : ""
-                        }
-                    </div>
-                </div>
-            `;
-
-        document.getElementById("resultCard").style.display = "block";
-      }
-
-      function showError(message) {
-        document.getElementById("errorMessage").textContent = message;
-        document.getElementById("errorAlert").style.display = "block";
-      }
-
-      async function perbaikiPendaftaran(nisn) {
-        try {
-          // Fetch full registration data
-          const response = await fetch(
-            `/api/pendaftar_cek_status?nisn=${encodeURIComponent(nisn)}`
-          );
-          const result = await response.json();
-
-          if (result.success && result.data) {
-            // Store data in localStorage for form to retrieve
-            localStorage.setItem(
-              "editPendaftaran",
-              JSON.stringify(result.data)
-            );
-
-            // Redirect to registration form
-            window.location.href = "/daftar#edit";
-          } else {
-            alert("Gagal mengambil data pendaftaran");
-          }
-        } catch (error) {
-          alert("Terjadi kesalahan: " + error.message);
-        }
-      }
+      })(); // End IIFE
     </script>
   </body>
 </html>

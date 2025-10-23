@@ -17,7 +17,7 @@ class handler(BaseHTTPRequestHandler):
             body = self.rfile.read(content_length).decode('utf-8')
             data = json.loads(body)
             
-            # Validasi data wajib (NIK Calon and KK No are now optional based on schema)
+            # Validasi data wajib (NIK Calon is optional based on schema)
             required_fields = [
                 "nisn", "namaLengkap", "tempatLahir", "tanggalLahir", 
                 "jenisKelamin", "alamatJalan", "desa", "kecamatan", 

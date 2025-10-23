@@ -1119,12 +1119,17 @@ SMP SAINS AN NAJAH PURWOKERTO`
   /**
    * Load gelombang data and render forms
    */
-  async function loadGelombangData() {
+  async function loadGelombangData(forceRefresh = false) {
     const container = document.getElementById('gelombangContainer');
     if (!container) return;
     
     try {
-      const response = await fetch('/api/get_gelombang_list');
+      // Add cache busting when forcing refresh
+      const url = forceRefresh 
+        ? `/api/get_gelombang_list?_t=${new Date().getTime()}` 
+        : '/api/get_gelombang_list';
+      
+      const response = await fetch(url);
       const result = await response.json();
       
       if (!result.ok || !result.data) {
@@ -1133,6 +1138,8 @@ SMP SAINS AN NAJAH PURWOKERTO`
       
       currentGelombangData = result.data;
       renderGelombangForms(result.data);
+      
+      console.log('[GELOMBANG] Data loaded:', result.data.length, 'items');
     } catch (error) {
       console.error('Error loading gelombang:', error);
       container.innerHTML = `
@@ -1214,14 +1221,31 @@ SMP SAINS AN NAJAH PURWOKERTO`
     
     // Validate
     if (!startDate || !endDate || !tahunAjaran) {
-      toastr.error('Semua field harus diisi');
+      toastr.error('Semua field harus diisi!', '', {
+        timeOut: 3000,
+        progressBar: true
+      });
       return;
     }
     
     if (new Date(startDate) > new Date(endDate)) {
-      toastr.error('Tanggal mulai harus lebih kecil atau sama dengan tanggal akhir');
+      toastr.error('Tanggal mulai harus lebih kecil atau sama dengan tanggal akhir!', '', {
+        timeOut: 3000,
+        progressBar: true
+      });
       return;
     }
+    
+    // Confirmation popup
+    if (!confirm('Simpan perubahan untuk gelombang ini?')) {
+      return;
+    }
+    
+    // Find the button and show loading state
+    const button = event.target.closest('button');
+    const originalHTML = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
     
     try {
       const response = await fetch('/api/update_gelombang', {
@@ -1241,11 +1265,36 @@ SMP SAINS AN NAJAH PURWOKERTO`
         throw new Error(result.error || 'Gagal mengupdate gelombang');
       }
       
-      toastr.success(result.message || 'Gelombang berhasil diupdate');
-      await loadGelombangData(); // Reload data
+      // Success notification with better message
+      toastr.success('✓ Perubahan berhasil disimpan!', '', {
+        timeOut: 3000,
+        progressBar: true
+      });
+      
+      // Reload data with cache busting
+      await loadGelombangData(true);
+      
+      // Visual feedback: highlight the updated card
+      setTimeout(() => {
+        const updatedCard = document.querySelector(`#start_date_${id}`).closest('.card');
+        if (updatedCard) {
+          updatedCard.style.animation = 'pulse 1s ease-in-out';
+          setTimeout(() => {
+            updatedCard.style.animation = '';
+          }, 1000);
+        }
+      }, 300);
+      
     } catch (error) {
       console.error('Error updating gelombang:', error);
-      toastr.error(`Gagal mengupdate: ${error.message}`);
+      toastr.error(`✗ Gagal menyimpan: ${error.message}`, '', {
+        timeOut: 4000,
+        progressBar: true
+      });
+      
+      // Restore button on error
+      button.disabled = false;
+      button.innerHTML = originalHTML;
     }
   }
   window.updateGelombang = updateGelombang;
@@ -1257,6 +1306,12 @@ SMP SAINS AN NAJAH PURWOKERTO`
     if (!confirm('Yakin ingin mengaktifkan gelombang ini? Gelombang lain akan dinonaktifkan.')) {
       return;
     }
+    
+    // Find the button that was clicked and show loading state
+    const button = event.target.closest('button');
+    const originalHTML = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengaktifkan...';
     
     try {
       const response = await fetch('/api/set_gelombang_active', {
@@ -1271,11 +1326,36 @@ SMP SAINS AN NAJAH PURWOKERTO`
         throw new Error(result.error || 'Gagal mengaktifkan gelombang');
       }
       
-      toastr.success(result.message || 'Gelombang berhasil diaktifkan');
-      await loadGelombangData(); // Reload data
+      // Success notification
+      toastr.success(result.message || 'Gelombang berhasil diaktifkan!', '', {
+        timeOut: 3000,
+        progressBar: true
+      });
+      
+      // Reload data with cache busting
+      await loadGelombangData(true); // Pass true to force refresh
+      
+      // Scroll to the activated gelombang (smooth scroll)
+      setTimeout(() => {
+        const activatedCard = document.querySelector('.border-success');
+        if (activatedCard) {
+          activatedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Add pulse animation
+          activatedCard.style.animation = 'pulse 1s ease-in-out';
+          setTimeout(() => {
+            activatedCard.style.animation = '';
+          }, 1000);
+        }
+      }, 300);
+      
     } catch (error) {
       console.error('Error activating gelombang:', error);
       toastr.error(`Gagal mengaktifkan: ${error.message}`);
+      
+      // Restore button
+      button.disabled = false;
+      button.innerHTML = originalHTML;
     }
   }
   window.setGelombangActive = setGelombangActive;

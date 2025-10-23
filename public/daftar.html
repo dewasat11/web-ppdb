@@ -72,19 +72,6 @@
                     <div class="form-text">16 digit</div>
                   </div>
 
-                  <div class="col-md-6">
-                    <label class="form-label"
-                      >Nomor KK</label
-                    >
-                    <input
-                      type="text"
-                      class="form-control"
-                      name="kkNo"
-                      maxlength="16"
-                      pattern="[0-9]{16}"
-                    />
-                    <div class="form-text">16 digit (opsional)</div>
-                  </div>
 
                   <div class="col-md-6">
                     <label class="form-label"
@@ -1446,9 +1433,6 @@
             <div class="col-md-6">
               <strong>NIK Calon:</strong><br>${formData.get("nikCalon") || "-"}
             </div>
-            <div class="col-md-6">
-              <strong>No KK:</strong><br>${formData.get("kkNo") || "-"}
-            </div>
             <div class="col-md-12">
               <strong>Nama Lengkap:</strong><br>
               <span class="fs-5 text-primary">${
@@ -1865,8 +1849,6 @@
               // Fill form with existing data
               if (data.nik)
                 document.querySelector('[name="nikCalon"]').value = data.nik;
-              if (data.kk)
-                document.querySelector('[name="kkNo"]').value = data.kk;
               if (data.nisn)
                 document.querySelector('[name="nisn"]').value = data.nisn;
               if (data.nama)

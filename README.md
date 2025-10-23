@@ -5,12 +5,14 @@ Web application untuk pendaftaran siswa baru SMP dengan sistem pembayaran online
 ## 🚀 Fitur
 
 - ✅ Pendaftaran Siswa Online
-- ✅ Upload Dokumen (KTP, KK, Foto, dll)
-- ✅ Cek Status Pendaftaran
+- ✅ Upload Dokumen (Ijazah, Akta, Foto, BPJS)
+- ✅ Cek Status Pendaftaran dengan NISN
 - ✅ Sistem Pembayaran dengan Upload Bukti
 - ✅ Dashboard Admin untuk Verifikasi
+- ✅ Kelola Gelombang Pendaftaran
 - ✅ Export Data ke Excel (.xlsx)
-- ✅ Responsive Design
+- ✅ Download Semua Berkas (ZIP)
+- ✅ Responsive Design (Mobile, Tablet, Desktop)
 
 ## 🛠️ Tech Stack
 
