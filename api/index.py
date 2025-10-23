@@ -45,7 +45,12 @@ class handler(BaseHTTPRequestHandler):
                 
             elif action == 'pendaftar_status':
                 from lib.handlers.pendaftar_status import handler as StatusHandler
-                StatusHandler.do_POST(self) if self.command == 'POST' else StatusHandler.do_OPTIONS(self)
+                if self.command == 'PATCH':
+                    StatusHandler.do_PATCH(self)
+                elif self.command == 'POST':
+                    StatusHandler.do_POST(self)
+                else:
+                    StatusHandler.do_OPTIONS(self)
                 
             elif action == 'pendaftar_update_files':
                 from lib.handlers.pendaftar_update_files import handler as UpdateFilesHandler
@@ -74,6 +79,10 @@ class handler(BaseHTTPRequestHandler):
             elif action == 'set_gelombang_active':
                 from lib.handlers.gelombang_set_active import handler as GelombangSetActiveHandler
                 GelombangSetActiveHandler.do_POST(self) if self.command == 'POST' else GelombangSetActiveHandler.do_OPTIONS(self)
+                
+            elif action == 'gelombang_active':
+                from lib.handlers.gelombang_active import handler as GelombangActiveHandler
+                GelombangActiveHandler.do_GET(self) if self.command == 'GET' else GelombangActiveHandler.do_OPTIONS(self)
                 
             elif action == 'upload_file':
                 from lib.handlers.upload_file import handler as UploadHandler

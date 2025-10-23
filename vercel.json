@@ -15,6 +15,7 @@
     { "source": "/api/get_gelombang_list", "destination": "/api/index?action=get_gelombang_list" },
     { "source": "/api/update_gelombang", "destination": "/api/index?action=update_gelombang" },
     { "source": "/api/set_gelombang_active", "destination": "/api/index?action=set_gelombang_active" },
+    { "source": "/api/gelombang_active", "destination": "/api/index?action=gelombang_active" },
     { "source": "/api/upload_file", "destination": "/api/index?action=upload_file" },
     { "source": "/api/pembayaran_list", "destination": "/api/index?action=pembayaran_list" },
     { "source": "/api/pembayaran_submit", "destination": "/api/index?action=pembayaran_submit" },

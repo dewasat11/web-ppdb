@@ -281,28 +281,148 @@
   <!-- Alpine.js -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-  <!-- Gelombang Data Loader -->
+  <!-- Gelombang Data Loader (Single Active Wave - WIB Timezone) -->
   <script>
     /**
-     * Fetch and render gelombang cards dynamically
+     * Get current date in Asia/Jakarta timezone (normalized to date only, no time)
      */
-    async function loadGelombangData() {
+    function todayWIB() {
+      const nowStr = new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
+      const t = new Date(nowStr);
+      t.setHours(0, 0, 0, 0);
+      return t;
+    }
+    
+    /**
+     * Determine status badge for gelombang based on dates (WIB timezone)
+     */
+    function statusByDate(gelombang) {
+      const today = todayWIB();
+      const startDate = new Date(gelombang.start_date + 'T00:00:00');
+      const endDate = new Date(gelombang.end_date + 'T23:59:59');
+      
+      if (today < startDate) {
+        return { label: 'Belum Dibuka', color: 'blue', status: 'upcoming' };
+      }
+      if (today > endDate) {
+        return { label: 'Ditutup', color: 'gray', status: 'closed' };
+      }
+      return { label: 'Aktif', color: 'green', status: 'active' };
+    }
+    
+    /**
+     * Fetch and render SINGLE active gelombang
+     */
+    async function loadGelombangAktif() {
       try {
         // Add cache buster to force fresh data
         const cacheBuster = new Date().getTime();
-        const response = await fetch(`/api/get_gelombang_list?_t=${cacheBuster}`);
+        const response = await fetch(`/api/gelombang_active?_t=${cacheBuster}`);
         const result = await response.json();
         
-        console.log('[GELOMBANG] API Response:', result);
+        console.log('[GELOMBANG_ACTIVE] API Response:', result);
         
+        const container = document.getElementById('gelombangContainer');
+        
+        // Handle no active gelombang
         if (!result.ok || !result.data) {
-          throw new Error(result.error || 'Failed to load gelombang data');
+          console.log('[GELOMBANG_ACTIVE] No active gelombang found');
+          container.innerHTML = `
+            <div class="text-center py-12 col-span-full">
+              <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-calendar-x text-gray-400 text-3xl"></i>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Gelombang Aktif</h3>
+              <p class="text-gray-500">Silakan tunggu informasi lebih lanjut.</p>
+            </div>
+          `;
+          return;
         }
         
-        console.log('[GELOMBANG] Data loaded:', result.data);
-        renderGelombangCards(result.data);
+        // Render single active gelombang
+        const gelombang = result.data;
+        const st = statusByDate(gelombang);
+        
+        console.log('[GELOMBANG_ACTIVE] Rendering active gelombang:', gelombang.nama, st);
+        
+        // Map colors to CSS classes
+        const colorMap = {
+          green: {
+            border: 'border-green-200',
+            badge: 'bg-green-500',
+            icon: 'bg-gradient-to-br from-green-500 to-green-600',
+            iconText: 'text-green-500'
+          },
+          blue: {
+            border: 'border-blue-200',
+            badge: 'bg-blue-500',
+            icon: 'bg-gradient-to-br from-blue-500 to-blue-600',
+            iconText: 'text-blue-500'
+          },
+          gray: {
+            border: 'border-gray-200',
+            badge: 'bg-gray-500',
+            icon: 'bg-gradient-to-br from-gray-500 to-gray-600',
+            iconText: 'text-gray-500'
+          }
+        };
+        
+        const colors = colorMap[st.color] || colorMap.gray;
+        
+        // Determine button state
+        let buttonHTML = '';
+        let statusHTML = '';
+        
+        if (st.status === 'active') {
+          buttonHTML = `<a href="/daftar.html" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg inline-block text-center transition shadow-md hover:shadow-lg">
+            <i class="bi bi-pencil-square mr-2"></i>Daftar Sekarang
+          </a>`;
+          statusHTML = `<div class="bg-green-50 rounded-lg p-3 mb-4"><p class="text-sm text-green-700 font-medium">✓ Pendaftaran Dibuka</p></div>`;
+        } else if (st.status === 'upcoming') {
+          buttonHTML = `<button class="w-full bg-gray-300 text-gray-600 cursor-not-allowed font-semibold py-3 px-6 rounded-lg" disabled>
+            <i class="bi bi-clock mr-2"></i>Belum Dibuka
+          </button>`;
+          statusHTML = `<div class="bg-blue-50 rounded-lg p-3 mb-4"><p class="text-sm text-blue-700 font-medium">📅 Segera Dibuka</p></div>`;
+        } else {
+          buttonHTML = `<button class="w-full bg-gray-300 text-gray-600 cursor-not-allowed font-semibold py-3 px-6 rounded-lg" disabled>
+            <i class="bi bi-x-circle mr-2"></i>Sudah Ditutup
+          </button>`;
+          statusHTML = `<div class="bg-gray-50 rounded-lg p-3 mb-4"><p class="text-sm text-gray-500 font-medium">⏱ Pendaftaran Ditutup</p></div>`;
+        }
+        
+        // Format dates
+        const startFormatted = formatDate(gelombang.start_date);
+        const endFormatted = formatDate(gelombang.end_date);
+        
+        // Render single card (centered with max-width)
+        container.innerHTML = `
+          <div class="flex justify-center col-span-full">
+            <div class="w-full max-w-md bg-white rounded-2xl p-8 shadow-xl border-2 ${colors.border} relative overflow-hidden hover:shadow-2xl transition">
+              <div class="absolute top-0 right-0 ${colors.badge} text-white px-4 py-2 rounded-bl-lg text-sm font-semibold">${st.label}</div>
+              <div class="text-center mt-4">
+                <div class="w-20 h-20 ${colors.icon} rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <i class="bi bi-calendar-check text-white text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-2 text-gray-800">${gelombang.nama}</h3>
+                <div class="space-y-3 mb-6">
+                  <div class="flex items-center justify-center text-gray-600">
+                    <i class="bi bi-calendar-event mr-2 ${colors.iconText}"></i>
+                    <span class="text-sm">${startFormatted} - ${endFormatted}</span>
+                  </div>
+                  <div class="flex items-center justify-center text-gray-600">
+                    <i class="bi bi-mortarboard mr-2 ${colors.iconText}"></i>
+                    <span class="text-sm font-semibold">Tahun Ajaran ${gelombang.tahun_ajaran}</span>
+                  </div>
+                </div>
+                ${statusHTML}
+                ${buttonHTML}
+              </div>
+            </div>
+          </div>
+        `;
+        
       } catch (error) {
-        console.error('Error loading gelombang:', error);
+        console.error('[GELOMBANG_ACTIVE] Error:', error);
         document.getElementById('gelombangContainer').innerHTML = `
           <div class="text-center py-12 col-span-full">
             <i class="bi bi-exclamation-triangle text-red-500 text-4xl mb-3"></i>
@@ -312,115 +432,14 @@
       }
     }
 
-    function renderGelombangCards(gelombangList) {
-      const container = document.getElementById('gelombangContainer');
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      console.log('[GELOMBANG] Rendering cards, today:', today.toISOString().split('T')[0]);
-      
-      const cardsHTML = gelombangList.map((gelombang, index) => {
-        // Parse dates in local timezone to avoid timezone issues
-        const startDate = new Date(gelombang.start_date + 'T00:00:00');
-        const endDate = new Date(gelombang.end_date + 'T23:59:59');
-        const isActive = gelombang.is_active;
-        const isInDateRange = today >= startDate && today <= endDate;
-        const isUpcoming = today < startDate;
-        const isClosed = today > endDate;
-        
-        console.log(`[GELOMBANG] ${gelombang.nama}:`, {
-          start_date: gelombang.start_date,
-          end_date: gelombang.end_date,
-          is_active: isActive,
-          isInDateRange: isInDateRange,
-          isUpcoming: isUpcoming,
-          isClosed: isClosed,
-          today: today.toISOString().split('T')[0]
-        });
-        
-        // Determine status and colors
-        let badgeText = 'Segera';
-        let borderClass = 'border-blue-200';
-        let badgeBgClass = 'bg-blue-500';
-        let iconBgClass = 'bg-gradient-to-br from-blue-500 to-blue-600';
-        let iconColorClass = 'text-blue-500';
-        
-        // Show "Aktif" if is_active is true AND within date range
-        if (isActive && isInDateRange) {
-          badgeText = 'Aktif';
-          borderClass = 'border-green-200';
-          badgeBgClass = 'bg-green-500';
-          iconBgClass = 'bg-gradient-to-br from-green-500 to-green-600';
-          iconColorClass = 'text-green-500';
-          console.log(`[GELOMBANG] ${gelombang.nama} is ACTIVE (green)`);
-        } else if (isClosed) {
-          badgeText = 'Ditutup';
-          borderClass = 'border-gray-200';
-          badgeBgClass = 'bg-gray-500';
-          iconBgClass = 'bg-gradient-to-br from-gray-500 to-gray-600';
-          iconColorClass = 'text-gray-500';
-          console.log(`[GELOMBANG] ${gelombang.nama} is CLOSED (gray)`);
-        } else {
-          console.log(`[GELOMBANG] ${gelombang.nama} is UPCOMING (blue)`);
-        }
-        
-        // Determine button state
-        let buttonHTML = '';
-        let statusHTML = '';
-        if (isActive && isInDateRange) {
-          buttonHTML = `<a href="/daftar.html" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg inline-block text-center transition">Daftar Sekarang</a>`;
-          statusHTML = `<div class="bg-green-50 rounded-lg p-3 mb-4"><p class="text-sm text-green-700 font-medium">✓ Pendaftaran Dibuka</p></div>`;
-        } else if (isUpcoming) {
-          buttonHTML = `<button class="w-full bg-gray-300 text-gray-500 cursor-not-allowed font-semibold py-2 px-4 rounded-lg" disabled>Belum Dibuka</button>`;
-          statusHTML = `<div class="bg-blue-50 rounded-lg p-3 mb-4"><p class="text-sm text-blue-700 font-medium">📅 Segera Dibuka</p></div>`;
-        } else {
-          buttonHTML = `<button class="w-full bg-gray-300 text-gray-500 cursor-not-allowed font-semibold py-2 px-4 rounded-lg" disabled>Sudah Ditutup</button>`;
-          statusHTML = `<div class="bg-gray-50 rounded-lg p-3 mb-4"><p class="text-sm text-gray-500 font-medium">⏱ Pendaftaran Ditutup</p></div>`;
-        }
-        
-        // Format dates
-        const startFormatted = formatDate(gelombang.start_date);
-        const endFormatted = formatDate(gelombang.end_date);
-        
-        // Icon numbers (1, 2, 3)
-        const iconNumber = index + 1;
-        
-        return `
-          <div class="bg-white rounded-2xl p-6 shadow-lg border-2 ${borderClass} relative overflow-hidden hover:shadow-xl transition">
-            <div class="absolute top-0 right-0 ${badgeBgClass} text-white px-3 py-1 rounded-bl-lg text-sm font-semibold">${badgeText}</div>
-            <div class="text-center">
-              <div class="w-16 h-16 ${iconBgClass} rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="bi bi-${iconNumber}-circle text-white text-2xl"></i>
-              </div>
-              <h3 class="text-xl font-bold mb-2 text-gray-800">${gelombang.nama}</h3>
-              <div class="space-y-2 mb-4">
-                <div class="flex items-center justify-center text-gray-600">
-                  <i class="bi bi-calendar-event mr-2 ${iconColorClass}"></i>
-                  <span class="text-sm">${startFormatted} - ${endFormatted}</span>
-                </div>
-                <div class="flex items-center justify-center text-gray-600">
-                  <i class="bi bi-mortarboard mr-2 ${iconColorClass}"></i>
-                  <span class="text-sm font-semibold">T.A. ${gelombang.tahun_ajaran}</span>
-                </div>
-              </div>
-              ${statusHTML}
-              ${buttonHTML}
-            </div>
-          </div>
-        `;
-      }).join('');
-      
-      container.innerHTML = cardsHTML;
-    }
-
     function formatDate(dateString) {
       const options = { day: 'numeric', month: 'long', year: 'numeric' };
       const date = new Date(dateString);
       return date.toLocaleDateString('id-ID', options);
     }
 
-    // Load gelombang data when page loads
-    document.addEventListener('DOMContentLoaded', loadGelombangData);
+    // Load active gelombang when page loads
+    document.addEventListener('DOMContentLoaded', loadGelombangAktif);
   </script>
 </body>
 </html>

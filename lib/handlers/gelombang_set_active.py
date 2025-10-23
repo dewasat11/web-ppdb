@@ -1,18 +1,42 @@
 from http.server import BaseHTTPRequestHandler
 import json
+import os
 from datetime import datetime
 from lib._supabase import supabase_client
+
+# Simple admin token from environment (optional)
+# If not set, relies on Supabase RLS policies
+ADMIN_API_TOKEN = os.getenv("ADMIN_API_TOKEN", "")
 
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         """
-        POST /api/set_gelombang_active
+        POST /api/set_gelombang_active (ADMIN ONLY)
         Body: { id: number }
+        Auth: x-admin-token header (optional, if ADMIN_API_TOKEN env is set)
         Response: Success message
         Atomic: Set all is_active=false, then set is_active=true WHERE id=:id
         """
         try:
+            # Simple admin authentication (if ADMIN_API_TOKEN is set)
+            # Note: In production, use proper session-based auth with Supabase Auth
+            if ADMIN_API_TOKEN:
+                admin_token = self.headers.get("x-admin-token", "")
+                if admin_token != ADMIN_API_TOKEN:
+                    print(f"[SET_GELOMBANG_ACTIVE] Unauthorized: Invalid admin token")
+                    self.send_response(401)
+                    self.send_header("Content-Type", "application/json")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    self.wfile.write(
+                        json.dumps({
+                            "ok": False,
+                            "error": "Unauthorized. Admin access required."
+                        }).encode('utf-8')
+                    )
+                    return
+                print(f"[SET_GELOMBANG_ACTIVE] Admin authentication passed")
             # Parse request body
             content_length = int(self.headers.get('Content-Length', 0))
             if content_length == 0:
@@ -150,6 +174,6 @@ class handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, x-admin-token')
         self.end_headers()
 

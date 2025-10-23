@@ -67,7 +67,7 @@ class handler(BaseHTTPRequestHandler):
             
             try:
                 result = supa.table("pendaftar").select(
-                    "nisn,namalengkap,statusberkas,verifiedby,verifiedat,createdat,updatedat"
+                    "nisn,namalengkap,tanggallahir,tempatlahir,statusberkas,verifiedby,verifiedat,createdat,updatedat"
                 ).eq("nisn", nisn).execute()
                 
                 print(f"[CEK_STATUS] Query result: {len(result.data) if result.data else 0} rows")
@@ -95,10 +95,13 @@ class handler(BaseHTTPRequestHandler):
             data = {
                 "nisn": row.get("nisn", ""),
                 "nama": row.get("namalengkap", ""),
+                "tanggalLahir": row.get("tanggallahir"),
+                "tempatLahir": row.get("tempatlahir"),
                 "status": row.get("statusberkas") or "PENDING",
                 "verified_by": row.get("verifiedby"),
                 "verified_at": row.get("verifiedat"),
                 "created_at": row.get("createdat"),
+                "createdat": row.get("createdat"),  # Add both formats for compatibility
                 "updated_at": row.get("updatedat")
             }
 

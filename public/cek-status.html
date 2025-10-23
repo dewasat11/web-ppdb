@@ -235,38 +235,43 @@
       }
 
       function showResult(data, payment) {
-        const statusClass =
-          data.status === "pending"
-            ? "status-pending"
-            : data.status === "revisi"
-            ? "status-pending"
-            : data.status === "diterima"
-            ? "status-diterima"
-            : "status-ditolak";
-        const statusBadge =
-          data.status === "pending"
-            ? "warning"
-            : data.status === "revisi"
-            ? "info"
-            : data.status === "diterima"
-            ? "success"
-            : "danger";
-        const statusIcon =
-          data.status === "pending"
-            ? "hourglass-split"
-            : data.status === "revisi"
-            ? "arrow-repeat"
-            : data.status === "diterima"
-            ? "check-circle"
-            : "x-circle";
-        const statusText =
-          data.status === "pending"
-            ? "Menunggu Verifikasi"
-            : data.status === "revisi"
-            ? "Perlu Revisi"
-            : data.status === "diterima"
-            ? "Diterima"
-            : "Ditolak";
+        // Normalize status to lowercase and handle null/undefined
+        const status = (data.status || "pending").toLowerCase();
+        
+        // Determine status display based on normalized value
+        let statusClass, statusBadge, statusIcon, statusText;
+        
+        if (status === "pending" || status === "menunggu" || !data.status) {
+          // Default: Menunggu Verifikasi (untuk data baru atau pending)
+          statusClass = "status-pending";
+          statusBadge = "warning";
+          statusIcon = "hourglass-split";
+          statusText = "Menunggu Verifikasi Admin";
+        } else if (status === "revisi" || status === "perlu revisi") {
+          // Revisi: Perlu perbaikan dokumen
+          statusClass = "status-pending";
+          statusBadge = "info";
+          statusIcon = "arrow-repeat";
+          statusText = "Perlu Revisi";
+        } else if (status === "diterima" || status === "approved") {
+          // Diterima: Lolos verifikasi
+          statusClass = "status-diterima";
+          statusBadge = "success";
+          statusIcon = "check-circle";
+          statusText = "Diterima";
+        } else if (status === "ditolak" || status === "rejected") {
+          // Ditolak: Tidak lolos verifikasi
+          statusClass = "status-ditolak";
+          statusBadge = "danger";
+          statusIcon = "x-circle";
+          statusText = "Ditolak";
+        } else {
+          // Fallback: Treat unknown status as pending
+          statusClass = "status-pending";
+          statusBadge = "warning";
+          statusIcon = "hourglass-split";
+          statusText = "Menunggu Verifikasi Admin";
+        }
         
         const payStatus = (payment?.status_pembayaran || payment?.status || "").toUpperCase();
 
