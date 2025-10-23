@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard - SMP SAINS AN NAJAH PURWOKERTO</title>
+  
+  <!-- Prevent Caching - Force fresh page load -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
 
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
@@ -629,7 +634,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#" id="logoutBtn" style="background:rgba(245,87,108,.15);border-left-color:#f5576c">
+          <a class="nav-link" href="#" id="logoutBtn" onclick="logout(); return false;" style="background:rgba(245,87,108,.15);border-left-color:#f5576c">
             <i class="bi bi-box-arrow-right"></i> Logout
           </a>
         </li>
@@ -1110,6 +1115,41 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
   
   <!-- Client-side ZIP generation removed - now using server-side download -->
+  
+  <!-- AUTH GUARD - Must be logged in to access admin panel -->
+  <script>
+    // ===== AUTHENTICATION CHECK =====
+    // Block direct access to /admin.html
+    // User MUST login via /login.html first
+    (function() {
+      const isLoggedIn = sessionStorage.getItem("isAdminLoggedIn");
+      const adminEmail = sessionStorage.getItem("adminEmail");
+      
+      console.log("[ADMIN AUTH] Checking session...");
+      console.log("[ADMIN AUTH] isLoggedIn:", isLoggedIn);
+      console.log("[ADMIN AUTH] adminEmail:", adminEmail);
+      
+      if (isLoggedIn !== "true" || !adminEmail) {
+        console.log("[ADMIN AUTH] ❌ NO SESSION - Redirecting to login...");
+        alert("⚠️ Akses ditolak!\n\nAnda harus login terlebih dahulu untuk mengakses halaman admin.");
+        window.location.href = "/login.html";
+      } else {
+        console.log("[ADMIN AUTH] ✅ SESSION VALID - Access granted");
+      }
+    })();
+    
+    /**
+     * Logout Function
+     * Clears session and redirects to login
+     */
+    function logout() {
+      console.log("[ADMIN AUTH] Logging out...");
+      sessionStorage.clear();
+      localStorage.clear();
+      alert("✅ Anda telah logout.\n\nSilakan login kembali untuk mengakses admin panel.");
+      window.location.href = "/login.html";
+    }
+  </script>
   
   <!-- Responsive Mobile Menu Toggle Script -->
   <script>
