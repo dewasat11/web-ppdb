@@ -1137,25 +1137,33 @@
         
         // Check session with retry mechanism (to handle timing issues)
         let retryCount = 0;
-        const maxRetries = 5;
+        const maxRetries = 10; // INCREASED from 5 to 10
         
         function checkSession() {
           retryCount++;
-          console.log("[ADMIN AUTH] Check attempt #" + retryCount);
+          console.log("[ADMIN AUTH] ═══════════════════════════════════════");
+          console.log("[ADMIN AUTH] Check attempt #" + retryCount + " of " + maxRetries);
+          
+          // Debug: Check all sessionStorage items
+          console.log("[ADMIN AUTH] All sessionStorage items:");
+          for (let i = 0; i < sessionStorage.length; i++) {
+            const key = sessionStorage.key(i);
+            console.log("[ADMIN AUTH]   → " + key + " = " + sessionStorage.getItem(key));
+          }
           
           const isLoggedIn = sessionStorage.getItem("isAdminLoggedIn");
           const adminEmail = sessionStorage.getItem("adminEmail");
           const loginTimestamp = sessionStorage.getItem("loginTimestamp");
           
-          console.log("[ADMIN AUTH] Session Status:");
+          console.log("[ADMIN AUTH] Target Session Values:");
           console.log("[ADMIN AUTH] → URL:", window.location.href);
-          console.log("[ADMIN AUTH] → isLoggedIn:", isLoggedIn);
-          console.log("[ADMIN AUTH] → adminEmail:", adminEmail);
+          console.log("[ADMIN AUTH] → isLoggedIn:", isLoggedIn, "(type: " + typeof isLoggedIn + ")");
+          console.log("[ADMIN AUTH] → adminEmail:", adminEmail, "(type: " + typeof adminEmail + ")");
           console.log("[ADMIN AUTH] → loginTimestamp:", loginTimestamp);
           
           // Check if session is valid
           if (isLoggedIn === "true" && adminEmail) {
-            console.log("[ADMIN AUTH] ✅ SESSION VALID - Access granted");
+            console.log("[ADMIN AUTH] ✅✅✅ SESSION VALID - Access granted! ✅✅✅");
             console.log("[ADMIN AUTH] → User: " + adminEmail);
             console.log("[ADMIN AUTH] → Login time: " + (loginTimestamp ? new Date(parseInt(loginTimestamp)).toLocaleString() : 'N/A'));
             
@@ -1163,23 +1171,32 @@
             sessionStorage.removeItem("__admin_redirect_flag");
             
             // Show success message
-            console.log("[ADMIN AUTH] 🎉 Welcome to Admin Panel!");
+            console.log("[ADMIN AUTH] 🎉🎉🎉 Welcome to Admin Panel! 🎉🎉🎉");
+            console.log("[ADMIN AUTH] ═══════════════════════════════════════");
           } else {
             // If no session yet and we haven't exceeded max retries, try again
             if (retryCount < maxRetries) {
-              console.log("[ADMIN AUTH] ⏳ Session not ready yet, retrying in 100ms... (attempt " + retryCount + "/" + maxRetries + ")");
-              setTimeout(checkSession, 100);
+              console.log("[ADMIN AUTH] ⏳ Session not ready yet");
+              console.log("[ADMIN AUTH] → Will retry in 200ms... (attempt " + retryCount + "/" + maxRetries + ")");
+              console.log("[ADMIN AUTH] ═══════════════════════════════════════");
+              setTimeout(checkSession, 200); // INCREASED from 100ms to 200ms
               return;
             }
             
             // Max retries exceeded, block access
-            console.log("[ADMIN AUTH] ❌ NO VALID SESSION after " + maxRetries + " attempts - Blocking access");
-            console.log("[ADMIN AUTH] → Reason: isLoggedIn=" + isLoggedIn + ", adminEmail=" + adminEmail);
+            console.log("[ADMIN AUTH] ═══════════════════════════════════════");
+            console.error("[ADMIN AUTH] ❌❌❌ NO VALID SESSION after " + maxRetries + " attempts ❌❌❌");
+            console.error("[ADMIN AUTH] → Reason: isLoggedIn=" + isLoggedIn + " (expected: 'true'), adminEmail=" + adminEmail + " (expected: 'admin')");
+            console.error("[ADMIN AUTH] → This might indicate:");
+            console.error("[ADMIN AUTH]   1. Browser is blocking sessionStorage");
+            console.error("[ADMIN AUTH]   2. Session was not set properly in login page");
+            console.error("[ADMIN AUTH]   3. Browser privacy mode is enabled");
+            console.log("[ADMIN AUTH] ═══════════════════════════════════════");
             
             // Set redirect flag to detect loops
             sessionStorage.setItem("__admin_redirect_flag", "redirecting");
             
-            alert("⚠️ Akses ditolak!\n\nAnda harus login terlebih dahulu untuk mengakses halaman admin.");
+            alert("⚠️ Akses ditolak!\n\nAnda harus login terlebih dahulu untuk mengakses halaman admin.\n\nJika Anda baru saja login, coba:\n1. Clear browser cache\n2. Disable privacy mode\n3. Try different browser");
             
             console.log("[ADMIN AUTH] 🔄 Redirecting to /login.html...");
             
@@ -1189,7 +1206,8 @@
         }
         
         // Start checking session after initial delay
-        setTimeout(checkSession, 150); // 150ms initial delay (longer than login's 100ms)
+        console.log("[ADMIN AUTH] Waiting 300ms before first check...");
+        setTimeout(checkSession, 300); // INCREASED from 150ms to 300ms
       })();
     
     /**

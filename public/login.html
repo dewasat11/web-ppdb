@@ -309,13 +309,15 @@
           
           if (verifyLogin === "true" && verifyEmail === email) {
             console.log("[LOGIN] ✅ Session verified successfully!");
-            console.log("[LOGIN] Step 4: Redirecting to /admin.html in 100ms...");
+            console.log("[LOGIN] Step 4: Redirecting to /admin.html in 200ms...");
+            console.log("[LOGIN] → Giving browser extra time to persist session...");
             
-            // Small delay to ensure session is fully saved
+            // Small delay to ensure session is fully saved - INCREASED to 200ms
             setTimeout(function() {
-              console.log("[LOGIN] 🚀 Redirecting NOW...");
+              console.log("[LOGIN] 🚀 Redirecting NOW to /admin.html...");
+              console.log("[LOGIN] → Session should be ready for admin page check");
               window.location.replace("/admin.html");
-            }, 100);
+            }, 200); // INCREASED from 100ms to 200ms
           } else {
             console.error("[LOGIN] ❌ SESSION VERIFICATION FAILED!");
             console.error("[LOGIN] Expected: isAdminLoggedIn='true', adminEmail='" + email + "'");
