@@ -153,7 +153,7 @@
       <!-- Background Pattern / Banner -->
       <div class="absolute inset-0 opacity-10 z-10">
         <!-- TODO: ganti banner -->
-        <div class="absolute inset-0 bg-center bg-cover" style="background-image:url('/assets/img/banner.webp');"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800"></div>
       </div>
 
       <!-- Content -->
@@ -320,15 +320,25 @@
         const isUpcoming = today < startDate;
         const isClosed = today > endDate;
         
-        // Determine badge status
-        let badgeColor = 'blue';
+        // Determine status and colors
         let badgeText = 'Segera';
+        let borderClass = 'border-blue-200';
+        let badgeBgClass = 'bg-blue-500';
+        let iconBgClass = 'bg-gradient-to-br from-blue-500 to-blue-600';
+        let iconColorClass = 'text-blue-500';
+        
         if (isActive && isInDateRange) {
-          badgeColor = 'green';
           badgeText = 'Aktif';
+          borderClass = 'border-green-200';
+          badgeBgClass = 'bg-green-500';
+          iconBgClass = 'bg-gradient-to-br from-green-500 to-green-600';
+          iconColorClass = 'text-green-500';
         } else if (isClosed) {
-          badgeColor = 'gray';
           badgeText = 'Ditutup';
+          borderClass = 'border-gray-200';
+          badgeBgClass = 'bg-gray-500';
+          iconBgClass = 'bg-gradient-to-br from-gray-500 to-gray-600';
+          iconColorClass = 'text-gray-500';
         }
         
         // Determine button state
@@ -353,20 +363,20 @@
         const iconNumber = index + 1;
         
         return `
-          <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-${badgeColor}-200 relative overflow-hidden hover:shadow-xl transition">
-            <div class="absolute top-0 right-0 bg-${badgeColor}-500 text-white px-3 py-1 rounded-bl-lg text-sm font-semibold">${badgeText}</div>
+          <div class="bg-white rounded-2xl p-6 shadow-lg border-2 ${borderClass} relative overflow-hidden hover:shadow-xl transition">
+            <div class="absolute top-0 right-0 ${badgeBgClass} text-white px-3 py-1 rounded-bl-lg text-sm font-semibold">${badgeText}</div>
             <div class="text-center">
-              <div class="w-16 h-16 bg-gradient-to-br from-${badgeColor}-500 to-${badgeColor}-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div class="w-16 h-16 ${iconBgClass} rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="bi bi-${iconNumber}-circle text-white text-2xl"></i>
               </div>
               <h3 class="text-xl font-bold mb-2 text-gray-800">${gelombang.nama}</h3>
               <div class="space-y-2 mb-4">
                 <div class="flex items-center justify-center text-gray-600">
-                  <i class="bi bi-calendar-event mr-2 text-${badgeColor}-500"></i>
+                  <i class="bi bi-calendar-event mr-2 ${iconColorClass}"></i>
                   <span class="text-sm">${startFormatted} - ${endFormatted}</span>
                 </div>
                 <div class="flex items-center justify-center text-gray-600">
-                  <i class="bi bi-mortarboard mr-2 text-${badgeColor}-500"></i>
+                  <i class="bi bi-mortarboard mr-2 ${iconColorClass}"></i>
                   <span class="text-sm font-semibold">T.A. ${gelombang.tahun_ajaran}</span>
                 </div>
               </div>
