@@ -579,6 +579,62 @@
 
     // Load active gelombang when page loads
     document.addEventListener('DOMContentLoaded', loadGelombangAktif);
+    
+    // ===== REAL-TIME SYNC WITH ADMIN =====
+    // Listen for changes from admin panel via localStorage
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'gelombang_update') {
+        console.log('[GELOMBANG] Admin updated gelombang, reloading...');
+        loadGelombangAktif();
+      }
+    });
+  </script>
+  
+  <!-- Supabase Real-Time Sync (Optional - for cross-tab/cross-device sync) -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    
+    // Initialize Supabase client (same credentials as admin)
+    const SUPABASE_URL = 'https://sxbvadzcwpaovkhghttv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4YnZhZHpjd3Bhb3ZraGdodHR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMDg4MDYsImV4cCI6MjA3NjY4NDgwNn0.miJeKmsNgjgS4fWegGlwrxF_cPUoZBT0YKl1oxmmXTE';
+    
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    console.log('[SUPABASE INDEX] ✅ Client initialized for real-time sync');
+    
+    // Subscribe to gelombang table changes (real-time across devices)
+    const channel = supabase
+      .channel('gelombang-changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'gelombang' 
+      }, (payload) => {
+        console.log('[SUPABASE INDEX] 🔄 Gelombang data changed:', payload);
+        
+        // Small delay to ensure DB is consistent, then reload
+        setTimeout(() => {
+          console.log('[SUPABASE INDEX] 🔄 Reloading gelombang display...');
+          if (typeof loadGelombangAktif === 'function') {
+            loadGelombangAktif();
+          }
+        }, 500);
+      })
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('[SUPABASE INDEX] 🎧 Subscribed to real-time gelombang updates');
+        } else if (status === 'CLOSED') {
+          console.log('[SUPABASE INDEX] ⚠️ Real-time connection closed');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('[SUPABASE INDEX] ❌ Real-time connection error');
+        }
+      });
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      console.log('[SUPABASE INDEX] 🔌 Unsubscribing from real-time updates');
+      supabase.removeChannel(channel);
+    });
   </script>
 </body>
 </html>

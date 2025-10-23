@@ -1398,7 +1398,11 @@ SMP SAINS AN NAJAH PURWOKERTO`
       // Reload data to show updated status and colors
       await loadGelombangData(true);
       
-      console.log('[GELOMBANG] UI refreshed successfully');
+      // Trigger localStorage event to sync with index.html
+      localStorage.setItem('gelombang_update', Date.now().toString());
+      console.log('[GELOMBANG] 📡 Broadcasting update to public pages via localStorage');
+      
+      console.log('[GELOMBANG] ✅ UI refreshed successfully');
       
     } catch (error) {
       console.error('[GELOMBANG] Error activating:', error);
