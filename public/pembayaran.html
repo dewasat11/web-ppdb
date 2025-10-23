@@ -400,9 +400,12 @@
               </div>
 
               <div class="alert alert-info" role="alert">
-                <i class="bi bi-telephone-fill me-2"></i>
+                <i class="bi bi-whatsapp me-2 text-success"></i>
                 <strong>Butuh Bantuan?</strong><br>
-                Hubungi kami di WhatsApp: <strong>0812-3456-7890</strong>
+                Hubungi kami di WhatsApp: 
+                <a href="#" id="waHelpLink" class="text-success fw-bold text-decoration-none" target="_blank">
+                  <i class="bi bi-whatsapp"></i> 081218768593
+                </a>
               </div>
             </div>
 
@@ -414,6 +417,20 @@
               <div class="text-center mb-4">
                 <h4 class="text-danger fw-bold">Pembayaran Gagal</h4>
                 <p class="text-muted" id="paymentErrorMsg">Terjadi kesalahan saat mengirim bukti pembayaran.</p>
+              </div>
+              
+              <div class="alert alert-warning" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Tips:</strong> Silakan coba lagi beberapa saat atau hubungi admin jika masalah berlanjut.
+              </div>
+
+              <div class="alert alert-info" role="alert">
+                <i class="bi bi-whatsapp me-2 text-success"></i>
+                <strong>Butuh Bantuan?</strong><br>
+                Hubungi kami di WhatsApp: 
+                <a href="#" id="waHelpLink" class="text-success fw-bold text-decoration-none" target="_blank">
+                  <i class="bi bi-whatsapp"></i> 081218768593
+                </a>
               </div>
             </div>
           </div>
@@ -470,7 +487,24 @@
         loadingBox.classList.add('d-none');
         successBox.classList.remove('d-none');
         errorBox.classList.add('d-none');
+        // Update both buttons to include NISN
         btnCekStatus.href = `/cek-status.html?nisn=${nisn}`;
+        document.getElementById('btnCloseModal').href = `/cek-status.html?nisn=${nisn}`;
+        
+        // Update WhatsApp help link with confirmation message
+        const waPhone = '6281218768593'; // Format internasional
+        const namaDecoded = decodeURIComponent(nama || '-');
+        const waMessage = encodeURIComponent(
+          `Assalamualaikum Admin,\n\n` +
+          `Saya telah mengirimkan bukti pembayaran pendaftaran.\n\n` +
+          `📋 *Detail Pendaftar:*\n` +
+          `• NISN: ${nisn}\n` +
+          `• Nama: ${namaDecoded}\n\n` +
+          `Mohon untuk diverifikasi. Terima kasih.\n\n` +
+          `Jazakumullahu khairan`
+        );
+        const waLink = `https://wa.me/${waPhone}?text=${waMessage}`;
+        document.getElementById('waHelpLink').href = waLink;
       }
 
       function showError(message) {
@@ -478,6 +512,25 @@
         successBox.classList.add('d-none');
         errorBox.classList.remove('d-none');
         errorMsg.textContent = message || 'Terjadi kesalahan saat mengirim bukti pembayaran.';
+        // Update both buttons to include NISN
+        btnCekStatus.href = `/cek-status.html?nisn=${nisn}`;
+        document.getElementById('btnCloseModal').href = `/cek-status.html?nisn=${nisn}`;
+        
+        // Update WhatsApp help link with error message
+        const waPhone = '6281218768593'; // Format internasional
+        const namaDecoded = decodeURIComponent(nama || '-');
+        const waMessage = encodeURIComponent(
+          `Assalamualaikum Admin,\n\n` +
+          `Saya mengalami kendala saat mengirim bukti pembayaran pendaftaran.\n\n` +
+          `📋 *Detail Pendaftar:*\n` +
+          `• NISN: ${nisn}\n` +
+          `• Nama: ${namaDecoded}\n\n` +
+          `❌ *Error:* ${message}\n\n` +
+          `Mohon bantuannya. Terima kasih.\n\n` +
+          `Jazakumullahu khairan`
+        );
+        const waLink = `https://wa.me/${waPhone}?text=${waMessage}`;
+        document.getElementById('waHelpLink').href = waLink;
       }
 
       // Function to get biaya based on rencana program

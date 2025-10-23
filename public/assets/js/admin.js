@@ -1230,7 +1230,7 @@ SMP SAINS AN NAJAH PURWOKERTO`
   }
 
   /**
-   * Update gelombang data
+   * Update gelombang data (FAST - no full reload)
    */
   async function updateGelombang(id) {
     const startDate = document.getElementById(`start_date_${id}`).value;
@@ -1240,7 +1240,7 @@ SMP SAINS AN NAJAH PURWOKERTO`
     // Validate
     if (!startDate || !endDate || !tahunAjaran) {
       toastr.error('Semua field harus diisi!', '', {
-        timeOut: 3000,
+        timeOut: 2000,
         progressBar: true
       });
       return;
@@ -1248,24 +1248,19 @@ SMP SAINS AN NAJAH PURWOKERTO`
     
     if (new Date(startDate) > new Date(endDate)) {
       toastr.error('Tanggal mulai harus lebih kecil atau sama dengan tanggal akhir!', '', {
-        timeOut: 3000,
+        timeOut: 2000,
         progressBar: true
       });
       return;
     }
     
-    // Confirmation popup
-    if (!confirm('Simpan perubahan untuk gelombang ini?')) {
-      return;
-    }
-    
     console.log('[GELOMBANG] Updating gelombang:', id, { startDate, endDate, tahunAjaran });
     
-    // Find the button and show loading state
+    // Find the button and show minimal loading state
     const button = event.target.closest('button');
     const originalHTML = button.innerHTML;
     button.disabled = true;
-    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+    button.innerHTML = '<i class="bi bi-check-circle"></i> Menyimpan...';
     
     try {
       const response = await fetch('/api/update_gelombang', {
@@ -1287,106 +1282,145 @@ SMP SAINS AN NAJAH PURWOKERTO`
         throw new Error(result.error || 'Gagal mengupdate gelombang');
       }
       
-      // Success notification with better message
+      // Update local data cache
+      const gelombangIndex = currentGelombangData.findIndex(g => g.id === id);
+      if (gelombangIndex !== -1) {
+        currentGelombangData[gelombangIndex].start_date = startDate;
+        currentGelombangData[gelombangIndex].end_date = endDate;
+        currentGelombangData[gelombangIndex].tahun_ajaran = tahunAjaran;
+      }
+      
+      // Success notification (FAST)
       toastr.success('✓ Perubahan berhasil disimpan!', '', {
-        timeOut: 3000,
+        timeOut: 2000,
         progressBar: true
       });
       
-      // Reload data with cache busting (this will replace the entire container)
-      await loadGelombangData(true);
+      // Restore button immediately
+      button.disabled = false;
+      button.innerHTML = originalHTML;
       
-      // Visual feedback: highlight the updated card
-      setTimeout(() => {
-        const updatedCard = document.querySelector(`#start_date_${id}`);
-        if (updatedCard) {
-          const card = updatedCard.closest('.card');
-          if (card) {
-            card.style.animation = 'pulse 1s ease-in-out';
-            setTimeout(() => {
-              card.style.animation = '';
-            }, 1000);
-          }
-        }
-      }, 500);
+      // Visual feedback: quick pulse animation
+      const card = button.closest('.card');
+      if (card) {
+        card.style.animation = 'pulse 0.5s ease-in-out';
+        setTimeout(() => {
+          card.style.animation = '';
+        }, 500);
+      }
       
     } catch (error) {
       console.error('[GELOMBANG] Error updating:', error);
       toastr.error(`✗ Gagal menyimpan: ${error.message}`, '', {
-        timeOut: 4000,
+        timeOut: 3000,
         progressBar: true
       });
       
-      // Reload data to restore original state
-      await loadGelombangData(true);
+      // Restore button
+      button.disabled = false;
+      button.innerHTML = originalHTML;
     }
   }
   window.updateGelombang = updateGelombang;
 
   /**
-   * Set gelombang as active
+   * Set gelombang as active (INSTANT - optimistic update)
    */
   async function setGelombangActive(id) {
-    if (!confirm('Yakin ingin mengaktifkan gelombang ini? Gelombang lain akan dinonaktifkan.')) {
+    // Confirmation dialog
+    if (!confirm('Jadikan gelombang ini aktif? Gelombang lain akan otomatis dinonaktifkan.')) {
       return;
     }
     
     console.log('[GELOMBANG] Activating gelombang:', id);
     
-    // Find the button that was clicked and show loading state
+    // Find the button that was clicked
     const button = event.target.closest('button');
-    const originalHTML = button.innerHTML;
-    button.disabled = true;
-    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengaktifkan...';
+    const card = button.closest('.card');
     
-    try {
-      const response = await fetch('/api/set_gelombang_active', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: id })
-      });
-      
-      const result = await response.json();
-      
+    // OPTIMISTIC UPDATE: Immediately update UI before API call
+    // 1. Update the clicked card to active state
+    card.classList.remove('border-secondary');
+    card.classList.add('border-success');
+    const badge = card.querySelector('.badge');
+    if (badge) {
+      badge.className = 'badge bg-success';
+      badge.textContent = 'Aktif';
+    }
+    
+    // 2. Change button to disabled "Gelombang Aktif" state
+    button.className = 'btn btn-secondary btn-sm';
+    button.disabled = true;
+    button.innerHTML = '<i class="bi bi-check-circle-fill"></i> Gelombang Aktif';
+    
+    // 3. Update all other cards to inactive state
+    document.querySelectorAll('.card.border-success').forEach(otherCard => {
+      if (otherCard !== card) {
+        otherCard.classList.remove('border-success');
+        otherCard.classList.add('border-secondary');
+        const otherBadge = otherCard.querySelector('.badge');
+        if (otherBadge) {
+          otherBadge.className = 'badge bg-secondary';
+          otherBadge.textContent = 'Nonaktif';
+        }
+        
+        // Find and re-enable "Jadikan Aktif" button for inactive cards
+        const disabledBtn = otherCard.querySelector('.btn-secondary.btn-sm[disabled]');
+        if (disabledBtn && disabledBtn.innerHTML.includes('Gelombang Aktif')) {
+          // Get the gelombang ID from the card's input
+          const startDateInput = otherCard.querySelector('input[id^="start_date_"]');
+          if (startDateInput) {
+            const gelombangId = startDateInput.id.replace('start_date_', '');
+            disabledBtn.className = 'btn btn-success btn-sm';
+            disabledBtn.disabled = false;
+            disabledBtn.setAttribute('onclick', `setGelombangActive(${gelombangId})`);
+            disabledBtn.innerHTML = '<i class="bi bi-check-circle"></i> Jadikan Aktif';
+          }
+        }
+      }
+    });
+    
+    // 4. Quick visual feedback
+    card.style.animation = 'pulse 0.3s ease-in-out';
+    setTimeout(() => {
+      card.style.animation = '';
+    }, 300);
+    
+    // Update local cache
+    currentGelombangData.forEach(g => {
+      g.is_active = (g.id === id);
+    });
+    
+    // 5. Show instant success notification
+    toastr.success('✓ Gelombang berhasil diaktifkan!', '', {
+      timeOut: 2000,
+      progressBar: true
+    });
+    
+    // 6. Call API in background (no await, fire-and-forget with error handling)
+    fetch('/api/set_gelombang_active', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id })
+    })
+    .then(response => response.json())
+    .then(result => {
       console.log('[GELOMBANG] Activate response:', result);
-      
       if (!result.ok) {
         throw new Error(result.error || 'Gagal mengaktifkan gelombang');
       }
-      
-      // Success notification
-      toastr.success(result.message || 'Gelombang berhasil diaktifkan!', '', {
+    })
+    .catch(error => {
+      console.error('[GELOMBANG] Error activating (background):', error);
+      // If background API fails, revert UI
+      toastr.error(`⚠️ Terjadi error di server: ${error.message}. Memuat ulang data...`, '', {
         timeOut: 3000,
         progressBar: true
       });
-      
-      // Reload data with cache busting (this will replace the entire container)
-      await loadGelombangData(true);
-      
-      // Scroll to the activated gelombang (smooth scroll)
       setTimeout(() => {
-        const activatedCard = document.querySelector('.border-success');
-        if (activatedCard) {
-          activatedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          
-          // Add pulse animation
-          activatedCard.style.animation = 'pulse 1s ease-in-out';
-          setTimeout(() => {
-            activatedCard.style.animation = '';
-          }, 1000);
-        }
-      }, 500);
-      
-    } catch (error) {
-      console.error('[GELOMBANG] Error activating:', error);
-      toastr.error(`Gagal mengaktifkan: ${error.message}`, '', {
-        timeOut: 4000,
-        progressBar: true
-      });
-      
-      // Reload data to restore original state
-      await loadGelombangData(true);
-    }
+        loadGelombangData(true);
+      }, 2000);
+    });
   }
   window.setGelombangActive = setGelombangActive;
 
