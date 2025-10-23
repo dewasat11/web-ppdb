@@ -15,35 +15,228 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
     />
     <link href="/assets/css/styles.css" rel="stylesheet" />
+    
+    <style>
+      /* ===== RESPONSIVE ENHANCEMENTS FOR DAFTAR.HTML ===== */
+      
+      /* Mobile-first approach */
+      body {
+        overflow-x: hidden;
+      }
+
+      /* Navbar responsive */
+      @media (max-width: 576px) {
+        .navbar-brand {
+          font-size: 0.875rem !important;
+        }
+        .navbar .btn-sm {
+          padding: 0.375rem 0.75rem;
+          font-size: 0.75rem;
+        }
+        .navbar .d-flex.gap-2 {
+          gap: 0.5rem !important;
+        }
+      }
+
+      /* Container responsive */
+      @media (max-width: 768px) {
+        .container {
+          padding-left: 1rem !important;
+          padding-right: 1rem !important;
+        }
+        .card-body {
+          padding: 1.5rem 1rem !important;
+        }
+      }
+
+      /* Form responsive */
+      @media (max-width: 576px) {
+        .form-label {
+          font-size: 0.875rem;
+        }
+        .form-control,
+        .form-select {
+          font-size: 0.875rem;
+          padding: 0.5rem 0.75rem;
+        }
+        .form-text {
+          font-size: 0.75rem;
+        }
+        h1 {
+          font-size: 1.5rem !important;
+        }
+        h5 {
+          font-size: 1rem !important;
+        }
+        h6 {
+          font-size: 0.875rem !important;
+        }
+      }
+
+      /* Grid responsive - force single column on small screens */
+      @media (max-width: 576px) {
+        .row.g-3 > [class*="col-"] {
+          margin-bottom: 1rem;
+        }
+        .col-md-6,
+        .col-md-3,
+        .col-md-12 {
+          width: 100% !important;
+        }
+      }
+
+      /* Button responsive */
+      @media (max-width: 576px) {
+        .btn-lg {
+          padding: 0.75rem 1.5rem;
+          font-size: 0.875rem;
+        }
+        .mt-4.d-flex.gap-2 {
+          flex-direction: column !important;
+        }
+        .mt-4.d-flex.gap-2 .btn {
+          width: 100%;
+        }
+      }
+
+      /* Modal responsive */
+      @media (max-width: 768px) {
+        .modal-xl {
+          margin: 0.5rem;
+        }
+        .modal-dialog {
+          margin: 0.5rem;
+        }
+        .modal-body {
+          padding: 1rem !important;
+        }
+        .modal-footer {
+          flex-direction: column-reverse;
+          gap: 0.5rem;
+        }
+        .modal-footer .btn {
+          width: 100%;
+          margin: 0 !important;
+        }
+      }
+
+      /* Alert responsive */
+      @media (max-width: 576px) {
+        .alert {
+          font-size: 0.875rem;
+          padding: 0.75rem;
+        }
+      }
+
+      /* Improve touch targets */
+      @media (max-width: 576px) {
+        button,
+        a.btn,
+        input[type="button"],
+        input[type="submit"] {
+          min-height: 44px;
+          min-width: 44px;
+        }
+      }
+
+      /* Footer responsive */
+      @media (max-width: 576px) {
+        footer p {
+          font-size: 0.75rem;
+        }
+      }
+
+      /* Konfirmasi content responsive */
+      @media (max-width: 576px) {
+        #konfirmasiContent .col-md-6,
+        #konfirmasiContent .col-md-12 {
+          font-size: 0.875rem;
+        }
+        #konfirmasiContent strong {
+          font-size: 0.75rem;
+        }
+      }
+
+      /* File input responsive */
+      @media (max-width: 576px) {
+        input[type="file"] {
+          font-size: 0.75rem;
+        }
+      }
+
+      /* Disable hover effects on touch devices */
+      @media (hover: none) {
+        .btn:hover,
+        a:hover {
+          transform: none !important;
+        }
+      }
+
+      /* Smooth transitions */
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      /* Sticky navbar height adjustment */
+      @media (max-width: 576px) {
+        .sticky-top {
+          position: sticky;
+          top: 0;
+          z-index: 1030;
+        }
+      }
+
+      /* Container background responsive */
+      @media (max-width: 768px) {
+        .container.py-4 {
+          padding-top: 1rem !important;
+          padding-bottom: 1rem !important;
+        }
+      }
+
+      /* Success modal icon responsive */
+      @media (max-width: 576px) {
+        .modal-body .bi-check-circle-fill {
+          font-size: 3rem !important;
+        }
+        .modal-body h4 {
+          font-size: 1.25rem !important;
+        }
+        #regNo {
+          font-size: 1.5rem !important;
+        }
+      }
+    </style>
   </head>
   <body class="bg-light">
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top" style="z-index: 1030;">
       <div class="container">
-        <a class="navbar-brand text-dark fw-bold d-flex align-items-center" href="/">
-          <i class="bi bi-pencil-square me-2 text-success"></i>
-          Pendaftaran SMP SAINS AN NAJAH
+        <a class="navbar-brand text-dark fw-bold d-flex align-items-center" href="/" style="max-width: 60%; overflow: hidden;">
+          <i class="bi bi-pencil-square me-2 text-success d-none d-sm-inline"></i>
+          <span class="d-none d-md-inline">Pendaftaran SMP SAINS AN NAJAH</span>
+          <span class="d-md-none">PPDB SMP SAINS</span>
         </a>
         <div class="d-flex gap-2">
           <a href="/cek-status.html" class="btn btn-outline-success btn-sm">
-            <i class="bi bi-search"></i> Cek Status
+            <i class="bi bi-search"></i> <span class="d-none d-sm-inline">Cek Status</span>
           </a>
           <a href="/" class="btn btn-success btn-sm">
-            <i class="bi bi-house"></i> Beranda
+            <i class="bi bi-house"></i> <span class="d-none d-sm-inline">Beranda</span>
           </a>
         </div>
       </div>
     </nav>
 
-    <div class="container py-4" style="background-color: #064e3b;">
+    <div class="container py-2 py-md-4">
       <div class="row justify-content-center">
-        <div class="col-lg-10">
+        <div class="col-12 col-lg-10">
           <div class="card shadow border-0">
-            <div class="card-body p-4 p-md-5">
-              <h1 class="mb-4 text-center" style="color: #064e3b">
+            <div class="card-body p-3 p-md-5">
+              <h1 class="mb-3 mb-md-4 text-center" style="color: #064e3b">
                 Formulir Pendaftaran
               </h1>
-              <p class="text-center text-muted mb-4">
+              <p class="text-center text-muted mb-3 mb-md-4">
                 Silakan isi formulir di bawah ini dengan lengkap dan benar
               </p>
 
@@ -499,9 +692,9 @@
                   </div>
                 </div>
 
-                <div class="mt-4 d-flex gap-2">
+                <div class="mt-3 mt-md-4 d-flex flex-column flex-sm-row gap-2">
                   <button
-                    class="btn btn-lg px-5"
+                    class="btn btn-lg px-3 px-md-5"
                     type="button"
                     onclick="showKonfirmasi()"
                     style="background: #0f9d58; color: white"
@@ -531,19 +724,19 @@
         <div class="modal-content">
           <div class="modal-header bg-success text-white">
             <h5 class="modal-title">
-              <i class="bi bi-check-circle-fill"></i> Pendaftaran Berhasil!
+              <i class="bi bi-check-circle-fill"></i> <span class="d-none d-sm-inline">Pendaftaran Berhasil!</span><span class="d-sm-none">Berhasil!</span>
             </h5>
           </div>
-          <div class="modal-body text-center py-4">
-            <div class="mb-4">
+          <div class="modal-body text-center py-3 py-md-4">
+            <div class="mb-3 mb-md-4">
               <i
                 class="bi bi-check-circle-fill text-success"
-                style="font-size: 5rem"
+                style="font-size: 3rem"
               ></i>
             </div>
-            <h4 class="mb-3">🎉 Selamat!</h4>
+            <h4 class="mb-2 mb-md-3">🎉 Selamat!</h4>
             <p class="mb-2">Pendaftaran Anda telah berhasil disimpan.</p>
-            <div class="alert alert-info">
+            <div class="alert alert-info mb-2">
               <strong>NISN Anda:</strong><br />
               <h3 class="text-primary mb-2" id="regNo"></h3>
               <button
@@ -559,13 +752,13 @@
               untuk tracking status pendaftaran Anda.
             </p>
           </div>
-          <div class="modal-footer justify-content-center">
-            <a href="/cek-status.html" class="btn btn-success btn-lg">
+          <div class="modal-footer justify-content-center flex-column flex-sm-row gap-2">
+            <a href="/cek-status.html" class="btn btn-success btn-lg w-100 w-sm-auto">
               <i class="bi bi-search"></i> Cek Status Pendaftaran
             </a>
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-secondary w-100 w-sm-auto"
               data-bs-dismiss="modal"
               onclick="window.location.reload()"
             >
@@ -587,7 +780,7 @@
         <div class="modal-content">
           <div class="modal-header bg-success text-white">
             <h5 class="modal-title">
-              <i class="bi bi-clipboard-check"></i> Konfirmasi Data Pendaftaran
+              <i class="bi bi-clipboard-check"></i> <span class="d-none d-sm-inline">Konfirmasi Data Pendaftaran</span><span class="d-sm-none">Konfirmasi</span>
             </h5>
             <button
               type="button"
@@ -596,24 +789,24 @@
             ></button>
           </div>
           <div class="modal-body">
-            <div class="alert alert-warning">
+            <div class="alert alert-warning mb-3">
               <i class="bi bi-exclamation-triangle"></i>
               <strong>Perhatian!</strong> Pastikan semua data sudah benar
               sebelum mengirim. Periksa kembali data Anda di bawah ini.
             </div>
             <div id="konfirmasiContent"></div>
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer d-flex flex-column-reverse flex-sm-row gap-2">
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-secondary w-100 w-sm-auto"
               data-bs-dismiss="modal"
             >
               <i class="bi bi-pencil"></i> Edit Data
             </button>
             <button
               type="button"
-              class="btn btn-success btn-lg"
+              class="btn btn-success btn-lg w-100 w-sm-auto"
               onclick="submitFinal()"
             >
               <i class="bi bi-send"></i> Ya, Kirim Pendaftaran
@@ -624,9 +817,9 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-4 mt-5">
+    <footer class="bg-dark text-white py-3 py-md-4 mt-3 mt-md-5">
       <div class="container text-center">
-        <p class="mb-0">&copy; 2025 SMP SAINS AN NAJAH PURWOKERTO. All rights reserved.</p>
+        <p class="mb-0 small">&copy; 2025 SMP SAINS AN NAJAH PURWOKERTO. <span class="d-none d-sm-inline">All rights reserved.</span></p>
       </div>
     </footer>
 

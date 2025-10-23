@@ -177,7 +177,8 @@
                 </div>
               </div>
 
-              <div class="card shadow-sm">
+              <!-- Status & Catatan Section (hidden if payment verified) -->
+              <div class="card shadow-sm" id="statusCatatanSection">
                 <div class="card-header bg-light">
                   <strong><i class="bi bi-clipboard-data"></i> Status & Catatan</strong>
                 </div>
@@ -239,6 +240,7 @@
         const fStatusText = document.getElementById("f_status_text");
         const fCatatan = document.getElementById("f_catatan");
         const paymentSection = document.getElementById("paymentStatusSection");
+        const statusCatatanSection = document.getElementById("statusCatatanSection");
 
         function resetModal() {
           loadingBox.classList.remove("d-none");
@@ -247,6 +249,7 @@
           statusBadge.className = "badge rounded-pill px-4 py-2 bg-secondary";
           statusIcon.className = "bi bi-hourglass-split text-warning";
           paymentSection.innerHTML = "";
+          statusCatatanSection.classList.remove("d-none"); // Show status section by default
           [fNisn, fNama, fTglLahir, fTglDaftar, fStatusText, fCatatan].forEach(el => el.textContent = "-");
         }
 
@@ -348,6 +351,15 @@
           statusBadge.textContent = ui.text;
           statusIcon.className = `bi ${ui.icon}`;
           statusIcon.style.fontSize = "5rem";
+
+          // Check if payment is verified - hide Status & Catatan section
+          const payStatus = (payment?.status_pembayaran || payment?.status || "").toUpperCase();
+          if (payStatus === "VERIFIED") {
+            statusCatatanSection.classList.add("d-none");
+            console.log('[CEK_STATUS] Payment VERIFIED - hiding Status & Catatan section');
+          } else {
+            statusCatatanSection.classList.remove("d-none");
+          }
 
           // Payment section (if applicable)
           renderPaymentSection(data, payment);

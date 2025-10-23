@@ -58,6 +58,8 @@ class handler(BaseHTTPRequestHandler):
             # Validate required field
             gelombang_id = data.get('id')
             
+            print(f"[SET_GELOMBANG_ACTIVE] Received request to activate gelombang ID: {gelombang_id} (type: {type(gelombang_id).__name__})")
+            
             if not gelombang_id:
                 self.send_response(400)
                 self.send_header("Content-Type", "application/json")
@@ -99,6 +101,7 @@ class handler(BaseHTTPRequestHandler):
             )
             
             if not activate_result.data:
+                print(f"[SET_GELOMBANG_ACTIVE] ERROR: Gelombang ID {gelombang_id} not found!")
                 self.send_response(404)
                 self.send_header("Content-Type", "application/json")
                 self.send_header("Access-Control-Allow-Origin", "*")
@@ -113,6 +116,15 @@ class handler(BaseHTTPRequestHandler):
             
             activated_gelombang = activate_result.data[0]
             
+            print(f"[SET_GELOMBANG_ACTIVE] ✓ SUCCESS: Gelombang '{activated_gelombang.get('nama')}' (ID: {gelombang_id}) is now ACTIVE")
+            
+            # Verify final state by querying all gelombang
+            verify_result = supa.table("gelombang").select("id, nama, is_active").execute()
+            print(f"[SET_GELOMBANG_ACTIVE] Final state of all gelombang:")
+            for g in verify_result.data:
+                status = "ACTIVE" if g['is_active'] else "inactive"
+                print(f"  - ID {g['id']}: {g['nama']} = {status}")
+            
             # Send success response
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
@@ -125,8 +137,6 @@ class handler(BaseHTTPRequestHandler):
                     "message": f"{activated_gelombang.get('nama', 'Gelombang')} berhasil diaktifkan"
                 }).encode('utf-8')
             )
-            
-            print(f"✓ Gelombang activated: id={gelombang_id}")
 
         except json.JSONDecodeError:
             self.send_response(400)

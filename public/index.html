@@ -57,6 +57,92 @@
     }
     html, body { font-family: var(--tw-font-sans); }
     [x-cloak] { display: none !important; }
+
+    /* ===== RESPONSIVE ENHANCEMENTS ===== */
+    
+    /* Mobile-first responsive typography */
+    @media (max-width: 640px) {
+      h1 { font-size: 1.875rem !important; line-height: 2.25rem !important; }
+      h2 { font-size: 1.5rem !important; line-height: 2rem !important; }
+      h3 { font-size: 1.25rem !important; line-height: 1.75rem !important; }
+      .text-lg { font-size: 1rem !important; line-height: 1.5rem !important; }
+      .text-xl { font-size: 1.125rem !important; line-height: 1.75rem !important; }
+    }
+
+    /* Navbar responsive improvements */
+    @media (max-width: 768px) {
+      .navbar-brand span {
+        font-size: 0.875rem !important;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    /* Hero section responsive */
+    @media (max-width: 640px) {
+      .hero-content {
+        padding: 2rem 1rem !important;
+      }
+    }
+
+    /* Gelombang cards responsive stacking */
+    @media (max-width: 768px) {
+      #gelombangContainer {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    /* WhatsApp widget responsive */
+    @media (max-width: 640px) {
+      .whatsapp-widget {
+        padding: 0.75rem 1rem !important;
+        font-size: 0.875rem !important;
+      }
+      .whatsapp-widget .flex-col span:first-child {
+        font-size: 0.75rem !important;
+      }
+      .whatsapp-widget .flex-col span:last-child {
+        font-size: 0.625rem !important;
+      }
+    }
+
+    /* Card hover effects - disable on touch devices */
+    @media (hover: none) {
+      .hover\:-translate-y-2:hover {
+        transform: none !important;
+      }
+    }
+
+    /* Smooth transitions */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Improve button touch targets on mobile */
+    @media (max-width: 640px) {
+      a, button {
+        min-height: 44px;
+        min-width: 44px;
+      }
+    }
+
+    /* Container responsive padding */
+    @media (max-width: 640px) {
+      .container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+      }
+    }
+
+    /* Mobile menu improvements */
+    @media (max-width: 768px) {
+      .mobile-menu {
+        max-width: 280px;
+        width: 85vw;
+      }
+    }
   </style>
 </head>
 
@@ -115,11 +201,11 @@
     <div x-cloak x-show="mobileMenuOpen" @click="mobileMenuOpen=false" class="md:hidden fixed inset-0 z-40 bg-black/50"></div>
 
     <!-- Mobile Menu -->
-    <div x-cloak x-show="mobileMenuOpen" x-transition class="md:hidden fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-xl border-r border-gray-200 overflow-y-auto">
+    <div x-cloak x-show="mobileMenuOpen" x-transition class="md:hidden fixed inset-y-0 left-0 z-50 mobile-menu bg-white shadow-xl border-r border-gray-200 overflow-y-auto">
       <div class="flex items-center justify-between p-4 border-b border-gray-200">
         <div class="flex items-center">
           <img src="/assets/img/logo-alikhsan.png" alt="Logo SMP SAINS AN NAJAH" class="h-8 w-auto" />
-          <span class="ml-2 text-base font-bold text-gray-800">SMP SAINS AN NAJAH</span>
+          <span class="ml-2 text-sm sm:text-base font-bold text-gray-800">SMP SAINS AN NAJAH</span>
         </div>
         <button @click="mobileMenuOpen=false" class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"><i class="bi bi-x-lg"></i></button>
       </div>
@@ -247,17 +333,17 @@
 
   <!-- WhatsApp Widget (Floating) -->
   <!-- TODO: Ganti nomor WA di href sesuai kontak resmi pesantren -->
-  <div class="fixed bottom-6 right-6 z-50">
+  <div class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
     <a
       href="https://wa.me/6281218768593?text=Assalamualaikum,%20saya%20ingin%20menanyakan%20informasi%20PPDB%20SMP%20SAINS%20AN%20NAJAH%20PURWOKERTO"
       target="_blank"
-      class="flex items-center bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl px-4 py-3">
-      <div class="flex items-center justify-center w-8 h-8 mr-3">
-        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      class="whatsapp-widget flex items-center bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl px-3 py-2 sm:px-4 sm:py-3 transition-all">
+      <div class="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.515" />
         </svg>
       </div>
-      <div class="flex flex-col">
+      <div class="flex flex-col hidden sm:flex">
         <span class="text-sm font-semibold">Butuh Bantuan?</span>
         <span class="text-xs">Chat Admin PPDB AN NAJAH</span>
       </div>

@@ -1233,6 +1233,9 @@ SMP SAINS AN NAJAH PURWOKERTO`
    * Update gelombang data (FAST - no full reload)
    */
   async function updateGelombang(id) {
+    // Ensure ID is a number
+    id = parseInt(id, 10);
+    
     const startDate = document.getElementById(`start_date_${id}`).value;
     const endDate = document.getElementById(`end_date_${id}`).value;
     const tahunAjaran = document.getElementById(`tahun_ajaran_${id}`).value;
@@ -1327,12 +1330,15 @@ SMP SAINS AN NAJAH PURWOKERTO`
    * Set gelombang as active (INSTANT - optimistic update)
    */
   async function setGelombangActive(id) {
+    // Ensure ID is a number (convert from string if needed)
+    id = parseInt(id, 10);
+    
     // Confirmation dialog
     if (!confirm('Jadikan gelombang ini aktif? Gelombang lain akan otomatis dinonaktifkan.')) {
       return;
     }
     
-    console.log('[GELOMBANG] Activating gelombang:', id);
+    console.log('[GELOMBANG] Activating gelombang (ID as number):', id, typeof id);
     
     // Find the button that was clicked
     const button = event.target.closest('button');
@@ -1370,11 +1376,12 @@ SMP SAINS AN NAJAH PURWOKERTO`
           // Get the gelombang ID from the card's input
           const startDateInput = otherCard.querySelector('input[id^="start_date_"]');
           if (startDateInput) {
-            const gelombangId = startDateInput.id.replace('start_date_', '');
+            const gelombangId = parseInt(startDateInput.id.replace('start_date_', ''), 10);
             disabledBtn.className = 'btn btn-success btn-sm';
             disabledBtn.disabled = false;
             disabledBtn.setAttribute('onclick', `setGelombangActive(${gelombangId})`);
             disabledBtn.innerHTML = '<i class="bi bi-check-circle"></i> Jadikan Aktif';
+            console.log('[GELOMBANG] Re-enabled button for gelombang ID:', gelombangId);
           }
         }
       }
