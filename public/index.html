@@ -288,13 +288,18 @@
      */
     async function loadGelombangData() {
       try {
-        const response = await fetch('/api/get_gelombang_list');
+        // Add cache buster to force fresh data
+        const cacheBuster = new Date().getTime();
+        const response = await fetch(`/api/get_gelombang_list?_t=${cacheBuster}`);
         const result = await response.json();
+        
+        console.log('[GELOMBANG] API Response:', result);
         
         if (!result.ok || !result.data) {
           throw new Error(result.error || 'Failed to load gelombang data');
         }
         
+        console.log('[GELOMBANG] Data loaded:', result.data);
         renderGelombangCards(result.data);
       } catch (error) {
         console.error('Error loading gelombang:', error);
@@ -312,13 +317,26 @@
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
+      console.log('[GELOMBANG] Rendering cards, today:', today.toISOString().split('T')[0]);
+      
       const cardsHTML = gelombangList.map((gelombang, index) => {
-        const startDate = new Date(gelombang.start_date);
-        const endDate = new Date(gelombang.end_date);
+        // Parse dates in local timezone to avoid timezone issues
+        const startDate = new Date(gelombang.start_date + 'T00:00:00');
+        const endDate = new Date(gelombang.end_date + 'T23:59:59');
         const isActive = gelombang.is_active;
         const isInDateRange = today >= startDate && today <= endDate;
         const isUpcoming = today < startDate;
         const isClosed = today > endDate;
+        
+        console.log(`[GELOMBANG] ${gelombang.nama}:`, {
+          start_date: gelombang.start_date,
+          end_date: gelombang.end_date,
+          is_active: isActive,
+          isInDateRange: isInDateRange,
+          isUpcoming: isUpcoming,
+          isClosed: isClosed,
+          today: today.toISOString().split('T')[0]
+        });
         
         // Determine status and colors
         let badgeText = 'Segera';
@@ -327,18 +345,23 @@
         let iconBgClass = 'bg-gradient-to-br from-blue-500 to-blue-600';
         let iconColorClass = 'text-blue-500';
         
+        // Show "Aktif" if is_active is true AND within date range
         if (isActive && isInDateRange) {
           badgeText = 'Aktif';
           borderClass = 'border-green-200';
           badgeBgClass = 'bg-green-500';
           iconBgClass = 'bg-gradient-to-br from-green-500 to-green-600';
           iconColorClass = 'text-green-500';
+          console.log(`[GELOMBANG] ${gelombang.nama} is ACTIVE (green)`);
         } else if (isClosed) {
           badgeText = 'Ditutup';
           borderClass = 'border-gray-200';
           badgeBgClass = 'bg-gray-500';
           iconBgClass = 'bg-gradient-to-br from-gray-500 to-gray-600';
           iconColorClass = 'text-gray-500';
+          console.log(`[GELOMBANG] ${gelombang.nama} is CLOSED (gray)`);
+        } else {
+          console.log(`[GELOMBANG] ${gelombang.nama} is UPCOMING (blue)`);
         }
         
         // Determine button state

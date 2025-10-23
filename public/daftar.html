@@ -467,23 +467,6 @@
 
                   <div class="col-md-6">
                     <label class="form-label">
-                      <i class="bi bi-file-pdf"></i> Scan Kartu Keluarga (KK)
-                      <span class="text-danger">*</span>
-                    </label>
-                    <input
-                      type="file"
-                      class="form-control"
-                      name="fileKK"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      required
-                    />
-                    <small class="text-muted"
-                      >PDF, JPG, atau PNG (max 2MB)</small
-                    >
-                  </div>
-
-                  <div class="col-md-6">
-                    <label class="form-label">
                       <i class="bi bi-file-pdf"></i> Scan Akta Kelahiran
                       <span class="text-danger">*</span>
                     </label>
@@ -1580,7 +1563,6 @@
 
         const files = [
           { key: "fileIjazah", label: "Scan Ijazah" },
-          { key: "fileKK", label: "Scan KK" },
           { key: "fileAkta", label: "Scan Akta" },
           { key: "fileFoto", label: "Pas Foto" },
           { key: "fileBPJS", label: "Kartu BPJS (Opsional)" },
@@ -1760,7 +1742,6 @@
 
           // Step 2: Upload files if any
           const fileIjazah = formData.get("fileIjazah");
-          const fileKK = formData.get("fileKK");
           const fileAkta = formData.get("fileAkta");
           const fileFoto = formData.get("fileFoto");
           const fileBPJS = formData.get("fileBPJS");
@@ -1775,12 +1756,6 @@
               "ijazah",
               nisn
             );
-          }
-
-          if (fileKK?.size > 0) {
-            submitBtn.innerHTML =
-              '<span class="spinner-border spinner-border-sm me-2"></span>Upload KK...';
-            fileUrls.file_kk = await uploadFile(fileKK, "kk", nisn);
           }
 
           if (fileAkta?.size > 0) {

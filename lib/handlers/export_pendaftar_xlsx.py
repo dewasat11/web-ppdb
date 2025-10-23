@@ -31,7 +31,7 @@ class handler(BaseHTTPRequestHandler):
                     telepon_orang_tua,
                     rencanatingkat,
                     rencanaprogram,
-                    alamat,
+                    alamatjalan,
                     desa,
                     file_akta,
                     file_ijazah,
@@ -54,10 +54,10 @@ class handler(BaseHTTPRequestHandler):
             # Transform data to match expected format
             rows = []
             for item in result.data:
-                # Build alamat_lengkap (alamat + desa separated by comma)
+                # Build alamat_lengkap (alamatjalan + desa separated by comma)
                 alamat_parts = []
-                if item.get('alamat'):
-                    alamat_parts.append(item['alamat'].strip())
+                if item.get('alamatjalan'):
+                    alamat_parts.append(item['alamatjalan'].strip())
                 if item.get('desa'):
                     alamat_parts.append(item['desa'].strip())
                 alamat_lengkap = ', '.join(filter(None, alamat_parts))

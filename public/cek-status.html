@@ -190,13 +190,20 @@
 
             loading.style.display = "none";
 
-            if (result.success && result.data) {
+            // Check if response is ok and has data
+            if (result.ok && result.data) {
               // Check payment status
               checkPaymentStatus(result.data);
+            } else if (result.ok && result.data === null) {
+              // NISN not found
+              showError(
+                "NISN tidak ditemukan. Pastikan Anda memasukkan NISN yang benar."
+              );
             } else {
+              // Error response
               showError(
                 result.error ||
-                  "NISN tidak ditemukan. Pastikan Anda memasukkan NISN yang benar."
+                  "Terjadi kesalahan saat mengecek status."
               );
             }
           } catch (error) {

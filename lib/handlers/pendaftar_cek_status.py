@@ -6,27 +6,28 @@ from lib._supabase import supabase_client
 from typing import Any, Dict
 
 class handler(BaseHTTPRequestHandler):
-    def _send_json(self, code: int, payload: Dict[str, Any]) -> None:
-        """Send JSON response"""
-        try:
-            self.send_response(code)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
-            self.wfile.write(json.dumps(payload, default=str).encode())
-        except Exception as e:
-            print(f"Error sending JSON: {e}")
-
-    def do_GET(self):
+    @staticmethod
+    def do_GET(request_handler):
         """
         GET /api/pendaftar_cek_status?nisn=1234567890
         Response: { ok: true, data: {...} | null }
         """
+        def send_json(code: int, payload: Dict[str, Any]) -> None:
+            """Send JSON response"""
+            try:
+                request_handler.send_response(code)
+                request_handler.send_header("Content-Type", "application/json")
+                request_handler.send_header("Access-Control-Allow-Origin", "*")
+                request_handler.end_headers()
+                request_handler.wfile.write(json.dumps(payload, default=str).encode())
+            except Exception as e:
+                print(f"Error sending JSON: {e}")
+        
         try:
-            print(f"[CEK_STATUS] Request path: {self.path}")
+            print(f"[CEK_STATUS] Request path: {request_handler.path}")
             
             # Parse query parameters
-            parsed = urlparse(self.path)
+            parsed = urlparse(request_handler.path)
             params = parse_qs(parsed.query)
             nisn = (params.get("nisn", [""])[0] or "").strip()
             
@@ -35,7 +36,7 @@ class handler(BaseHTTPRequestHandler):
             # Validasi: NISN wajib diisi
             if not nisn:
                 print("[CEK_STATUS] Error: NISN kosong")
-                return self._send_json(400, {
+                return send_json(400, {
                     "ok": False,
                     "error": "NISN harus diisi"
                 })
@@ -43,7 +44,7 @@ class handler(BaseHTTPRequestHandler):
             # Validasi: NISN harus 10 digit angka
             if len(nisn) != 10 or not nisn.isdigit():
                 print(f"[CEK_STATUS] Error: NISN invalid format - {nisn}")
-                return self._send_json(400, {
+                return send_json(400, {
                     "ok": False,
                     "error": "Format NISN tidak valid (10 digit)"
                 })
@@ -56,7 +57,7 @@ class handler(BaseHTTPRequestHandler):
                 print("[CEK_STATUS] Supabase client created")
             except Exception as e:
                 print(f"[CEK_STATUS] Error creating Supabase client: {e}")
-                return self._send_json(500, {
+                return send_json(500, {
                     "ok": False,
                     "error": "Database connection error",
                     "detail": str(e)
@@ -73,7 +74,7 @@ class handler(BaseHTTPRequestHandler):
             except Exception as e:
                 print(f"[CEK_STATUS] Error querying database: {e}")
                 traceback.print_exc()
-                return self._send_json(500, {
+                return send_json(500, {
                     "ok": False,
                     "error": "Database query error",
                     "detail": str(e)
@@ -82,7 +83,7 @@ class handler(BaseHTTPRequestHandler):
             # Jika tidak ditemukan, return 200 dengan data: null
             if not result.data:
                 print("[CEK_STATUS] NISN tidak ditemukan")
-                return self._send_json(200, {
+                return send_json(200, {
                     "ok": True,
                     "data": None
                 })
@@ -102,21 +103,22 @@ class handler(BaseHTTPRequestHandler):
             }
 
             print("[CEK_STATUS] Sending success response")
-            return self._send_json(200, {"ok": True, "data": data})
+            return send_json(200, {"ok": True, "data": data})
 
         except Exception as e:
             print(f"[CEK_STATUS] Unexpected error: {str(e)}")
             traceback.print_exc()
-            return self._send_json(500, {
+            return send_json(500, {
                 "ok": False,
                 "error": "Internal server error",
                 "detail": str(e)
             })
 
-    def do_OPTIONS(self):
+    @staticmethod
+    def do_OPTIONS(request_handler):
         """Handle CORS preflight"""
-        self.send_response(200)
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
-        self.end_headers()
+        request_handler.send_response(200)
+        request_handler.send_header("Access-Control-Allow-Origin", "*")
+        request_handler.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
+        request_handler.send_header("Access-Control-Allow-Headers", "Content-Type")
+        request_handler.end_headers()

@@ -37,19 +37,6 @@ class handler(BaseHTTPRequestHandler):
                     )
                     return
                     
-            if data.get("file_kk"):
-                # Validasi URL file_kk
-                if data["file_kk"].startswith(('http://', 'https://')):
-                    update_data["file_kk"] = data["file_kk"]
-                else:
-                    self.send_response(400)
-                    self.send_header("Content-type", "application/json")
-                    self.end_headers()
-                    self.wfile.write(
-                        json.dumps({"ok": False, "error": "URL file_kk tidak valid"}).encode()
-                    )
-                    return
-                    
             if data.get("file_akta"):
                 # Validasi URL file_akta
                 if data["file_akta"].startswith(('http://', 'https://')):
