@@ -30,6 +30,7 @@
     profil: "Profil Yayasan",
     prestasi: "Prestasi",
     berita: "Berita",
+    gelombang: "Kelola Gelombang",
   };
 
   const formatIDDate = (d) =>
@@ -116,6 +117,9 @@
     } else if (tab === "statistik") {
       // Load data pendaftar untuk update statistik
       loadPendaftar();
+    } else if (tab === "gelombang") {
+      // Load gelombang data
+      loadGelombangData();
     }
 
     // Tutup sidebar di mobile
@@ -1110,28 +1114,13 @@ SMP SAINS AN NAJAH PURWOKERTO`
   /* =========================
      7) GELOMBANG MANAGEMENT
      ========================= */
-  let gelombangModalInstance = null;
   let currentGelombangData = [];
-
-  /**
-   * Open gelombang management modal
-   */
-  async function openGelombangModal() {
-    const modal = document.getElementById('modalGelombang');
-    if (!modal) return;
-    
-    gelombangModalInstance = new bootstrap.Modal(modal);
-    gelombangModalInstance.show();
-    
-    await loadGelombangData();
-  }
-  window.openGelombangModal = openGelombangModal;
 
   /**
    * Load gelombang data and render forms
    */
   async function loadGelombangData() {
-    const container = document.getElementById('gelombangFormContainer');
+    const container = document.getElementById('gelombangContainer');
     if (!container) return;
     
     try {
@@ -1159,7 +1148,7 @@ SMP SAINS AN NAJAH PURWOKERTO`
    * Render gelombang forms
    */
   function renderGelombangForms(gelombangList) {
-    const container = document.getElementById('gelombangFormContainer');
+    const container = document.getElementById('gelombangContainer');
     if (!container) return;
     
     const formsHTML = gelombangList.map((gelombang, index) => {
@@ -1194,15 +1183,15 @@ SMP SAINS AN NAJAH PURWOKERTO`
               </div>
             </div>
             <div class="d-flex gap-2 mt-3">
-              <button class="btn btn-primary btn-sm" onclick="updateGelombang(${gelombang.id})">
+              <button type="button" class="btn btn-primary btn-sm" onclick="updateGelombang(${gelombang.id})">
                 <i class="bi bi-save"></i> Simpan Perubahan
               </button>
               ${!isActive ? `
-              <button class="btn btn-success btn-sm" onclick="setGelombangActive(${gelombang.id})">
+              <button type="button" class="btn btn-success btn-sm" onclick="setGelombangActive(${gelombang.id})">
                 <i class="bi bi-check-circle"></i> Jadikan Aktif
               </button>
               ` : `
-              <button class="btn btn-secondary btn-sm" disabled>
+              <button type="button" class="btn btn-secondary btn-sm" disabled>
                 <i class="bi bi-check-circle-fill"></i> Gelombang Aktif
               </button>
               `}

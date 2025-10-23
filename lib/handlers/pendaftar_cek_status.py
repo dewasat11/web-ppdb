@@ -2,8 +2,7 @@ from http.server import BaseHTTPRequestHandler
 import json
 from urllib.parse import parse_qs, urlparse
 from lib._supabase import supabase_client
-from typing import Any, Dict
-import re
+from typing import Any, Dict, Optional
 
 class handler(BaseHTTPRequestHandler):
     def _send_json(self, code: int, payload: Dict[str, Any]) -> None:
@@ -11,12 +10,12 @@ class handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json")
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
-        self.wfile.write(json.dumps(payload).encode())
+        self.wfile.write(json.dumps(payload, default=str).encode())
 
     def do_GET(self):
         """
         GET /api/pendaftar_cek_status?nisn=1234567890
-        Response: { success: true, data: {...} }
+        Response: { ok: true, data: {...} | null }
         """
         try:
             # Parse query parameters
@@ -24,59 +23,55 @@ class handler(BaseHTTPRequestHandler):
             params = parse_qs(parsed.query)
             nisn = (params.get("nisn", [""])[0] or "").strip()
 
-            # Wajib diisi
+            # Validasi: NISN wajib diisi
             if not nisn:
                 return self._send_json(400, {
-                    "success": False,
+                    "ok": False,
                     "error": "NISN harus diisi"
                 })
 
-            # Validasi format NISN (10 digit angka)
-            pattern = r'^\d{10}$'
-            if not re.match(pattern, nisn):
+            # Validasi: NISN harus 10 digit angka
+            if len(nisn) != 10 or not nisn.isdigit():
                 return self._send_json(400, {
-                    "success": False,
-                    "error": "Format NISN tidak valid. NISN harus terdiri dari 10 digit angka"
+                    "ok": False,
+                    "error": "Format NISN tidak valid (10 digit)"
                 })
 
-            # Query Supabase (pakai anon key / public access)
-            supa = supabase_client(service_role=False)
-            # Cari berdasarkan nisn atau nikcalon
-            result = supa.table("pendaftar").select("*").or_(f"nisn.eq.{nisn},nikcalon.eq.{nisn}").execute()
+            # Query Supabase dengan SERVICE_ROLE
+            supa = supabase_client(service_role=True)
+            result = supa.table("pendaftar").select(
+                "nisn,namalengkap,statusberkas,verifiedby,verifiedat,createdat,updatedat"
+            ).eq("nisn", nisn).execute()
 
-            if not result.data:  # type: ignore
-                return self._send_json(404, {
-                    "success": False,
-                    "error": "NISN tidak ditemukan"
+            # Jika tidak ditemukan, return 200 dengan data: null
+            if not result.data:
+                return self._send_json(200, {
+                    "ok": True,
+                    "data": None
                 })
 
-            row: Dict[str, Any] = result.data[0]  # type: ignore
+            row: Dict[str, Any] = result.data[0]
 
-            # Transform data dengan field konsisten untuk frontend
+            # Transform sesuai spec
             data = {
-                "nisn": row.get("nisn") or row.get("nikcalon", ""),
+                "nisn": row.get("nisn", ""),
                 "nama": row.get("namalengkap", ""),
-                "nik": row.get("nikcalon", ""),
-                "tanggalLahir": row.get("tanggallahir", ""),
-                "status": str(row.get("statusberkas", "PENDING")).lower(),
-                "alasan": row.get("alasan") or row.get("deskripsistatus") or "",
-                "createdat": row.get("createdat", ""),
-                "telepon_orang_tua": row.get("telepon_orang_tua", ""),
-                "teleponOrtu": row.get("telepon_orang_tua", ""),
-                "email": row.get("emailcalon", ""),
-                "alamat": ", ".join(filter(None, [
-                    row.get("alamatjalan", ""),
-                    row.get("desa", ""),
-                    row.get("kecamatan", ""),
-                    row.get("kotakabupaten", ""),
-                    row.get("provinsi", "")
-                ]))
+                "status": row.get("statusberkas") or "PENDING",
+                "verified_by": row.get("verifiedby"),
+                "verified_at": row.get("verifiedat"),
+                "created_at": row.get("createdat"),
+                "updated_at": row.get("updatedat")
             }
 
-            return self._send_json(200, {"success": True, "data": data})
+            return self._send_json(200, {"ok": True, "data": data})
 
         except Exception as e:
-            return self._send_json(500, {"success": False, "error": str(e)})
+            print(f"Error in pendaftar_cek_status: {str(e)}")
+            return self._send_json(500, {
+                "ok": False,
+                "error": "Internal server error",
+                "detail": str(e)
+            })
 
     def do_OPTIONS(self):
         """Handle CORS preflight"""

@@ -17,13 +17,27 @@ class handler(BaseHTTPRequestHandler):
             # Get Supabase client with service role for full access
             supa = supabase_client(service_role=True)
 
-            # Query pendaftar table with all required fields
-            # Note: If view v_pendaftar_export exists, this can be optimized
+            # Query pendaftar table with computed boolean fields
+            # Using CASE to create boolean flags for file existence
             result = (
                 supa.table("pendaftar")
-                .select("nisn,namalengkap,tanggallahir,tempatlahir,namaayah,namaibu,telepon_orang_tua,rencanatingkat,rencanaprogram,alamat,desa,file_akta,file_ijazah,file_foto,file_bpjs")
-                .order("rencanaprogram", desc=False)
-                .order("namalengkap", desc=False)
+                .select("""
+                    nisn,
+                    namalengkap,
+                    tanggallahir,
+                    tempatlahir,
+                    namaayah,
+                    namaibu,
+                    telepon_orang_tua,
+                    rencanatingkat,
+                    rencanaprogram,
+                    alamat,
+                    desa,
+                    file_akta,
+                    file_ijazah,
+                    file_foto,
+                    file_bpjs
+                """)
                 .execute()
             )
             
@@ -40,7 +54,7 @@ class handler(BaseHTTPRequestHandler):
             # Transform data to match expected format
             rows = []
             for item in result.data:
-                # Build alamat_lengkap
+                # Build alamat_lengkap (alamat + desa separated by comma)
                 alamat_parts = []
                 if item.get('alamat'):
                     alamat_parts.append(item['alamat'].strip())
@@ -48,11 +62,11 @@ class handler(BaseHTTPRequestHandler):
                     alamat_parts.append(item['desa'].strip())
                 alamat_lengkap = ', '.join(filter(None, alamat_parts))
                 
-                # Check if files exist (has URL)
-                has_file_akta = bool(item.get('file_akta') and str(item['file_akta']).startswith('http'))
-                has_file_ijazah = bool(item.get('file_ijazah') and str(item['file_ijazah']).startswith('http'))
-                has_file_foto = bool(item.get('file_foto') and str(item['file_foto']).startswith('http'))
-                has_file_bpjs = bool(item.get('file_bpjs') and str(item['file_bpjs']).startswith('http'))
+                # Check if files exist (has URL starting with http)
+                has_file_akta = bool(item.get('file_akta') and str(item['file_akta']).strip() and str(item['file_akta']).startswith('http'))
+                has_file_ijazah = bool(item.get('file_ijazah') and str(item['file_ijazah']).strip() and str(item['file_ijazah']).startswith('http'))
+                has_file_foto = bool(item.get('file_foto') and str(item['file_foto']).strip() and str(item['file_foto']).startswith('http'))
+                has_file_bpjs = bool(item.get('file_bpjs') and str(item['file_bpjs']).strip() and str(item['file_bpjs']).startswith('http'))
                 
                 rows.append({
                     'nisn': item.get('nisn', ''),
@@ -65,11 +79,14 @@ class handler(BaseHTTPRequestHandler):
                     'rencana_tingkat': item.get('rencanatingkat', ''),
                     'rencana_program': item.get('rencanaprogram', ''),
                     'alamat_lengkap': alamat_lengkap,
-                    'file_akte': 'YA' if has_file_akta else 'TIDAK',
-                    'file_ijazah': 'YA' if has_file_ijazah else 'TIDAK',
-                    'file_foto': 'YA' if has_file_foto else 'TIDAK',
-                    'file_bpjs': 'YA' if has_file_bpjs else 'TIDAK',
+                    'has_file_akta': has_file_akta,
+                    'has_file_ijazah': has_file_ijazah,
+                    'has_file_foto': has_file_foto,
+                    'has_file_bpjs': has_file_bpjs,
                 })
+            
+            # Sort by rencana_program (case-insensitive, A-Z), then by nama
+            rows.sort(key=lambda x: (str(x.get('rencana_program', '')).lower(), str(x.get('nama', ''))))
 
             # Create Excel workbook
             wb = Workbook()
@@ -118,14 +135,19 @@ class handler(BaseHTTPRequestHandler):
             for row_data in rows:
                 row_values = []
                 for header in headers:
-                    value = row_data.get(header, '')
+                    # Map has_file_* to file_* with YA/TIDAK
+                    if header.startswith('file_'):
+                        boolean_key = 'has_' + header
+                        value = 'YA' if row_data.get(boolean_key, False) else 'TIDAK'
+                    else:
+                        value = row_data.get(header, '')
                     
                     # Handle None
                     if value is None:
                         value = ''
                     
                     # Handle date formatting
-                    if header == 'tanggal_lahir' and value:
+                    if header == 'tanggal_lahir' and value and value != '':
                         try:
                             # Parse date if string
                             if isinstance(value, str):

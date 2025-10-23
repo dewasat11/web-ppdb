@@ -170,6 +170,11 @@
             <i class="bi bi-credit-card-fill"></i> Pembayaran
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="gelombang" onclick="switchTab('gelombang')">
+            <i class="bi bi-calendar-range"></i> Kelola Gelombang
+          </a>
+        </li>
       </ul>
 
       <hr class="mx-3" style="border-color:rgba(255,255,255,.2)"/>
@@ -259,11 +264,6 @@
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="mb-0"><i class="bi bi-table"></i> Tabel Data Pendaftar</h5>
             <div class="d-flex gap-2">
-              <!-- Pengaturan Gelombang Button -->
-              <button class="btn btn-warning" onclick="openGelombangModal()" title="Kelola gelombang pendaftaran">
-                <i class="bi bi-calendar-range"></i> Pengaturan Gelombang
-              </button>
-              
               <!-- Download ZIP Button -->
               <button class="btn btn-primary" onclick="downloadAllZip()" title="Download semua berkas dalam 1 file ZIP">
                 <i class="bi bi-file-earmark-zip"></i> Download Semua Berkas (ZIP)
@@ -515,6 +515,24 @@
             </div>
           </div>
         </div>
+
+        <!-- Tab: Kelola Gelombang -->
+        <div id="tab-gelombang" class="tab-content" style="display:none">
+          <div class="page-header">
+            <h2><i class="bi bi-calendar-range"></i> Kelola Gelombang Pendaftaran</h2>
+            <p>Atur tanggal, tahun ajaran, dan status aktif untuk setiap gelombang pendaftaran</p>
+          </div>
+
+          <div id="gelombangContainer">
+            <!-- Loading state -->
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Memuat...</span>
+              </div>
+              <p class="text-muted mt-3">Memuat data gelombang...</p>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
   </div>
@@ -637,31 +655,6 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
           <button type="button" class="btn btn-primary" onclick="confirmVerifikasiPembayaran()" id="btnConfirmVerifyPayment">Konfirmasi</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Pengaturan Gelombang -->
-  <div class="modal fade" id="modalGelombang" tabindex="-1" aria-labelledby="modalGelombangLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalGelombangLabel">
-            <i class="bi bi-calendar-range"></i> Pengaturan Gelombang Pendaftaran
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div id="gelombangFormContainer">
-            <!-- Loading state -->
-            <div class="text-center py-4">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Memuat...</span>
-              </div>
-              <p class="text-muted mt-2">Memuat data gelombang...</p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
