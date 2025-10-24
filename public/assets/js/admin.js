@@ -292,27 +292,11 @@
       // Breakdown program/jenjang
       const getRencanaProgram = (d) => {
         const program = d.rencana_program || d.rencanaProgram || d.rencanakelas || d.rencanaprogram || "";
-        if (window.debugStatistik) {
-          console.log(`[STATISTIK-DEBUG] getRencanaProgram for ${d.nama}:`, {
-            rencana_program: d.rencana_program,
-            rencanaProgram: d.rencanaProgram,
-            rencanakelas: d.rencanakelas,
-            rencanaprogram: d.rencanaprogram,
-            result: program
-          });
-        }
         return program.trim(); // Trim whitespace
       };
       
       const getJenjang = (d) => {
         const jenjang = d.rencanatingkat || d.rencanaTingkat || "";
-        if (window.debugStatistik) {
-          console.log(`[STATISTIK-DEBUG] getJenjang for ${d.nama}:`, {
-            rencanatingkat: d.rencanatingkat,
-            rencanaTingkat: d.rencanaTingkat,
-            result: jenjang
-          });
-        }
         return jenjang.trim(); // Trim whitespace
       };
       
@@ -349,10 +333,7 @@
         (d) => {
           const program = getRencanaProgram(d);
           const jenjang = getJenjang(d);
-          const isMatch = program === "Pondok Putra Induk" && jenjang === "MTs";
-          if (window.debugStatistik) {
-            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putra Induk MTs (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
-          }
+          const isMatch = program === "Asrama Putra Induk" && jenjang === "MTs";
           return isMatch;
         }
       ).length;
@@ -360,10 +341,7 @@
         (d) => {
           const program = getRencanaProgram(d);
           const jenjang = getJenjang(d);
-          const isMatch = program === "Pondok Putra Induk" && jenjang === "MA";
-          if (window.debugStatistik) {
-            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putra Induk MA (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
-          }
+          const isMatch = program === "Asrama Putra Induk" && jenjang === "MA";
           return isMatch;
         }
       ).length;
@@ -371,10 +349,7 @@
         (d) => {
           const program = getRencanaProgram(d);
           const jenjang = getJenjang(d);
-          const isMatch = program === "Pondok Putra Induk" && jenjang === "Kuliah";
-          if (window.debugStatistik) {
-            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putra Induk Kuliah (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
-          }
+          const isMatch = program === "Asrama Putra Induk" && jenjang === "Kuliah";
           return isMatch;
         }
       ).length;
@@ -385,9 +360,6 @@
           const program = getRencanaProgram(d);
           const jenjang = getJenjang(d);
           const isMatch = program === "Pondok Putra Tahfidz" && jenjang === "MTs";
-          if (window.debugStatistik) {
-            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putra Tahfidz MTs (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
-          }
           return isMatch;
         }
       ).length;
@@ -396,9 +368,6 @@
           const program = getRencanaProgram(d);
           const jenjang = getJenjang(d);
           const isMatch = program === "Pondok Putra Tahfidz" && jenjang === "MA";
-          if (window.debugStatistik) {
-            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putra Tahfidz MA (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
-          }
           return isMatch;
         }
       ).length;
@@ -407,9 +376,6 @@
           const program = getRencanaProgram(d);
           const jenjang = getJenjang(d);
           const isMatch = program === "Pondok Putra Tahfidz" && jenjang === "Kuliah";
-          if (window.debugStatistik) {
-            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putra Tahfidz Kuliah (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
-          }
           return isMatch;
         }
       ).length;
@@ -420,10 +386,7 @@
         (d) => {
           const program = getRencanaProgram(d);
           const jenjang = getJenjang(d);
-          const isMatch = program === "Pondok Putri" && jenjang === "MTs";
-          if (window.debugStatistik) {
-            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putri MTs (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
-          }
+          const isMatch = program === "Asrama Putri" && jenjang === "MTs";
           return isMatch;
         }
       ).length;
@@ -431,10 +394,7 @@
         (d) => {
           const program = getRencanaProgram(d);
           const jenjang = getJenjang(d);
-          const isMatch = program === "Pondok Putri" && jenjang === "MA";
-          if (window.debugStatistik) {
-            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putri MA (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
-          }
+          const isMatch = program === "Asrama Putri" && jenjang === "MA";
           return isMatch;
         }
       ).length;
@@ -442,10 +402,7 @@
         (d) => {
           const program = getRencanaProgram(d);
           const jenjang = getJenjang(d);
-          const isMatch = program === "Pondok Putri" && jenjang === "Kuliah";
-          if (window.debugStatistik) {
-            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putri Kuliah (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
-          }
+          const isMatch = program === "Asrama Putri" && jenjang === "Kuliah";
           return isMatch;
         }
       ).length;
@@ -457,9 +414,6 @@
           const jenjang = getJenjang(d);
           const isGenderMatch = (d.jeniskelamin && d.jeniskelamin.trim().toUpperCase() === "L") || (d.jenisKelamin && d.jenisKelamin.trim().toUpperCase() === "L");
           const isMatch = program === "Hanya Sekolah" && jenjang === "MTs" && isGenderMatch;
-          if (window.debugStatistik) {
-            console.log(`[STATISTIK-DEBUG]   → Check for Hanya Sekolah MTs L (${d.nama}): Program='${program}', Jenjang='${jenjang}', Gender='${d.jeniskelamin || d.jenisKelamin}', Match=${isMatch}`);
-          }
           return isMatch;
         }
       ).length;
@@ -469,9 +423,6 @@
           const jenjang = getJenjang(d);
           const isGenderMatch = (d.jeniskelamin && d.jeniskelamin.trim().toUpperCase() === "P") || (d.jenisKelamin && d.jenisKelamin.trim().toUpperCase() === "P");
           const isMatch = program === "Hanya Sekolah" && jenjang === "MTs" && isGenderMatch;
-          if (window.debugStatistik) {
-            console.log(`[STATISTIK-DEBUG]   → Check for Hanya Sekolah MTs P (${d.nama}): Program='${program}', Jenjang='${jenjang}', Gender='${d.jeniskelamin || d.jenisKelamin}', Match=${isMatch}`);
-          }
           return isMatch;
         }
       ).length;
@@ -481,9 +432,6 @@
           const jenjang = getJenjang(d);
           const isGenderMatch = (d.jeniskelamin && d.jeniskelamin.trim().toUpperCase() === "L") || (d.jenisKelamin && d.jenisKelamin.trim().toUpperCase() === "L");
           const isMatch = program === "Hanya Sekolah" && jenjang === "MA" && isGenderMatch;
-          if (window.debugStatistik) {
-            console.log(`[STATISTIK-DEBUG]   → Check for Hanya Sekolah MA L (${d.nama}): Program='${program}', Jenjang='${jenjang}', Gender='${d.jeniskelamin || d.jenisKelamin}', Match=${isMatch}`);
-          }
           return isMatch;
         }
       ).length;
@@ -493,9 +441,6 @@
           const jenjang = getJenjang(d);
           const isGenderMatch = (d.jeniskelamin && d.jeniskelamin.trim().toUpperCase() === "P") || (d.jenisKelamin && d.jenisKelamin.trim().toUpperCase() === "P");
           const isMatch = program === "Hanya Sekolah" && jenjang === "MA" && isGenderMatch;
-          if (window.debugStatistik) {
-            console.log(`[STATISTIK-DEBUG]   → Check for Hanya Sekolah MA P (${d.nama}): Program='${program}', Jenjang='${jenjang}', Gender='${d.jeniskelamin || d.jenisKelamin}', Match=${isMatch}`);
-          }
           return isMatch;
         }
       ).length;
@@ -504,9 +449,9 @@
 
       // Debug: Log calculated statistics (SEMUA PENDAFTAR)
       console.log("[STATISTIK] Hasil perhitungan (SEMUA PENDAFTAR):");
-      console.log("Pondok Putra Induk:", { MTs: putraIndukMts, MA: putraIndukMa, Kuliah: putraIndukKuliah, Total: putraIndukTotal });
+      console.log("Asrama Putra Induk:", { MTs: putraIndukMts, MA: putraIndukMa, Kuliah: putraIndukKuliah, Total: putraIndukTotal });
       console.log("Pondok Putra Tahfidz:", { MTs: putraTahfidzMts, MA: putraTahfidzMa, Kuliah: putraTahfidzKuliah, Total: putraTahfidzTotal });
-      console.log("Pondok Putri:", { MTs: putriMts, MA: putriMa, Kuliah: putriKuliah, Total: putriTotal });
+      console.log("Asrama Putri:", { MTs: putriMts, MA: putriMa, Kuliah: putriKuliah, Total: putriTotal });
       console.log("Hanya Sekolah:", { 
         MTs_L: hanyaSekolahMtsL, 
         MTs_P: hanyaSekolahMtsP, 
