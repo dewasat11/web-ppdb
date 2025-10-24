@@ -76,45 +76,40 @@ class handler(BaseHTTPRequestHandler):
             # Get Supabase client with service role
             supa = supabase_client(service_role=True)
             
-            # Step 1: Deactivate all gelombang
-            deactivate_result = (
-                supa.table("gelombang")
-                .update({
-                    "is_active": False,
-                    "updated_at": datetime.now().isoformat()
-                })
-                .neq("id", 0)  # Update all rows
-                .execute()
-            )
+            print(f"[SET_GELOMBANG_ACTIVE] Using RPC function 'set_gelombang_status' with p_id={gelombang_id}")
             
-            print(f"✓ All gelombang deactivated: {len(deactivate_result.data) if deactivate_result.data else 0} rows")
+            # Call RPC function (atomic database operation)
+            rpc_result = supa.rpc('set_gelombang_status', {'p_id': int(gelombang_id)}).execute()
             
-            # Step 2: Activate specified gelombang
-            activate_result = (
-                supa.table("gelombang")
-                .update({
-                    "is_active": True,
-                    "updated_at": datetime.now().isoformat()
-                })
-                .eq("id", gelombang_id)
-                .execute()
-            )
+            print(f"[SET_GELOMBANG_ACTIVE] RPC result: {rpc_result.data}")
             
-            if not activate_result.data:
-                print(f"[SET_GELOMBANG_ACTIVE] ERROR: Gelombang ID {gelombang_id} not found!")
-                self.send_response(404)
-                self.send_header("Content-Type", "application/json")
-                self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                self.wfile.write(
-                    json.dumps({
-                        "ok": False,
-                        "error": f"Gelombang dengan id {gelombang_id} tidak ditemukan"
-                    }).encode('utf-8')
-                )
-                return
+            # Check if RPC function returned error
+            if isinstance(rpc_result.data, dict):
+                if not rpc_result.data.get('ok', True):
+                    error_msg = rpc_result.data.get('message', 'Unknown error from RPC')
+                    print(f"[SET_GELOMBANG_ACTIVE] ERROR from RPC: {error_msg}")
+                    self.send_response(400)
+                    self.send_header("Content-Type", "application/json")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    self.wfile.write(
+                        json.dumps({
+                            "ok": False,
+                            "error": error_msg
+                        }).encode('utf-8')
+                    )
+                    return
             
-            activated_gelombang = activate_result.data[0]
+            print(f"[SET_GELOMBANG_ACTIVE] ✓ RPC SUCCESS: Gelombang ID {gelombang_id} activated")
+            
+            # Fetch updated gelombang to return in response
+            activated_result = supa.table("gelombang").select("*").eq("id", gelombang_id).execute()
+            
+            if not activated_result.data:
+                print(f"[SET_GELOMBANG_ACTIVE] WARNING: Could not fetch activated gelombang")
+                activated_gelombang = {"id": gelombang_id, "nama": f"Gelombang {gelombang_id}"}
+            else:
+                activated_gelombang = activated_result.data[0]
             
             print(f"[SET_GELOMBANG_ACTIVE] ✓ SUCCESS: Gelombang '{activated_gelombang.get('nama')}' (ID: {gelombang_id}) is now ACTIVE")
             

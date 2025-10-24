@@ -1475,11 +1475,6 @@ PONDOK PESANTREN AL IKHSAN BEJI`
     console.log('[GELOMBANG] ========================================');
     
     try {
-      // Show loading indicator
-      if (typeof toastr !== 'undefined' && toastr.info) {
-        toastr.info(`⏳ Mengaktifkan Gelombang ${id}...`);
-      }
-      
       console.log('[GELOMBANG] Step 1: Calling API /api/set_gelombang_active');
       console.log('[GELOMBANG]   → Request payload:', { id: id });
       
@@ -1510,11 +1505,6 @@ PONDOK PESANTREN AL IKHSAN BEJI`
       
       console.log('[GELOMBANG] ✅ Step 2 SUCCESS - API call completed');
       console.log('[GELOMBANG]   → Activated:', result.data);
-      
-      // Show success notification
-      if (typeof toastr !== 'undefined' && toastr.success) {
-        toastr.success(`✅ ${result.message || `Gelombang ${id} berhasil diaktifkan!`}`);
-      }
       
       // Step 3: Broadcast to other tabs via localStorage
       console.log('[GELOMBANG] Step 3: Broadcasting to other tabs via localStorage');
@@ -1549,6 +1539,9 @@ PONDOK PESANTREN AL IKHSAN BEJI`
       console.log('[GELOMBANG] ✅ SUCCESS: Gelombang', id, 'is now ACTIVE');
       console.log('[GELOMBANG] ========================================');
       
+      // Show success alert
+      alert(`✅ Gelombang ${id} berhasil diaktifkan!`);
+      
     } catch (error) {
       console.log('[GELOMBANG] ========================================');
       console.error('[GELOMBANG] ❌ ERROR during activation:', error);
@@ -1556,12 +1549,8 @@ PONDOK PESANTREN AL IKHSAN BEJI`
       console.error('[GELOMBANG] ❌ Error stack:', error.stack);
       console.log('[GELOMBANG] ========================================');
       
-      // Show error notification
-      if (typeof toastr !== 'undefined' && toastr.error) {
-        toastr.error(`❌ Gagal mengaktifkan gelombang: ${error.message}`);
-      } else {
-        alert(`❌ Gagal mengaktifkan gelombang: ${error.message}`);
-      }
+      // Show error alert
+      alert(`❌ Gagal mengaktifkan gelombang: ${error.message}`);
       
       // Rollback: Force reload from database
       console.log('[GELOMBANG] 🔄 Rollback: Reloading data from database...');
