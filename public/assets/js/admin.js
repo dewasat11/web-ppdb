@@ -1146,7 +1146,14 @@ PONDOK PESANTREN AL IKHSAN BEJI`
    */
   async function loadGelombangData(forceRefresh = false) {
     const container = document.getElementById('gelombangContainer');
-    if (!container) return;
+    if (!container) {
+      console.error('[GELOMBANG] ❌ Container #gelombangContainer not found!');
+      return;
+    }
+    
+    console.log('[GELOMBANG] ========================================');
+    console.log('[GELOMBANG] 📊 Loading gelombang data', forceRefresh ? '(FORCE REFRESH)' : '(normal load)');
+    console.log('[GELOMBANG] ========================================');
     
     // Show loading state
     container.innerHTML = `
@@ -1159,40 +1166,81 @@ PONDOK PESANTREN AL IKHSAN BEJI`
     `;
     
     try {
-      console.log('[GELOMBANG] Loading data from API...', forceRefresh ? '(force refresh)' : '');
-      
       // Fetch gelombang data from API endpoint
       const cacheBuster = forceRefresh ? `?_t=${Date.now()}` : '';
-      const response = await fetch(`/api/get_gelombang_list${cacheBuster}`);
+      const url = `/api/get_gelombang_list${cacheBuster}`;
+      
+      console.log('[GELOMBANG] Step 1: Fetching from', url);
+      const response = await fetch(url);
+      
+      console.log('[GELOMBANG] Step 2: Response received');
+      console.log('[GELOMBANG]   → Status:', response.status, response.statusText);
+      console.log('[GELOMBANG]   → Headers:', Object.fromEntries(response.headers.entries()));
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('[GELOMBANG] ❌ HTTP Error:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
       
       const result = await response.json();
+      console.log('[GELOMBANG] Step 3: JSON parsed successfully');
+      console.log('[GELOMBANG]   → Result:', result);
       
-      if (!result.ok || !result.data) {
-        throw new Error(result.error || 'Failed to load gelombang data');
+      if (!result.ok) {
+        console.error('[GELOMBANG] ❌ API returned ok=false');
+        throw new Error(result.error || 'API returned ok=false');
+      }
+      
+      if (!result.data || !Array.isArray(result.data)) {
+        console.error('[GELOMBANG] ❌ Invalid data format:', result);
+        throw new Error('Invalid data format: expected array');
       }
       
       if (result.data.length === 0) {
+        console.warn('[GELOMBANG] ⚠️ No gelombang data found');
         throw new Error('No gelombang data found in database');
       }
       
-      console.log('[GELOMBANG] Data loaded from API:', result.data);
+      console.log('[GELOMBANG] Step 4: Data validation passed');
+      console.log('[GELOMBANG]   → Count:', result.data.length, 'gelombang');
+      console.log('[GELOMBANG]   → Data:');
       console.table(result.data);
       
+      // Count active gelombang
+      const activeCount = result.data.filter(g => g.is_active === true).length;
+      console.log('[GELOMBANG]   → Active count:', activeCount);
+      
+      if (activeCount === 0) {
+        console.warn('[GELOMBANG] ⚠️ WARNING: No active gelombang!');
+      } else if (activeCount > 1) {
+        console.error('[GELOMBANG] ❌ ERROR: Multiple active gelombang!', activeCount);
+      } else {
+        const activeGelombang = result.data.find(g => g.is_active === true);
+        console.log('[GELOMBANG]   ✅ Active:', activeGelombang.nama, '(ID', activeGelombang.id + ')');
+      }
+      
+      console.log('[GELOMBANG] Step 5: Storing data and rendering...');
       currentGelombangData = result.data;
       renderGelombangForms(result.data);
       
-      console.log('[GELOMBANG] Data rendered successfully:', result.data.length, 'items');
+      console.log('[GELOMBANG] ========================================');
+      console.log('[GELOMBANG] ✅ SUCCESS: Data loaded and rendered!');
+      console.log('[GELOMBANG] ========================================');
+      
     } catch (error) {
-      console.error('[GELOMBANG] Error loading:', error);
+      console.log('[GELOMBANG] ========================================');
+      console.error('[GELOMBANG] ❌ ERROR loading data:', error);
+      console.error('[GELOMBANG] ❌ Error message:', error.message);
+      console.error('[GELOMBANG] ❌ Error stack:', error.stack);
+      console.log('[GELOMBANG] ========================================');
+      
       container.innerHTML = `
         <div class="alert alert-danger">
           <i class="bi bi-exclamation-triangle"></i> 
           <strong>Gagal memuat data gelombang:</strong> ${error.message}
           <hr>
+          <p class="mb-2"><small>Buka Console (F12) untuk detail error.</small></p>
           <button class="btn btn-sm btn-danger" onclick="loadGelombangData(true)">
             <i class="bi bi-arrow-repeat"></i> Coba Lagi
           </button>
@@ -1206,28 +1254,56 @@ PONDOK PESANTREN AL IKHSAN BEJI`
    */
   function renderGelombangForms(gelombangList) {
     const container = document.getElementById('gelombangContainer');
-    if (!container) return;
+    if (!container) {
+      console.error('[GELOMBANG] ❌ renderGelombangForms: Container not found!');
+      return;
+    }
     
-    console.log('[GELOMBANG] Rendering forms for:', gelombangList);
+    console.log('[GELOMBANG] ----------------------------------------');
+    console.log('[GELOMBANG] 🎨 RENDERING gelombang forms');
+    console.log('[GELOMBANG] ----------------------------------------');
+    console.log('[GELOMBANG] Input data:', gelombangList);
+    
+    if (!gelombangList || gelombangList.length === 0) {
+      console.error('[GELOMBANG] ❌ No data to render!');
+      container.innerHTML = '<div class="alert alert-warning">Tidak ada data gelombang</div>';
+      return;
+    }
     
     const formsHTML = gelombangList.map((gelombang, index) => {
       // Use is_active from database as source of truth
       const isActive = gelombang.is_active === true;
       
       // Map is_active to UI colors
-      let statusColor, statusBadge, borderColor;
+      let statusColor, statusBadge, borderColor, buttonHTML;
       
       if (isActive) {
         statusColor = 'success';  // Green
         statusBadge = 'Aktif';
         borderColor = 'success';
+        buttonHTML = `
+          <button type="button" class="btn btn-secondary btn-sm" disabled>
+            <i class="bi bi-check-circle-fill"></i> Gelombang Aktif
+          </button>
+        `;
       } else {
         statusColor = 'secondary'; // Gray
         statusBadge = 'Ditutup';
         borderColor = 'secondary';
+        buttonHTML = `
+          <button type="button" class="btn btn-success btn-sm" onclick="setGelombangActive(${gelombang.id})">
+            <i class="bi bi-check-circle"></i> Jadikan Aktif
+          </button>
+        `;
       }
       
-      console.log(`[GELOMBANG] ${gelombang.nama}: isActive=${isActive}, badge=${statusBadge}`);
+      console.log(`[GELOMBANG] ${gelombang.nama}:`, {
+        id: gelombang.id,
+        is_active: isActive,
+        badge: statusBadge,
+        borderColor: borderColor,
+        button: isActive ? 'DISABLED (Aktif)' : 'ENABLED (Jadikan Aktif)'
+      });
       
       return `
         <div class="card mb-3 border-${borderColor}">
@@ -1259,22 +1335,19 @@ PONDOK PESANTREN AL IKHSAN BEJI`
               <button type="button" class="btn btn-outline-primary btn-sm" onclick="updateGelombang(${gelombang.id})">
                 <i class="bi bi-save"></i> Simpan Perubahan
               </button>
-              ${!isActive ? `
-              <button type="button" class="btn btn-success btn-sm" onclick="setGelombangActive(${gelombang.id})">
-                <i class="bi bi-check-circle"></i> Jadikan Aktif
-              </button>
-              ` : `
-              <button type="button" class="btn btn-secondary btn-sm" disabled>
-                <i class="bi bi-check-circle-fill"></i> Gelombang Aktif
-              </button>
-              `}
+              ${buttonHTML}
             </div>
           </div>
         </div>
       `;
     }).join('');
     
+    console.log('[GELOMBANG] Setting container.innerHTML with', gelombangList.length, 'forms');
     container.innerHTML = formsHTML;
+    
+    console.log('[GELOMBANG] ----------------------------------------');
+    console.log('[GELOMBANG] ✅ RENDER COMPLETE!');
+    console.log('[GELOMBANG] ----------------------------------------');
   }
 
   /**
@@ -1384,85 +1457,31 @@ PONDOK PESANTREN AL IKHSAN BEJI`
     // Ensure ID is a number (convert from string if needed)
     id = parseInt(id, 10);
     
-    // Confirmation dialog
-    if (!confirm('Jadikan gelombang ini aktif? Gelombang lain akan otomatis dinonaktifkan.')) {
+    // Validation
+    if (!id || isNaN(id)) {
+      console.error('[GELOMBANG] ❌ Invalid ID:', id);
+      alert('Error: ID gelombang tidak valid');
       return;
     }
     
-    console.log('[GELOMBANG] 🚀 Activating gelombang via API:', id);
-    
-    // INSTANT UI UPDATE: Update button immediately (optimistic update)
-    const targetCard = document.querySelector(`[onclick="setGelombangActive(${id})"]`)?.closest('.card');
-    const allCards = document.querySelectorAll('#gelombangContainer .card');
-    
-    if (targetCard) {
-      // Immediately update target button to "Gelombang Aktif" (INSTANT!)
-      const targetButton = targetCard.querySelector(`[onclick="setGelombangActive(${id})"]`);
-      if (targetButton) {
-        targetButton.outerHTML = `
-          <button type="button" class="btn btn-secondary btn-sm" disabled>
-            <i class="bi bi-check-circle-fill"></i> Gelombang Aktif
-          </button>
-        `;
-      }
-      
-      // Update target card styling (green border)
-      targetCard.classList.remove('border-primary', 'border-secondary');
-      targetCard.classList.add('border-success');
-      const targetHeader = targetCard.querySelector('.card-header');
-      if (targetHeader) {
-        targetHeader.className = 'card-header bg-success bg-opacity-10 d-flex justify-content-between align-items-center';
-      }
-      const targetBadge = targetCard.querySelector('.badge');
-      if (targetBadge) {
-        targetBadge.className = 'badge bg-success';
-        targetBadge.textContent = 'Aktif';
-      }
-      
-      // Visual feedback: pulse animation
-      targetCard.style.animation = 'pulse 0.6s ease-in-out 2';
-      setTimeout(() => {
-        targetCard.style.animation = '';
-      }, 1200);
+    // Confirmation dialog
+    if (!confirm(`Jadikan Gelombang ${id} aktif?\n\nGelombang lain akan otomatis dinonaktifkan.`)) {
+      console.log('[GELOMBANG] ⏹️ User cancelled activation');
+      return;
     }
     
-    // Update OTHER cards to show "Jadikan Aktif" button
-    allCards.forEach(card => {
-      if (card === targetCard) return; // Skip target card
-      
-      const disabledButton = card.querySelector('button[disabled]');
-      if (disabledButton && disabledButton.textContent.includes('Gelombang Aktif')) {
-        const cardId = extractIdFromCard(card);
-        if (cardId && cardId !== id) {
-          disabledButton.outerHTML = `
-            <button type="button" class="btn btn-success btn-sm" onclick="setGelombangActive(${cardId})">
-              <i class="bi bi-check-circle"></i> Jadikan Aktif
-            </button>
-          `;
-          
-          // Update styling to gray
-          card.classList.remove('border-success', 'border-primary');
-          card.classList.add('border-secondary');
-          const header = card.querySelector('.card-header');
-          if (header) {
-            header.className = 'card-header bg-secondary bg-opacity-10 d-flex justify-content-between align-items-center';
-          }
-          const badge = card.querySelector('.badge');
-          if (badge) {
-            badge.className = 'badge bg-secondary';
-            badge.textContent = 'Ditutup';
-          }
-        }
-      }
-    });
+    console.log('[GELOMBANG] ========================================');
+    console.log('[GELOMBANG] 🚀 START: Activating Gelombang', id);
+    console.log('[GELOMBANG] ========================================');
     
     try {
       // Show loading indicator
       if (typeof toastr !== 'undefined' && toastr.info) {
-        toastr.info('⏳ Mengaktifkan gelombang...');
+        toastr.info(`⏳ Mengaktifkan Gelombang ${id}...`);
       }
       
-      console.log('[GELOMBANG] 📤 Calling API: /api/set_gelombang_active with id:', id);
+      console.log('[GELOMBANG] Step 1: Calling API /api/set_gelombang_active');
+      console.log('[GELOMBANG]   → Request payload:', { id: id });
       
       // Call API endpoint to set gelombang active
       const response = await fetch('/api/set_gelombang_active', {
@@ -1473,67 +1492,85 @@ PONDOK PESANTREN AL IKHSAN BEJI`
         body: JSON.stringify({ id: id })
       });
       
+      console.log('[GELOMBANG]   → Response status:', response.status, response.statusText);
+      
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('[GELOMBANG] ❌ HTTP Error Response:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
       
       const result = await response.json();
-      
-      console.log('[GELOMBANG] 📥 API Response:', result);
+      console.log('[GELOMBANG] Step 2: API Response received:', result);
       
       if (!result.ok) {
-        throw new Error(result.error || 'Failed to activate gelombang');
+        console.error('[GELOMBANG] ❌ API returned ok=false:', result);
+        throw new Error(result.error || result.message || 'Failed to activate gelombang');
       }
       
-      console.log('[GELOMBANG] ✅ API success:', result.data);
+      console.log('[GELOMBANG] ✅ Step 2 SUCCESS - API call completed');
+      console.log('[GELOMBANG]   → Activated:', result.data);
       
       // Show success notification
       if (typeof toastr !== 'undefined' && toastr.success) {
-        toastr.success(`✅ ${result.message || 'Gelombang berhasil diaktifkan!'}`);
+        toastr.success(`✅ ${result.message || `Gelombang ${id} berhasil diaktifkan!`}`);
       }
       
-      // Trigger localStorage event to sync with index.html (INSTANT BROADCAST)
+      // Step 3: Broadcast to other tabs via localStorage
+      console.log('[GELOMBANG] Step 3: Broadcasting to other tabs via localStorage');
       const updatePayload = {
         timestamp: Date.now(),
         activeId: id,
-        action: 'gelombang_activated'
+        action: 'gelombang_activated',
+        source: 'admin'
       };
       
-      // Remove old value first to ensure storage event fires
+      // Remove old value first (ensures storage event fires in other tabs)
       localStorage.removeItem('gelombang_update');
       
-      // Small delay then set new value (ensures change detection)
-      setTimeout(() => {
-        localStorage.setItem('gelombang_update', JSON.stringify(updatePayload));
-        console.log('[GELOMBANG] 📡 Broadcasting update to public pages:', updatePayload);
-        
-        // Also trigger custom event for same-window sync
-        window.dispatchEvent(new CustomEvent('gelombangUpdated', { 
-          detail: updatePayload 
-        }));
-      }, 100);
+      // Wait a bit then set new value
+      await new Promise(resolve => setTimeout(resolve, 50));
+      localStorage.setItem('gelombang_update', JSON.stringify(updatePayload));
+      console.log('[GELOMBANG]   ✅ Broadcast sent:', updatePayload);
       
-      console.log('[GELOMBANG] ✅ Activation complete - Now reloading from API...');
+      // Step 4: Trigger custom event for same-window sync
+      console.log('[GELOMBANG] Step 4: Dispatching custom event');
+      window.dispatchEvent(new CustomEvent('gelombangUpdated', { 
+        detail: updatePayload 
+      }));
+      console.log('[GELOMBANG]   ✅ Custom event dispatched');
       
-      // FORCE RELOAD: Immediately reload data from API (NO DELAY!)
-      // This ensures UI always shows ACTUAL database state
+      // Step 5: RELOAD data from database to ensure UI is accurate
+      console.log('[GELOMBANG] Step 5: Reloading data from database (force refresh)');
       await loadGelombangData(true);
+      console.log('[GELOMBANG]   ✅ Data reloaded successfully');
       
-      console.log('[GELOMBANG] ✅ Data reloaded successfully!');
+      console.log('[GELOMBANG] ========================================');
+      console.log('[GELOMBANG] ✅ SUCCESS: Gelombang', id, 'is now ACTIVE');
+      console.log('[GELOMBANG] ========================================');
       
     } catch (error) {
-      console.error('[GELOMBANG] ❌ Error activating:', error);
+      console.log('[GELOMBANG] ========================================');
+      console.error('[GELOMBANG] ❌ ERROR during activation:', error);
+      console.error('[GELOMBANG] ❌ Error message:', error.message);
       console.error('[GELOMBANG] ❌ Error stack:', error.stack);
+      console.log('[GELOMBANG] ========================================');
       
+      // Show error notification
       if (typeof toastr !== 'undefined' && toastr.error) {
-        toastr.error(`❌ Gagal mengubah gelombang: ${error.message}`);
+        toastr.error(`❌ Gagal mengaktifkan gelombang: ${error.message}`);
       } else {
-        alert(`❌ Gagal mengubah gelombang: ${error.message}`);
+        alert(`❌ Gagal mengaktifkan gelombang: ${error.message}`);
       }
       
-      // Rollback UI on error - force reload from API
-      console.log('[GELOMBANG] 🔄 Rolling back UI by reloading from API...');
-      await loadGelombangData(true);
+      // Rollback: Force reload from database
+      console.log('[GELOMBANG] 🔄 Rollback: Reloading data from database...');
+      try {
+        await loadGelombangData(true);
+        console.log('[GELOMBANG]   ✅ Rollback complete');
+      } catch (rollbackError) {
+        console.error('[GELOMBANG]   ❌ Rollback failed:', rollbackError);
+      }
     }
   }
   

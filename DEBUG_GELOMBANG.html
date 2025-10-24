@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Gelombang System</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 { color: #4ec9b0; }
+    h2 { color: #dcdcaa; border-bottom: 2px solid #dcdcaa; padding-bottom: 5px; margin-top: 30px; }
+    .test-section {
+      background: #252526;
+      border-left: 4px solid #007acc;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+    .success { border-left-color: #4ec9b0; }
+    .error { border-left-color: #f48771; }
+    .warning { border-left-color: #dcdcaa; }
+    button {
+      background: #0e639c;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 14px;
+    }
+    button:hover { background: #1177bb; }
+    button:active { background: #0d5689; }
+    pre {
+      background: #1e1e1e;
+      border: 1px solid #3c3c3c;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .status {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+    .status.ok { background: #4ec9b0; color: #000; }
+    .status.fail { background: #f48771; color: #fff; }
+    .status.pending { background: #dcdcaa; color: #000; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Debug Gelombang System</h1>
+  <p>Diagnostic tool untuk troubleshoot sistem gelombang</p>
+
+  <!-- Test 1: Environment Check -->
+  <h2>1. Environment Check</h2>
+  <div id="env-check" class="test-section">
+    <button onclick="testEnvironment()">Run Environment Check</button>
+    <pre id="env-output">Klik tombol di atas untuk test...</pre>
+  </div>
+
+  <!-- Test 2: API Endpoints -->
+  <h2>2. API Endpoints Test</h2>
+  <div id="api-test" class="test-section">
+    <button onclick="testAPI()">Test All API Endpoints</button>
+    <pre id="api-output">Klik tombol di atas untuk test...</pre>
+  </div>
+
+  <!-- Test 3: Database RPC -->
+  <h2>3. Database RPC Test (Direct Supabase)</h2>
+  <div id="rpc-test" class="test-section warning">
+    <p><strong>⚠️ Masukkan Supabase credentials Anda:</strong></p>
+    <label>Supabase URL:</label><br>
+    <input type="text" id="supa-url" value="https://sxbvadzcwpaovkhghttv.supabase.co" style="width: 500px; padding: 5px; margin: 5px 0;"><br>
+    <label>Supabase Anon Key:</label><br>
+    <input type="text" id="supa-key" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4YnZhZHpjd3Bhb3ZraGdodHR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMDg4MDYsImV4cCI6MjA3NjY4NDgwNn0.miJeKmsNgjgS4fWegGlwrxF_cPUoZBT0YKl1oxmmXTE" style="width: 500px; padding: 5px; margin: 5px 0;"><br>
+    <button onclick="testSupabaseRPC()">Test Supabase RPC</button>
+    <pre id="rpc-output">Klik tombol di atas untuk test...</pre>
+  </div>
+
+  <!-- Test 4: Switch Gelombang -->
+  <h2>4. Switch Gelombang Test</h2>
+  <div id="switch-test" class="test-section">
+    <button onclick="switchGelombang(1)">Aktifkan Gelombang 1</button>
+    <button onclick="switchGelombang(2)">Aktifkan Gelombang 2</button>
+    <button onclick="switchGelombang(3)">Aktifkan Gelombang 3</button>
+    <pre id="switch-output">Klik salah satu tombol di atas...</pre>
+  </div>
+
+  <!-- Test 5: Real-time Sync -->
+  <h2>5. Real-time Sync Test</h2>
+  <div id="sync-test" class="test-section">
+    <p>Buka halaman ini di 2 tab berbeda, lalu aktifkan gelombang di salah satu tab.</p>
+    <p>Jika sync bekerja, log di bawah akan update otomatis di tab lain.</p>
+    <button onclick="startRealtimeMonitor()">Start Real-time Monitor</button>
+    <button onclick="stopRealtimeMonitor()">Stop Monitor</button>
+    <pre id="sync-output">Monitor belum dimulai...</pre>
+  </div>
+
+  <!-- Summary -->
+  <h2>Summary</h2>
+  <div id="summary" class="test-section">
+    <p>Jalankan semua test di atas, lalu screenshot hasilnya dan kirim ke developer.</p>
+  </div>
+
+  <!-- Supabase Client -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    window.createSupabaseClient = createClient;
+    console.log('✅ Supabase client library loaded');
+  </script>
+
+  <script>
+    let realtimeMonitorInterval = null;
+    let supabaseClient = null;
+
+    // Test 1: Environment Check
+    function testEnvironment() {
+      const output = document.getElementById('env-output');
+      let result = '=== ENVIRONMENT CHECK ===\n\n';
+      
+      result += `📍 Current URL: ${window.location.href}\n`;
+      result += `🌐 Domain: ${window.location.hostname}\n`;
+      result += `📱 User Agent: ${navigator.userAgent}\n\n`;
+      
+      // Check libraries
+      result += '📚 Library Checks:\n';
+      result += `  - fetch: ${typeof fetch !== 'undefined' ? '✅ Available' : '❌ Missing'}\n`;
+      result += `  - createSupabaseClient: ${typeof window.createSupabaseClient !== 'undefined' ? '✅ Available' : '❌ Missing'}\n`;
+      result += `  - localStorage: ${typeof localStorage !== 'undefined' ? '✅ Available' : '❌ Missing'}\n\n`;
+      
+      // Check admin functions (if on admin page)
+      result += '🔧 Admin Functions:\n';
+      result += `  - setGelombangActive: ${typeof setGelombangActive !== 'undefined' ? '✅ Available' : '⚠️ Not on admin page'}\n`;
+      result += `  - loadGelombangData: ${typeof loadGelombangData !== 'undefined' ? '✅ Available' : '⚠️ Not on admin page'}\n\n`;
+      
+      result += '✅ Environment check complete!';
+      output.textContent = result;
+    }
+
+    // Test 2: API Endpoints
+    async function testAPI() {
+      const output = document.getElementById('api-output');
+      output.textContent = '⏳ Testing API endpoints...\n\n';
+      
+      const endpoints = [
+        { name: 'GET /api/gelombang_active', method: 'GET', url: '/api/gelombang_active' },
+        { name: 'GET /api/get_gelombang_list', method: 'GET', url: '/api/get_gelombang_list' },
+      ];
+      
+      let result = '=== API ENDPOINTS TEST ===\n\n';
+      
+      for (const endpoint of endpoints) {
+        try {
+          const response = await fetch(endpoint.url, { method: endpoint.method });
+          const data = await response.json();
+          
+          if (response.ok) {
+            result += `✅ ${endpoint.name}\n`;
+            result += `   Status: ${response.status} OK\n`;
+            result += `   Response: ${JSON.stringify(data, null, 2).substring(0, 200)}...\n\n`;
+          } else {
+            result += `❌ ${endpoint.name}\n`;
+            result += `   Status: ${response.status} ${response.statusText}\n`;
+            result += `   Error: ${JSON.stringify(data)}\n\n`;
+          }
+        } catch (error) {
+          result += `❌ ${endpoint.name}\n`;
+          result += `   Network Error: ${error.message}\n\n`;
+        }
+      }
+      
+      output.textContent = result;
+    }
+
+    // Test 3: Supabase RPC
+    async function testSupabaseRPC() {
+      const output = document.getElementById('rpc-output');
+      const url = document.getElementById('supa-url').value;
+      const key = document.getElementById('supa-key').value;
+      
+      if (!url || !key) {
+        output.textContent = '❌ Error: Supabase URL dan Key harus diisi!';
+        return;
+      }
+      
+      output.textContent = '⏳ Testing Supabase RPC...\n\n';
+      
+      try {
+        if (!window.createSupabaseClient) {
+          throw new Error('Supabase client library not loaded');
+        }
+        
+        supabaseClient = window.createSupabaseClient(url, key);
+        
+        let result = '=== SUPABASE RPC TEST ===\n\n';
+        
+        // Test 1: Select gelombang
+        result += '📊 Test 1: SELECT gelombang\n';
+        const { data: gelombangData, error: selectError } = await supabaseClient
+          .from('gelombang')
+          .select('id, nama, is_active, status')
+          .order('urutan');
+        
+        if (selectError) {
+          result += `   ❌ Error: ${selectError.message}\n\n`;
+        } else {
+          result += `   ✅ Success: ${gelombangData.length} gelombang found\n`;
+          gelombangData.forEach(g => {
+            result += `   - ID ${g.id}: ${g.nama} | is_active=${g.is_active} | status=${g.status}\n`;
+          });
+          result += '\n';
+        }
+        
+        // Test 2: RPC function
+        result += '🔧 Test 2: Call RPC set_gelombang_status(2)\n';
+        const { data: rpcData, error: rpcError } = await supabaseClient
+          .rpc('set_gelombang_status', { p_id: 2 });
+        
+        if (rpcError) {
+          result += `   ❌ Error: ${rpcError.message}\n\n`;
+        } else {
+          result += `   ✅ RPC Response: ${JSON.stringify(rpcData, null, 2)}\n\n`;
+        }
+        
+        // Test 3: Verify result
+        result += '✔️ Test 3: Verify gelombang state after RPC\n';
+        const { data: verifyData, error: verifyError } = await supabaseClient
+          .from('gelombang')
+          .select('id, nama, is_active, status')
+          .order('urutan');
+        
+        if (verifyError) {
+          result += `   ❌ Error: ${verifyError.message}\n\n`;
+        } else {
+          result += `   ✅ Current state:\n`;
+          verifyData.forEach(g => {
+            const icon = g.is_active ? '✅' : '⬜';
+            result += `   ${icon} ID ${g.id}: ${g.nama} | is_active=${g.is_active} | status=${g.status}\n`;
+          });
+          result += '\n';
+          
+          const activeCount = verifyData.filter(g => g.is_active).length;
+          if (activeCount === 1) {
+            result += '   ✅ PASS: Hanya 1 gelombang yang aktif\n';
+          } else {
+            result += `   ❌ FAIL: Ada ${activeCount} gelombang aktif (seharusnya 1)\n`;
+          }
+        }
+        
+        output.textContent = result;
+        
+      } catch (error) {
+        output.textContent = `❌ Error: ${error.message}\n\nStack: ${error.stack}`;
+      }
+    }
+
+    // Test 4: Switch Gelombang
+    async function switchGelombang(id) {
+      const output = document.getElementById('switch-output');
+      output.textContent = `⏳ Mengaktifkan Gelombang ${id}...\n\n`;
+      
+      try {
+        const response = await fetch('/api/set_gelombang_active', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id })
+        });
+        
+        const data = await response.json();
+        
+        let result = `=== SWITCH GELOMBANG ${id} ===\n\n`;
+        result += `Status: ${response.status} ${response.statusText}\n`;
+        result += `Response:\n${JSON.stringify(data, null, 2)}\n\n`;
+        
+        if (response.ok && data.ok) {
+          result += `✅ SUCCESS: ${data.message}\n\n`;
+          
+          // Verify state
+          const verifyResponse = await fetch('/api/get_gelombang_list');
+          const verifyData = await verifyResponse.json();
+          
+          if (verifyData.ok) {
+            result += 'Current state:\n';
+            verifyData.data.forEach(g => {
+              const icon = g.is_active ? '✅' : '⬜';
+              result += `${icon} ${g.nama} (is_active=${g.is_active})\n`;
+            });
+          }
+        } else {
+          result += `❌ FAILED: ${data.error || data.message}\n`;
+        }
+        
+        output.textContent = result;
+        
+      } catch (error) {
+        output.textContent = `❌ Network Error: ${error.message}\n\nStack: ${error.stack}`;
+      }
+    }
+
+    // Test 5: Real-time Monitor
+    function startRealtimeMonitor() {
+      const output = document.getElementById('sync-output');
+      output.textContent = '🎧 Real-time monitor started...\n\n';
+      
+      let logCount = 0;
+      
+      // Monitor localStorage events
+      window.addEventListener('storage', function(e) {
+        if (e.key === 'gelombang_update') {
+          logCount++;
+          output.textContent += `[${new Date().toLocaleTimeString()}] 📡 localStorage event detected:\n`;
+          output.textContent += `  Value: ${e.newValue}\n\n`;
+        }
+      });
+      
+      // Periodic polling
+      realtimeMonitorInterval = setInterval(async () => {
+        try {
+          const response = await fetch('/api/gelombang_active');
+          const data = await response.json();
+          
+          if (data.ok && data.data) {
+            const activeId = data.data.id;
+            const activeName = data.data.nama;
+            output.textContent += `[${new Date().toLocaleTimeString()}] 🔄 Poll: ${activeName} (ID ${activeId}) is active\n`;
+          }
+        } catch (e) {
+          output.textContent += `[${new Date().toLocaleTimeString()}] ❌ Poll error: ${e.message}\n`;
+        }
+      }, 5000); // Every 5 seconds
+      
+      output.textContent += '✅ Monitor started. Akan log setiap 5 detik.\n';
+      output.textContent += '💡 Buka tab lain dan switch gelombang untuk test sync.\n\n';
+    }
+
+    function stopRealtimeMonitor() {
+      if (realtimeMonitorInterval) {
+        clearInterval(realtimeMonitorInterval);
+        realtimeMonitorInterval = null;
+        const output = document.getElementById('sync-output');
+        output.textContent += '\n⏹️ Monitor stopped.';
+      }
+    }
+  </script>
+</body>
+</html>
+
