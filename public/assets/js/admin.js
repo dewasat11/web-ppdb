@@ -359,7 +359,7 @@
         (d) => {
           const program = getRencanaProgram(d);
           const jenjang = getJenjang(d);
-          const isMatch = program === "Pondok Putra Tahfidz" && jenjang === "MTs";
+          const isMatch = program === "Asrama Putra Tahfidz" && jenjang === "MTs";
           return isMatch;
         }
       ).length;
@@ -367,7 +367,7 @@
         (d) => {
           const program = getRencanaProgram(d);
           const jenjang = getJenjang(d);
-          const isMatch = program === "Pondok Putra Tahfidz" && jenjang === "MA";
+          const isMatch = program === "Asrama Putra Tahfidz" && jenjang === "MA";
           return isMatch;
         }
       ).length;
@@ -375,7 +375,7 @@
         (d) => {
           const program = getRencanaProgram(d);
           const jenjang = getJenjang(d);
-          const isMatch = program === "Pondok Putra Tahfidz" && jenjang === "Kuliah";
+          const isMatch = program === "Asrama Putra Tahfidz" && jenjang === "Kuliah";
           return isMatch;
         }
       ).length;
@@ -450,7 +450,7 @@
       // Debug: Log calculated statistics (SEMUA PENDAFTAR)
       console.log("[STATISTIK] Hasil perhitungan (SEMUA PENDAFTAR):");
       console.log("Asrama Putra Induk:", { MTs: putraIndukMts, MA: putraIndukMa, Kuliah: putraIndukKuliah, Total: putraIndukTotal });
-      console.log("Pondok Putra Tahfidz:", { MTs: putraTahfidzMts, MA: putraTahfidzMa, Kuliah: putraTahfidzKuliah, Total: putraTahfidzTotal });
+      console.log("Asrama Putra Tahfidz:", { MTs: putraTahfidzMts, MA: putraTahfidzMa, Kuliah: putraTahfidzKuliah, Total: putraTahfidzTotal });
       console.log("Asrama Putri:", { MTs: putriMts, MA: putriMa, Kuliah: putriKuliah, Total: putriTotal });
       console.log("Hanya Sekolah:", { 
         MTs_L: hanyaSekolahMtsL, 
