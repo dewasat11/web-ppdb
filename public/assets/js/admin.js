@@ -1548,6 +1548,13 @@ PONDOK PESANTREN AL IKHSAN BEJI`
         alert(`✅ Gelombang ${id} berhasil diaktifkan!`);
       }
       
+      // Auto-refresh page after 1.5 seconds (give time to see notification)
+      console.log('[GELOMBANG] 🔄 Auto-refresh in 1.5 seconds...');
+      setTimeout(() => {
+        console.log('[GELOMBANG] 🔄 Refreshing page...');
+        location.reload();
+      }, 1500);
+      
     } catch (error) {
       console.log('[GELOMBANG] ========================================');
       console.error('[GELOMBANG] ❌ ERROR during activation:', error);
