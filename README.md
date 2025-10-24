@@ -55,11 +55,16 @@ ppdb-smp-/
 ## 🔧 Setup Database
 
 ### Schema Setup
-Jalankan file SQL di folder `sql/`:
+Jalankan file SQL di folder `sql/` **SESUAI URUTAN**:
 
-1. **`smp_sains_najah_full_schema.sql`** - Full schema (pendaftar, pembayaran, gelombang)
-2. **`grant_rpc_gelombang.sql`** - RPC function permissions
-3. **`sample_data_statistik.sql`** - (Optional) Sample data untuk testing statistik
+1. **`smp_sains_najah_full_schema.sql`** - Full schema (pendaftar, pembayaran)
+2. **`create_table_gelombang.sql`** - ⚠️ Table gelombang (3 sample data)
+3. **`create_rpc_set_gelombang_status.sql`** - ⚠️ **CRITICAL** RPC function untuk gelombang
+4. **`grant_rpc_gelombang.sql`** - Grant permissions untuk RPC
+5. **`sample_data_statistik.sql`** - (Optional) Sample data untuk testing statistik
+
+**⚠️ PENTING**: File #2, #3, #4 wajib dijalankan untuk fix bug gelombang!  
+Lihat panduan lengkap di: **[FIX_GELOMBANG_BUG.md](./FIX_GELOMBANG_BUG.md)**
 
 ### Testing Statistik Pendaftar
 Untuk memverifikasi statistik berjalan dengan benar:
@@ -98,11 +103,23 @@ Sistem statistik menampilkan breakdown pendaftar berdasarkan:
 
 ## 📌 Update Log
 
-### 2025-10-24 - Statistik Pendaftar Fix
+### 2025-10-24 - Bug Fixes
+
+#### 🐛 **CRITICAL FIX: Gelombang Always Active Bug**
+**Problem**: Gelombang 1 selalu aktif meskipun admin pilih gelombang lain  
+**Solution**: 
+- ✅ **ADDED**: RPC function `set_gelombang_status` di database (`sql/create_rpc_set_gelombang_status.sql`)
+- ✅ **ADDED**: Table `gelombang` creation script (`sql/create_table_gelombang.sql`)
+- ✅ **ADDED**: Comprehensive fix guide (`FIX_GELOMBANG_BUG.md`)
+- ✅ **FIXED**: Atomic transaction untuk ensure hanya 1 gelombang aktif
+- 📖 **Guide**: [FIX_GELOMBANG_BUG.md](./FIX_GELOMBANG_BUG.md)
+
+#### 📊 **Statistik Pendaftar Fix**
 - ✅ **FIXED**: API `pendaftar_list` mengembalikan field names konsisten (`rencana_program`, `rencanatingkat`, `jeniskelamin`)
 - ✅ **ADDED**: Debug logging di JavaScript untuk troubleshooting statistik
 - ✅ **ADDED**: Dokumentasi lengkap statistik (`STATISTIK_PENDAFTAR_GUIDE.md`)
 - ✅ **ADDED**: Sample data SQL untuk testing (`sql/sample_data_statistik.sql`)
+- 📖 **Guide**: [STATISTIK_PENDAFTAR_GUIDE.md](./STATISTIK_PENDAFTAR_GUIDE.md)
 
 ### Latest Update - PPDSB Al Ikhsan Beji
 - ✅ Sistem pendaftaran santri baru

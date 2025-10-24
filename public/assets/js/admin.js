@@ -1487,7 +1487,7 @@ PONDOK PESANTREN AL IKHSAN BEJI`
       });
       
       // Show success notification
-      toastr.success(`✅ Gelombang ${id} berhasil diaktifkan!`, '', {
+      toastr.success(`✅ Gelombang ${id} berhasil diaktifkan dan tersimpan!`, '', {
         timeOut: 2000,
         progressBar: true
       });
@@ -1508,13 +1508,19 @@ PONDOK PESANTREN AL IKHSAN BEJI`
         url: window.location.href
       }));
       
-      // Reload data in background (optional, untuk consistency)
-      setTimeout(() => {
-        console.log('[GELOMBANG] 🔄 Background refresh for data consistency');
-        loadGelombangData(true);
-      }, 1000);
-      
       console.log('[GELOMBANG] ✅ Activation complete - UI updated instantly!');
+      
+      // AUTO-RELOAD: Reload data dari database untuk confirm perubahan tersimpan
+      setTimeout(() => {
+        console.log('[GELOMBANG] 🔄 Auto-reloading data from database to confirm changes...');
+        loadGelombangData(true).then(() => {
+          console.log('[GELOMBANG] ✅ Auto-reload complete - Data confirmed from database!');
+          toastr.info('📊 Data gelombang berhasil diperbarui dari database', '', {
+            timeOut: 1500,
+            progressBar: true
+          });
+        });
+      }, 1500); // Reload after 1.5 seconds
       
     } catch (error) {
       console.error('[GELOMBANG] ❌ Error activating:', error);
