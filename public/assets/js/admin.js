@@ -1142,7 +1142,7 @@ PONDOK PESANTREN AL IKHSAN BEJI`
   let currentGelombangData = [];
 
   /**
-   * Load gelombang data from Supabase and render forms
+   * Load gelombang data from API endpoint and render forms
    */
   async function loadGelombangData(forceRefresh = false) {
     const container = document.getElementById('gelombangContainer');
@@ -1154,39 +1154,38 @@ PONDOK PESANTREN AL IKHSAN BEJI`
         <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
           <span class="visually-hidden">Memuat...</span>
         </div>
-        <p class="text-muted mt-3"><i class="bi bi-arrow-repeat"></i> ${forceRefresh ? 'Memperbarui' : 'Memuat'} data gelombang dari Supabase...</p>
+        <p class="text-muted mt-3"><i class="bi bi-arrow-repeat"></i> ${forceRefresh ? 'Memperbarui' : 'Memuat'} data gelombang...</p>
       </div>
     `;
     
     try {
-      console.log('[GELOMBANG] Loading data from Supabase...', forceRefresh ? '(force refresh)' : '');
+      console.log('[GELOMBANG] Loading data from API...', forceRefresh ? '(force refresh)' : '');
       
-      // Check if Supabase client is available
-      if (!window.supabase) {
-        throw new Error('Supabase client not initialized. Please check your Supabase credentials in admin.html.');
+      // Fetch gelombang data from API endpoint
+      const cacheBuster = forceRefresh ? `?_t=${Date.now()}` : '';
+      const response = await fetch(`/api/get_gelombang_list${cacheBuster}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      // Fetch gelombang data from Supabase
-      const { data, error } = await window.supabase
-        .from('gelombang')
-        .select('*')
-        .order('id', { ascending: true });
+      const result = await response.json();
       
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
+      if (!result.ok || !result.data) {
+        throw new Error(result.error || 'Failed to load gelombang data');
       }
       
-      if (!data || data.length === 0) {
+      if (result.data.length === 0) {
         throw new Error('No gelombang data found in database');
       }
       
-      console.log('[GELOMBANG] Data loaded from Supabase:', data);
-      console.table(data);
+      console.log('[GELOMBANG] Data loaded from API:', result.data);
+      console.table(result.data);
       
-      currentGelombangData = data;
-      renderGelombangForms(data);
+      currentGelombangData = result.data;
+      renderGelombangForms(result.data);
       
-      console.log('[GELOMBANG] Data rendered successfully:', data.length, 'items');
+      console.log('[GELOMBANG] Data rendered successfully:', result.data.length, 'items');
     } catch (error) {
       console.error('[GELOMBANG] Error loading:', error);
       container.innerHTML = `
@@ -1376,7 +1375,7 @@ PONDOK PESANTREN AL IKHSAN BEJI`
   window.updateGelombang = updateGelombang;
 
   /**
-   * Set gelombang as active using Supabase RPC
+   * Set gelombang as active using API endpoint
    * INSTANT UI UPDATE: Button langsung berubah tanpa delay
    */
   async function setGelombangActive(id) {
@@ -1384,20 +1383,11 @@ PONDOK PESANTREN AL IKHSAN BEJI`
     id = parseInt(id, 10);
     
     // Confirmation dialog
-    if (!confirm('Jadikan gelombang ini aktif? Gelombang lain akan otomatis diatur statusnya.')) {
+    if (!confirm('Jadikan gelombang ini aktif? Gelombang lain akan otomatis dinonaktifkan.')) {
       return;
     }
     
-    console.log('[GELOMBANG] 🚀 Activating gelombang via Supabase RPC:', id);
-    
-    // Check if Supabase client is available
-    if (!window.supabase) {
-      toastr.error('❌ Supabase client not initialized!', '', {
-        timeOut: 3000,
-        progressBar: true
-      });
-      return;
-    }
+    console.log('[GELOMBANG] 🚀 Activating gelombang via API:', id);
     
     // INSTANT UI UPDATE: Update button immediately (optimistic update)
     const targetCard = document.querySelector(`[onclick="setGelombangActive(${id})"]`)?.closest('.card');
@@ -1471,27 +1461,33 @@ PONDOK PESANTREN AL IKHSAN BEJI`
         progressBar: true
       });
       
-      console.log('[GELOMBANG] 📤 Calling RPC: set_gelombang_status with p_id:', id);
+      console.log('[GELOMBANG] 📤 Calling API: /api/set_gelombang_active with id:', id);
       
-      // Call Supabase RPC function
-      const { data, error } = await window.supabase.rpc('set_gelombang_status', { p_id: id });
+      // Call API endpoint to set gelombang active
+      const response = await fetch('/api/set_gelombang_active', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: id })
+      });
       
-      console.log('[GELOMBANG] 📥 RPC Response:', { data, error });
-      
-      if (error) {
-        console.error('[GELOMBANG] ❌ RPC Error Details:', error);
-        throw new Error(`Supabase RPC error: ${error.message}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      if (!data) {
-        console.error('[GELOMBANG] ❌ RPC returned no data');
-        throw new Error('RPC returned no data');
+      const result = await response.json();
+      
+      console.log('[GELOMBANG] 📥 API Response:', result);
+      
+      if (!result.ok) {
+        throw new Error(result.error || 'Failed to activate gelombang');
       }
       
-      console.log('[GELOMBANG] ✅ RPC success:', data);
+      console.log('[GELOMBANG] ✅ API success:', result.data);
       
       // Show success notification
-      toastr.success(`✅ Gelombang ${id} berhasil diaktifkan! Memuat ulang data...`, '', {
+      toastr.success(`✅ ${result.message || 'Gelombang berhasil diaktifkan!'}`, '', {
         timeOut: 2000,
         progressBar: true
       });
@@ -1512,14 +1508,14 @@ PONDOK PESANTREN AL IKHSAN BEJI`
         url: window.location.href
       }));
       
-      console.log('[GELOMBANG] ✅ Activation complete - Now reloading from database...');
+      console.log('[GELOMBANG] ✅ Activation complete - Now reloading from API...');
       
-      // FORCE RELOAD: Immediately reload data dari database (NO DELAY!)
+      // FORCE RELOAD: Immediately reload data from API (NO DELAY!)
       // This ensures UI always shows ACTUAL database state
       await loadGelombangData(true);
       
-      console.log('[GELOMBANG] ✅ Data reloaded from database successfully!');
-      toastr.success('📊 Data gelombang berhasil dimuat dari database', '', {
+      console.log('[GELOMBANG] ✅ Data reloaded successfully!');
+      toastr.success('📊 Data gelombang berhasil dimuat ulang', '', {
         timeOut: 1500,
         progressBar: true
       });
@@ -1533,8 +1529,8 @@ PONDOK PESANTREN AL IKHSAN BEJI`
         progressBar: true
       });
       
-      // Rollback UI on error - force reload from database
-      console.log('[GELOMBANG] 🔄 Rolling back UI by reloading from database...');
+      // Rollback UI on error - force reload from API
+      console.log('[GELOMBANG] 🔄 Rolling back UI by reloading from API...');
       await loadGelombangData(true);
     }
   }
@@ -1550,6 +1546,9 @@ PONDOK PESANTREN AL IKHSAN BEJI`
     }
     return null;
   }
+  
+  // Expose gelombang functions
+  window.loadGelombangData = loadGelombangData;
   window.setGelombangActive = setGelombangActive;
 
   /* =========================
