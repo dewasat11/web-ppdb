@@ -135,11 +135,38 @@
      ========================= */
   async function loadPendaftar() {
     try {
+      // Fetch pendaftar data
       const r = await fetch("/api/pendaftar_list");
       const result = await r.json();
       if (!(result.success && result.data)) return;
 
       allPendaftarData = result.data; // simpan untuk detail
+
+      // Fetch pembayaran data untuk sinkronisasi statistik
+      console.log("[STATISTIK] Fetching pembayaran data untuk sinkronisasi...");
+      const rPembayaran = await fetch("/api/pembayaran_list");
+      const pembayaranResult = await rPembayaran.json();
+      
+      // Create map of verified payments by NISN/NIK
+      const verifiedPayments = new Map();
+      if (pembayaranResult.success && pembayaranResult.data) {
+        pembayaranResult.data.forEach(p => {
+          if ((p.status || "PENDING").toUpperCase() === "VERIFIED") {
+            // Store all possible identifiers for better matching
+            const identifiers = [
+              p.nisn,
+              p.nik, 
+              p.nikcalon
+            ].filter(Boolean);
+            
+            identifiers.forEach(key => {
+              if (key) verifiedPayments.set(key, true);
+            });
+          }
+        });
+        console.log("[STATISTIK] Verified payments found:", verifiedPayments.size);
+        console.log("[STATISTIK] Verified payment identifiers:", Array.from(verifiedPayments.keys()).slice(0, 5));
+      }
 
       const tbody = $("#pendaftarTable");
       if (tbody) {
@@ -191,12 +218,40 @@
           .join("");
       }
 
+      // Helper function to check if payment is verified
+      const hasVerifiedPayment = (d) => {
+        const identifiers = [
+          d.nisn,
+          d.nikcalon,
+          d.nik
+        ].filter(Boolean);
+        
+        // Check if any identifier matches verified payments
+        const isVerified = identifiers.some(key => verifiedPayments.has(key));
+        
+        // Debug logging for first few items
+        if (window.debugStatistik && identifiers.length > 0) {
+          console.log("[MATCH DEBUG]", {
+            nama: d.nama,
+            identifiers,
+            isVerified,
+            hasInMap: identifiers.map(id => ({ id, exists: verifiedPayments.has(id) }))
+          });
+        }
+        
+        return isVerified;
+      };
+
       // Kartu statistik
       const setText = (id, val) => {
         const el = document.getElementById(id);
         if (el) el.textContent = val;
       };
+      
+      // Total count = all pendaftar
       setText("totalCount", result.data.length);
+      
+      // Status counts (tidak perlu filter pembayaran di sini)
       setText(
         "pendingCount",
         result.data.filter((d) => d.status === "pending").length
@@ -223,46 +278,72 @@
         "";
       const getJenjang = (d) => d.rencanatingkat || d.rencanaTingkat || "";
       
+      // Filter hanya pendaftar dengan pembayaran VERIFIED untuk statistik
+      const verifiedPendaftar = result.data.filter(hasVerifiedPayment);
+      
+      console.log("[STATISTIK] ========================================");
+      console.log("[STATISTIK] Total pendaftar:", result.data.length);
+      console.log("[STATISTIK] Pendaftar dengan pembayaran VERIFIED:", verifiedPendaftar.length);
+      console.log("[STATISTIK] Verified payments map size:", verifiedPayments.size);
+      console.log("[STATISTIK] Persentase verified:", ((verifiedPendaftar.length / result.data.length) * 100).toFixed(1) + "%");
+      
       // Debug: Log sample data for statistics verification
-      if (result.data.length > 0) {
-        console.log("[STATISTIK] Sample data untuk verifikasi:");
-        console.log("Total pendaftar:", result.data.length);
-        console.log("Sample pendaftar pertama:", {
-          nama: result.data[0].nama,
-          rencana_program: getRencanaProgram(result.data[0]),
-          rencanatingkat: getJenjang(result.data[0]),
-          jeniskelamin: result.data[0].jeniskelamin
+      if (verifiedPendaftar.length > 0) {
+        console.log("[STATISTIK] Sample pendaftar VERIFIED pertama:", {
+          nama: verifiedPendaftar[0].nama,
+          nisn: verifiedPendaftar[0].nisn,
+          nik: verifiedPendaftar[0].nik,
+          nikcalon: verifiedPendaftar[0].nikcalon,
+          rencana_program: getRencanaProgram(verifiedPendaftar[0]),
+          rencanatingkat: getJenjang(verifiedPendaftar[0]),
+          jeniskelamin: verifiedPendaftar[0].jeniskelamin
         });
       }
+      
+      // Count pendaftar yang TIDAK ter-match dengan pembayaran verified
+      const unmatchedPendaftar = result.data.filter(d => !hasVerifiedPayment(d));
+      if (unmatchedPendaftar.length > 0) {
+        console.log("[STATISTIK] Pendaftar tanpa pembayaran VERIFIED:", unmatchedPendaftar.length);
+        console.log("[STATISTIK] Sample pendaftar tanpa pembayaran:", {
+          nama: unmatchedPendaftar[0].nama,
+          nisn: unmatchedPendaftar[0].nisn,
+          nik: unmatchedPendaftar[0].nik,
+          nikcalon: unmatchedPendaftar[0].nikcalon
+        });
+      }
+      
+      console.log("[STATISTIK] ========================================");
+      console.log("💡 Tip: Aktifkan debug matching dengan: window.debugStatistik = true");
 
-      const putraIndukMts = result.data.filter(
+      // HANYA hitung pendaftar dengan pembayaran VERIFIED
+      const putraIndukMts = verifiedPendaftar.filter(
         (d) =>
           getRencanaProgram(d) === "Pondok Putra Induk" &&
           getJenjang(d) === "MTs"
       ).length;
-      const putraIndukMa = result.data.filter(
+      const putraIndukMa = verifiedPendaftar.filter(
         (d) =>
           getRencanaProgram(d) === "Pondok Putra Induk" &&
           getJenjang(d) === "MA"
       ).length;
-      const putraIndukKuliah = result.data.filter(
+      const putraIndukKuliah = verifiedPendaftar.filter(
         (d) =>
           getRencanaProgram(d) === "Pondok Putra Induk" &&
           getJenjang(d) === "Kuliah"
       ).length;
       const putraIndukTotal = putraIndukMts + putraIndukMa + putraIndukKuliah;
 
-      const putraTahfidzMts = result.data.filter(
+      const putraTahfidzMts = verifiedPendaftar.filter(
         (d) =>
           getRencanaProgram(d) === "Pondok Putra Tahfidz" &&
           getJenjang(d) === "MTs"
       ).length;
-      const putraTahfidzMa = result.data.filter(
+      const putraTahfidzMa = verifiedPendaftar.filter(
         (d) =>
           getRencanaProgram(d) === "Pondok Putra Tahfidz" &&
           getJenjang(d) === "MA"
       ).length;
-      const putraTahfidzKuliah = result.data.filter(
+      const putraTahfidzKuliah = verifiedPendaftar.filter(
         (d) =>
           getRencanaProgram(d) === "Pondok Putra Tahfidz" &&
           getJenjang(d) === "Kuliah"
@@ -270,38 +351,38 @@
       const putraTahfidzTotal =
         putraTahfidzMts + putraTahfidzMa + putraTahfidzKuliah;
 
-      const putriMts = result.data.filter(
+      const putriMts = verifiedPendaftar.filter(
         (d) =>
           getRencanaProgram(d) === "Pondok Putri" && getJenjang(d) === "MTs"
       ).length;
-      const putriMa = result.data.filter(
+      const putriMa = verifiedPendaftar.filter(
         (d) => getRencanaProgram(d) === "Pondok Putri" && getJenjang(d) === "MA"
       ).length;
-      const putriKuliah = result.data.filter(
+      const putriKuliah = verifiedPendaftar.filter(
         (d) =>
           getRencanaProgram(d) === "Pondok Putri" && getJenjang(d) === "Kuliah"
       ).length;
       const putriTotal = putriMts + putriMa + putriKuliah;
 
-      const hanyaSekolahMtsL = result.data.filter(
+      const hanyaSekolahMtsL = verifiedPendaftar.filter(
         (d) =>
           getRencanaProgram(d) === "Hanya Sekolah" &&
           getJenjang(d) === "MTs" &&
           (d.jeniskelamin === "L" || d.jenisKelamin === "L")
       ).length;
-      const hanyaSekolahMtsP = result.data.filter(
+      const hanyaSekolahMtsP = verifiedPendaftar.filter(
         (d) =>
           getRencanaProgram(d) === "Hanya Sekolah" &&
           getJenjang(d) === "MTs" &&
           (d.jeniskelamin === "P" || d.jenisKelamin === "P")
       ).length;
-      const hanyaSekolahMaL = result.data.filter(
+      const hanyaSekolahMaL = verifiedPendaftar.filter(
         (d) =>
           getRencanaProgram(d) === "Hanya Sekolah" &&
           getJenjang(d) === "MA" &&
           (d.jeniskelamin === "L" || d.jenisKelamin === "L")
       ).length;
-      const hanyaSekolahMaP = result.data.filter(
+      const hanyaSekolahMaP = verifiedPendaftar.filter(
         (d) =>
           getRencanaProgram(d) === "Hanya Sekolah" &&
           getJenjang(d) === "MA" &&
@@ -310,8 +391,8 @@
       const hanyaSekolahTotal =
         hanyaSekolahMtsL + hanyaSekolahMtsP + hanyaSekolahMaL + hanyaSekolahMaP;
 
-      // Debug: Log calculated statistics
-      console.log("[STATISTIK] Hasil perhitungan:");
+      // Debug: Log calculated statistics (ONLY VERIFIED)
+      console.log("[STATISTIK] Hasil perhitungan (HANYA yang pembayaran VERIFIED):");
       console.log("Pondok Putra Induk:", { MTs: putraIndukMts, MA: putraIndukMa, Kuliah: putraIndukKuliah, Total: putraIndukTotal });
       console.log("Pondok Putra Tahfidz:", { MTs: putraTahfidzMts, MA: putraTahfidzMa, Kuliah: putraTahfidzKuliah, Total: putraTahfidzTotal });
       console.log("Pondok Putri:", { MTs: putriMts, MA: putriMa, Kuliah: putriKuliah, Total: putriTotal });
@@ -322,6 +403,7 @@
         MA_P: hanyaSekolahMaP, 
         Total: hanyaSekolahTotal 
       });
+      console.log("[STATISTIK] ========================================");
 
       // Pasang ke DOM
       const mapSet = (m) =>
@@ -1474,6 +1556,14 @@ PONDOK PESANTREN AL IKHSAN BEJI`
     console.log('[GELOMBANG] 🚀 START: Activating Gelombang', id);
     console.log('[GELOMBANG] ========================================');
     
+    // Show loading overlay to prevent multiple clicks
+    const container = document.getElementById('gelombangContainer');
+    const originalContent = container ? container.innerHTML : '';
+    if (container) {
+      container.style.opacity = '0.6';
+      container.style.pointerEvents = 'none';
+    }
+    
     try {
       console.log('[GELOMBANG] Step 1: Calling API /api/set_gelombang_active');
       console.log('[GELOMBANG]   → Request payload:', { id: id });
@@ -1541,6 +1631,12 @@ PONDOK PESANTREN AL IKHSAN BEJI`
       console.log('[GELOMBANG] ✅ SUCCESS: Gelombang', id, 'is now ACTIVE');
       console.log('[GELOMBANG] ========================================');
       
+      // Restore container interaction (loadGelombangData will update content)
+      if (container) {
+        container.style.opacity = '1';
+        container.style.pointerEvents = 'auto';
+      }
+      
       // Show success notification (green)
       if (typeof toastr !== 'undefined') {
         toastr.success(`Gelombang ${result.data?.nama || id} berhasil diaktifkan!`, 'Berhasil');
@@ -1548,12 +1644,8 @@ PONDOK PESANTREN AL IKHSAN BEJI`
         alert(`✅ Gelombang ${id} berhasil diaktifkan!`);
       }
       
-      // Auto-refresh page after 1.5 seconds (give time to see notification)
-      console.log('[GELOMBANG] 🔄 Auto-refresh in 1.5 seconds...');
-      setTimeout(() => {
-        console.log('[GELOMBANG] 🔄 Refreshing page...');
-        location.reload();
-      }, 1500);
+      // No need for location.reload() - loadGelombangData(true) already refreshed the UI
+      console.log('[GELOMBANG] ✅ UI updated successfully - staying on Gelombang tab');
       
     } catch (error) {
       console.log('[GELOMBANG] ========================================');
@@ -1561,6 +1653,12 @@ PONDOK PESANTREN AL IKHSAN BEJI`
       console.error('[GELOMBANG] ❌ Error message:', error.message);
       console.error('[GELOMBANG] ❌ Error stack:', error.stack);
       console.log('[GELOMBANG] ========================================');
+      
+      // Restore container interaction on error
+      if (container) {
+        container.style.opacity = '1';
+        container.style.pointerEvents = 'auto';
+      }
       
       // Show error notification (red)
       if (typeof toastr !== 'undefined') {

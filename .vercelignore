@@ -1,35 +1,51 @@
 # Python cache
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
 *.so
+*.egg
+*.egg-info/
+dist/
+build/
 
-# Backup files
-*.bak
-*.backup
+# Git files
+.git/
+.gitignore
+.gitattributes
 
-# IDE
+# Documentation & Markdown files (tidak diperlukan untuk production)
+*.md
+CARA_*.md
+DEBUG_*.html
+DIAGNOSTIC_*.md
+FIX_*.md
+GELOMBANG_*.md
+RINGKASAN_*.md
+README.md
+
+# SQL files (tidak diperlukan di runtime)
+sql/
+*.sql
+
+# Test files
+test/
+tests/
+*_test.py
+test_*.py
+
+# Development files
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-
-# Old/deprecated API files (safety)
-api/old/
-api/dev/
-api/handlers/
-pages/api/
-app/api/
-app/_api_disabled/
-
-# Test files
-test_*.py
-tests/
+# Environment variables (jika ada)
+.env.local
+.env.*.local

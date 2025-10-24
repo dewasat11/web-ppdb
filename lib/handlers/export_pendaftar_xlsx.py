@@ -115,7 +115,7 @@ class handler(BaseHTTPRequestHandler):
                 'rencana_tingkat',
                 'rencana_program',
                 'alamat_lengkap',
-                'file_akte',
+                'file_akta',  # FIXED: was 'file_akte', should be 'file_akta' to match database
                 'file_ijazah',
                 'file_foto',
                 'file_bpjs'
@@ -149,6 +149,7 @@ class handler(BaseHTTPRequestHandler):
                     if header.startswith('file_'):
                         boolean_key = 'has_' + header
                         value = 'YA' if row_data.get(boolean_key, False) else 'TIDAK'
+                        
                     else:
                         value = row_data.get(header, '')
                     

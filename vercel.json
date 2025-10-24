@@ -1,7 +1,16 @@
 {
   "version": 2,
+  "build": {
+    "env": {
+      "PYTHON_VERSION": "3.9"
+    }
+  },
   "functions": {
-    "api/index.py": { "runtime": "@vercel/python@4.3.1" }
+    "api/index.py": { 
+      "runtime": "@vercel/python@4.3.1",
+      "maxDuration": 10,
+      "memory": 1024
+    }
   },
   "rewrites": [
     { "source": "/api/pendaftar_create", "destination": "/api/index?action=pendaftar_create" },
@@ -26,5 +35,8 @@
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/login", "destination": "/login.html" },
     { "source": "/cek-status", "destination": "/cek-status.html" }
-  ]
+  ],
+  "github": {
+    "silent": true
+  }
 }

@@ -14,10 +14,15 @@ class handler(BaseHTTPRequestHandler):
             # Map fields for frontend compatibility dengan field yang konsisten
             result_data = []
             for item in raw_data:
+                # Get identifier - try nisn first, fallback to nik, then nikcalon
+                nisn = item.get('nisn')
+                nik = item.get('nik') or item.get('nikcalon')
+                
                 mapped = {
                     'id': item.get('id'),
-                    'nisn': item.get('nisn'),
-                    'nik': item.get('nik'),
+                    'nisn': nisn,
+                    'nik': nik,
+                    'nikcalon': nik,  # Add nikcalon for compatibility
                     'nama_lengkap': item.get('nama_lengkap'),
                     'jumlah': float(item.get('jumlah', 0)),
                     'status': item.get('status_pembayaran'),  # Gunakan field yang benar

@@ -65,6 +65,11 @@ class handler(BaseHTTPRequestHandler):
                         # If parsing fails, use original value
                         tanggal_daftar = created_at
                 
+                # Get all possible identifiers for payment matching
+                nisn = row_dict.get("nisn", "")
+                nik = row_dict.get("nik", "") or row_dict.get("nikcalon", "")
+                nikcalon = row_dict.get("nikcalon", "") or row_dict.get("nik", "")
+                
                 transformed_data.append({
                     "id": row_dict.get("id"),
                     "nama": row_dict.get("namalengkap", ""),
@@ -75,10 +80,14 @@ class handler(BaseHTTPRequestHandler):
                     "tanggal_daftar": tanggal_daftar,  # Add tanggal_daftar field for CSV export
                     "createdat": created_at,
                     "alasan": row_dict.get("alasan", "-"),
+                    # CRITICAL: Ensure all identifier fields are present for payment matching
+                    "nisn": nisn,
+                    "nik": nik,
+                    "nikcalon": nikcalon,
                     # Include original data for detail view with proper field mapping
                     **{
                         key: value for key, value in row_dict.items()
-                        if key not in ["telepon_orang_tua", "nomorhportu", "statusberkas", "createdat", "alasan"]
+                        if key not in ["telepon_orang_tua", "nomorhportu", "statusberkas", "createdat", "alasan", "nisn", "nik", "nikcalon"]
                     },
                     # Ensure consistent field names
                     "telepon_orang_tua": row_dict.get("telepon_orang_tua", row_dict.get("nomorhportu", "-")),
