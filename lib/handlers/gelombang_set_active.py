@@ -79,9 +79,15 @@ class handler(BaseHTTPRequestHandler):
             print(f"[SET_GELOMBANG_ACTIVE] Using RPC function 'set_gelombang_status' with p_id={gelombang_id}")
             
             # Call RPC function (atomic database operation)
-            rpc_result = supa.rpc('set_gelombang_status', {'p_id': int(gelombang_id)}).execute()
-            
-            print(f"[SET_GELOMBANG_ACTIVE] RPC result: {rpc_result.data}")
+            try:
+                rpc_result = supa.rpc('set_gelombang_status', {'p_id': int(gelombang_id)}).execute()
+                print(f"[SET_GELOMBANG_ACTIVE] RPC result: {rpc_result.data}")
+                print(f"[SET_GELOMBANG_ACTIVE] RPC result type: {type(rpc_result.data)}")
+            except Exception as rpc_error:
+                # If RPC call itself fails, log and re-raise
+                print(f"[SET_GELOMBANG_ACTIVE] ❌ RPC call failed: {rpc_error}")
+                print(f"[SET_GELOMBANG_ACTIVE] ❌ RPC error type: {type(rpc_error)}")
+                raise
             
             # Check if RPC function returned error
             if isinstance(rpc_result.data, dict):
@@ -145,12 +151,18 @@ class handler(BaseHTTPRequestHandler):
                 }).encode('utf-8')
             )
         except Exception as e:
-            print(f"Error in set_gelombang_active: {e}")
+            print(f"[SET_GELOMBANG_ACTIVE] ❌ Exception in set_gelombang_active: {e}")
             import traceback
             traceback.print_exc()
             
-            # Check if it's a unique constraint violation
+            # Get detailed error message
             error_message = str(e)
+            error_type = type(e).__name__
+            
+            print(f"[SET_GELOMBANG_ACTIVE] ❌ Error type: {error_type}")
+            print(f"[SET_GELOMBANG_ACTIVE] ❌ Error message: {error_message}")
+            
+            # Check if it's a unique constraint violation
             if "unique" in error_message.lower() or "constraint" in error_message.lower():
                 self.send_response(409)
                 self.send_header("Content-Type", "application/json")
@@ -163,14 +175,25 @@ class handler(BaseHTTPRequestHandler):
                     }).encode('utf-8')
                 )
             else:
+                # Return more detailed error for debugging
                 self.send_response(500)
                 self.send_header("Content-Type", "application/json")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
+                
+                # Parse error message for cleaner display
+                clean_error = error_message
+                if "JSON" in error_message or "json" in error_message:
+                    clean_error = "Database function error. Silakan coba lagi atau hubungi administrator."
+                
                 self.wfile.write(
                     json.dumps({
                         "ok": False,
-                        "error": str(e)
+                        "error": clean_error,
+                        "details": {
+                            "error_type": error_type,
+                            "raw_error": error_message
+                        }
                     }).encode('utf-8')
                 )
 

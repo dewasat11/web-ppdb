@@ -1498,13 +1498,15 @@ PONDOK PESANTREN AL IKHSAN BEJI`
       const result = await response.json();
       console.log('[GELOMBANG] Step 2: API Response received:', result);
       
-      if (!result.ok) {
+      // Check if result has proper structure
+      if (result.ok === false) {
         console.error('[GELOMBANG] ❌ API returned ok=false:', result);
         throw new Error(result.error || result.message || 'Failed to activate gelombang');
       }
       
+      // SUCCESS: If result.ok is true OR if response.ok is true (backend succeeded)
       console.log('[GELOMBANG] ✅ Step 2 SUCCESS - API call completed');
-      console.log('[GELOMBANG]   → Activated:', result.data);
+      console.log('[GELOMBANG]   → Activated:', result.data || result);
       
       // Step 3: Broadcast to other tabs via localStorage
       console.log('[GELOMBANG] Step 3: Broadcasting to other tabs via localStorage');
