@@ -222,6 +222,18 @@
         d.rencanaprogram ||
         "";
       const getJenjang = (d) => d.rencanatingkat || d.rencanaTingkat || "";
+      
+      // Debug: Log sample data for statistics verification
+      if (result.data.length > 0) {
+        console.log("[STATISTIK] Sample data untuk verifikasi:");
+        console.log("Total pendaftar:", result.data.length);
+        console.log("Sample pendaftar pertama:", {
+          nama: result.data[0].nama,
+          rencana_program: getRencanaProgram(result.data[0]),
+          rencanatingkat: getJenjang(result.data[0]),
+          jeniskelamin: result.data[0].jeniskelamin
+        });
+      }
 
       const putraIndukMts = result.data.filter(
         (d) =>
@@ -297,6 +309,19 @@
       ).length;
       const hanyaSekolahTotal =
         hanyaSekolahMtsL + hanyaSekolahMtsP + hanyaSekolahMaL + hanyaSekolahMaP;
+
+      // Debug: Log calculated statistics
+      console.log("[STATISTIK] Hasil perhitungan:");
+      console.log("Pondok Putra Induk:", { MTs: putraIndukMts, MA: putraIndukMa, Kuliah: putraIndukKuliah, Total: putraIndukTotal });
+      console.log("Pondok Putra Tahfidz:", { MTs: putraTahfidzMts, MA: putraTahfidzMa, Kuliah: putraTahfidzKuliah, Total: putraTahfidzTotal });
+      console.log("Pondok Putri:", { MTs: putriMts, MA: putriMa, Kuliah: putriKuliah, Total: putriTotal });
+      console.log("Hanya Sekolah:", { 
+        MTs_L: hanyaSekolahMtsL, 
+        MTs_P: hanyaSekolahMtsP, 
+        MA_L: hanyaSekolahMaL, 
+        MA_P: hanyaSekolahMaP, 
+        Total: hanyaSekolahTotal 
+      });
 
       // Pasang ke DOM
       const mapSet = (m) =>
@@ -997,7 +1022,7 @@
 Kami akan menghubungi Anda kembali untuk informasi lebih lanjut.
 
 Jazakumullahu khairan,
-SMP SAINS AN NAJAH PURWOKERTO`
+PONDOK PESANTREN AL IKHSAN BEJI`
               );
 
               // coba buka WA app, fallback ke web
@@ -1352,6 +1377,7 @@ SMP SAINS AN NAJAH PURWOKERTO`
 
   /**
    * Set gelombang as active using Supabase RPC
+   * INSTANT UI UPDATE: Button langsung berubah tanpa delay
    */
   async function setGelombangActive(id) {
     // Ensure ID is a number (convert from string if needed)
@@ -1362,7 +1388,7 @@ SMP SAINS AN NAJAH PURWOKERTO`
       return;
     }
     
-    console.log('[GELOMBANG] Activating gelombang via Supabase RPC:', id);
+    console.log('[GELOMBANG] 🚀 Activating gelombang via Supabase RPC:', id);
     
     // Check if Supabase client is available
     if (!window.supabase) {
@@ -1373,10 +1399,75 @@ SMP SAINS AN NAJAH PURWOKERTO`
       return;
     }
     
+    // INSTANT UI UPDATE: Update button immediately (optimistic update)
+    const targetCard = document.querySelector(`[onclick="setGelombangActive(${id})"]`)?.closest('.card');
+    const allCards = document.querySelectorAll('#gelombangContainer .card');
+    
+    if (targetCard) {
+      // Immediately update target button to "Gelombang Aktif" (INSTANT!)
+      const targetButton = targetCard.querySelector(`[onclick="setGelombangActive(${id})"]`);
+      if (targetButton) {
+        targetButton.outerHTML = `
+          <button type="button" class="btn btn-secondary btn-sm" disabled>
+            <i class="bi bi-check-circle-fill"></i> Gelombang Aktif
+          </button>
+        `;
+      }
+      
+      // Update target card styling (green border)
+      targetCard.classList.remove('border-primary', 'border-secondary');
+      targetCard.classList.add('border-success');
+      const targetHeader = targetCard.querySelector('.card-header');
+      if (targetHeader) {
+        targetHeader.className = 'card-header bg-success bg-opacity-10 d-flex justify-content-between align-items-center';
+      }
+      const targetBadge = targetCard.querySelector('.badge');
+      if (targetBadge) {
+        targetBadge.className = 'badge bg-success';
+        targetBadge.textContent = 'Aktif';
+      }
+      
+      // Visual feedback: pulse animation
+      targetCard.style.animation = 'pulse 0.6s ease-in-out 2';
+      setTimeout(() => {
+        targetCard.style.animation = '';
+      }, 1200);
+    }
+    
+    // Update OTHER cards to show "Jadikan Aktif" button
+    allCards.forEach(card => {
+      if (card === targetCard) return; // Skip target card
+      
+      const disabledButton = card.querySelector('button[disabled]');
+      if (disabledButton && disabledButton.textContent.includes('Gelombang Aktif')) {
+        const cardId = extractIdFromCard(card);
+        if (cardId && cardId !== id) {
+          disabledButton.outerHTML = `
+            <button type="button" class="btn btn-success btn-sm" onclick="setGelombangActive(${cardId})">
+              <i class="bi bi-check-circle"></i> Jadikan Aktif
+            </button>
+          `;
+          
+          // Update styling to gray
+          card.classList.remove('border-success', 'border-primary');
+          card.classList.add('border-secondary');
+          const header = card.querySelector('.card-header');
+          if (header) {
+            header.className = 'card-header bg-secondary bg-opacity-10 d-flex justify-content-between align-items-center';
+          }
+          const badge = card.querySelector('.badge');
+          if (badge) {
+            badge.className = 'badge bg-secondary';
+            badge.textContent = 'Ditutup';
+          }
+        }
+      }
+    });
+    
     try {
       // Show loading indicator
       toastr.info('⏳ Mengaktifkan gelombang...', '', {
-        timeOut: 2000,
+        timeOut: 1500,
         progressBar: true
       });
       
@@ -1387,7 +1478,13 @@ SMP SAINS AN NAJAH PURWOKERTO`
         throw new Error(`Supabase RPC error: ${error.message}`);
       }
       
-      console.log('[GELOMBANG] RPC success:', data);
+      console.log('[GELOMBANG] ✅ RPC success:', data);
+      
+      // Update local cache immediately
+      currentGelombangData.forEach(g => {
+        g.is_active = (g.id === id);
+        g.status = (g.id === id) ? 'aktif' : 'ditutup';
+      });
       
       // Show success notification
       toastr.success(`✅ Gelombang ${id} berhasil diaktifkan!`, '', {
@@ -1395,23 +1492,54 @@ SMP SAINS AN NAJAH PURWOKERTO`
         progressBar: true
       });
       
-      // Reload data to show updated status and colors
-      await loadGelombangData(true);
+      // Trigger localStorage event to sync with index.html (INSTANT BROADCAST)
+      const updatePayload = {
+        timestamp: Date.now(),
+        activeId: id,
+        action: 'gelombang_activated'
+      };
+      localStorage.setItem('gelombang_update', JSON.stringify(updatePayload));
+      console.log('[GELOMBANG] 📡 Broadcasting update to public pages:', updatePayload);
       
-      // Trigger localStorage event to sync with index.html
-      localStorage.setItem('gelombang_update', Date.now().toString());
-      console.log('[GELOMBANG] 📡 Broadcasting update to public pages via localStorage');
+      // Trigger storage event manually (for same-tab sync)
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'gelombang_update',
+        newValue: JSON.stringify(updatePayload),
+        url: window.location.href
+      }));
       
-      console.log('[GELOMBANG] ✅ UI refreshed successfully');
+      // Reload data in background (optional, untuk consistency)
+      setTimeout(() => {
+        console.log('[GELOMBANG] 🔄 Background refresh for data consistency');
+        loadGelombangData(true);
+      }, 1000);
+      
+      console.log('[GELOMBANG] ✅ Activation complete - UI updated instantly!');
       
     } catch (error) {
-      console.error('[GELOMBANG] Error activating:', error);
+      console.error('[GELOMBANG] ❌ Error activating:', error);
       
       toastr.error(`❌ Gagal mengubah gelombang: ${error.message}`, '', {
         timeOut: 4000,
         progressBar: true
       });
+      
+      // Rollback UI on error
+      console.log('[GELOMBANG] 🔄 Rolling back UI due to error...');
+      await loadGelombangData(true);
     }
+  }
+  
+  /**
+   * Helper: Extract gelombang ID from card element
+   */
+  function extractIdFromCard(card) {
+    const button = card.querySelector('button[onclick*="setGelombangActive"]');
+    if (button) {
+      const match = button.getAttribute('onclick').match(/setGelombangActive\((\d+)\)/);
+      return match ? parseInt(match[1], 10) : null;
+    }
+    return null;
   }
   window.setGelombangActive = setGelombangActive;
 

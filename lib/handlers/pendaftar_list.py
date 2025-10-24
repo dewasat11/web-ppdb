@@ -84,7 +84,12 @@ class handler(BaseHTTPRequestHandler):
                     "telepon_orang_tua": row_dict.get("telepon_orang_tua", row_dict.get("nomorhportu", "-")),
                     "statusberkas": row_dict.get("statusberkas", "PENDING"),
                     "createdat": created_at,
-                    "alasan_catatan": row_dict.get("alasan", "-")
+                    "alasan_catatan": row_dict.get("alasan", "-"),
+                    # CRITICAL: Add consistent field names for statistics calculation
+                    "rencana_program": row_dict.get("rencanaprogram", ""),  # For statistics
+                    "rencanaprogram": row_dict.get("rencanaprogram", ""),   # Keep lowercase for compatibility
+                    "rencanatingkat": row_dict.get("rencanatingkat", ""),   # For jenjang filtering
+                    "jeniskelamin": row_dict.get("jeniskelamin", "")        # For gender filtering
                 })
             
             # Response

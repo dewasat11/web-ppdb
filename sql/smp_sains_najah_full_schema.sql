@@ -1,6 +1,6 @@
 -- ============================================================================
--- FULL DATABASE SCHEMA: SMP SAINS AN NAJAH PURWOKERTO
--- Sistem PPDB (Penerimaan Peserta Didik Baru)
+-- FULL DATABASE SCHEMA: PONDOK PESANTREN AL IKHSAN BEJI
+-- Sistem PPDSB (Penerimaan Peserta Didik dan Santri Baru)
 -- Database: PostgreSQL (Supabase)
 -- Versi: 2.0 (Sistem NISN)
 -- Tanggal: 2025-10-22
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS pendaftar (
 );
 
 -- Komentar tabel
-COMMENT ON TABLE pendaftar IS 'Tabel data calon siswa baru SMP Sains An Najah';
+COMMENT ON TABLE pendaftar IS 'Tabel data calon santri baru Pondok Pesantren Al Ikhsan Beji';
 
 -- Komentar kolom penting
 COMMENT ON COLUMN pendaftar.nisn IS 'Nomor Induk Siswa Nasional (10 digit) - Identifier utama';
@@ -262,9 +262,9 @@ CREATE TRIGGER update_pembayaran_modtime
 --     kotakabupaten, provinsi, statusberkas
 -- ) VALUES 
 -- (
---     '1234567890', '3302012345670001', 'Ahmad Fauzi', 'Purwokerto', '2010-05-15', 'L',
+--     '1234567890', '3302012345670001', 'Ahmad Fauzi', 'Beji', '2010-05-15', 'L',
 --     'ahmad.fauzi@example.com', '081234567890', 'Jl. Merdeka No. 123',
---     'Purwokerto Kidul', 'Purwokerto Timur', 'Banyumas', 'Jawa Tengah', 'PENDING'
+--     'Beji', 'Kedungbanteng', 'Banyumas', 'Jawa Tengah', 'PENDING'
 -- );
 
 -- Insert sample pembayaran

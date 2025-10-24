@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Dashboard - SMP SAINS AN NAJAH PURWOKERTO</title>
+  <title>Admin Dashboard - PPDSB Pondok Pesantren Al Ikhsan Beji</title>
 
   <!-- Prevent Caching - Force fresh page load -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
+  <parameter name="Expires" content="0" />
 
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
@@ -594,7 +594,7 @@
     <aside class="sidebar p-0" style="width:250px" id="sidebar">
       <div class="sidebar-header">
         <h5 class="text-white mb-1"><i class="bi bi-shield-lock-fill"></i> Admin Panel</h5>
-        <small style="opacity:.8">SMP SAINS AN NAJAH</small>
+        <small style="opacity:.8">PONDOK PESANTREN AL IKHSAN</small>
       </div>
 
       <div class="user-badge">
@@ -649,7 +649,7 @@
           <div class="page-header d-flex justify-content-between align-items-center">
             <div>
               <h2><i class="bi bi-people-fill"></i> Data Pendaftar</h2>
-              <p>Kelola data pendaftar SMP SAINS AN NAJAH</p>
+              <p>Kelola data pendaftar Pondok Pesantren Al Ikhsan Beji</p>
             </div>
             <span id="updateTimePendaftar" class="badge bg-info text-dark">
               <i class="bi bi-clock-history"></i> Data update: -
@@ -752,7 +752,7 @@
           <div class="page-header d-flex justify-content-between align-items-center">
             <div>
               <h2><i class="bi bi-bar-chart-fill"></i> Statistik Pendaftaran</h2>
-              <p>Statistik jumlah pendaftar SMP SAINS AN NAJAH berdasarkan kategori</p>
+              <p>Statistik jumlah pendaftar Pondok Pesantren Al Ikhsan Beji berdasarkan kategori</p>
             </div>
             <span id="updateTimeStatistik" class="badge bg-info text-dark">
               <i class="bi bi-clock-history"></i> Data update: -
@@ -1154,9 +1154,56 @@
     // Initialize Supabase client
     window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
-    console.log('[SUPABASE] ✅ Client initialized successfully');
-    console.log('[SUPABASE] → URL:', SUPABASE_URL);
-    console.log('[SUPABASE] → Ready for gelombang management');
+    console.log('[SUPABASE ADMIN] ✅ Client initialized successfully');
+    console.log('[SUPABASE ADMIN] → URL:', SUPABASE_URL);
+    console.log('[SUPABASE ADMIN] → Ready for gelombang management');
+    
+    // ===== REAL-TIME SYNC: Listen to gelombang changes from other admin tabs =====
+    const channel = window.supabase
+      .channel('admin-gelombang-sync')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'gelombang' 
+      }, (payload) => {
+        console.log('[SUPABASE ADMIN] 🔄 Gelombang data changed from another source:', payload);
+        
+        // Check if current tab is on gelombang tab
+        const gelombangTab = document.getElementById('tab-gelombang');
+        if (gelombangTab && gelombangTab.style.display !== 'none') {
+          console.log('[SUPABASE ADMIN] 🔄 Reloading gelombang data (real-time sync)...');
+          
+          // Show subtle notification
+          if (typeof toastr !== 'undefined') {
+            toastr.info('Data gelombang diperbarui dari sumber lain', '', {
+              timeOut: 2000,
+              progressBar: true
+            });
+          }
+          
+          // Reload data with slight delay
+          setTimeout(() => {
+            if (typeof loadGelombangData === 'function') {
+              loadGelombangData(true);
+            }
+          }, 500);
+        }
+      })
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('[SUPABASE ADMIN] 🎧 Subscribed to real-time gelombang updates');
+        } else if (status === 'CLOSED') {
+          console.log('[SUPABASE ADMIN] ⚠️ Real-time connection closed');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('[SUPABASE ADMIN] ❌ Real-time connection error');
+        }
+      });
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      console.log('[SUPABASE ADMIN] 🔌 Unsubscribing from real-time updates');
+      window.supabase.removeChannel(channel);
+    });
   </script>
   
   <!-- Client-side ZIP generation removed - now using server-side download -->
