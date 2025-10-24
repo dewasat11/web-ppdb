@@ -1174,11 +1174,8 @@
           console.log('[SUPABASE ADMIN] 🔄 Reloading gelombang data (real-time sync)...');
           
           // Show subtle notification
-          if (typeof toastr !== 'undefined') {
-            toastr.info('Data gelombang diperbarui dari sumber lain', '', {
-              timeOut: 2000,
-              progressBar: true
-            });
+          if (typeof toastr !== 'undefined' && toastr.info) {
+            toastr.info('Data gelombang diperbarui dari sumber lain');
           }
           
           // Reload data with slight delay

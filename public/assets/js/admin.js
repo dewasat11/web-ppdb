@@ -1208,26 +1208,26 @@ PONDOK PESANTREN AL IKHSAN BEJI`
     const container = document.getElementById('gelombangContainer');
     if (!container) return;
     
+    console.log('[GELOMBANG] Rendering forms for:', gelombangList);
+    
     const formsHTML = gelombangList.map((gelombang, index) => {
-      // Map status to colors
-      const status = (gelombang.status || 'ditutup').toLowerCase();
+      // Use is_active from database as source of truth
+      const isActive = gelombang.is_active === true;
+      
+      // Map is_active to UI colors
       let statusColor, statusBadge, borderColor;
       
-      if (status === 'aktif') {
+      if (isActive) {
         statusColor = 'success';  // Green
         statusBadge = 'Aktif';
         borderColor = 'success';
-      } else if (status === 'dibuka') {
-        statusColor = 'primary';  // Blue
-        statusBadge = 'Dibuka';
-        borderColor = 'primary';
-      } else { // ditutup
+      } else {
         statusColor = 'secondary'; // Gray
         statusBadge = 'Ditutup';
         borderColor = 'secondary';
       }
       
-      const isActive = gelombang.is_active || status === 'aktif';
+      console.log(`[GELOMBANG] ${gelombang.nama}: isActive=${isActive}, badge=${statusBadge}`);
       
       return `
         <div class="card mb-3 border-${borderColor}">
@@ -1290,18 +1290,20 @@ PONDOK PESANTREN AL IKHSAN BEJI`
     
     // Validate
     if (!startDate || !endDate || !tahunAjaran) {
-      toastr.error('Semua field harus diisi!', '', {
-        timeOut: 2000,
-        progressBar: true
-      });
+      if (typeof toastr !== 'undefined' && toastr.error) {
+        toastr.error('Semua field harus diisi!');
+      } else {
+        alert('Semua field harus diisi!');
+      }
       return;
     }
     
     if (new Date(startDate) > new Date(endDate)) {
-      toastr.error('Tanggal mulai harus lebih kecil atau sama dengan tanggal akhir!', '', {
-        timeOut: 2000,
-        progressBar: true
-      });
+      if (typeof toastr !== 'undefined' && toastr.error) {
+        toastr.error('Tanggal mulai harus lebih kecil atau sama dengan tanggal akhir!');
+      } else {
+        alert('Tanggal mulai harus lebih kecil atau sama dengan tanggal akhir!');
+      }
       return;
     }
     
@@ -1342,10 +1344,9 @@ PONDOK PESANTREN AL IKHSAN BEJI`
       }
       
       // Success notification (FAST)
-      toastr.success('✓ Perubahan berhasil disimpan!', '', {
-        timeOut: 2000,
-        progressBar: true
-      });
+      if (typeof toastr !== 'undefined' && toastr.success) {
+        toastr.success('✓ Perubahan berhasil disimpan!');
+      }
       
       // Restore button immediately
       button.disabled = false;
@@ -1362,10 +1363,11 @@ PONDOK PESANTREN AL IKHSAN BEJI`
       
     } catch (error) {
       console.error('[GELOMBANG] Error updating:', error);
-      toastr.error(`✗ Gagal menyimpan: ${error.message}`, '', {
-        timeOut: 3000,
-        progressBar: true
-      });
+      if (typeof toastr !== 'undefined' && toastr.error) {
+        toastr.error(`✗ Gagal menyimpan: ${error.message}`);
+      } else {
+        alert(`✗ Gagal menyimpan: ${error.message}`);
+      }
       
       // Restore button
       button.disabled = false;
@@ -1456,10 +1458,9 @@ PONDOK PESANTREN AL IKHSAN BEJI`
     
     try {
       // Show loading indicator
-      toastr.info('⏳ Mengaktifkan gelombang...', '', {
-        timeOut: 1500,
-        progressBar: true
-      });
+      if (typeof toastr !== 'undefined' && toastr.info) {
+        toastr.info('⏳ Mengaktifkan gelombang...');
+      }
       
       console.log('[GELOMBANG] 📤 Calling API: /api/set_gelombang_active with id:', id);
       
@@ -1487,10 +1488,9 @@ PONDOK PESANTREN AL IKHSAN BEJI`
       console.log('[GELOMBANG] ✅ API success:', result.data);
       
       // Show success notification
-      toastr.success(`✅ ${result.message || 'Gelombang berhasil diaktifkan!'}`, '', {
-        timeOut: 2000,
-        progressBar: true
-      });
+      if (typeof toastr !== 'undefined' && toastr.success) {
+        toastr.success(`✅ ${result.message || 'Gelombang berhasil diaktifkan!'}`);
+      }
       
       // Trigger localStorage event to sync with index.html (INSTANT BROADCAST)
       const updatePayload = {
@@ -1498,15 +1498,20 @@ PONDOK PESANTREN AL IKHSAN BEJI`
         activeId: id,
         action: 'gelombang_activated'
       };
-      localStorage.setItem('gelombang_update', JSON.stringify(updatePayload));
-      console.log('[GELOMBANG] 📡 Broadcasting update to public pages:', updatePayload);
       
-      // Trigger storage event manually (for same-tab sync)
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'gelombang_update',
-        newValue: JSON.stringify(updatePayload),
-        url: window.location.href
-      }));
+      // Remove old value first to ensure storage event fires
+      localStorage.removeItem('gelombang_update');
+      
+      // Small delay then set new value (ensures change detection)
+      setTimeout(() => {
+        localStorage.setItem('gelombang_update', JSON.stringify(updatePayload));
+        console.log('[GELOMBANG] 📡 Broadcasting update to public pages:', updatePayload);
+        
+        // Also trigger custom event for same-window sync
+        window.dispatchEvent(new CustomEvent('gelombangUpdated', { 
+          detail: updatePayload 
+        }));
+      }, 100);
       
       console.log('[GELOMBANG] ✅ Activation complete - Now reloading from API...');
       
@@ -1515,19 +1520,16 @@ PONDOK PESANTREN AL IKHSAN BEJI`
       await loadGelombangData(true);
       
       console.log('[GELOMBANG] ✅ Data reloaded successfully!');
-      toastr.success('📊 Data gelombang berhasil dimuat ulang', '', {
-        timeOut: 1500,
-        progressBar: true
-      });
       
     } catch (error) {
       console.error('[GELOMBANG] ❌ Error activating:', error);
       console.error('[GELOMBANG] ❌ Error stack:', error.stack);
       
-      toastr.error(`❌ Gagal mengubah gelombang: ${error.message}`, '', {
-        timeOut: 4000,
-        progressBar: true
-      });
+      if (typeof toastr !== 'undefined' && toastr.error) {
+        toastr.error(`❌ Gagal mengubah gelombang: ${error.message}`);
+      } else {
+        alert(`❌ Gagal mengubah gelombang: ${error.message}`);
+      }
       
       // Rollback UI on error - force reload from API
       console.log('[GELOMBANG] 🔄 Rolling back UI by reloading from API...');

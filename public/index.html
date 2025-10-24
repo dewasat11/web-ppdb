@@ -581,34 +581,48 @@
     document.addEventListener('DOMContentLoaded', loadGelombangAktif);
     
     // ===== REAL-TIME SYNC WITH ADMIN =====
-    // Listen for changes from admin panel via localStorage
+    
+    // Method 1: Listen for changes from admin panel via localStorage (cross-tab)
     window.addEventListener('storage', function(e) {
       if (e.key === 'gelombang_update') {
         try {
           const update = JSON.parse(e.newValue);
-          console.log('[GELOMBANG] 📡 Received update from admin:', update);
+          console.log('[GELOMBANG] 📡 Received update from admin (storage event):', update);
           console.log('[GELOMBANG] 🔄 Reloading gelombang display...');
           
           // Show toast notification to user
-          if (typeof toastr !== 'undefined') {
-            toastr.info('Data gelombang diperbarui!', '', {
-              timeOut: 2000,
-              progressBar: true
-            });
+          if (typeof toastr !== 'undefined' && toastr.info) {
+            toastr.info('Data gelombang diperbarui!');
           }
           
           // Reload with slight delay to ensure DB is updated
           setTimeout(() => {
             loadGelombangAktif();
-          }, 300);
+          }, 500);
         } catch (err) {
           console.log('[GELOMBANG] Admin updated gelombang (legacy format), reloading...');
           setTimeout(() => {
             loadGelombangAktif();
-          }, 300);
+          }, 500);
         }
       }
     });
+    
+    // Method 2: Listen for custom event (same-window sync - if admin in iframe)
+    window.addEventListener('gelombangUpdated', function(e) {
+      console.log('[GELOMBANG] 📡 Received update (custom event):', e.detail);
+      console.log('[GELOMBANG] 🔄 Reloading gelombang display...');
+      
+      setTimeout(() => {
+        loadGelombangAktif();
+      }, 500);
+    });
+    
+    // Method 3: Periodic polling as fallback (every 60 seconds)
+    setInterval(() => {
+      console.log('[GELOMBANG] 🔄 Periodic refresh (fallback)...');
+      loadGelombangAktif();
+    }, 60000); // 60 seconds
   </script>
   
   <!-- Supabase Real-Time Sync (Optional - for cross-tab/cross-device sync) -->
@@ -625,30 +639,38 @@
     
     // Subscribe to gelombang table changes (real-time across devices)
     const channel = supabase
-      .channel('gelombang-changes')
+      .channel('gelombang-changes-public')
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 
         table: 'gelombang' 
       }, (payload) => {
         console.log('[SUPABASE INDEX] 🔄 Gelombang data changed:', payload);
+        console.log('[SUPABASE INDEX] Event type:', payload.eventType);
         
-        // Small delay to ensure DB is consistent, then reload
+        // Show notification to user
+        if (typeof toastr !== 'undefined' && toastr.info) {
+          toastr.info('📊 Data gelombang diperbarui dari server');
+        }
+        
+        // Reload immediately (database already consistent)
         setTimeout(() => {
-          console.log('[SUPABASE INDEX] 🔄 Reloading gelombang display...');
+          console.log('[SUPABASE INDEX] 🔄 Reloading gelombang display from Supabase event...');
           if (typeof loadGelombangAktif === 'function') {
             loadGelombangAktif();
           }
-        }, 500);
+        }, 300);
       })
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
-          console.log('[SUPABASE INDEX] 🎧 Subscribed to real-time gelombang updates');
+          console.log('[SUPABASE INDEX] ✅ Subscribed to real-time gelombang updates');
+          console.log('[SUPABASE INDEX] 🎧 Listening for database changes...');
         } else if (status === 'CLOSED') {
           console.log('[SUPABASE INDEX] ⚠️ Real-time connection closed');
         } else if (status === 'CHANNEL_ERROR') {
           console.error('[SUPABASE INDEX] ❌ Real-time connection error');
         }
+        console.log('[SUPABASE INDEX] Connection status:', status);
       });
     
     // Cleanup on page unload
