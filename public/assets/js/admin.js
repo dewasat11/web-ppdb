@@ -1471,23 +1471,27 @@ PONDOK PESANTREN AL IKHSAN BEJI`
         progressBar: true
       });
       
+      console.log('[GELOMBANG] 📤 Calling RPC: set_gelombang_status with p_id:', id);
+      
       // Call Supabase RPC function
       const { data, error } = await window.supabase.rpc('set_gelombang_status', { p_id: id });
       
+      console.log('[GELOMBANG] 📥 RPC Response:', { data, error });
+      
       if (error) {
+        console.error('[GELOMBANG] ❌ RPC Error Details:', error);
         throw new Error(`Supabase RPC error: ${error.message}`);
+      }
+      
+      if (!data) {
+        console.error('[GELOMBANG] ❌ RPC returned no data');
+        throw new Error('RPC returned no data');
       }
       
       console.log('[GELOMBANG] ✅ RPC success:', data);
       
-      // Update local cache immediately
-      currentGelombangData.forEach(g => {
-        g.is_active = (g.id === id);
-        g.status = (g.id === id) ? 'aktif' : 'ditutup';
-      });
-      
       // Show success notification
-      toastr.success(`✅ Gelombang ${id} berhasil diaktifkan dan tersimpan!`, '', {
+      toastr.success(`✅ Gelombang ${id} berhasil diaktifkan! Memuat ulang data...`, '', {
         timeOut: 2000,
         progressBar: true
       });
@@ -1508,30 +1512,29 @@ PONDOK PESANTREN AL IKHSAN BEJI`
         url: window.location.href
       }));
       
-      console.log('[GELOMBANG] ✅ Activation complete - UI updated instantly!');
+      console.log('[GELOMBANG] ✅ Activation complete - Now reloading from database...');
       
-      // AUTO-RELOAD: Reload data dari database untuk confirm perubahan tersimpan
-      setTimeout(() => {
-        console.log('[GELOMBANG] 🔄 Auto-reloading data from database to confirm changes...');
-        loadGelombangData(true).then(() => {
-          console.log('[GELOMBANG] ✅ Auto-reload complete - Data confirmed from database!');
-          toastr.info('📊 Data gelombang berhasil diperbarui dari database', '', {
-            timeOut: 1500,
-            progressBar: true
-          });
-        });
-      }, 1500); // Reload after 1.5 seconds
+      // FORCE RELOAD: Immediately reload data dari database (NO DELAY!)
+      // This ensures UI always shows ACTUAL database state
+      await loadGelombangData(true);
+      
+      console.log('[GELOMBANG] ✅ Data reloaded from database successfully!');
+      toastr.success('📊 Data gelombang berhasil dimuat dari database', '', {
+        timeOut: 1500,
+        progressBar: true
+      });
       
     } catch (error) {
       console.error('[GELOMBANG] ❌ Error activating:', error);
+      console.error('[GELOMBANG] ❌ Error stack:', error.stack);
       
       toastr.error(`❌ Gagal mengubah gelombang: ${error.message}`, '', {
         timeOut: 4000,
         progressBar: true
       });
       
-      // Rollback UI on error
-      console.log('[GELOMBANG] 🔄 Rolling back UI due to error...');
+      // Rollback UI on error - force reload from database
+      console.log('[GELOMBANG] 🔄 Rolling back UI by reloading from database...');
       await loadGelombangData(true);
     }
   }
