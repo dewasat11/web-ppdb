@@ -291,11 +291,29 @@
 
       // Breakdown program/jenjang
       const getRencanaProgram = (d) => {
-        return d.rencana_program || d.rencanaProgram || d.rencanakelas || d.rencanaprogram || "";
+        const program = d.rencana_program || d.rencanaProgram || d.rencanakelas || d.rencanaprogram || "";
+        if (window.debugStatistik) {
+          console.log(`[STATISTIK-DEBUG] getRencanaProgram for ${d.nama}:`, {
+            rencana_program: d.rencana_program,
+            rencanaProgram: d.rencanaProgram,
+            rencanakelas: d.rencanakelas,
+            rencanaprogram: d.rencanaprogram,
+            result: program
+          });
+        }
+        return program.trim(); // Trim whitespace
       };
       
       const getJenjang = (d) => {
-        return d.rencanatingkat || d.rencanaTingkat || "";
+        const jenjang = d.rencanatingkat || d.rencanaTingkat || "";
+        if (window.debugStatistik) {
+          console.log(`[STATISTIK-DEBUG] getJenjang for ${d.nama}:`, {
+            rencanatingkat: d.rencanatingkat,
+            rencanaTingkat: d.rencanaTingkat,
+            result: jenjang
+          });
+        }
+        return jenjang.trim(); // Trim whitespace
       };
       
       // REVISI: Gunakan SEMUA pendaftar untuk statistik, bukan hanya yang verified
@@ -328,74 +346,158 @@
       console.log("[STATISTIK]   → Total pendaftar count:", allPendaftar.length);
       
       const putraIndukMts = allPendaftar.filter(
-        (d) => getRencanaProgram(d) === "Pondok Putra Induk" && getJenjang(d) === "MTs"
+        (d) => {
+          const program = getRencanaProgram(d);
+          const jenjang = getJenjang(d);
+          const isMatch = program === "Pondok Putra Induk" && jenjang === "MTs";
+          if (window.debugStatistik) {
+            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putra Induk MTs (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
+          }
+          return isMatch;
+        }
       ).length;
       const putraIndukMa = allPendaftar.filter(
-        (d) =>
-          getRencanaProgram(d) === "Pondok Putra Induk" &&
-          getJenjang(d) === "MA"
+        (d) => {
+          const program = getRencanaProgram(d);
+          const jenjang = getJenjang(d);
+          const isMatch = program === "Pondok Putra Induk" && jenjang === "MA";
+          if (window.debugStatistik) {
+            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putra Induk MA (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
+          }
+          return isMatch;
+        }
       ).length;
       const putraIndukKuliah = allPendaftar.filter(
-        (d) =>
-          getRencanaProgram(d) === "Pondok Putra Induk" &&
-          getJenjang(d) === "Kuliah"
+        (d) => {
+          const program = getRencanaProgram(d);
+          const jenjang = getJenjang(d);
+          const isMatch = program === "Pondok Putra Induk" && jenjang === "Kuliah";
+          if (window.debugStatistik) {
+            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putra Induk Kuliah (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
+          }
+          return isMatch;
+        }
       ).length;
       const putraIndukTotal = putraIndukMts + putraIndukMa + putraIndukKuliah;
 
       const putraTahfidzMts = allPendaftar.filter(
-        (d) =>
-          getRencanaProgram(d) === "Pondok Putra Tahfidz" &&
-          getJenjang(d) === "MTs"
+        (d) => {
+          const program = getRencanaProgram(d);
+          const jenjang = getJenjang(d);
+          const isMatch = program === "Pondok Putra Tahfidz" && jenjang === "MTs";
+          if (window.debugStatistik) {
+            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putra Tahfidz MTs (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
+          }
+          return isMatch;
+        }
       ).length;
       const putraTahfidzMa = allPendaftar.filter(
-        (d) =>
-          getRencanaProgram(d) === "Pondok Putra Tahfidz" &&
-          getJenjang(d) === "MA"
+        (d) => {
+          const program = getRencanaProgram(d);
+          const jenjang = getJenjang(d);
+          const isMatch = program === "Pondok Putra Tahfidz" && jenjang === "MA";
+          if (window.debugStatistik) {
+            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putra Tahfidz MA (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
+          }
+          return isMatch;
+        }
       ).length;
       const putraTahfidzKuliah = allPendaftar.filter(
-        (d) =>
-          getRencanaProgram(d) === "Pondok Putra Tahfidz" &&
-          getJenjang(d) === "Kuliah"
+        (d) => {
+          const program = getRencanaProgram(d);
+          const jenjang = getJenjang(d);
+          const isMatch = program === "Pondok Putra Tahfidz" && jenjang === "Kuliah";
+          if (window.debugStatistik) {
+            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putra Tahfidz Kuliah (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
+          }
+          return isMatch;
+        }
       ).length;
       const putraTahfidzTotal =
         putraTahfidzMts + putraTahfidzMa + putraTahfidzKuliah;
 
       const putriMts = allPendaftar.filter(
-        (d) =>
-          getRencanaProgram(d) === "Pondok Putri" && getJenjang(d) === "MTs"
+        (d) => {
+          const program = getRencanaProgram(d);
+          const jenjang = getJenjang(d);
+          const isMatch = program === "Pondok Putri" && jenjang === "MTs";
+          if (window.debugStatistik) {
+            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putri MTs (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
+          }
+          return isMatch;
+        }
       ).length;
       const putriMa = allPendaftar.filter(
-        (d) => getRencanaProgram(d) === "Pondok Putri" && getJenjang(d) === "MA"
+        (d) => {
+          const program = getRencanaProgram(d);
+          const jenjang = getJenjang(d);
+          const isMatch = program === "Pondok Putri" && jenjang === "MA";
+          if (window.debugStatistik) {
+            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putri MA (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
+          }
+          return isMatch;
+        }
       ).length;
       const putriKuliah = allPendaftar.filter(
-        (d) =>
-          getRencanaProgram(d) === "Pondok Putri" && getJenjang(d) === "Kuliah"
+        (d) => {
+          const program = getRencanaProgram(d);
+          const jenjang = getJenjang(d);
+          const isMatch = program === "Pondok Putri" && jenjang === "Kuliah";
+          if (window.debugStatistik) {
+            console.log(`[STATISTIK-DEBUG]   → Check for Pondok Putri Kuliah (${d.nama}): Program='${program}', Jenjang='${jenjang}', Match=${isMatch}`);
+          }
+          return isMatch;
+        }
       ).length;
       const putriTotal = putriMts + putriMa + putriKuliah;
 
       const hanyaSekolahMtsL = allPendaftar.filter(
-        (d) =>
-          getRencanaProgram(d) === "Hanya Sekolah" &&
-          getJenjang(d) === "MTs" &&
-          (d.jeniskelamin === "L" || d.jenisKelamin === "L")
+        (d) => {
+          const program = getRencanaProgram(d);
+          const jenjang = getJenjang(d);
+          const isGenderMatch = (d.jeniskelamin && d.jeniskelamin.trim().toUpperCase() === "L") || (d.jenisKelamin && d.jenisKelamin.trim().toUpperCase() === "L");
+          const isMatch = program === "Hanya Sekolah" && jenjang === "MTs" && isGenderMatch;
+          if (window.debugStatistik) {
+            console.log(`[STATISTIK-DEBUG]   → Check for Hanya Sekolah MTs L (${d.nama}): Program='${program}', Jenjang='${jenjang}', Gender='${d.jeniskelamin || d.jenisKelamin}', Match=${isMatch}`);
+          }
+          return isMatch;
+        }
       ).length;
       const hanyaSekolahMtsP = allPendaftar.filter(
-        (d) =>
-          getRencanaProgram(d) === "Hanya Sekolah" &&
-          getJenjang(d) === "MTs" &&
-          (d.jeniskelamin === "P" || d.jenisKelamin === "P")
+        (d) => {
+          const program = getRencanaProgram(d);
+          const jenjang = getJenjang(d);
+          const isGenderMatch = (d.jeniskelamin && d.jeniskelamin.trim().toUpperCase() === "P") || (d.jenisKelamin && d.jenisKelamin.trim().toUpperCase() === "P");
+          const isMatch = program === "Hanya Sekolah" && jenjang === "MTs" && isGenderMatch;
+          if (window.debugStatistik) {
+            console.log(`[STATISTIK-DEBUG]   → Check for Hanya Sekolah MTs P (${d.nama}): Program='${program}', Jenjang='${jenjang}', Gender='${d.jeniskelamin || d.jenisKelamin}', Match=${isMatch}`);
+          }
+          return isMatch;
+        }
       ).length;
       const hanyaSekolahMaL = allPendaftar.filter(
-        (d) =>
-          getRencanaProgram(d) === "Hanya Sekolah" &&
-          getJenjang(d) === "MA" &&
-          (d.jeniskelamin === "L" || d.jenisKelamin === "L")
+        (d) => {
+          const program = getRencanaProgram(d);
+          const jenjang = getJenjang(d);
+          const isGenderMatch = (d.jeniskelamin && d.jeniskelamin.trim().toUpperCase() === "L") || (d.jenisKelamin && d.jenisKelamin.trim().toUpperCase() === "L");
+          const isMatch = program === "Hanya Sekolah" && jenjang === "MA" && isGenderMatch;
+          if (window.debugStatistik) {
+            console.log(`[STATISTIK-DEBUG]   → Check for Hanya Sekolah MA L (${d.nama}): Program='${program}', Jenjang='${jenjang}', Gender='${d.jeniskelamin || d.jenisKelamin}', Match=${isMatch}`);
+          }
+          return isMatch;
+        }
       ).length;
       const hanyaSekolahMaP = allPendaftar.filter(
-        (d) =>
-          getRencanaProgram(d) === "Hanya Sekolah" &&
-          getJenjang(d) === "MA" &&
-          (d.jeniskelamin === "P" || d.jenisKelamin === "P")
+        (d) => {
+          const program = getRencanaProgram(d);
+          const jenjang = getJenjang(d);
+          const isGenderMatch = (d.jeniskelamin && d.jeniskelamin.trim().toUpperCase() === "P") || (d.jenisKelamin && d.jenisKelamin.trim().toUpperCase() === "P");
+          const isMatch = program === "Hanya Sekolah" && jenjang === "MA" && isGenderMatch;
+          if (window.debugStatistik) {
+            console.log(`[STATISTIK-DEBUG]   → Check for Hanya Sekolah MA P (${d.nama}): Program='${program}', Jenjang='${jenjang}', Gender='${d.jeniskelamin || d.jenisKelamin}', Match=${isMatch}`);
+          }
+          return isMatch;
+        }
       ).length;
       const hanyaSekolahTotal =
         hanyaSekolahMtsL + hanyaSekolahMtsP + hanyaSekolahMaL + hanyaSekolahMaP;
