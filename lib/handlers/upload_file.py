@@ -131,8 +131,10 @@ class handler(BaseHTTPRequestHandler):
             file_name   = data.get("fileName")
             file_type   = data.get("fileType")
             nisn        = data.get("nisn")
+            already_compressed = data.get("alreadyCompressed", False)
+            client_mime_type = data.get("mimeType")
 
-            print(f"[REQ] upload_file: name={file_name}, type={file_type}, nisn={nisn}")
+            print(f"[REQ] upload_file: name={file_name}, type={file_type}, nisn={nisn}, client_compressed={already_compressed}")
 
             # Validasi input
             if not all([file_base64, file_name, nisn]):
@@ -165,25 +167,34 @@ class handler(BaseHTTPRequestHandler):
             if ext not in allowed:
                 return send_json(400, {"ok": False, "error": f"Tipe file tidak diizinkan. Hanya: {', '.join(allowed)}"})
 
-            # Kompres jika gambar
+            # Kompresi gambar berdasarkan flag alreadyCompressed dari client
             forced_mime = None
             if ext in ["jpg", "jpeg", "png"]:
-                try:
-                    file_data, ext, forced_mime = compress_image_keep_format(
-                        file_data, target_kb=500, orig_ext=ext
-                    )
-                    print(f"[INFO] after compress: {len(file_data)} bytes, ext={ext}, mime={forced_mime}")
-                except Exception as e:
-                    print(f"[WARN] kompres gagal: {e}")
-                    forced_mime = None
+                if already_compressed:
+                    print("[INFO] Gambar sudah dikompresi client-side. Melewati kompresi server.")
+                    # Jika sudah dikompresi client, gunakan MIME dari client atau default
+                    forced_mime = client_mime_type or (f"image/{ext}" if ext != "jpeg" else "image/jpeg")
+                else:
+                    print("[INFO] Gambar belum dikompresi client-side. Melakukan kompresi server.")
+                    try:
+                        file_data, ext, forced_mime = compress_image_keep_format(
+                            file_data, target_kb=500, orig_ext=ext
+                        )
+                        print(f"[INFO] after server compress: {len(file_data)} bytes, ext={ext}, mime={forced_mime}")
+                    except Exception as e:
+                        print(f"[WARN] kompresi server gagal: {e}")
+                        forced_mime = None # Reset forced_mime if server compression failed
+            else:
+                print(f"[INFO] File {file_name} bukan gambar, tidak dikompresi.")
+                # For non-image files, use client_mime_type if provided, else rely on mime_map
+                forced_mime = client_mime_type if client_mime_type else None
 
             # Batas akhir server
             if len(file_data) > 5 * 1024 * 1024:
                 return send_json(400, {"ok": False, "error": "Ukuran file maksimal 5MB setelah kompres"})
 
-            # Filename unik
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            unique_filename = f"{nisn}/{file_type}_{timestamp}.{ext}"
+            # Filename unik (gunakan file_name dari client, karena sudah diformat di client)
+            unique_filename = f"{nisn}/{file_name}"
             print(f"[INFO] path: {unique_filename}")
 
             # Upload ke Supabase

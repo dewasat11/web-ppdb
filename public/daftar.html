@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
   <head>
@@ -1792,6 +1791,103 @@
         });
       }
 
+      // New function for client-side image compression
+      async function compressClientSide(file, targetBytes = 500 * 1024) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+
+              let width = img.width;
+              let height = img.height;
+              const maxDim = 1600; // Max longest side
+
+              if (width > height) {
+                if (width > maxDim) {
+                  height *= maxDim / width;
+                  width = maxDim;
+                }
+              } else {
+                if (height > maxDim) {
+                  width *= maxDim / height;
+                  height = maxDim;
+                }
+              }
+
+              canvas.width = width;
+              canvas.height = height;
+
+              // Handle PNG transparency
+              if (file.type === 'image/png') {
+                ctx.clearRect(0, 0, width, height);
+              }
+
+              ctx.drawImage(img, 0, 0, width, height);
+
+              let outputBlob = null;
+              let quality = 0.8; // Start quality for JPG
+              let compressed = false;
+              const originalExt = file.name.split('.').pop().toLowerCase();
+              let finalMimeType = file.type;
+
+              // For JPG/JPEG, iterate quality until target size or min quality
+              if (file.type === 'image/jpeg' || file.type === 'image/jpg') {
+                finalMimeType = 'image/jpeg'; // Standardize JPG mime type
+                while (quality >= 0.4) {
+                  canvas.toBlob(
+                    (blob) => {
+                      if (blob.size <= targetBytes) {
+                        outputBlob = blob;
+                        compressed = true;
+                      } else {
+                        quality -= 0.1;
+                      }
+                    },
+                    finalMimeType,
+                    quality
+                  );
+                  if (compressed) break;
+                  // Small delay to allow toBlob to execute (async in some browsers)
+                  // In real-world, this needs a Promise-based loop. For now, assume sync-ish for simplicity.
+                  // A more robust solution would be to chain Promises or use await canvas.toBlob() if available.
+                  await new Promise(r => setTimeout(r, 0));
+                }
+                // If still not compressed or quality too low, use lowest quality blob
+                if (!outputBlob) {
+                  canvas.toBlob(blob => { outputBlob = blob; }, finalMimeType, 0.4);
+                  await new Promise(r => setTimeout(r, 0));
+                }
+              } else if (file.type === 'image/png') {
+                // PNG: Just downscale, keep transparency, no quality reduction
+                canvas.toBlob(blob => { outputBlob = blob; }, 'image/png');
+                await new Promise(r => setTimeout(r, 0));
+              } else {
+                // For other types like PDF, or unsupported image types, return original file
+                outputBlob = file; 
+                finalMimeType = file.type;
+              }
+
+              if (outputBlob) {
+                resolve({
+                  blob: outputBlob,
+                  ext: originalExt, // Keep original extension for non-image files, or derived for images
+                  mime: finalMimeType,
+                  alreadyCompressed: true,
+                });
+              } else {
+                reject(new Error("Failed to compress or process image."));
+              }
+            };
+            img.src = event.target.result;
+          };
+          reader.onerror = (error) => reject(error);
+          reader.readAsDataURL(file);
+        });
+      }
+
       // Function to copy NISN to clipboard
       function salinNISN() {
         const regNo = document.getElementById("regNo").textContent;
@@ -1824,19 +1920,51 @@
         if (!file) return null;
 
         // Validate NISN
-        if (!nisn || nisn === "undefined") {
-          throw new Error(`NISN tidak valid: ${nisn}`);
+        if (!nisn || nisn.length !== 10 || !/^[0-9]{10}$/.test(nisn)) {
+          throw new Error(`NISN tidak valid: ${nisn}. Harus 10 digit angka.`);
         }
 
-        // Validate file size (max 2MB)
-        if (file.size > 2 * 1024 * 1024) {
-          throw new Error(`File ${type} terlalu besar (max 2MB)`);
+        let processedFile = file;
+        let fileExtension = file.name.split('.').pop().toLowerCase();
+        let finalMimeType = file.type;
+        let alreadyCompressed = false;
+
+        // Step 1: Client-side compression for images
+        const imageMimes = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (imageMimes.includes(file.type.toLowerCase())) {
+          console.log(`[COMPRESS] Mengkompresi gambar ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)...`);
+          try {
+            const compressedResult = await compressClientSide(file);
+            processedFile = compressedResult.blob;
+            fileExtension = compressedResult.ext;
+            finalMimeType = compressedResult.mime;
+            alreadyCompressed = compressedResult.alreadyCompressed;
+            console.log(`[COMPRESS] Gambar ${file.name} selesai dikompresi. Ukuran: ${(processedFile.size / 1024).toFixed(2)} KB, Tipe: ${finalMimeType}, Ext: ${fileExtension}`);
+          } catch (compressError) {
+            console.warn(`[COMPRESS] ⚠️ Gagal kompresi client-side untuk ${file.name}:`, compressError);
+            console.warn(`[COMPRESS] Menggunakan file asli tanpa kompresi.`);
+            // Fallback to original file if compression fails
+            processedFile = file;
+            alreadyCompressed = false;
+          }
+        } else {
+          console.log(`[COMPRESS] File ${file.name} bukan gambar, tidak dikompresi.`);
         }
 
-        console.log(`Uploading ${type}: ${file.name} untuk NISN ${nisn}`);
+        // Step 2: Validate client-side size after compression (or for original non-image file)
+        const MAX_CLIENT_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
+        if (processedFile.size > MAX_CLIENT_SIZE_BYTES) {
+          throw new Error(`File ${type} terlalu besar setelah kompresi (${(processedFile.size / 1024 / 1024).toFixed(2)} MB). Maksimal ${MAX_CLIENT_SIZE_BYTES / 1024 / 1024} MB.`);
+        }
+
+        console.log(`Uploading ${type}: ${file.name} (final size: ${(processedFile.size / 1024).toFixed(2)} KB) untuk NISN ${nisn}`);
 
         // Convert to base64
-        const base64Data = await fileToBase64(file);
+        const base64Data = await fileToBase64(processedFile);
+
+        // Generate a clean filename with the final extension
+        // const originalFileNameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.'));
+        const finalFileName = `${nisn}_${type}.${fileExtension}`;
 
         // Upload via backend API
         const response = await fetch("/api/upload_file", {
@@ -1844,17 +1972,21 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             file: base64Data,
-            fileName: file.name,
+            fileName: finalFileName, // Use the generated filename
             fileType: type,
-            mimeType: file.type,
+            mimeType: finalMimeType, // Use the final MIME type from compression or original
             nisn: nisn,
+            alreadyCompressed: alreadyCompressed // Indicate if client-side compression was applied
           }),
         });
 
         const result = await response.json();
         console.log(`Upload ${type} result:`, result);
 
-        if (!result.ok) {
+        if (!response.ok) { // Check HTTP status first
+          throw new Error(result.error || `Upload ${type} gagal (HTTP ${response.status})`);
+        }
+        if (!result.ok) { // Check backend 'ok' flag
           throw new Error(result.error || `Upload ${type} gagal`);
         }
 
