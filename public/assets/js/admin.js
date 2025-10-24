@@ -1541,8 +1541,12 @@ PONDOK PESANTREN AL IKHSAN BEJI`
       console.log('[GELOMBANG] ✅ SUCCESS: Gelombang', id, 'is now ACTIVE');
       console.log('[GELOMBANG] ========================================');
       
-      // Show success alert
-      alert(`✅ Gelombang ${id} berhasil diaktifkan!`);
+      // Show success notification (green)
+      if (typeof toastr !== 'undefined') {
+        toastr.success(`Gelombang ${result.data?.nama || id} berhasil diaktifkan!`, 'Berhasil');
+      } else {
+        alert(`✅ Gelombang ${id} berhasil diaktifkan!`);
+      }
       
     } catch (error) {
       console.log('[GELOMBANG] ========================================');
@@ -1551,8 +1555,12 @@ PONDOK PESANTREN AL IKHSAN BEJI`
       console.error('[GELOMBANG] ❌ Error stack:', error.stack);
       console.log('[GELOMBANG] ========================================');
       
-      // Show error alert
-      alert(`❌ Gagal mengaktifkan gelombang: ${error.message}`);
+      // Show error notification (red)
+      if (typeof toastr !== 'undefined') {
+        toastr.error(error.message || 'Terjadi kesalahan saat mengaktifkan gelombang', 'Gagal');
+      } else {
+        alert(`❌ Gagal mengaktifkan gelombang: ${error.message}`);
+      }
       
       // Rollback: Force reload from database
       console.log('[GELOMBANG] 🔄 Rollback: Reloading data from database...');
