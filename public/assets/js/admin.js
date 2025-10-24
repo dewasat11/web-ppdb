@@ -138,7 +138,15 @@
       // Fetch pendaftar data
       const r = await fetch("/api/pendaftar_list");
       const result = await r.json();
-      if (!(result.success && result.data)) return;
+      if (!(result.success && result.data)) {
+        console.error("[STATISTIK] ❌ Failed to fetch pendaftar data:", result);
+        return;
+      }
+
+      console.log("[STATISTIK] 📊 Raw pendaftar data received:");
+      console.log("[STATISTIK]   → Success:", result.success);
+      console.log("[STATISTIK]   → Data length:", result.data ? result.data.length : 0);
+      console.log("[STATISTIK]   → Sample data:", result.data ? result.data.slice(0, 2) : null);
 
       allPendaftarData = result.data; // simpan untuk detail
 
@@ -248,35 +256,61 @@
         if (el) el.textContent = val;
       };
       
+      // Debug: Check data structure and field mapping
+      console.log("[STATISTIK] 🔍 Data structure analysis:");
+      console.log("[STATISTIK]   → Total pendaftar:", result.data.length);
+      
+      if (result.data.length > 0) {
+        const sample = result.data[0];
+        console.log("[STATISTIK]   → Sample pendaftar fields:", Object.keys(sample));
+        console.log("[STATISTIK]   → Sample status values:", result.data.map(d => d.status).slice(0, 5));
+        console.log("[STATISTIK]   → Sample rencana_program values:", result.data.map(d => d.rencana_program || d.rencanaprogram).slice(0, 5));
+        console.log("[STATISTIK]   → Sample rencanatingkat values:", result.data.map(d => d.rencanatingkat).slice(0, 5));
+      }
+
       // Total count = all pendaftar
       setText("totalCount", result.data.length);
+      console.log("[STATISTIK] ✅ Set totalCount to:", result.data.length);
       
       // Status counts (tidak perlu filter pembayaran di sini)
-      setText(
-        "pendingCount",
-        result.data.filter((d) => d.status === "pending").length
-      );
-      setText(
-        "revisiCount",
-        result.data.filter((d) => d.status === "revisi").length
-      );
-      setText(
-        "diterimaCount",
-        result.data.filter((d) => d.status === "diterima").length
-      );
-      setText(
-        "ditolakCount",
-        result.data.filter((d) => d.status === "ditolak").length
-      );
+      const pendingCount = result.data.filter((d) => d.status === "pending").length;
+      const revisiCount = result.data.filter((d) => d.status === "revisi").length;
+      const diterimaCount = result.data.filter((d) => d.status === "diterima").length;
+      const ditolakCount = result.data.filter((d) => d.status === "ditolak").length;
+      
+      setText("pendingCount", pendingCount);
+      setText("revisiCount", revisiCount);
+      setText("diterimaCount", diterimaCount);
+      setText("ditolakCount", ditolakCount);
+      
+      console.log("[STATISTIK] ✅ Status counts set:");
+      console.log("[STATISTIK]   → Pending:", pendingCount);
+      console.log("[STATISTIK]   → Revisi:", revisiCount);
+      console.log("[STATISTIK]   → Diterima:", diterimaCount);
+      console.log("[STATISTIK]   → Ditolak:", ditolakCount);
 
       // Breakdown program/jenjang
-      const getRencanaProgram = (d) =>
-        d.rencana_program ||
-        d.rencanaProgram ||
-        d.rencanakelas ||
-        d.rencanaprogram ||
-        "";
-      const getJenjang = (d) => d.rencanatingkat || d.rencanaTingkat || "";
+      const getRencanaProgram = (d) => {
+        const program = d.rencana_program || d.rencanaProgram || d.rencanakelas || d.rencanaprogram || "";
+        console.log(`[STATISTIK] getRencanaProgram for ${d.nama}:`, {
+          rencana_program: d.rencana_program,
+          rencanaProgram: d.rencanaProgram,
+          rencanakelas: d.rencanakelas,
+          rencanaprogram: d.rencanaprogram,
+          result: program
+        });
+        return program;
+      };
+      
+      const getJenjang = (d) => {
+        const jenjang = d.rencanatingkat || d.rencanaTingkat || "";
+        console.log(`[STATISTIK] getJenjang for ${d.nama}:`, {
+          rencanatingkat: d.rencanatingkat,
+          rencanaTingkat: d.rencanaTingkat,
+          result: jenjang
+        });
+        return jenjang;
+      };
       
       // Filter hanya pendaftar dengan pembayaran VERIFIED untuk statistik
       const verifiedPendaftar = result.data.filter(hasVerifiedPayment);
@@ -316,10 +350,19 @@
       console.log("💡 Tip: Aktifkan debug matching dengan: window.debugStatistik = true");
 
       // HANYA hitung pendaftar dengan pembayaran VERIFIED
+      console.log("[STATISTIK] 🔍 Calculating breakdown statistics...");
+      console.log("[STATISTIK]   → Verified pendaftar count:", verifiedPendaftar.length);
+      
       const putraIndukMts = verifiedPendaftar.filter(
-        (d) =>
-          getRencanaProgram(d) === "Pondok Putra Induk" &&
-          getJenjang(d) === "MTs"
+        (d) => {
+          const program = getRencanaProgram(d);
+          const jenjang = getJenjang(d);
+          const isMatch = program === "Pondok Putra Induk" && jenjang === "MTs";
+          console.log(`[STATISTIK] Putra Induk MTs check for ${d.nama}:`, {
+            program, jenjang, isMatch
+          });
+          return isMatch;
+        }
       ).length;
       const putraIndukMa = verifiedPendaftar.filter(
         (d) =>
@@ -1624,8 +1667,22 @@ PONDOK PESANTREN AL IKHSAN BEJI`
       
       // Step 5: RELOAD data from database to ensure UI is accurate
       console.log('[GELOMBANG] Step 5: Reloading data from database (force refresh)');
-      await loadGelombangData(true);
-      console.log('[GELOMBANG]   ✅ Data reloaded successfully');
+      console.log('[GELOMBANG]   → Calling loadGelombangData(true)...');
+      
+      try {
+        await loadGelombangData(true);
+        console.log('[GELOMBANG]   ✅ Data reloaded successfully');
+        
+        // Verify UI was updated
+        const updatedContainer = document.getElementById('gelombangContainer');
+        if (updatedContainer) {
+          console.log('[GELOMBANG]   → Container content length:', updatedContainer.innerHTML.length);
+          console.log('[GELOMBANG]   → Container has gelombang cards:', updatedContainer.querySelectorAll('.card').length);
+        }
+      } catch (reloadError) {
+        console.error('[GELOMBANG]   ❌ Failed to reload data:', reloadError);
+        throw reloadError; // Re-throw to trigger error handling
+      }
       
       console.log('[GELOMBANG] ========================================');
       console.log('[GELOMBANG] ✅ SUCCESS: Gelombang', id, 'is now ACTIVE');
@@ -1646,6 +1703,24 @@ PONDOK PESANTREN AL IKHSAN BEJI`
       
       // No need for location.reload() - loadGelombangData(true) already refreshed the UI
       console.log('[GELOMBANG] ✅ UI updated successfully - staying on Gelombang tab');
+      
+      // Final verification - check if UI actually updated
+      setTimeout(() => {
+        const finalContainer = document.getElementById('gelombangContainer');
+        if (finalContainer) {
+          const activeCards = finalContainer.querySelectorAll('.border-success');
+          const inactiveCards = finalContainer.querySelectorAll('.border-secondary');
+          console.log('[GELOMBANG] 🔍 Final verification:');
+          console.log('[GELOMBANG]   → Active cards (green border):', activeCards.length);
+          console.log('[GELOMBANG]   → Inactive cards (gray border):', inactiveCards.length);
+          
+          if (activeCards.length === 1) {
+            console.log('[GELOMBANG] ✅ UI refresh successful - exactly 1 active gelombang');
+          } else {
+            console.warn('[GELOMBANG] ⚠️ UI refresh may have failed - unexpected active count:', activeCards.length);
+          }
+        }
+      }, 1000);
       
     } catch (error) {
       console.log('[GELOMBANG] ========================================');
@@ -1674,6 +1749,13 @@ PONDOK PESANTREN AL IKHSAN BEJI`
         console.log('[GELOMBANG]   ✅ Rollback complete');
       } catch (rollbackError) {
         console.error('[GELOMBANG]   ❌ Rollback failed:', rollbackError);
+        
+        // Last resort: manual page refresh
+        console.log('[GELOMBANG] 🔄 Last resort: Manual page refresh in 2 seconds...');
+        setTimeout(() => {
+          console.log('[GELOMBANG] 🔄 Refreshing page...');
+          location.reload();
+        }, 2000);
       }
     }
   }
