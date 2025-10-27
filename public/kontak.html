@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="csrf-token" content="{{CSRF_TOKEN}}" />
+  <meta name="description" content="Kontak - PPDSB Pondok Pesantren Al Ikhsan Beji" />
+  <meta name="keywords" content="PPDSB, Penerimaan Santri Baru, Pondok Pesantren Al Ikhsan Beji, pendaftaran santri, pesantren, Beji, kontak" />
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+
+  <title>Kontak - PPDSB Pondok Pesantren Al Ikhsan Beji</title>
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Optional: Tailwind config tweak
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              300: '#6ee7b7',
+              400: '#34d399',
+              500: '#10b981', // emerald
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --tw-font-sans: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+    }
+    html, body { font-family: var(--tw-font-sans); }
+    [x-cloak] { display: none !important; }
+  </style>
+
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="min-h-screen flex flex-col bg-white text-gray-800">
+  <!-- NAVBAR -->
+  <nav class="bg-white shadow-lg sticky top-0 z-50" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo -->
+        <div class="flex-shrink-0 flex items-center">
+          <a href="/" class="flex items-center">
+            <img src="/assets/img/logo-alikhsan.png" class="h-16 w-auto" />
+          </a>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <div class="hidden md:block">
+          <div class="flex items-baseline space-x-4">
+            <a href="/" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Beranda</a>
+
+            <!-- Dropdown Informasi -->
+            <div class="relative">
+              <button @click="profileDropdownOpen=!profileDropdownOpen" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                Informasi
+                <i class="bi bi-caret-down-fill ml-1 text-xs" :class="{'rotate-180': profileDropdownOpen}"></i>
+              </button>
+              <div x-cloak x-show="profileDropdownOpen" @click.outside="profileDropdownOpen=false" x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100">
+                <a href="/alur-pendaftaran" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Alur Pendaftaran</a>
+                <a href="/syarat-pendaftaran" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Syarat Pendaftaran</a>
+                <a href="/biaya" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Biaya</a>
+              </div>
+            </div>
+
+            <a href="/brosur" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Brosur</a>
+            <a href="/kontak" class="text-brand-700 px-3 py-2 rounded-md text-sm font-medium">Kontak</a>
+          </div>
+        </div>
+
+        <!-- CTA Button Desktop -->
+        <div class="hidden md:block">
+          <a href="/login" class="bg-brand-700 hover:bg-brand-800 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg">Admin</a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <div class="md:hidden">
+          <button @click="mobileMenuOpen=!mobileMenuOpen" class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-brand-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <i class="bi" :class="mobileMenuOpen ? 'bi-x-lg' : 'bi-list'"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Backdrop -->
+    <div x-cloak x-show="mobileMenuOpen" @click="mobileMenuOpen=false" class="md:hidden fixed inset-0 z-40 bg-black/50"></div>
+
+    <!-- Mobile Menu -->
+    <div x-cloak x-show="mobileMenuOpen" x-transition class="md:hidden fixed inset-y-0 left-0 z-50 mobile-menu bg-white shadow-xl border-r border-gray-200 overflow-y-auto">
+      <div class="flex items-center justify-between p-4 border-b border-gray-200">
+        <div class="flex items-center">
+          <img src="/assets/img/logo-alikhsan.png" class="h-16 w-auto" />
+        </div>
+        <button @click="mobileMenuOpen=false" class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      <div class="px-2 pt-4 pb-3 space-y-1">
+        <a href="/" class="text-gray-700 hover:text-brand-700 hover:bg-gray-50 block px-3 py-2 rounded-md text-base font-medium">Beranda</a>
+
+        <details class="px-1">
+          <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 block px-3 py-2 rounded-md text-base font-medium">Informasi</summary>
+          <div class="pl-6 space-y-1 mt-2">
+            <a href="/alur-pendaftaran" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Alur Pendaftaran</a>
+            <a href="/syarat-pendaftaran" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Syarat Pendaftaran</a>
+            <a href="/biaya" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Biaya</a>
+          </div>
+        </details>
+
+        <a href="/brosur" class="text-gray-700 hover:text-brand-700 hover:bg-gray-50 block px-3 py-2 rounded-md text-base font-medium">Brosur</a>
+        <a href="/kontak" class="bg-brand-100 text-brand-700 block px-3 py-2 rounded-md text-base font-medium">Kontak</a>
+
+        <div class="pt-4 pb-2 px-2">
+          <a href="/login" class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center">Admin</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="flex-1 container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">Hubungi Kami</h1>
+    <div class="prose max-w-none">
+      <p>Jangan ragu untuk menghubungi kami jika Anda memiliki pertanyaan atau membutuhkan informasi lebih lanjut mengenai Pondok Pesantren Al Ikhsan Beji.</p>
+      <div class="mt-4 space-y-4">
+        <div>
+          <h2 class="text-xl font-semibold text-gray-800">Alamat</h2>
+          <p class="mt-1 text-gray-700">Jl. Raya Beji No.123, Beji, Kec. Depok, Kota Depok, Jawa Barat 16421</p>
+        </div>
+        <div>
+          <h2 class="text-xl font-semibold text-gray-800">Telepon</h2>
+          <p class="mt-1 text-gray-700">(021) 12345678</p>
+        </div>
+        <div>
+          <h2 class="text-xl font-semibold text-gray-800">Email</h2>
+          <p class="mt-1 text-gray-700">info@alikhsanbeji.sch.id</p>
+        </div>
+        <div>
+          <h2 class="text-xl font-semibold text-gray-800">Jam Kerja</h2>
+          <p class="mt-1 text-gray-700">Senin - Jumat: 08.00 - 16.00 WIB</p>
+        </div>
+      </div>
+      <p class="mt-4">Anda juga bisa mengisi formulir kontak di bawah ini:</p>
+      <!-- TODO: Tambahkan formulir kontak di sini jika diperlukan -->
+      <form class="mt-6 space-y-4">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+          <input type="text" id="name" name="name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500">
+        </div>
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+          <input type="email" id="email" name="email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500">
+        </div>
+        <div>
+          <label for="subject" class="block text-sm font-medium text-gray-700">Subjek</label>
+          <input type="text" id="subject" name="subject" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500">
+        </div>
+        <div>
+          <label for="message" class="block text-sm font-medium text-gray-700">Pesan</label>
+          <textarea id="message" name="message" rows="4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-500 focus:border-brand-500"></textarea>
+        </div>
+        <div>
+          <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-brand-700 hover:bg-brand-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500">Kirim Pesan</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-brand-800 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm">
+      <p>&copy; 2024 Pondok Pesantren Al Ikhsan Beji. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
