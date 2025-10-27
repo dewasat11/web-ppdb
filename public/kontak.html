@@ -8,167 +8,312 @@
   <meta name="description" content="Kontak - PPDSB Pondok Pesantren Al Ikhsan Beji" />
   <meta name="keywords" content="PPDSB, Penerimaan Santri Baru, Pondok Pesantren Al Ikhsan Beji, pendaftaran santri, pesantren, Beji, kontak" />
 
-  <link rel="preconnect" href="https://fonts.gstatic.com" />
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
 
   <title>Kontak - PPDSB Pondok Pesantren Al Ikhsan Beji</title>
 
-  <!-- Tailwind CSS (CDN) -->
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    // Optional: Tailwind config tweak
     tailwind.config = {
       theme: {
         extend: {
           colors: {
             brand: {
-              50: '#ecfdf5',
+              50:  '#ecfdf5',
               100: '#d1fae5',
               200: '#a7f3d0',
               300: '#6ee7b7',
               400: '#34d399',
-              500: '#10b981', // emerald
+              500: '#10b981',
               600: '#059669',
               700: '#047857',
-              800: '#065f46',
+              800: '#065f46', /* PRIMARY */
               900: '#064e3b',
             }
+          },
+          keyframes: {
+            floaty: { '0%,100%': { transform:'translateY(0)' }, '50%': { transform:'translateY(-8px)' } },
+            blob: {
+              '0%,100%': { transform:'translate(0,0) scale(1)' },
+              '33%': { transform:'translate(10px,-10px) scale(1.05)' },
+              '66%': { transform:'translate(-10px,10px) scale(0.95)' }
+            },
+            shimmer: {
+              '0%': { backgroundPosition: '-200% 0' },
+              '100%': { backgroundPosition: '200% 0' }
+            }
+          },
+          animation: {
+            floaty: 'floaty 6s ease-in-out infinite',
+            blob: 'blob 12s ease-in-out infinite',
+            blobSlow: 'blob 22s ease-in-out infinite',
+          },
+          boxShadow: {
+            'brand': '0 10px 30px -12px rgba(6,95,70,0.35)'
           }
         }
       }
     }
   </script>
 
-  <!-- Bootstrap Icons -->
+  <!-- Icons & Fonts -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
 
-  <!-- Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <!-- Alpine & AOS -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"/>
+  <script defer src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
 
   <style>
-    :root {
-      --tw-font-sans: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
-    }
+    :root { --tw-font-sans: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif; }
     html, body { font-family: var(--tw-font-sans); }
     [x-cloak] { display: none !important; }
+    .shine{ background-image:linear-gradient(110deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.5) 30%,rgba(255,255,255,0) 60%); background-size:200% 100%; animation:shimmer 3s ease-in-out infinite; }
   </style>
-
-  <!-- Alpine.js -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="min-h-screen flex flex-col bg-white text-gray-800">
+<body class="min-h-screen bg-white text-black antialiased" x-data="{ mobileMenu:false, infoDrop:false }" x-init="AOS.init({ once:true, duration:800, easing:'ease-out-quart' })">
+
+  <!-- Decorative blobs -->
+  <div class="pointer-events-none fixed -z-10 inset-0 overflow-hidden">
+    <div class="absolute -top-24 -left-20 w-72 h-72 bg-brand-100 rounded-full blur-3xl opacity-70 animate-blob"></div>
+    <div class="absolute top-1/3 -right-28 w-80 h-80 bg-brand-200 rounded-full blur-3xl opacity-70 animate-blobSlow"></div>
+  </div>
+
   <!-- NAVBAR -->
-  <nav class="bg-white shadow-lg sticky top-0 z-50" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
+  <nav class="sticky top-0 z-50 backdrop-blur bg-white/80 border-b border-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <!-- Logo -->
-        <div class="flex-shrink-0 flex items-center">
-          <a href="/" class="flex items-center">
-            <img src="/assets/img/logo-alikhsan.png" class="h-16 w-auto" />
+      <div class="flex h-16 items-center justify-between">
+        <a href="/index.html" class="flex items-center gap-3">
+          <img src="/assets/img/logo-alikhsan.png" alt="Logo" class="h-12 w-auto" />
+          <span class="sr-only">PP Al Ikhsan Beji</span>
+        </a>
+
+        <div class="hidden md:flex items-center gap-1">
+          <a href="/index.html" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-brand-800 hover:bg-brand-50">Beranda</a>
+
+          <div class="relative">
+            <button @click="infoDrop=!infoDrop" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-brand-800 hover:bg-brand-50 flex items-center gap-1">
+              Informasi <i class="bi bi-caret-down-fill text-xs"></i>
+            </button>
+            <div x-cloak x-show="infoDrop" @click.outside="infoDrop=false" x-transition
+                 class="absolute right-0 mt-2 w-56 bg-white shadow-2xl border border-gray-100 rounded-lg overflow-hidden">
+              <a href="/alur-pendaftaran.html" class="block px-4 py-2 text-sm hover:bg-gray-50">Alur Pendaftaran</a>
+              <a href="/syarat-pendaftaran.html" class="block px-4 py-2 text-sm hover:bg-gray-50">Syarat Pendaftaran</a>
+              <a href="/biaya.html" class="block px-4 py-2 text-sm hover:bg-gray-50">Biaya</a>
+            </div>
+          </div>
+
+          <a href="/brosur.html" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-brand-800 hover:bg-brand-50">Brosur</a>
+          <a href="/kontak.html" class="px-3 py-2 rounded-md text-sm font-semibold text-brand-800 bg-brand-50">Kontak</a>
+        </div>
+
+        <div class="hidden md:block">
+          <a href="/login.html" class="relative inline-flex items-center gap-2 bg-brand-800 hover:bg-brand-900 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-brand transition-all">
+            <i class="bi bi-shield-lock"></i> Admin
+            <span class="absolute inset-0 rounded-xl opacity-20 shine"></span>
           </a>
         </div>
 
-        <!-- Desktop Navigation -->
-        <div class="hidden md:block">
-          <div class="flex items-baseline space-x-4">
-            <a href="/" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Beranda</a>
-
-            <!-- Dropdown Informasi -->
-            <div class="relative">
-              <button @click="profileDropdownOpen=!profileDropdownOpen" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                Informasi
-                <i class="bi bi-caret-down-fill ml-1 text-xs" :class="{'rotate-180': profileDropdownOpen}"></i>
-              </button>
-              <div x-cloak x-show="profileDropdownOpen" @click.outside="profileDropdownOpen=false" x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100">
-                <a href="/alur-pendaftaran" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Alur Pendaftaran</a>
-                <a href="/syarat-pendaftaran" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Syarat Pendaftaran</a>
-                <a href="/biaya" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Biaya</a>
-              </div>
-            </div>
-
-            <a href="/brosur" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Brosur</a>
-            <a href="/kontak" class="text-brand-700 px-3 py-2 rounded-md text-sm font-medium">Kontak</a>
-          </div>
-        </div>
-
-        <!-- CTA Button Desktop -->
-        <div class="hidden md:block">
-          <a href="/login" class="bg-brand-700 hover:bg-brand-800 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg">Admin</a>
-        </div>
-
-        <!-- Mobile menu button -->
-        <div class="md:hidden">
-          <button @click="mobileMenuOpen=!mobileMenuOpen" class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-brand-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
-            <i class="bi" :class="mobileMenuOpen ? 'bi-x-lg' : 'bi-list'"></i>
-          </button>
-        </div>
+        <button class="md:hidden p-2 rounded-lg border border-gray-200" @click="mobileMenu=!mobileMenu">
+          <i class="bi" :class="mobileMenu ? 'bi-x-lg' : 'bi-list'"></i>
+        </button>
       </div>
     </div>
 
-    <!-- Mobile Backdrop -->
-    <div x-cloak x-show="mobileMenuOpen" @click="mobileMenuOpen=false" class="md:hidden fixed inset-0 z-40 bg-black/50"></div>
-
-    <!-- Mobile Menu -->
-    <div x-cloak x-show="mobileMenuOpen" x-transition class="md:hidden fixed inset-y-0 left-0 z-50 mobile-menu bg-white shadow-xl border-r border-gray-200 overflow-y-auto">
-      <div class="flex items-center justify-between p-4 border-b border-gray-200">
-        <div class="flex items-center">
-          <img src="/assets/img/logo-alikhsan.png" class="h-16 w-auto" />
-        </div>
-        <button @click="mobileMenuOpen=false" class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"><i class="bi bi-x-lg"></i></button>
-      </div>
-
-      <div class="px-2 pt-4 pb-3 space-y-1">
-        <a href="/" class="text-gray-700 hover:text-brand-700 hover:bg-gray-50 block px-3 py-2 rounded-md text-base font-medium">Beranda</a>
-
-        <details class="px-1">
-          <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 block px-3 py-2 rounded-md text-base font-medium">Informasi</summary>
-          <div class="pl-6 space-y-1 mt-2">
-            <a href="/alur-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Alur Pendaftaran</a>
-            <a href="/syarat-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Syarat Pendaftaran</a>
-            <a href="/biaya.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Biaya</a>
+    <!-- Mobile -->
+    <div x-cloak x-show="mobileMenu" x-transition class="md:hidden border-t border-gray-100 bg-white">
+      <div class="px-4 py-3 space-y-1">
+        <a href="/index.html" class="block px-3 py-2 rounded-md hover:bg-brand-50">Beranda</a>
+        <details class="px-1 open:font-semibold open:text-brand-800">
+          <summary class="cursor-pointer px-3 py-2 rounded-md hover:bg-brand-50">Informasi</summary>
+          <div class="pl-6 py-2 space-y-1">
+            <a href="/alur-pendaftaran.html" class="block px-3 py-2 rounded-md hover:bg-gray-50">Alur Pendaftaran</a>
+            <a href="/syarat-pendaftaran.html" class="block px-3 py-2 rounded-md hover:bg-gray-50">Syarat Pendaftaran</a>
+            <a href="/biaya.html" class="block px-3 py-2 rounded-md hover:bg-gray-50">Biaya</a>
           </div>
         </details>
-
-        <a href="/brosur.html" class="text-gray-700 hover:text-brand-700 hover:bg-gray-50 block px-3 py-2 rounded-md text-base font-medium">Brosur</a>
-        <a href="/kontak.html" class="bg-brand-100 text-brand-700 block px-3 py-2 rounded-md text-base font-medium">Kontak</a>
+        <a href="/brosur.html" class="block px-3 py-2 rounded-md hover:bg-brand-50">Brosur</a>
+        <a href="/kontak.html" class="block px-3 py-2 rounded-md bg-brand-50 text-brand-800 font-semibold">Kontak</a>
+        <a href="/login.html" class="inline-flex items-center gap-2 bg-brand-800 text-white px-4 py-2 rounded-lg mt-2"><i class="bi bi-shield-lock"></i> Admin</a>
       </div>
     </div>
   </nav>
 
-  <!-- MAIN -->
-  <main class="flex-1 container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-6">Hubungi Kami</h1>
-    <div class="prose max-w-none">
-      <p>Jangan ragu untuk menghubungi kami jika Anda memiliki pertanyaan atau membutuhkan informasi lebih lanjut mengenai Pondok Pesantren Al Ikhsan Beji.</p>
-      <div class="mt-4 space-y-4">
-        <div>
-          <h2 class="text-xl font-semibold text-gray-800">Alamat</h2>
-          <p class="mt-1 text-gray-700">Jl. Raya Beji No.123, Beji, Kec. Depok, Kota Depok, Jawa Barat 16421</p>
+  <!-- HERO -->
+  <header class="relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-14 lg:py-20 grid lg:grid-cols-2 gap-10 items-center">
+        <div data-aos="fade-right">
+          <span class="inline-block text-xs tracking-wider uppercase font-semibold text-brand-800/80 bg-brand-100 px-3 py-1 rounded-full mb-3">Kontak Resmi</span>
+          <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">
+            Hubungi <span class="underline decoration-brand-800 underline-offset-4">PPDSB</span> Al Ikhsan Beji
+          </h1>
+          <p class="mt-4 text-lg text-gray-700">
+            Ada pertanyaan soal pendaftaran, biaya, atau kehidupan santri? Tim kami siap membantu pada jam kerja.
+          </p>
+
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="#form-kontak" class="group inline-flex items-center gap-2 bg-brand-800 hover:bg-brand-900 text-white px-6 py-3 rounded-xl font-semibold shadow-brand transition-all">
+              <i class="bi bi-envelope-paper"></i> Kirim Pesan
+              <i class="bi bi-arrow-right transition-transform group-hover:translate-x-1"></i>
+            </a>
+            <a href="#lokasi" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-300 hover:border-brand-800 hover:text-brand-800 transition-all">
+              <i class="bi bi-geo-alt"></i> Lihat Lokasi
+            </a>
+          </div>
         </div>
-        <div>
-          <h2 class="text-xl font-semibold text-gray-800">Telepon</h2>
-          <p class="mt-1 text-gray-700">(021) 12345678</p>
-        </div>
-        <div>
-          <h2 class="text-xl font-semibold text-gray-800">Email</h2>
-          <p class="mt-1 text-gray-700">info@alikhsanbeji.sch.id</p>
-        </div>
-        <div>
-          <h2 class="text-xl font-semibold text-gray-800">Jam Kerja</h2>
-          <p class="mt-1 text-gray-700">Senin - Jumat: 08.00 - 16.00 WIB</p>
+
+        <div class="relative" data-aos="fade-left">
+          <div class="relative bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-[0_10px_40px_-12px_rgba(0,0,0,0.18)] animate-floaty">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="p-5 rounded-2xl bg-brand-50 border border-brand-100 hover:shadow-lg transition-shadow">
+                <i class="bi bi-telephone-fill text-2xl text-brand-800"></i>
+                <div class="mt-3 font-semibold">Telepon</div>
+                <div class="text-gray-700">081218768593</div>
+              </div>
+              <div class="p-5 rounded-2xl bg-brand-50 border border-brand-100 hover:shadow-lg transition-shadow">
+                <i class="bi bi-envelope-fill text-2xl text-brand-800"></i>
+                <div class="mt-3 font-semibold">Email</div>
+                <div class="text-gray-700">cs@alikhsan-beji.app</div>
+              </div>
+              <div class="col-span-2 p-5 rounded-2xl bg-brand-50 border border-brand-100 hover:shadow-lg transition-shadow">
+                <i class="bi bi-geo-alt-fill text-2xl text-brand-800"></i>
+                <div class="mt-3 font-semibold">Alamat</div>
+                <div class="text-gray-700">Jl. Raya Beji No.123, Beji, Depok, Jawa Barat 16421</div>
+              </div>
+            </div>
+          </div>
+          <div class="absolute -top-6 -right-6 w-24 h-24 bg-brand-200 rounded-full blur-2xl opacity-70"></div>
         </div>
       </div>
-      <p class="mt-4">Anda juga bisa mengisi formulir kontak di bawah ini:</p>
     </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main class="relative z-0">
+    <section class="py-8 md:py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-5 gap-8">
+        <!-- Info cards -->
+        <div class="lg:col-span-2 space-y-5">
+          <div class="p-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur shadow hover:shadow-lg transition-all" data-aos="fade-up">
+            <div class="flex items-start gap-4">
+              <div class="p-3 rounded-xl bg-brand-100 text-brand-800">
+                <i class="bi bi-clock text-xl"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-lg">Jam Kerja</div>
+                <div class="text-gray-700">Senin – Jumat: 08.00 – 16.00 WIB</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur shadow hover:shadow-lg transition-all" data-aos="fade-up" data-aos-delay="100">
+            <div class="flex items-start gap-4">
+              <div class="p-3 rounded-xl bg-brand-100 text-brand-800">
+                <i class="bi bi-whatsapp text-xl"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-lg">WhatsApp Admin</div>
+                <a href="https://wa.me/6281218768593" class="text-brand-800 hover:underline">+62 812-1876-8593</a>
+                <div class="text-gray-700">Fast response pada jam kerja</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur shadow hover:shadow-lg transition-all" data-aos="fade-up" data-aos-delay="200">
+            <div class="flex items-start gap-4">
+              <div class="p-3 rounded-xl bg-brand-100 text-brand-800">
+                <i class="bi bi-info-circle text-xl"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-lg">FAQ Singkat</div>
+                <details class="mt-2 group">
+                  <summary class="cursor-pointer select-none font-medium hover:text-brand-800">Kapan gelombang pendaftaran dibuka?</summary>
+                  <p class="mt-2 text-gray-700">Cek halaman “Alur Pendaftaran” & “Biaya”. Info terbaru selalu diupdate.</p>
+                </details>
+                <details class="mt-2 group">
+                  <summary class="cursor-pointer select-none font-medium hover:text-brand-800">Apakah tersedia beasiswa?</summary>
+                  <p class="mt-2 text-gray-700">Tersedia kuota terbatas. Hubungi admin untuk kriteria & berkas.</p>
+                </details>
+              </div>
+            </div>
+          </div>
+        </div>
+
+    
+    <!-- MAP -->
+    <section id="lokasi" class="pb-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-6 flex items-center justify-between">
+          <h2 class="text-2xl font-bold">Lokasi Kami</h2>
+          <a href="https://maps.app.goo.gl/Q3cnRsVVoxiP9wUS8" target="_blank"
+             class="inline-flex items-center gap-2 text-brand-800 hover:underline">
+            Buka di Google Maps <i class="bi bi-box-arrow-up-right"></i>
+          </a>
+        </div>
+
+        <div class="relative rounded-3xl overflow-hidden border border-gray-100 shadow-[0_10px_40px_-12px_rgba(0,0,0,0.15)]" data-aos="fade-up">
+          <iframe
+            title="Peta Lokasi"
+            class="w-full h-[380px] md:h-[460px]"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps?q=https%3A%2F%2Fmaps.app.goo.gl%2FQ3cnRsVVoxiP9wUS8&z=16&output=embed"></iframe>
+          <div class="pointer-events-none absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500">
+            <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent"></div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- FOOTER -->
-  <footer class="bg-brand-800 text-white py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm">
-      <p>&copy; 2024 Pondok Pesantren Al Ikhsan Beji. All rights reserved.</p>
+  <footer class="bg-brand-800 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="grid md:grid-cols-3 gap-8">
+        <div>
+          <img src="/assets/img/logo-alikhsan.png" class="h-14 w-auto mb-3" alt="Logo" />
+          <p class="text-brand-100/90">Pondok Pesantren Al Ikhsan Beji. Pendidikan Islami terpadu dengan akhlak dan prestasi.</p>
+        </div>
+        <div>
+          <div class="font-semibold mb-3">Kontak</div>
+          <ul class="space-y-1 text-brand-50">
+            <li><i class="bi bi-geo-alt"></i> Jl. Raya Beji No.123, Depok</li>
+            <li><i class="bi bi-telephone"></i> 081218768593</li>
+            <li><i class="bi bi-envelope"></i> cs@alikhsan-beji.app</li>
+          </ul>
+        </div>
+        <div>
+          <div class="font-semibold mb-3">Tautan</div>
+          <ul class="space-y-1">
+            <li><a class="hover:underline" href="/alur-pendaftaran.html">Alur Pendaftaran</a></li>
+            <li><a class="hover:underline" href="/syarat-pendaftaran.html">Syarat Pendaftaran</a></li>
+            <li><a class="hover:underline" href="/biaya.html">Biaya</a></li>
+            <li><a class="hover:underline" href="/brosur.html">Brosur</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-white/10 mt-8 pt-6 text-sm text-brand-100/80 text-center">
+        &copy; 2024 Pondok Pesantren Al Ikhsan Beji. All rights reserved.
+      </div>
     </div>
   </footer>
+
+  <!-- JS -->
+  <script>
+    document.getElementById('form-kontak').addEventListener('submit', function(e){
+      e.preventDefault();
+      const toast = document.getElementById('toast-ok');
+      toast.classList.remove('hidden');
+      toast.scrollIntoView({ behavior:'smooth', block:'center' });
+
+      // TODO: ganti ke endpoint backend:
+      // fetch('/api/kontak', { method:'POST', body: new FormData(this) })
+    }, { passive:false });
+  </script>
 </body>
 </html>
