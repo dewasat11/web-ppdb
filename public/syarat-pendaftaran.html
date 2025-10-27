@@ -1,407 +1,254 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <meta name="csrf-token" content="{{CSRF_TOKEN}}" />
-  <meta name="description" content="Syarat Pendaftaran - PPDSB Pondok Pesantren Al Ikhsan Beji" />
-  <meta name="keywords" content="PPDSB, Penerimaan Santri Baru, Pondok Pesantren Al Ikhsan Beji, pendaftaran santri, pesantren, Beji, syarat pendaftaran" />
-
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Syarat dan ketentuan pendaftaran santri baru Pondok Pesantren Al Ikhsan Beji. Panduan lengkap dokumen dan format unggahan.">
+  <meta name="keywords" content="Syarat Pendaftaran PPDSB, Dokumen Pendaftaran Santri, Pondok Pesantren Al Ikhsan Beji">
   <title>Syarat Pendaftaran - PPDSB Pondok Pesantren Al Ikhsan Beji</title>
 
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50:  '#ecfdf5',
-              100: '#d1fae5',
-              200: '#a7f3d0',
-              300: '#6ee7b7',
-              400: '#34d399',
-              500: '#10b981',
-              600: '#059669',
-              700: '#047857',
-              800: '#065f46', /* PRIMARY */
-              900: '#064e3b',
-            }
-          },
-          keyframes: {
-            floaty: {'0%,100%':{transform:'translateY(0)'},'50%':{transform:'translateY(-8px)'}},
-            blob: {
-              '0%,100%':{transform:'translate(0,0) scale(1)'},
-              '33%':{transform:'translate(10px,-10px) scale(1.05)'},
-              '66%':{transform:'translate(-10px,10px) scale(0.95)'}
-            },
-            shimmer: {'0%':{backgroundPosition:'-200% 0'}, '100%':{backgroundPosition:'200% 0'}}
-          },
-          animation: {
-            floaty: 'floaty 6s ease-in-out infinite',
-            blob: 'blob 12s ease-in-out infinite',
-            blobSlow: 'blob 22s ease-in-out infinite',
-          },
-          boxShadow: {
-            'brand': '0 10px 30px -12px rgba(6,95,70,0.35)',
-          }
-        }
-      }
-    }
-  </script>
-
-  <!-- Icons & Fonts -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
-
-  <!-- Alpine & AOS -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"/>
-  <script defer src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a2e0d1f7f4.js" crossorigin="anonymous"></script>
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
   <style>
-    :root { --tw-font-sans: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif; }
-    html, body { font-family: var(--tw-font-sans); }
-    [x-cloak]{ display:none !important; }
-    .shine{ background-image:linear-gradient(110deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.45) 30%,rgba(255,255,255,0) 60%); background-size:200% 100%; animation:shimmer 3s ease-in-out infinite; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f9fafb;
+      color: #1f2937;
+      scroll-behavior: smooth;
+    }
+
+    header {
+      background-color: #064e3b;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    header .logo a {
+      color: white;
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 0.75rem;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+    nav a:hover { color: #a7f3d0; }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 1rem;
+    }
+
+    h2.title {
+      text-align: center;
+      color: #064e3b;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    p.subtitle {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 2.5rem;
+      color: #4b5563;
+    }
+
+    /* SECTION BOX */
+    .section-box {
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .section-box h3 {
+      color: #064e3b;
+      margin-bottom: 1rem;
+      font-size: 1.15rem;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    ul li {
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    ul li i {
+      color: #047857;
+      font-size: 1rem;
+      margin-top: 0.25rem;
+    }
+
+    a.btn {
+      display: inline-block;
+      background-color: #047857;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      transition: 0.3s;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    a.btn:hover { background-color: #059669; }
+
+    /* FAQ */
+    .faq {
+      background-color: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      padding: 1.5rem;
+    }
+    details {
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 1rem;
+    }
+    summary {
+      font-weight: 600;
+      color: #064e3b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    summary:hover { color: #047857; }
+    details p {
+      margin-top: 0.5rem;
+      color: #374151;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    footer {
+      background-color: #064e3b;
+      color: #fff;
+      text-align: center;
+      padding: 1.5rem;
+      margin-top: 3rem;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      nav {
+        margin-top: 0.5rem;
+        display: flex;
+        flex-wrap: wrap;
+      }
+      nav a {
+        margin: 0.25rem 0.75rem 0.25rem 0;
+      }
+      .section-box { padding: 1.5rem; }
+    }
   </style>
 </head>
-<body class="min-h-screen bg-white text-black antialiased" x-data="{ mobileMenu:false, infoDrop:false }" x-init="AOS.init({ once:true, duration:800, easing:'ease-out-quart' })">
+<body>
 
-  <!-- Animated Blobs -->
-  <div class="pointer-events-none fixed -z-10 inset-0 overflow-hidden">
-    <div class="absolute -top-24 -left-20 w-72 h-72 bg-brand-100 rounded-full blur-3xl opacity-70 animate-blob"></div>
-    <div class="absolute top-1/3 -right-28 w-80 h-80 bg-brand-200 rounded-full blur-3xl opacity-70 animate-blobSlow"></div>
-  </div>
-
-  <!-- NAVBAR -->
-  <nav class="sticky top-0 z-50 backdrop-blur bg-white/80 border-b border-gray-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex h-16 items-center justify-between">
-        <a href="/index.html" class="flex items-center gap-3">
-          <img src="/assets/img/logo-alikhsan.png" alt="Logo" class="h-12 w-auto" />
-          <span class="sr-only">PP Al Ikhsan Beji</span>
-        </a>
-
-        <div class="hidden md:flex items-center gap-1">
-          <a href="/index.html" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-brand-800 hover:bg-brand-50">Beranda</a>
-
-          <div class="relative">
-            <button @click="infoDrop=!infoDrop" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-brand-800 hover:bg-brand-50 flex items-center gap-1">
-              Informasi <i class="bi bi-caret-down-fill text-xs"></i>
-            </button>
-            <div x-cloak x-show="infoDrop" @click.outside="infoDrop=false" x-transition
-                 class="absolute right-0 mt-2 w-56 bg-white shadow-2xl border border-gray-100 rounded-lg overflow-hidden">
-              <a href="/alur-pendaftaran.html" class="block px-4 py-2 text-sm hover:bg-gray-50">Alur Pendaftaran</a>
-              <a href="/syarat-pendaftaran.html" class="block px-4 py-2 text-sm text-brand-800 bg-brand-50">Syarat Pendaftaran</a>
-              <a href="/biaya.html" class="block px-4 py-2 text-sm hover:bg-gray-50">Biaya</a>
-            </div>
-          </div>
-
-          <a href="/brosur.html" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-brand-800 hover:bg-brand-50">Brosur</a>
-          <a href="/kontak.html" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-brand-800 hover:bg-brand-50">Kontak</a>
-        </div>
-
-        <div class="hidden md:block">
-          <a href="/login.html" class="relative inline-flex items-center gap-2 bg-brand-800 hover:bg-brand-900 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-brand transition-all">
-            <i class="bi bi-shield-lock"></i> Admin
-            <span class="absolute inset-0 rounded-xl opacity-20 shine"></span>
-          </a>
-        </div>
-
-        <button class="md:hidden p-2 rounded-lg border border-gray-200" @click="mobileMenu=!mobileMenu">
-          <i class="bi" :class="mobileMenu ? 'bi-x-lg' : 'bi-list'"></i>
-        </button>
-      </div>
+  <!-- HEADER -->
+  <header data-aos="fade-down">
+    <div class="logo">
+      <a href="/index.html">PP Al Ikhsan Beji</a>
     </div>
-
-    <!-- Mobile -->
-    <div x-cloak x-show="mobileMenu" x-transition class="md:hidden border-t border-gray-100 bg-white">
-      <div class="px-4 py-3 space-y-1">
-        <a href="/index.html" class="block px-3 py-2 rounded-md hover:bg-brand-50">Beranda</a>
-        <details class="px-1 open:font-semibold open:text-brand-800" open>
-          <summary class="cursor-pointer px-3 py-2 rounded-md hover:bg-brand-50">Informasi</summary>
-          <div class="pl-6 py-2 space-y-1">
-            <a href="/alur-pendaftaran.html" class="block px-3 py-2 rounded-md hover:bg-gray-50">Alur Pendaftaran</a>
-            <a href="/syarat-pendaftaran.html" class="block px-3 py-2 rounded-md bg-brand-50 text-brand-800 hover:bg-gray-50">Syarat Pendaftaran</a>
-            <a href="/biaya.html" class="block px-3 py-2 rounded-md hover:bg-gray-50">Biaya</a>
-          </div>
-        </details>
-        <a href="/brosur.html" class="block px-3 py-2 rounded-md hover:bg-brand-50">Brosur</a>
-        <a href="/kontak.html" class="block px-3 py-2 rounded-md hover:bg-brand-50">Kontak</a>
-        <a href="/login.html" class="inline-flex items-center gap-2 bg-brand-800 text-white px-4 py-2 rounded-lg mt-2"><i class="bi bi-shield-lock"></i> Admin</a>
-      </div>
-    </div>
-  </nav>
-
-  <!-- HERO -->
-  <header class="relative">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="py-14 lg:py-18 grid lg:grid-cols-2 gap-10 items-center">
-        <div data-aos="fade-right">
-          <span class="inline-block text-xs tracking-wider uppercase font-semibold text-brand-800/80 bg-brand-100 px-3 py-1 rounded-full mb-3">Panduan Resmi</span>
-          <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">
-            Syarat <span class="underline decoration-brand-800 underline-offset-4">Pendaftaran</span> Santri Baru
-          </h1>
-          <p class="mt-4 text-lg text-gray-700">
-            Siapkan berkas berikut untuk mempercepat proses verifikasi. Semua data diproses sesuai kebijakan privasi.
-          </p>
-          <div class="mt-8 flex flex-wrap gap-3">
-            <a href="#syarat" class="group inline-flex items-center gap-2 bg-brand-800 hover:bg-brand-900 text-white px-6 py-3 rounded-xl font-semibold shadow-brand transition-all">
-              <i class="bi bi-list-check"></i> Lihat Syarat
-              <i class="bi bi-arrow-right transition-transform group-hover:translate-x-1"></i>
-            </a>
-            <a href="/alur-pendaftaran.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-300 hover:border-brand-800 hover:text-brand-800 transition-all">
-              <i class="bi bi-shuffle"></i> Alur Pendaftaran
-            </a>
-          </div>
-        </div>
-
-        <div class="relative" data-aos="fade-left">
-          <div class="relative bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-[0_10px_40px_-12px_rgba(0,0,0,0.18)] animate-floaty">
-            <div class="grid grid-cols-2 gap-4">
-              <div class="p-5 rounded-2xl bg-brand-50 border border-brand-100 hover:shadow-lg transition">
-                <i class="bi bi-file-earmark-text-fill text-2xl text-brand-800"></i>
-                <div class="mt-3 font-semibold">Berkas</div>
-                <div class="text-gray-700 text-sm">Format JPG/PNG/PDF, jelas terbaca</div>
-              </div>
-              <div class="p-5 rounded-2xl bg-brand-50 border border-brand-100 hover:shadow-lg transition">
-                <i class="bi bi-shield-check text-2xl text-brand-800"></i>
-                <div class="mt-3 font-semibold">Validasi</div>
-                <div class="text-gray-700 text-sm">Dicek panitia 1-3 hari kerja</div>
-              </div>
-              <div class="col-span-2 p-5 rounded-2xl bg-brand-50 border border-brand-100 hover:shadow-lg transition">
-                <i class="bi bi-cloud-arrow-up-fill text-2xl text-brand-800"></i>
-                <div class="mt-3 font-semibold">Unggah Online</div>
-                <div class="text-gray-700 text-sm">Lewat halaman pendaftaran (form digital)</div>
-              </div>
-            </div>
-          </div>
-          <div class="absolute -top-6 -right-6 w-24 h-24 bg-brand-200 rounded-full blur-2xl opacity-70"></div>
-        </div>
-      </div>
-    </div>
+    <nav>
+      <a href="/index.html">Beranda</a>
+      <a href="/alur-pendaftaran.html">Alur</a>
+      <a href="/syarat-pendaftaran.html" style="text-decoration: underline; font-weight:600;">Syarat</a>
+      <a href="/biaya.html">Biaya</a>
+      <a href="/brosur.html">Brosur</a>
+      <a href="/kontak.html">Kontak</a>
+    </nav>
   </header>
 
-  <!-- CONTENT -->
-  <main class="relative z-0">
-    <!-- SYARAT -->
-    <section id="syarat" class="py-10 md:py-14">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="mb-8">
-          <h2 class="text-2xl md:text-3xl font-bold">Daftar Syarat Dokumen</h2>
-          <p class="text-gray-700 mt-2">Pastikan semua berkas jelas, tidak terpotong, dan sesuai format.</p>
-        </div>
+  <!-- MAIN -->
+  <main>
+    <h2 class="title" data-aos="fade-up">Syarat Pendaftaran Santri Baru</h2>
+    <p class="subtitle" data-aos="fade-up" data-aos-delay="100">
+      Siapkan berkas berikut untuk mempercepat proses verifikasi. Semua data akan diproses sesuai kebijakan privasi PPDSB.
+    </p>
 
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Item -->
-          <div class="p-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur shadow hover:shadow-lg transition-all" data-aos="fade-up">
-            <div class="flex items-start gap-4">
-              <div class="p-3 rounded-xl bg-brand-100 text-brand-800">
-                <i class="bi bi-person-badge text-xl"></i>
-              </div>
-              <div>
-                <div class="font-semibold text-lg">Akta Kelahiran</div>
-                <p class="text-gray-700 text-sm mt-1">Fotokopi/scan berwarna, nama & NIK terbaca.</p>
-              </div>
-            </div>
-          </div>
+    <div class="section-box" data-aos="fade-up" data-aos-delay="150">
+      <h3><i class="fas fa-folder-open"></i> Daftar Dokumen yang Diperlukan</h3>
+      <ul>
+        <li><i class="fas fa-file-alt"></i> Akta Kelahiran — Fotokopi/scan berwarna, nama & NIK terbaca.</li>
+        <li><i class="fas fa-users"></i> Kartu Keluarga — Fotokopi terbaru dan lengkap.</li>
+        <li><i class="fas fa-award"></i> Ijazah Terakhir — Fotokopi legalisir 1 lembar (atau SKL sementara).</li>
+        <li><i class="fas fa-image"></i> Pas Foto 3×4 — Berwarna, latar polos, file JPG/PNG.</li>
+        <li><i class="fas fa-notes-medical"></i> Surat Keterangan Sehat — Dari fasilitas kesehatan (maks. 3 bulan terakhir).</li>
+        <li><i class="fas fa-edit"></i> Formulir Pendaftaran — Isi lengkap secara online di <a href="/daftar.html" style="color:#047857;">halaman pendaftaran</a>.</li>
+      </ul>
+      <a href="/brosur.html" class="btn"><i class="fas fa-file-download"></i> Unduh Brosur</a>
+      <a href="/daftar.html" class="btn"><i class="fas fa-arrow-right"></i> Mulai Daftar</a>
+    </div>
 
-          <div class="p-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur shadow hover:shadow-lg transition-all" data-aos="fade-up" data-aos-delay="50">
-            <div class="flex items-start gap-4">
-              <div class="p-3 rounded-xl bg-brand-100 text-brand-800">
-                <i class="bi bi-people text-xl"></i>
-              </div>
-              <div>
-                <div class="font-semibold text-lg">Kartu Keluarga</div>
-                <p class="text-gray-700 text-sm mt-1">Fotokopi/scan terbaru dan lengkap.</p>
-              </div>
-            </div>
-          </div>
+    <div class="section-box" data-aos="fade-up" data-aos-delay="200">
+      <h3><i class="fas fa-tasks"></i> Alur Singkat Unggah Dokumen</h3>
+      <ul>
+        <li><i class="fas fa-user-plus"></i> 1. Buat Akun & Isi Formulir — masuk ke <a href="/daftar.html" style="color:#047857;">daftar.html</a> dan isi data diri.</li>
+        <li><i class="fas fa-upload"></i> 2. Unggah Dokumen — file JPG/PNG/PDF ≤ 1 MB agar cepat diverifikasi.</li>
+        <li><i class="fas fa-check-circle"></i> 3. Verifikasi Panitia — diproses dalam 1–3 hari kerja, hasil bisa dilihat di dashboard.</li>
+      </ul>
+      <a href="/alur-pendaftaran.html" class="btn"><i class="fas fa-route"></i> Lihat Alur Lengkap</a>
+    </div>
 
-          <div class="p-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur shadow hover:shadow-lg transition-all" data-aos="fade-up" data-aos-delay="100">
-            <div class="flex items-start gap-4">
-              <div class="p-3 rounded-xl bg-brand-100 text-brand-800">
-                <i class="bi bi-mortarboard text-xl"></i>
-              </div>
-              <div>
-                <div class="font-semibold text-lg">Ijazah Terakhir</div>
-                <p class="text-gray-700 text-sm mt-1">Fotokopi legalisir 1 lembar (jika sudah terbit).</p>
-              </div>
-            </div>
-          </div>
+    <div class="faq" data-aos="fade-up" data-aos-delay="250">
+      <h3 style="color:#064e3b; margin-bottom:1rem;"><i class="fas fa-question-circle"></i> Pertanyaan yang Sering Diajukan</h3>
 
-          <div class="p-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur shadow hover:shadow-lg transition-all" data-aos="fade-up" data-aos-delay="150">
-            <div class="flex items-start gap-4">
-              <div class="p-3 rounded-xl bg-brand-100 text-brand-800">
-                <i class="bi bi-image text-xl"></i>
-              </div>
-              <div>
-                <div class="font-semibold text-lg">Pas Foto 3×4</div>
-                <p class="text-gray-700 text-sm mt-1">Berwarna, latar polos, 2 lembar atau file JPG/PNG.</p>
-              </div>
-            </div>
-          </div>
+      <details>
+        <summary>Apakah harus legalisir ijazah?</summary>
+        <p>Jika ijazah sudah terbit, unggah fotokopi legalisir. Jika belum, gunakan Surat Keterangan Lulus (SKL) sementara.</p>
+      </details>
 
-          <div class="p-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur shadow hover:shadow-lg transition-all" data-aos="fade-up" data-aos-delay="200">
-            <div class="flex items-start gap-4">
-              <div class="p-3 rounded-xl bg-brand-100 text-brand-800">
-                <i class="bi bi-clipboard2-pulse text-xl"></i>
-              </div>
-              <div>
-                <div class="font-semibold text-lg">Surat Keterangan Sehat</div>
-                <p class="text-gray-700 text-sm mt-1">Dari fasilitas kesehatan (maks. 3 bulan terakhir).</p>
-              </div>
-            </div>
-          </div>
+      <details>
+        <summary>Format & ukuran file?</summary>
+        <p>Gunakan format JPG/PNG/PDF dengan ukuran maksimal 1 MB per file agar unggah cepat dan jelas terbaca.</p>
+      </details>
 
-          <div class="p-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur shadow hover:shadow-lg transition-all" data-aos="fade-up" data-aos-delay="250">
-            <div class="flex items-start gap-4">
-              <div class="p-3 rounded-xl bg-brand-100 text-brand-800">
-                <i class="bi bi-ui-checks-grid text-xl"></i>
-              </div>
-              <div>
-                <div class="font-semibold text-lg">Formulir Pendaftaran</div>
-                <p class="text-gray-700 text-sm mt-1">Isi lengkap secara online pada halaman pendaftaran.</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <details>
+        <summary>Apakah bisa daftar offline?</summary>
+        <p>Bisa, dengan datang langsung ke kantor PPDSB pada jam kerja. Namun, pendaftaran online lebih disarankan agar lebih efisien.</p>
+      </details>
 
-        <div class="mt-8 flex flex-wrap gap-3">
-          <a href="/brosur.html" class="relative inline-flex items-center gap-2 border border-gray-300 px-5 py-3 rounded-xl hover:border-brand-800 hover:text-brand-800 transition">
-            <i class="bi bi-download"></i> Unduh Brosur
-          </a>
-          <a href="/daftar.html" class="relative inline-flex items-center gap-2 bg-brand-800 hover:bg-brand-900 text-white px-6 py-3 rounded-xl font-semibold shadow-brand transition">
-            <i class="bi bi-pencil-square"></i> Mulai Daftar
-            <span class="absolute inset-0 rounded-xl opacity-20 shine"></span>
-          </a>
-        </div>
-      </div>
-    </section>
+      <details>
+        <summary>Kapan pengumuman hasil?</summary>
+        <p>Setelah verifikasi berkas dan tahap seleksi selesai. Hasil akan diumumkan melalui dashboard pendaftar dan email resmi.</p>
+      </details>
 
-    <!-- TIMELINE / ALUR RINGKAS -->
-    <section class="py-6 md:py-10">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="mb-8">
-          <h2 class="text-2xl md:text-3xl font-bold">Alur Singkat</h2>
-          <p class="text-gray-700 mt-2">Ringkasan proses dari pendaftaran hingga unggah berkas.</p>
-        </div>
-
-        <ol class="relative border-l border-gray-200 pl-6 space-y-8">
-          <li data-aos="fade-up" class="group">
-            <span class="absolute -left-[10px] top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-800 text-white text-[10px]">1</span>
-            <h3 class="font-semibold">Buat Akun & Isi Formulir</h3>
-            <p class="text-gray-700 mt-1">Masuk ke <a class="underline hover:text-brand-800" href="/daftar.html">daftar.html</a>, isi data diri & pilihan program.</p>
-          </li>
-          <li data-aos="fade-up" data-aos-delay="60" class="group">
-            <span class="absolute -left-[10px] top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-800 text-white text-[10px]">2</span>
-            <h3 class="font-semibold">Unggah Dokumen</h3>
-            <p class="text-gray-700 mt-1">Siapkan file JPG/PNG/PDF ≤ 1 MB per dokumen untuk mempermudah verifikasi.</p>
-          </li>
-          <li data-aos="fade-up" data-aos-delay="120" class="group">
-            <span class="absolute -left-[10px] top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-800 text-white text-[10px]">3</span>
-            <h3 class="font-semibold">Verifikasi Panitia</h3>
-            <p class="text-gray-700 mt-1">Proses 1–3 hari kerja. Cek status di dashboard pendaftar.</p>
-          </li>
-        </ol>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="py-10 md:py-14">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="mb-8">
-          <h2 class="text-2xl md:text-3xl font-bold">Pertanyaan yang Sering Diajukan</h2>
-          <p class="text-gray-700 mt-2">Klik untuk membuka jawaban.</p>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-6">
-          <details class="rounded-2xl border border-gray-100 p-5 bg-white/80 backdrop-blur shadow hover:shadow-lg transition-all" data-aos="fade-up">
-            <summary class="cursor-pointer font-semibold select-none">Apakah harus legalisir ijazah?</summary>
-            <p class="text-gray-700 mt-2">Jika ijazah sudah diterbitkan, unggah fotokopi legalisir. Jika belum, gunakan SKL sementara.</p>
-          </details>
-
-          <details class="rounded-2xl border border-gray-100 p-5 bg-white/80 backdrop-blur shadow hover:shadow-lg transition-all" data-aos="fade-up" data-aos-delay="60">
-            <summary class="cursor-pointer font-semibold select-none">Format & ukuran file?</summary>
-            <p class="text-gray-700 mt-2">JPG/PNG/PDF. Usahakan ≤ 1 MB per dokumen agar unggah cepat dan jelas.</p>
-          </details>
-
-          <details class="rounded-2xl border border-gray-100 p-5 bg-white/80 backdrop-blur shadow hover:shadow-lg transition-all" data-aos="fade-up" data-aos-delay="120">
-            <summary class="cursor-pointer font-semibold select-none">Apakah bisa daftar offline?</summary>
-            <p class="text-gray-700 mt-2">Bisa. Datang ke kantor PPDSB pada jam kerja. Namun pendaftaran online lebih disarankan.</p>
-          </details>
-
-          <details class="rounded-2xl border border-gray-100 p-5 bg-white/80 backdrop-blur shadow hover:shadow-lg transition-all" data-aos="fade-up" data-aos-delay="180">
-            <summary class="cursor-pointer font-semibold select-none">Kapan pengumuman hasil?</summary>
-            <p class="text-gray-700 mt-2">Setelah verifikasi berkas dan tahap seleksi (bila ada). Info muncul di dashboard dan email.</p>
-          </details>
-        </div>
-
-        <div class="mt-8 flex flex-wrap gap-3">
-          <a href="/biaya.html" class="relative inline-flex items-center gap-2 border border-gray-300 px-5 py-3 rounded-xl hover:border-brand-800 hover:text-brand-800 transition">
-            <i class="bi bi-cash-coin"></i> Lihat Biaya
-          </a>
-          <a href="/kontak.html" class="relative inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-800 hover:bg-brand-900 text-white font-semibold shadow-brand transition">
-            <i class="bi bi-chat-dots"></i> Butuh Bantuan?
-            <span class="absolute inset-0 rounded-xl opacity-20 shine"></span>
-          </a>
-        </div>
-      </div>
-    </section>
+      <a href="/biaya.html" class="btn"><i class="fas fa-coins"></i> Lihat Biaya</a>
+      <a href="/kontak.html" class="btn"><i class="fas fa-headset"></i> Butuh Bantuan?</a>
+    </div>
   </main>
 
   <!-- FOOTER -->
-  <footer class="bg-brand-800 text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div class="grid md:grid-cols-3 gap-8">
-        <div>
-          <img src="/assets/img/logo-alikhsan.png" class="h-14 w-auto mb-3" alt="Logo" />
-          <p class="text-brand-100/90">Pondok Pesantren Al Ikhsan Beji. Pendidikan Islami terpadu dengan akhlak dan prestasi.</p>
-        </div>
-        <div>
-          <div class="font-semibold mb-3">Navigasi</div>
-          <ul class="space-y-1">
-            <li><a class="hover:underline" href="/alur-pendaftaran.html">Alur Pendaftaran</a></li>
-            <li><a class="hover:underline" href="/syarat-pendaftaran.html">Syarat Pendaftaran</a></li>
-            <li><a class="hover:underline" href="/biaya.html">Biaya</a></li>
-            <li><a class="hover:underline" href="/brosur.html">Brosur</a></li>
-            <li><a class="hover:underline" href="/kontak.html">Kontak</a></li>
-          </ul>
-        </div>
-        <div>
-          <div class="font-semibold mb-3">Kontak</div>
-          <ul class="space-y-1 text-brand-50">
-            <li><i class="bi bi-geo-alt"></i> Jl. Raya Beji No.123, Depok</li>
-            <li><i class="bi bi-telephone"></i> 081218768593</li>
-            <li><i class="bi bi-envelope"></i> cs@alikhsan-beji.app</li>
-          </ul>
-        </div>
-      </div>
-      <div class="border-t border-white/10 mt-8 pt-6 text-sm text-brand-100/80 text-center">
-        &copy; 2024 Pondok Pesantren Al Ikhsan Beji. All rights reserved.
-      </div>
-    </div>
+  <footer>
+    © 2025 Pondok Pesantren Al Ikhsan Beji.
   </footer>
 
-  <!-- Optional helper: smooth anchor & minor UX -->
-  <script>
-    // Smooth scroll for in-page links
-    document.querySelectorAll('a[href^="#"]').forEach(a=>{
-      a.addEventListener('click', e=>{
-        const target = document.querySelector(a.getAttribute('href'));
-        if(target){
-          e.preventDefault();
-          target.scrollIntoView({behavior:'smooth', block:'start'});
-        }
-      });
-    });
-  </script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>AOS.init({ duration: 800, once: true });</script>
+
 </body>
 </html>
