@@ -54,26 +54,95 @@
 
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+      document.addEventListener('alpine:init', () => {
+        Alpine.store('modals', { showKonfirmasi: false, showSukses: false });
+      });
+    </script>
   </head>
   <body class="min-h-screen flex flex-col bg-gray-100 text-gray-800">
     <!-- HEADER -->
-    <header class="bg-brand-700 text-white shadow-lg py-4">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <div class="flex-shrink-0">
-          <a href="/" class="text-white font-bold text-xl">PPDSB Al Ikhsan Beji</a>
-        </div>
-        <nav class="hidden md:block">
-          <div class="flex items-baseline space-x-4">
-            <a href="/" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Beranda</a>
-            <a href="/alur-pendaftaran.html" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Alur Pendaftaran</a>
-            <a href="/syarat-pendaftaran.html" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Syarat Pendaftaran</a>
-            <a href="/biaya.html" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Biaya</a>
-            <a href="/brosur.html" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Brosur</a>
-            <a href="/kontak.html" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Kontak</a>
+    <nav class="bg-white shadow-lg sticky top-0 z-50" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <!-- Logo -->
+          <div class="flex-shrink-0 flex items-center">
+            <a href="/" class="flex items-center">
+              <!-- TODO: ganti src logo -->
+              <img src="/assets/img/logo-alikhsan.png" class="h-16 w-auto" />
+            </a>
           </div>
-        </nav>
+
+          <!-- Desktop Navigation -->
+          <div class="hidden md:block">
+            <div class="flex items-baseline space-x-4">
+              <a href="/" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Beranda</a>
+
+              <!-- Dropdown Informasi -->
+              <div class="relative">
+                <button @click="profileDropdownOpen=!profileDropdownOpen" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                  Informasi
+                  <i class="bi bi-caret-down-fill ml-1 text-xs" :class="{'rotate-180': profileDropdownOpen}"></i>
+                </button>
+                <div x-cloak x-show="profileDropdownOpen" @click.outside="profileDropdownOpen=false" x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100">
+                  <a href="/alur-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Alur Pendaftaran</a>
+                  <a href="/syarat-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Syarat Pendaftaran</a>
+                  <a href="/biaya.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Biaya</a>
+                </div>
+              </div>
+
+              <a href="/brosur.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Brosur</a>
+              <a href="/kontak.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Kontak</a>
+            </div>
+          </div>
+
+          <!-- CTA Button Desktop -->
+          <div class="hidden md:block">
+            <a href="/login" class="bg-brand-700 hover:bg-brand-800 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg">Admin</a>
+          </div>
+
+          <!-- Mobile menu button -->
+          <div class="md:hidden">
+            <button @click="mobileMenuOpen=!mobileMenuOpen" class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-brand-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <i class="bi" :class="mobileMenuOpen ? 'bi-x-lg' : 'bi-list'"></i>
+            </button>
+          </div>
+        </div>
       </div>
-    </header>
+
+      <!-- Mobile Backdrop -->
+      <div x-cloak x-show="mobileMenuOpen" @click="mobileMenuOpen=false" class="md:hidden fixed inset-0 z-40 bg-black/50"></div>
+
+      <!-- Mobile Menu -->
+      <div x-cloak x-show="mobileMenuOpen" x-transition class="md:hidden fixed inset-y-0 left-0 z-50 mobile-menu bg-white shadow-xl border-r border-gray-200 overflow-y-auto">
+        <div class="flex items-center justify-between p-4 border-b border-gray-200">
+          <div class="flex items-center">
+            <img src="/assets/img/logo-alikhsan.png" class="h-16 w-auto" />
+          </div>
+          <button @click="mobileMenuOpen=false" class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"><i class="bi bi-x-lg"></i></button>
+        </div>
+
+        <div class="px-2 pt-4 pb-3 space-y-1">
+          <a href="/" class="bg-brand-100 text-brand-700 block px-3 py-2 rounded-md text-base font-medium">Beranda</a>
+
+          <details class="px-1">
+            <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium">Informasi</summary>
+            <div class="pl-6 space-y-1 mt-2">
+              <a href="/alur-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Alur Pendaftaran</a>
+              <a href="/syarat-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Syarat Pendaftaran</a>
+              <a href="/biaya.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Biaya</a>
+            </div>
+          </details>
+
+          <a href="/brosur.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50">Brosur</a>
+          <a href="/kontak.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50">Kontak</a>
+
+          <div class="pt-4 pb-2 px-2">
+            <a href="/login.html" class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center">Admin</a>
+          </div>
+        </div>
+      </div>
+    </nav>
 
     <!-- MAIN -->
     <main class="flex-1 container mx-auto px-4 py-8">
@@ -551,111 +620,63 @@
     </main>
 
     <!-- Modal Sukses -->
-    <div
-      class="modal fade"
-      id="suksesModal"
-      tabindex="-1"
-      data-bs-backdrop="static"
-      data-bs-keyboard="false"
-    >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header bg-success text-white">
-            <h5 class="modal-title">
-              <i class="bi bi-check-circle-fill"></i> <span class="d-none d-sm-inline">Pendaftaran Berhasil!</span><span class="d-sm-none">Berhasil!</span>
-            </h5>
+    <div x-cloak x-show="$store.modals.showSukses" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/50" @click="$store.modals.showSukses=false"></div>
+      <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-[92vw]">
+        <div class="px-6 py-4 bg-green-600 text-white rounded-t-2xl">
+          <h5 class="font-semibold"><i class="bi bi-check-circle-fill"></i> Pendaftaran Berhasil!</h5>
+        </div>
+        <div class="p-6 text-center">
+          <div class="mb-4">
+            <i class="bi bi-check-circle-fill text-green-600" style="font-size: 3rem"></i>
           </div>
-          <div class="modal-body text-center py-3 py-md-4">
-            <div class="mb-3 mb-md-4">
-              <i
-                class="bi bi-check-circle-fill text-success"
-                style="font-size: 3rem"
-              ></i>
-            </div>
-            <h4 class="mb-2 mb-md-3">🎉 Selamat!</h4>
-            <p class="mb-2">Pendaftaran Anda telah berhasil disimpan.</p>
-            <div class="alert alert-info mb-2">
-              <strong>NISN Anda:</strong><br />
-              <h3 class="text-primary mb-2" id="regNo"></h3>
-              <button
-                class="btn btn-sm btn-outline-primary"
-                id="btnSalinReg"
-                onclick="salinNISN()"
-              >
-                <i class="bi bi-clipboard"></i> Salin NISN
-              </button>
-            </div>
-            <p class="text-muted small">
-              <i class="bi bi-info-circle"></i> Simpan NISN ini
-              untuk tracking status pendaftaran Anda.
-            </p>
-          </div>
-          <div class="modal-footer justify-content-center flex-column flex-sm-row gap-2">
-            <a href="/cek-status.html" class="btn btn-success btn-lg w-100 w-sm-auto">
-              <i class="bi bi-search"></i> Cek Status Pendaftaran
-            </a>
-            <button
-              type="button"
-              class="btn btn-secondary w-100 w-sm-auto"
-              data-bs-dismiss="modal"
-              onclick="window.location.reload()"
-            >
-              <i class="bi bi-arrow-clockwise"></i> Daftar Lagi
+          <h4 class="mb-2">🎉 Selamat!</h4>
+          <p class="mb-3">Pendaftaran Anda telah berhasil disimpan.</p>
+          <div class="mb-3 rounded-lg bg-blue-50 border border-blue-200 px-4 py-3">
+            <strong>NISN Anda:</strong>
+            <h3 class="text-blue-700 font-bold mb-2" id="regNo"></h3>
+            <button class="inline-flex items-center gap-2 border border-blue-600 text-blue-700 hover:bg-blue-600 hover:text-white px-3 py-2 rounded" id="btnSalinReg" onclick="salinNISN()">
+              <i class="bi bi-clipboard"></i> Salin NISN
             </button>
           </div>
+          <p class="text-gray-500 text-sm"><i class="bi bi-info-circle"></i> Simpan NISN ini untuk tracking status pendaftaran Anda.</p>
+        </div>
+        <div class="px-6 py-4 flex flex-col sm:flex-row gap-2 justify-center border-t border-gray-100 rounded-b-2xl">
+          <a href="/cek-status.html" class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-lg w-full sm:w-auto">
+            <i class="bi bi-search"></i> Cek Status Pendaftaran
+          </a>
+          <button type="button" class="inline-flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-3 rounded-lg w-full sm:w-auto" onclick="window.location.reload()">
+            <i class="bi bi-arrow-clockwise"></i> Daftar Lagi
+          </button>
         </div>
       </div>
     </div>
 
     <!-- Modal Konfirmasi -->
-    <div
-      class="modal fade"
-      id="konfirmasiModal"
-      tabindex="-1"
-      data-bs-backdrop="static"
-    >
-      <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header bg-success text-white">
-            <h5 class="modal-title">
-              <i class="bi bi-clipboard-check"></i> <span class="d-none d-sm-inline">Konfirmasi Data Pendaftaran</span><span class="d-sm-none">Konfirmasi</span>
-            </h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <div class="alert alert-warning mb-3">
-              <i class="bi bi-exclamation-triangle"></i>
-              <strong>Perhatian!</strong> Pastikan semua data sudah benar
-              sebelum mengirim. Periksa kembali data Anda di bawah ini.
-            </div>
-            <div id="konfirmasiContent"></div>
-          </div>
-          <div class="modal-footer d-flex flex-column-reverse flex-sm-row gap-2">
-            <button
-              type="button"
-              class="btn btn-secondary w-100 w-sm-auto"
-              data-bs-dismiss="modal"
-            >
-              <i class="bi bi-pencil"></i> Edit Data
-            </button>
-            <button
-              type="button"
-              class="btn btn-success btn-lg w-100 w-sm-auto"
-              onclick="submitFinal()"
-            >
-              <i class="bi bi-send"></i> Ya, Kirim Pendaftaran
-            </button>
-          </div>
+    <div x-cloak x-show="$store.modals.showKonfirmasi" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/50" @click="$store.modals.showKonfirmasi=false"></div>
+      <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-[92vw] max-h-[85vh] overflow-y-auto">
+        <div class="px-6 py-4 bg-brand-600 text-white rounded-t-2xl flex items-center justify-between">
+          <h5 class="font-semibold"><i class="bi bi-clipboard-check"></i> Konfirmasi Data Pendaftaran</h5>
+          <button class="text-white/90 hover:text-white" @click="$store.modals.showKonfirmasi=false"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="p-6">
+          <div class="mb-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-900 px-4 py-3"><i class="bi bi-exclamation-triangle"></i> <strong>Perhatian!</strong> Pastikan semua data sudah benar sebelum mengirim.</div>
+          <div id="konfirmasiContent"></div>
+        </div>
+        <div class="px-6 py-4 flex flex-col-reverse sm:flex-row gap-2 border-t border-gray-100 rounded-b-2xl">
+          <button type="button" class="inline-flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-3 rounded-lg w-full sm:w-auto" @click="$store.modals.showKonfirmasi=false">
+            <i class="bi bi-pencil"></i> Edit Data
+          </button>
+          <button type="button" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-lg w-full sm:w-auto" onclick="submitFinal()">
+            <i class="bi bi-send"></i> Ya, Kirim Pendaftaran
+          </button>
         </div>
       </div>
     </div>
 
     <!-- FOOTER -->
-    <footer class="bg-brand-700 text-white py-6 shadow-inner mt-auto">
+    <footer class="bg-white text-gray-600 py-6 shadow-2xl border-t border-gray-200 mt-auto">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <p class="text-sm">&copy; 2025 Pondok Pesantren Al Ikhsan Beji. All rights reserved. <span class="hidden sm:inline">Development by Tim IT Pesantren</span></p>
       </div>
@@ -1618,8 +1639,7 @@
         html += `</div>`;
 
         document.getElementById("konfirmasiContent").innerHTML = html;
-        // Using Alpine.js for modal
-        Alpine.data('konfirmasiModal').show = true;
+        Alpine.store('modals').showKonfirmasi = true;
       }
 
       // Function to convert file to base64
@@ -1936,7 +1956,7 @@
           }
 
           // Hide konfirmasi modal
-          Alpine.data('konfirmasiModal').show = false;
+          Alpine.store('modals').showKonfirmasi = false;
 
           // Set NISN dan show success modal
           document.getElementById("regNo").textContent = nisn;
@@ -1946,7 +1966,7 @@
           form.classList.remove("was-validated");
 
           // Show success modal
-          Alpine.data('suksesModal').show = true;
+          Alpine.store('modals').showSukses = true;
         } catch (error) {
           console.error("Submit error:", error);
 

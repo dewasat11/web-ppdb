@@ -56,23 +56,87 @@
   </head>
   <body class="min-h-screen flex flex-col bg-gray-100 text-gray-800">
     <!-- HEADER -->
-    <header class="bg-brand-700 text-white shadow-lg py-4">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <div class="flex-shrink-0">
-          <a href="/" class="text-white font-bold text-xl">PPDSB Al Ikhsan Beji</a>
-        </div>
-        <nav class="hidden md:block">
-          <div class="flex items-baseline space-x-4">
-            <a href="/" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Beranda</a>
-            <a href="/alur-pendaftaran.html" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Alur Pendaftaran</a>
-            <a href="/syarat-pendaftaran.html" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Syarat Pendaftaran</a>
-            <a href="/biaya.html" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Biaya</a>
-            <a href="/brosur.html" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Brosur</a>
-            <a href="/kontak.html" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Kontak</a>
+    <nav class="bg-white shadow-lg sticky top-0 z-50" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <!-- Logo -->
+          <div class="flex-shrink-0 flex items-center">
+            <a href="/" class="flex items-center">
+              <!-- TODO: ganti src logo -->
+              <img src="/assets/img/logo-alikhsan.png" class="h-16 w-auto" />
+            </a>
           </div>
-        </nav>
+
+          <!-- Desktop Navigation -->
+          <div class="hidden md:block">
+            <div class="flex items-baseline space-x-4">
+              <a href="/" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Beranda</a>
+
+              <!-- Dropdown Informasi -->
+              <div class="relative">
+                <button @click="profileDropdownOpen=!profileDropdownOpen" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                  Informasi
+                  <i class="bi bi-caret-down-fill ml-1 text-xs" :class="{'rotate-180': profileDropdownOpen}"></i>
+                </button>
+                <div x-cloak x-show="profileDropdownOpen" @click.outside="profileDropdownOpen=false" x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100">
+                  <a href="/alur-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Alur Pendaftaran</a>
+                  <a href="/syarat-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Syarat Pendaftaran</a>
+                  <a href="/biaya.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Biaya</a>
+                </div>
+              </div>
+
+              <a href="/brosur.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Brosur</a>
+              <a href="/kontak.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Kontak</a>
+            </div>
+          </div>
+
+          <!-- CTA Button Desktop -->
+          <div class="hidden md:block">
+            <a href="/login" class="bg-brand-700 hover:bg-brand-800 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg">Admin</a>
+          </div>
+
+          <!-- Mobile menu button -->
+          <div class="md:hidden">
+            <button @click="mobileMenuOpen=!mobileMenuOpen" class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-brand-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <i class="bi" :class="mobileMenuOpen ? 'bi-x-lg' : 'bi-list'"></i>
+            </button>
+          </div>
+        </div>
       </div>
-    </header>
+
+      <!-- Mobile Backdrop -->
+      <div x-cloak x-show="mobileMenuOpen" @click="mobileMenuOpen=false" class="md:hidden fixed inset-0 z-40 bg-black/50"></div>
+
+      <!-- Mobile Menu -->
+      <div x-cloak x-show="mobileMenuOpen" x-transition class="md:hidden fixed inset-y-0 left-0 z-50 mobile-menu bg-white shadow-xl border-r border-gray-200 overflow-y-auto">
+        <div class="flex items-center justify-between p-4 border-b border-gray-200">
+          <div class="flex items-center">
+            <img src="/assets/img/logo-alikhsan.png" class="h-16 w-auto" />
+          </div>
+          <button @click="mobileMenuOpen=false" class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"><i class="bi bi-x-lg"></i></button>
+        </div>
+
+        <div class="px-2 pt-4 pb-3 space-y-1">
+          <a href="/" class="bg-brand-100 text-brand-700 block px-3 py-2 rounded-md text-base font-medium">Beranda</a>
+
+          <details class="px-1">
+            <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium">Informasi</summary>
+            <div class="pl-6 space-y-1 mt-2">
+              <a href="/alur-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Alur Pendaftaran</a>
+              <a href="/syarat-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Syarat Pendaftaran</a>
+              <a href="/biaya.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Biaya</a>
+            </div>
+          </details>
+
+          <a href="/brosur.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50">Brosur</a>
+          <a href="/kontak.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50">Kontak</a>
+
+          <div class="pt-4 pb-2 px-2">
+            <a href="/login.html" class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center">Admin</a>
+          </div>
+        </div>
+      </div>
+    </nav>
 
     <!-- Hero Section -->
     <section class="relative bg-gradient-to-br from-brand-800 to-brand-900 min-h-[30vh] flex items-center overflow-hidden">
@@ -98,128 +162,106 @@
 
     <!-- Main Content -->
     <main class="flex-1 container mx-auto px-4 py-8">
-      <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-          <!-- Form Cek Status -->
-          <div class="card shadow">
-            <div class="card-body p-4">
-              <h5 class="card-title mb-4">
-                <i class="bi bi-card-text text-success"></i> Cek Status Anda
-              </h5>
+      <div class="max-w-xl mx-auto">
+        <!-- Form Cek Status -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100">
+          <div class="p-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800 flex items-center gap-2">
+              <i class="bi bi-card-text text-brand-600"></i>
+              Cek Status Anda
+            </h2>
 
-              <form id="cekStatusForm">
-                <div class="mb-4">
-                  <label for="nisnInput" class="form-label fw-bold"
-                    >NISN (Nomor Induk Siswa Nasional)</label
-                  >
-                  <input
-                    type="text"
-                    class="form-control form-control-lg"
-                    id="nisnInput"
-                    placeholder="Masukkan NISN (10 digit)"
-                    required
-                    pattern="^\d{10}$"
-                    title="NISN harus 10 digit angka"
-                    maxlength="10"
-                  />
-                  <div class="form-text">
-                    Masukkan NISN Anda yang terdiri dari <strong>10 digit angka</strong> (contoh: <code>1234567890</code>).
-                  </div>
-                </div>
+            <form id="cekStatusForm" class="space-y-4">
+              <div>
+                <label for="nisnInput" class="block text-sm font-medium text-gray-700 mb-1">NISN (Nomor Induk Siswa Nasional)</label>
+                <input
+                  type="text"
+                  id="nisnInput"
+                  placeholder="Masukkan NISN (10 digit)"
+                  required
+                  pattern="^\d{10}$"
+                  title="NISN harus 10 digit angka"
+                  maxlength="10"
+                  class="block w-full rounded-lg border border-gray-300 focus:border-brand-500 focus:ring-brand-500 px-4 py-3 text-gray-900 placeholder-gray-400"
+                />
+                <p class="mt-2 text-sm text-gray-500">
+                  Masukkan NISN Anda yang terdiri dari <strong>10 digit angka</strong> (contoh: <code>1234567890</code>).
+                </p>
+              </div>
 
-                <button type="button" id="btnCekStatus" class="btn btn-lg w-100 text-white" style="background-color: #0f9d58; border: none;">
-                  <i class="bi bi-search"></i> Cek Status
-                </button>
-              </form>
-            </div>
+              <button type="button" id="btnCekStatus" class="w-full inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2">
+                <i class="bi bi-search"></i>
+                Cek Status
+              </button>
+            </form>
           </div>
         </div>
       </div>
     </main>
 
     <!-- Modal: Hasil Cek Status -->
-    <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg">
-          <div class="modal-header" style="background: linear-gradient(135deg, #0f9d58 0%, #0a7a43 100%); color: white;">
-            <h5 class="modal-title" id="statusModalLabel">
-              <i class="bi bi-clipboard-check"></i> Hasil Cek Status Pendaftaran
-            </h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+    <div x-cloak x-show="$store.cek?.open" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/50" @click="$store.cek.open=false"></div>
+      <div class="relative bg-white rounded-2xl shadow-2xl max-w-3xl w-[92vw] max-h-[85vh] overflow-y-auto">
+        <div class="px-6 py-4 bg-gradient-to-br from-brand-700 to-brand-800 text-white rounded-t-2xl flex items-center justify-between">
+          <h5 class="font-semibold"><i class="bi bi-clipboard-check"></i> Hasil Cek Status Pendaftaran</h5>
+          <button class="text-white/90 hover:text-white" @click="$store.cek.open=false"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="p-6">
+          <!-- Loading state -->
+          <div id="statusLoading" class="text-center py-6">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent"></div>
+            <p class="mt-4 text-gray-600 font-semibold">Mengambil data status Anda...</p>
           </div>
-          <div class="modal-body">
-            <!-- Loading state -->
-            <div id="statusLoading" class="text-center py-4">
-              <div class="spinner-border text-success" style="width: 3rem; height: 3rem;" role="status"></div>
-              <p class="mt-3 text-muted fw-bold">Mengambil data status Anda...</p>
+
+          <!-- Hasil sukses -->
+          <div id="statusResult" class="hidden">
+            <div class="text-center mb-4">
+              <i id="statusIcon" class="bi bi-hourglass-split text-yellow-500" style="font-size: 3rem;"></i>
             </div>
-
-            <!-- Hasil sukses -->
-            <div id="statusResult" class="d-none">
-              <div class="text-center mb-4">
-                <i id="statusIcon" class="bi bi-hourglass-split text-warning" style="font-size: 5rem;"></i>
-              </div>
-              <div class="d-flex justify-content-center mb-4">
-                <h4><span id="statusBadge" class="badge rounded-pill px-4 py-2 bg-secondary">-</span></h4>
-              </div>
-              
-              <div class="card shadow-sm mb-3">
-                <div class="card-header bg-light">
-                  <strong><i class="bi bi-person-badge"></i> Informasi Pendaftar</strong>
-                </div>
-                <div class="list-group list-group-flush">
-                  <div class="list-group-item d-flex justify-content-between">
-                    <span class="text-muted">NISN</span>
-                    <strong id="f_nisn">-</strong>
-                  </div>
-                  <div class="list-group-item d-flex justify-content-between">
-                    <span class="text-muted">Nama Lengkap</span>
-                    <strong id="f_nama">-</strong>
-                  </div>
-                  <div class="list-group-item d-flex justify-content-between">
-                    <span class="text-muted">Tanggal Lahir</span>
-                    <span id="f_tanggal_lahir">-</span>
-                  </div>
-                  <div class="list-group-item d-flex justify-content-between">
-                    <span class="text-muted">Tanggal Daftar</span>
-                    <span id="f_tanggal_daftar">-</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Status & Catatan Section (hidden if payment verified) -->
-              <div class="card shadow-sm" id="statusCatatanSection">
-                <div class="card-header bg-light">
-                  <strong><i class="bi bi-clipboard-data"></i> Status & Catatan</strong>
-                </div>
-                <div class="list-group list-group-flush">
-                  <div class="list-group-item">
-                    <span class="text-muted d-block mb-2">Status Verifikasi</span>
-                    <span id="f_status_text" class="badge bg-secondary">-</span>
-                  </div>
-                  <div class="list-group-item" id="catatanContainer">
-                    <span class="text-muted d-block mb-2">Catatan Admin</span>
-                    <p id="f_catatan" class="mb-0 text-dark">-</p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Payment Status Section (dinamis) -->
-              <div id="paymentStatusSection"></div>
+            <div class="flex justify-center mb-4">
+              <span id="statusBadge" class="px-4 py-2 rounded-full bg-gray-500 text-white">-</span>
             </div>
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-3">
+              <div class="px-4 py-3 border-b border-gray-100 font-semibold"><i class="bi bi-person-badge"></i> Informasi Pendaftar</div>
+              <div class="divide-y divide-gray-100">
+                <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500">NISN</span><strong id="f_nisn">-</strong></div>
+                <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500">Nama Lengkap</span><strong id="f_nama">-</strong></div>
+                <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500">Tanggal Lahir</span><span id="f_tanggal_lahir">-</span></div>
+                <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500">Tanggal Daftar</span><span id="f_tanggal_daftar">-</span></div>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm" id="statusCatatanSection">
+              <div class="px-4 py-3 border-b border-gray-100 font-semibold"><i class="bi bi-clipboard-data"></i> Status & Catatan</div>
+              <div class="px-4 py-3 space-y-3">
+                <div>
+                  <span class="text-gray-500 block mb-1 text-sm">Status Verifikasi</span>
+                  <span id="f_status_text" class="inline-block px-3 py-1 rounded bg-gray-500 text-white text-sm">-</span>
+                </div>
+                <div id="catatanContainer">
+                  <span class="text-gray-500 block mb-1 text-sm">Catatan Admin</span>
+                  <p id="f_catatan" class="mb-0 text-gray-800">-</p>
+                </div>
+              </div>
+            </div>
+            <div id="paymentStatusSection" class="mt-3"></div>
+          </div>
 
-            <!-- Error -->
-            <div id="statusError" class="alert alert-warning d-none" role="alert">
-              <i class="bi bi-exclamation-triangle me-2"></i>
-              <strong>Perhatian!</strong>
-              <p class="mb-0 mt-2" id="statusErrorMsg">Terjadi kesalahan.</p>
+          <!-- Error -->
+          <div id="statusError" class="hidden rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-900 px-4 py-3" role="alert">
+            <div class="flex items-start gap-2">
+              <i class="bi bi-exclamation-triangle"></i>
+              <div>
+                <strong>Perhatian!</strong>
+                <p class="mb-0 mt-1" id="statusErrorMsg">Terjadi kesalahan.</p>
+              </div>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-              <i class="bi bi-x-circle"></i> Tutup
-            </button>
-          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-100 rounded-b-2xl flex justify-end">
+          <button type="button" class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-3 rounded-lg" @click="$store.cek.open=false">
+            <i class="bi bi-x-circle"></i> Tutup
+          </button>
         </div>
       </div>
     </div>
@@ -228,16 +270,26 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <script>
-      // Shim toastr -> toastify agar kompatibel dgn snippet lama
-      window.toastr = {
-        success(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#10b981', color: '#fff' }}).showToast(); },
-        error(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#ef4444', color: '#fff' }}).showToast(); },
-        warning(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#f59e0b', color: '#fff' }}).showToast(); },
-        info(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#3b82f6', color: '#fff' }}).showToast(); }
-      }
+      document.addEventListener('alpine:init', () => {
+        Alpine.store('cek', { open: false });
+      });
+      document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('btnCekStatus');
+        const input = document.getElementById('nisnInput');
+        btn?.addEventListener('click', () => {
+          const v = input.value?.trim();
+          if (!/^\d{10}$/.test(v)) { toastr.error('NISN harus 10 digit angka'); return; }
+          Alpine.store('cek').open = true;
+          // Reset modal sections
+          document.getElementById('statusLoading').classList.remove('hidden');
+          document.getElementById('statusResult').classList.add('hidden');
+          document.getElementById('statusError').classList.add('hidden');
+          // TODO: panggil API cek status di sini, lalu toggle ke result/error sesuai respon
+        });
+      });
     </script>
     <!-- FOOTER -->
-    <footer class="bg-brand-700 text-white py-6 shadow-inner mt-auto">
+    <footer class="bg-white text-gray-600 py-6 shadow-2xl border-t border-gray-200 mt-auto">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <p class="text-sm">&copy; 2025 Pondok Pesantren Al Ikhsan Beji. All rights reserved. <span class="hidden sm:inline">Development by Tim IT Pesantren</span></p>
       </div>
