@@ -1728,20 +1728,35 @@
         });
       }
 
-      // New function for client-side image compression
-      async function compressClientSide(file, targetBytes = 500 * 1024) {
+      // FIXED: Client-side image compression with proper async/await
+      async function compressClientSide(file, targetBytes = 1 * 1024 * 1024) {
+        console.log('[COMPRESS_START]', file.name, '→', (file.size / 1024 / 1024).toFixed(2), 'MB');
+        
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
-          reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
+          
+          reader.onload = async (event) => {
+            try {
+              const img = new Image();
+              
+              // Wrap image loading in Promise
+              await new Promise((resolveImg, rejectImg) => {
+                img.onload = () => resolveImg(true);
+                img.onerror = () => rejectImg(new Error('Failed to load image'));
+                img.src = event.target.result;
+              });
+
+              // Image loaded successfully, now process
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
 
               let width = img.width;
               let height = img.height;
-              const maxDim = 1600; // Max longest side
+              const maxDim = 1600;
 
+              console.log('[COMPRESS] Original:', width, 'x', height);
+
+              // Resize if needed
               if (width > height) {
                 if (width > maxDim) {
                   height *= maxDim / width;
@@ -1757,65 +1772,100 @@
               canvas.width = width;
               canvas.height = height;
 
+              // Fill white background for PNG
               if (file.type === 'image/png') {
-                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, width, height);
               }
 
               ctx.drawImage(img, 0, 0, width, height);
 
-              let outputBlob = null;
-              let quality = 0.8; // Start quality for JPG
-              let compressed = false;
               const originalExt = file.name.split('.').pop().toLowerCase();
               let finalMimeType = file.type;
 
+              // Helper: Promisify canvas.toBlob
+              const toBlobPromise = (mimeType, quality) => {
+                return new Promise((res) => {
+                  canvas.toBlob((blob) => res(blob), mimeType, quality);
+                });
+              };
+
+              let outputBlob = null;
+
+              // JPEG compression
               if (file.type === 'image/jpeg' || file.type === 'image/jpg') {
                 finalMimeType = 'image/jpeg';
-                while (quality >= 0.4) {
-                  canvas.toBlob(
-                    (blob) => {
-                      if (blob.size <= targetBytes) {
-                        outputBlob = blob;
-                        compressed = true;
-                      } else {
-                        quality -= 0.1;
-                      }
-                    },
-                    finalMimeType,
-                    quality
-                  );
-                  if (compressed) break;
-                  // Small delay to allow toBlob to execute (async in some browsers)
-                  // In real-world, this needs a Promise-based loop. For now, assume sync-ish for simplicity.
-                  // A more robust solution would be to chain Promises or use await canvas.toBlob() if available.
-                  // await new Promise(r => setTimeout(r, 0)); // Removed for brevity, may need re-addition if issues occur
+                let quality = 0.9;
+                
+                console.log('[COMPRESS] JPEG compression loop...');
+                
+                // Try decreasing quality
+                while (quality >= 0.3) {
+                  outputBlob = await toBlobPromise(finalMimeType, quality);
+                  
+                  const sizeMB = (outputBlob.size / 1024 / 1024).toFixed(2);
+                  console.log('[COMPRESS] Q=' + quality.toFixed(1), '→', sizeMB, 'MB');
+                  
+                  if (outputBlob.size <= targetBytes) {
+                    console.log('[COMPRESS] ✓ Target reached!');
+                    break;
+                  }
+                  quality -= 0.1;
                 }
-                if (!outputBlob) {
-                  canvas.toBlob(blob => { outputBlob = blob; }, finalMimeType, 0.4);
-                  // await new Promise(r => setTimeout(r, 0)); // Removed for brevity
+                
+                // Final fallback
+                if (!outputBlob || outputBlob.size > targetBytes) {
+                  console.warn('[COMPRESS] Using minimum quality');
+                  outputBlob = await toBlobPromise(finalMimeType, 0.3);
                 }
-              } else if (file.type === 'image/png') {
-                canvas.toBlob(blob => { outputBlob = blob; }, 'image/png');
-                // await new Promise(r => setTimeout(r, 0)); // Removed for brevity
-              } else {
-                outputBlob = file; 
+              } 
+              // PNG compression
+              else if (file.type === 'image/png') {
+                console.log('[COMPRESS] PNG processing...');
+                finalMimeType = 'image/png';
+                outputBlob = await toBlobPromise(finalMimeType, 1.0);
+                
+                // Convert to JPEG if PNG is too large
+                if (outputBlob.size > targetBytes) {
+                  console.log('[COMPRESS] PNG → JPEG conversion...');
+                  finalMimeType = 'image/jpeg';
+                  outputBlob = await toBlobPromise(finalMimeType, 0.8);
+                }
+              } 
+              // Not an image
+              else {
+                console.log('[COMPRESS] Not a compressible type, using original');
+                outputBlob = file;
                 finalMimeType = file.type;
               }
 
-              if (outputBlob) {
-                resolve({
-                  blob: outputBlob,
-                  ext: originalExt,
-                  mime: finalMimeType,
-                  alreadyCompressed: true,
-                });
-              } else {
-                reject(new Error("Failed to compress or process image."));
+              if (!outputBlob) {
+                throw new Error('Failed to create compressed blob');
               }
-            };
-            img.src = event.target.result;
+
+              const finalSizeKB = (outputBlob.size / 1024).toFixed(2);
+              const reduction = (((file.size - outputBlob.size) / file.size) * 100).toFixed(1);
+              
+              console.log('[COMPRESS_END] Final:', finalSizeKB, 'KB (−' + reduction + '%)');
+
+              resolve({
+                blob: outputBlob,
+                ext: finalMimeType === 'image/jpeg' ? 'jpg' : originalExt,
+                mime: finalMimeType,
+                alreadyCompressed: true,
+              });
+              
+            } catch (error) {
+              console.error('[COMPRESS_ERROR]', error);
+              reject(error);
+            }
           };
-          reader.onerror = (error) => reject(error);
+          
+          reader.onerror = (error) => {
+            console.error('[COMPRESS_ERROR] FileReader:', error);
+            reject(error);
+          };
+          
           reader.readAsDataURL(file);
         });
       }
@@ -1845,32 +1895,57 @@
           });
       }
 
-      // Function to upload file via backend API
+      // Function to upload file via backend API with timeout
       async function uploadFile(file, type, nisn) {
-        if (!file) return null;
+        if (!file) {
+          console.log(`[UPLOAD] No file provided for ${type}, skipping`);
+          return null;
+        }
+
+        // Validate file object
+        if (!(file instanceof Blob) && !(file instanceof File)) {
+          console.error(`[UPLOAD] Invalid file object for ${type}:`, file);
+          throw new Error(`File ${type} tidak valid`);
+        }
+
+        // Validate file size
+        if (!file.size || file.size === 0) {
+          console.error(`[UPLOAD] File ${type} is empty (0 bytes)`);
+          throw new Error(`File ${type} kosong atau corrupt`);
+        }
 
         if (!nisn || nisn.length !== 10 || !/^[0-9]{10}$/.test(nisn)) {
           throw new Error(`NISN tidak valid: ${nisn}. Harus 10 digit angka.`);
         }
+        
+        console.log(`[UPLOAD] Validating ${type}: ${file.name || 'unnamed'} (${(file.size / 1024).toFixed(2)} KB)`);
 
         let processedFile = file;
         let fileExtension = file.name.split('.').pop().toLowerCase();
         let finalMimeType = file.type;
         let alreadyCompressed = false;
 
-        const imageMimes = ['image/jpeg', 'image/png', 'image/jpg'];
-        if (imageMimes.includes(file.type.toLowerCase())) {
+        const imageMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+        const isImage = imageMimes.includes(file.type.toLowerCase());
+        
+        if (isImage) {
           console.log(`[COMPRESS] Mengkompresi gambar ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)...`);
           try {
             const compressedResult = await compressClientSide(file);
+            
+            if (!compressedResult || !compressedResult.blob) {
+              throw new Error('Compression returned invalid result');
+            }
+            
             processedFile = compressedResult.blob;
             fileExtension = compressedResult.ext;
             finalMimeType = compressedResult.mime;
             alreadyCompressed = compressedResult.alreadyCompressed;
-            console.log(`[COMPRESS] Gambar ${file.name} selesai dikompresi. Ukuran: ${(processedFile.size / 1024).toFixed(2)} KB, Tipe: ${finalMimeType}, Ext: ${fileExtension}`);
+            
+            console.log(`[COMPRESS] ✓ Gambar ${file.name} selesai dikompresi. Ukuran: ${(processedFile.size / 1024).toFixed(2)} KB`);
           } catch (compressError) {
-            console.warn(`[COMPRESS] ⚠️ Gagal kompresi client-side untuk ${file.name}:`, compressError);
-            console.warn(`[COMPRESS] Menggunakan file asli tanpa kompresi.`);
+            console.error(`[COMPRESS] ❌ Gagal kompresi untuk ${file.name}:`, compressError);
+            console.warn(`[COMPRESS] ⚠️ Menggunakan file asli tanpa kompresi.`);
             processedFile = file;
             alreadyCompressed = false;
           }
@@ -1880,39 +1955,62 @@
 
         const MAX_CLIENT_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
         if (processedFile.size > MAX_CLIENT_SIZE_BYTES) {
-          throw new Error(`File ${type} terlalu besar setelah kompresi (${(processedFile.size / 1024 / 1024).toFixed(2)} MB). Maksimal ${MAX_CLIENT_SIZE_BYTES / 1024 / 1024} MB.`);
+          throw new Error(`File ${type} terlalu besar (${(processedFile.size / 1024 / 1024).toFixed(2)} MB). Maksimal 2 MB.`);
         }
 
-        console.log(`Uploading ${type}: ${file.name} (final size: ${(processedFile.size / 1024).toFixed(2)} KB) untuk NISN ${nisn}`);
+        console.log(`[UPLOAD] Uploading ${type}: ${file.name} (${(processedFile.size / 1024).toFixed(2)} KB)`);
 
-        const base64Data = await fileToBase64(processedFile);
+        try {
+          // Convert to base64
+          console.log(`[UPLOAD] Converting ${type} to base64...`);
+          const base64Data = await fileToBase64(processedFile);
+          
+          if (!base64Data || base64Data.length === 0) {
+            throw new Error('Failed to convert file to base64');
+          }
+          
+          console.log(`[UPLOAD] Base64 length: ${base64Data.length} chars`);
+          
+          const finalFileName = `${nisn}_${type}.${fileExtension}`;
+          console.log(`[UPLOAD] Final filename: ${finalFileName}`);
 
-        const finalFileName = `${nisn}_${type}.${fileExtension}`;
+          // Create AbortController for timeout
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 60000); // 60s timeout
 
-        const response = await fetch("/api/upload_file", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            file: base64Data,
-            fileName: finalFileName,
-            fileType: type,
-            mimeType: finalMimeType,
-            nisn: nisn,
-            alreadyCompressed: alreadyCompressed
-          }),
-        });
+          const response = await fetch("/api/upload_file", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              file: base64Data,
+              fileName: finalFileName,
+              fileType: type,
+              mimeType: finalMimeType,
+              nisn: nisn,
+              alreadyCompressed: alreadyCompressed
+            }),
+            signal: controller.signal
+          });
 
-        const result = await response.json();
-        console.log(`Upload ${type} result:`, result);
+          clearTimeout(timeout);
 
-        if (!response.ok) {
-          throw new Error(result.error || `Upload ${type} gagal (HTTP ${response.status})`);
+          const result = await response.json();
+          console.log(`[UPLOAD] ✓ ${type} result:`, result);
+
+          if (!response.ok) {
+            throw new Error(result.error || `Upload ${type} gagal (HTTP ${response.status})`);
+          }
+          if (!result.ok) {
+            throw new Error(result.error || `Upload ${type} gagal`);
+          }
+
+          return result.url;
+        } catch (error) {
+          if (error.name === 'AbortError') {
+            throw new Error(`Upload ${type} timeout (> 60s). File mungkin terlalu besar atau koneksi lambat.`);
+          }
+          throw error;
         }
-        if (!result.ok) {
-          throw new Error(result.error || `Upload ${type} gagal`);
-        }
-
-        return result.url;
       }
 
       // Function to submit final
@@ -1975,45 +2073,61 @@
 
           const fileUrls = {};
 
+          console.log("[UPLOAD] Mulai upload files...");
+          
           if (fileIjazah?.size > 0) {
+            console.log("[UPLOAD] Processing Ijazah...");
             submitBtn.innerHTML =
               '<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>Upload ijazah...';
-            fileUrls.file_ijazah = await uploadFile(
-              fileIjazah,
-              "ijazah",
-              nisn
-            );
+            try {
+              fileUrls.file_ijazah = await uploadFile(fileIjazah, "ijazah", nisn);
+              console.log("[UPLOAD] ✓ Ijazah berhasil");
+            } catch (uploadError) {
+              console.error("[UPLOAD] ❌ Ijazah gagal:", uploadError);
+              throw new Error(`Upload Ijazah gagal: ${uploadError.message}`);
+            }
           }
 
           if (fileAkta?.size > 0) {
+            console.log("[UPLOAD] Processing Akta...");
             submitBtn.innerHTML =
               '<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>Upload akta...';
-            fileUrls.file_akta = await uploadFile(
-              fileAkta,
-              "akta",
-              nisn
-            );
+            try {
+              fileUrls.file_akta = await uploadFile(fileAkta, "akta", nisn);
+              console.log("[UPLOAD] ✓ Akta berhasil");
+            } catch (uploadError) {
+              console.error("[UPLOAD] ❌ Akta gagal:", uploadError);
+              throw new Error(`Upload Akta gagal: ${uploadError.message}`);
+            }
           }
 
           if (fileFoto?.size > 0) {
+            console.log("[UPLOAD] Processing Foto...");
             submitBtn.innerHTML =
               '<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>Upload foto...';
-            fileUrls.file_foto = await uploadFile(
-              fileFoto,
-              "foto",
-              nisn
-            );
+            try {
+              fileUrls.file_foto = await uploadFile(fileFoto, "foto", nisn);
+              console.log("[UPLOAD] ✓ Foto berhasil");
+            } catch (uploadError) {
+              console.error("[UPLOAD] ❌ Foto gagal:", uploadError);
+              throw new Error(`Upload Foto gagal: ${uploadError.message}`);
+            }
           }
 
           if (fileBPJS?.size > 0) {
+            console.log("[UPLOAD] Processing BPJS...");
             submitBtn.innerHTML =
               '<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>Upload BPJS...';
-            fileUrls.file_bpjs = await uploadFile(
-              fileBPJS,
-              "bpjs",
-              nisn
-            );
+            try {
+              fileUrls.file_bpjs = await uploadFile(fileBPJS, "bpjs", nisn);
+              console.log("[UPLOAD] ✓ BPJS berhasil");
+            } catch (uploadError) {
+              console.error("[UPLOAD] ❌ BPJS gagal:", uploadError);
+              throw new Error(`Upload BPJS gagal: ${uploadError.message}`);
+            }
           }
+          
+          console.log("[UPLOAD] ✓ Semua file selesai diupload!");
 
           if (Object.keys(fileUrls).length > 0) {
             submitBtn.innerHTML =
@@ -2055,7 +2169,13 @@
             modalSukses.classList.add('modal-visible');
           }
         } catch (error) {
-          console.error("Submit error:", error);
+          console.error("=".repeat(80));
+          console.error("❌ SUBMIT ERROR DETAILS:");
+          console.error("=".repeat(80));
+          console.error("Error Type:", error.constructor.name);
+          console.error("Error Message:", error.message);
+          console.error("Error Stack:", error.stack);
+          console.error("=".repeat(80));
 
           let errorMsg = error.message || "Terjadi kesalahan";
           if (
@@ -2064,8 +2184,22 @@
           ) {
             errorMsg =
               "Gagal mendapatkan NISN dari server. Pastikan NISN sudah diisi dengan benar.";
+          } else if (errorMsg.includes("timeout")) {
+            errorMsg = "Request timeout. Silakan cek koneksi internet Anda dan coba lagi.";
+          } else if (errorMsg.includes("NetworkError") || errorMsg.includes("Failed to fetch")) {
+            errorMsg = "Koneksi gagal. Pastikan internet Anda stabil dan server dapat diakses.";
           }
-          toastr.error(`❌ Error: ${errorMsg}. Cek Console (F12) untuk detail lebih lanjut.`);
+          
+          toastr.error(`❌ Error: ${errorMsg}`, "Pendaftaran Gagal", {
+            timeOut: 10000,
+            closeButton: true,
+            progressBar: true
+          });
+          
+          // Alert for critical errors
+          if (errorMsg.includes("Upload") || errorMsg.includes("kompresi")) {
+            alert(`⚠️ DETAIL ERROR:\n\n${errorMsg}\n\nSilakan:\n1. Pastikan file tidak terlalu besar (max 2MB)\n2. Cek format file (JPEG/PNG/PDF)\n3. Cek koneksi internet\n4. Coba lagi`);
+          }
         } finally {
           submitBtn.disabled = false;
           submitBtn.innerHTML = originalText;
