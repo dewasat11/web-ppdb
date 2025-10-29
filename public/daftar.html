@@ -1849,7 +1849,7 @@
 
         submitBtn.disabled = true;
         submitBtn.innerHTML =
-          '<span class="spinner-border spinner-border-sm me-2"></span>Mengirim...';
+          '<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>Mengirim...';
 
         try {
           const formData = formDataGlobal;
@@ -1864,7 +1864,7 @@
           console.log("Data yang akan dikirim:", data);
 
           submitBtn.innerHTML =
-            '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan data...';
+            '<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>Menyimpan data...';
 
           const res = await fetch("/api/pendaftar_create", {
             method: "POST",
@@ -1898,7 +1898,7 @@
 
           if (fileIjazah?.size > 0) {
             submitBtn.innerHTML =
-              '<span class="spinner-border spinner-border-sm me-2"></span>Upload ijazah...';
+              '<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>Upload ijazah...';
             fileUrls.file_ijazah = await uploadFile(
               fileIjazah,
               "ijazah",
@@ -1908,7 +1908,7 @@
 
           if (fileAkta?.size > 0) {
             submitBtn.innerHTML =
-              '<span class="spinner-border spinner-border-sm me-2"></span>Upload akta...';
+              '<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>Upload akta...';
             fileUrls.file_akta = await uploadFile(
               fileAkta,
               "akta",
@@ -1918,7 +1918,7 @@
 
           if (fileFoto?.size > 0) {
             submitBtn.innerHTML =
-              '<span class="spinner-border spinner-border-sm me-2"></span>Upload foto...';
+              '<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>Upload foto...';
             fileUrls.file_foto = await uploadFile(
               fileFoto,
               "foto",
@@ -1928,7 +1928,7 @@
 
           if (fileBPJS?.size > 0) {
             submitBtn.innerHTML =
-              '<span class="spinner-border spinner-border-sm me-2"></span>Upload BPJS...';
+              '<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>Upload BPJS...';
             fileUrls.file_bpjs = await uploadFile(
               fileBPJS,
               "bpjs",
@@ -1938,7 +1938,7 @@
 
           if (Object.keys(fileUrls).length > 0) {
             submitBtn.innerHTML =
-              '<span class="spinner-border spinner-border-sm me-2"></span>Finalisasi...';
+              '<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>Finalisasi...';
 
             const updateRes = await fetch("/api/pendaftar_update_files", {
               method: "POST",

@@ -276,7 +276,7 @@
       document.addEventListener('DOMContentLoaded', () => {
         const btn = document.getElementById('btnCekStatus');
         const input = document.getElementById('nisnInput');
-        btn?.addEventListener('click', () => {
+        btn?.addEventListener('click', async () => {
           const v = input.value?.trim();
           if (!/^\d{10}$/.test(v)) { toastr.error('NISN harus 10 digit angka'); return; }
           Alpine.store('cek').open = true;
@@ -284,7 +284,67 @@
           document.getElementById('statusLoading').classList.remove('hidden');
           document.getElementById('statusResult').classList.add('hidden');
           document.getElementById('statusError').classList.add('hidden');
-          // TODO: panggil API cek status di sini, lalu toggle ke result/error sesuai respon
+
+          try {
+            const cacheBuster = new Date().getTime();
+            const res = await fetch(`/api/cek_status?nisn=${encodeURIComponent(v)}&_t=${cacheBuster}`);
+            const json = await res.json();
+            if (!res.ok || !json?.ok) throw new Error(json?.error || `HTTP ${res.status}`);
+
+            // Map data
+            const data = json.data || {};
+            document.getElementById('f_nisn').textContent = data.nisn || v;
+            document.getElementById('f_nama').textContent = data.nama || '-';
+            document.getElementById('f_tanggal_lahir').textContent = data.tanggal_lahir || '-';
+            document.getElementById('f_tanggal_daftar').textContent = data.tanggal_daftar || '-';
+
+            // Status badge/icon mapping
+            const status = (data.status || '').toUpperCase();
+            const iconEl = document.getElementById('statusIcon');
+            const badgeEl = document.getElementById('statusBadge');
+            const statusTextEl = document.getElementById('f_status_text');
+
+            let color = 'gray';
+            let label = 'Menunggu';
+            if (status === 'TERVERIFIKASI' || status === 'VERIFIED') { color = 'green'; label = 'Terverifikasi'; }
+            else if (status === 'DIPROSES' || status === 'PROCESSING') { color = 'blue'; label = 'Diproses'; }
+            else if (status === 'DITOLAK' || status === 'REJECTED') { color = 'red'; label = 'Ditolak'; }
+
+            iconEl.className = `bi ${color==='green'?'bi-check-circle-fill':color==='red'?'bi-x-circle-fill':'bi-hourglass-split'} text-${color}-500`;
+            badgeEl.className = `px-4 py-2 rounded-full bg-${color}-500 text-white`;
+            badgeEl.textContent = label;
+            statusTextEl.className = `inline-block px-3 py-1 rounded bg-${color}-500 text-white text-sm`;
+            statusTextEl.textContent = label;
+
+            // Catatan
+            document.getElementById('f_catatan').textContent = data.catatan || '-';
+
+            // Payment section (optional)
+            const pay = data.payment || {};
+            const paySection = document.getElementById('paymentStatusSection');
+            if (pay && (pay.status || pay.url)) {
+              const payLabel = (pay.status || '').toUpperCase() === 'VERIFIED' ? 'Pembayaran Terverifikasi' : 'Status Pembayaran';
+              const payColor = (pay.status || '').toUpperCase() === 'VERIFIED' ? 'green' : 'yellow';
+              paySection.innerHTML = `
+                <div class="mt-3 rounded-lg border border-${payColor}-200 bg-${payColor}-50 p-4">
+                  <div class="font-semibold text-${payColor}-800 mb-1">${payLabel}</div>
+                  <div class="text-sm text-${payColor}-700">${pay.note || '-'}</div>
+                  ${pay.url ? `<a href="${pay.url}" target="_blank" class="inline-block mt-2 text-${payColor}-800 underline">Lihat Bukti</a>` : ''}
+                </div>
+              `;
+            } else {
+              paySection.innerHTML = '';
+            }
+
+            // Toggle sections
+            document.getElementById('statusLoading').classList.add('hidden');
+            document.getElementById('statusResult').classList.remove('hidden');
+          } catch (e) {
+            console.error('[CEK_STATUS] Error:', e);
+            document.getElementById('statusLoading').classList.add('hidden');
+            document.getElementById('statusError').classList.remove('hidden');
+            document.getElementById('statusErrorMsg').textContent = e?.message || 'Terjadi kesalahan.';
+          }
         });
       });
     </script>
