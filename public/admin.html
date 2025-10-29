@@ -1364,6 +1364,27 @@
   <!-- Admin JS (load last, after all dependencies) - Async to prevent blocking -->
   <script defer src="/assets/js/admin.js"></script>
   
+  <!-- DEBUG: Test if admin.js loaded successfully -->
+  <script>
+    // Wait for admin.js to load (defer means it loads after DOM ready)
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        // Check critical exposed functions
+        const criticalFunctions = ['lihatDetail', 'exportToExcel', 'downloadAllZip', 'switchTab'];
+        const missingFunctions = criticalFunctions.filter(fn => typeof window[fn] === 'undefined');
+        
+        if (missingFunctions.length > 0) {
+          console.error('❌ CRITICAL: admin.js failed to load or has syntax error!');
+          console.error('❌ Missing functions:', missingFunctions);
+          alert('⚠️ ERROR: JavaScript gagal load!\n\nMissing: ' + missingFunctions.join(', ') + '\n\nSilakan:\n1. Hard refresh (Ctrl+Shift+R)\n2. Clear browser cache\n3. Check console untuk error');
+        } else {
+          console.log('✅ admin.js loaded successfully');
+          console.log('✅ All critical functions exist:', criticalFunctions);
+        }
+      }, 1000);
+    });
+  </script>
+  
   <!-- Hide loading overlay after page fully loaded -->
   <script>
     window.addEventListener('load', function() {

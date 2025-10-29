@@ -278,7 +278,7 @@
       }
     } catch (e) {
       console.error("[PENDAFTAR] ❌ Unexpected error:", e);
-      const tbody = $("#pendaftarTable");
+      // tbody already declared in outer try block
       if (tbody) {
         tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">❌ Terjadi kesalahan: ' + e.message + '</td></tr>';
       }
@@ -1065,7 +1065,7 @@
   /**
    * Download ALL files from ALL pendaftar as ZIP
    */
-  function downloadAllZip(filters = {}) {
+  async function downloadAllZip(filters = {}) {
     try {
       // Build query string
       const params = new URLSearchParams();
@@ -1147,8 +1147,7 @@
       
       if (!(result.success && result.data)) return;
 
-      // Tabel
-      const tbody = $("#pembayaranTableBody");
+      // Tabel (tbody already declared above)
       if (tbody) {
         tbody.innerHTML = result.data
           .map((item, i) => {
