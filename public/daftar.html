@@ -52,187 +52,31 @@
     <!-- Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
 
-    <style>
-      :root {
-        --tw-font-sans: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
-      }
-      html, body { font-family: var(--tw-font-sans); }
-      [x-cloak] { display: none !important; }
-
-      /* ===== RESPONSIVE ENHANCEMENTS ===== */
-      
-      /* Mobile-first responsive typography */
-      @media (max-width: 640px) {
-        h1 { font-size: 1.875rem !important; line-height: 2.25rem !important; }
-        h2 { font-size: 1.5rem !important; line-height: 2rem !important; }
-        h3 { font-size: 1.25rem !important; line-height: 1.75rem !important; }
-        .text-lg { font-size: 1rem !important; line-height: 1.5rem !important; }
-        .text-xl { font-size: 1.125rem !important; line-height: 1.75rem !important; }
-      }
-
-      /* Navbar responsive improvements */
-      @media (max-width: 768px) {
-        .navbar-brand span {
-          font-size: 0.875rem !important;
-          max-width: 200px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-      }
-
-      /* Hero section responsive */
-      @media (max-width: 640px) {
-        .hero-content {
-          padding: 2rem 1rem !important;
-        }
-      }
-
-      /* Gelombang cards responsive stacking */
-      @media (max-width: 768px) {
-        #gelombangContainer {
-          grid-template-columns: 1fr !important;
-        }
-      }
-
-      /* WhatsApp widget responsive */
-      @media (max-width: 640px) {
-        .whatsapp-widget {
-          padding: 0.75rem 1rem !important;
-          font-size: 0.875rem !important;
-        }
-        .whatsapp-widget .flex-col span:first-child {
-          font-size: 0.75rem !important;
-        }
-        .whatsapp-widget .flex-col span:last-child {
-          font-size: 0.625rem !important;
-        }
-      }
-
-      /* Card hover effects - disable on touch devices */
-      @media (hover: none) {
-        .hover\:-translate-y-2:hover {
-          transform: none !important;
-        }
-      }
-
-      /* Smooth transitions */
-      * {
-        -webkit-tap-highlight-color: transparent;
-      }
-
-      /* Improve button touch targets on mobile */
-      @media (max-width: 640px) {
-        a, button {
-          min-height: 44px;
-          min-width: 44px;
-        }
-      }
-
-      /* Container responsive padding */
-      @media (max-width: 640px) {
-        .container {
-          padding-left: 1rem !important;
-          padding-right: 1rem !important;
-        }
-      }
-
-      /* Mobile menu improvements */
-      @media (max-width: 768px) {
-        .mobile-menu {
-          max-width: 280px;
-          width: 85vw;
-        }
-      }
-    </style>
-
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   </head>
-  <body class="min-h-screen flex flex-col bg-white text-gray-800">
-    <!-- NAVBAR -->
-    <nav class="bg-white shadow-lg sticky top-0 z-50" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <!-- Logo -->
-          <div class="flex-shrink-0 flex items-center">
-            <a href="/" class="flex items-center">
-              <img src="/assets/img/logo-alikhsan.png" class="h-16 w-auto" />
-            </a>
-          </div>
-
-          <!-- Desktop Navigation -->
-          <div class="hidden md:block">
-            <div class="flex items-baseline space-x-4">
-              <a href="/" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Beranda</a>
-
-              <!-- Dropdown Informasi -->
-              <div class="relative">
-                <button @click="profileDropdownOpen=!profileDropdownOpen" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                  Informasi
-                  <i class="bi bi-caret-down-fill ml-1 text-xs" :class="{'rotate-180': profileDropdownOpen}"></i>
-                </button>
-                <div x-cloak x-show="profileDropdownOpen" @click.outside="profileDropdownOpen=false" x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100">
-                  <a href="/alur-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Alur Pendaftaran</a>
-                  <a href="/syarat-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Syarat Pendaftaran</a>
-                  <a href="/biaya.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Biaya</a>
-                </div>
-              </div>
-
-              <a href="/brosur.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Brosur</a>
-              <a href="/kontak.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Kontak</a>
-            </div>
-          </div>
-
-          <!-- CTA Button Desktop -->
-          <div class="hidden md:block">
-            <a href="/daftar.html" class="bg-brand-700 hover:bg-brand-800 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg">Daftar Sekarang</a>
-          </div>
-
-          <!-- Mobile menu button -->
-          <div class="md:hidden">
-            <button @click="mobileMenuOpen=!mobileMenuOpen" class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-brand-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
-              <i class="bi" :class="mobileMenuOpen ? 'bi-x-lg' : 'bi-list'"></i>
-            </button>
-          </div>
+  <body class="min-h-screen flex flex-col bg-gray-100 text-gray-800">
+    <!-- HEADER -->
+    <header class="bg-brand-700 text-white shadow-lg py-4">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+        <div class="flex-shrink-0">
+          <a href="/" class="text-white font-bold text-xl">PPDSB Al Ikhsan Beji</a>
         </div>
+        <nav class="hidden md:block">
+          <div class="flex items-baseline space-x-4">
+            <a href="/" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Beranda</a>
+            <a href="/alur-pendaftaran.html" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Alur Pendaftaran</a>
+            <a href="/syarat-pendaftaran.html" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Syarat Pendaftaran</a>
+            <a href="/biaya.html" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Biaya</a>
+            <a href="/brosur.html" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Brosur</a>
+            <a href="/kontak.html" class="text-white hover:text-brand-100 px-3 py-2 rounded-md text-sm font-medium">Kontak</a>
+          </div>
+        </nav>
       </div>
+    </header>
 
-      <!-- Mobile Backdrop -->
-      <div x-cloak x-show="mobileMenuOpen" @click="mobileMenuOpen=false" class="md:hidden fixed inset-0 z-40 bg-black/50"></div>
-
-      <!-- Mobile Menu -->
-      <div x-cloak x-show="mobileMenuOpen" x-transition class="md:hidden fixed inset-y-0 left-0 z-50 mobile-menu bg-white shadow-xl border-r border-gray-200 overflow-y-auto">
-        <div class="flex items-center justify-between p-4 border-b border-gray-200">
-          <div class="flex items-center">
-            <img src="/assets/img/logo-alikhsan.png" class="h-16 w-auto" />
-          </div>
-          <button @click="mobileMenuOpen=false" class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"><i class="bi bi-x-lg"></i></button>
-        </div>
-
-        <div class="px-2 pt-4 pb-3 space-y-1">
-          <a href="/" class="text-gray-700 hover:text-brand-700 hover:bg-gray-50 block px-3 py-2 rounded-md text-base font-medium">Beranda</a>
-
-          <details class="px-1">
-            <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 block px-3 py-2 rounded-md text-base font-medium">Informasi</summary>
-            <div class="pl-6 space-y-1 mt-2">
-              <a href="/alur-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Alur Pendaftaran</a>
-              <a href="/syarat-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Syarat Pendaftaran</a>
-              <a href="/biaya.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Biaya</a>
-            </div>
-          </details>
-
-          <a href="/brosur.html" class="text-gray-700 hover:text-brand-700 hover:bg-gray-50 block px-3 py-2 rounded-md text-base font-medium">Brosur</a>
-          <a href="/kontak.html" class="text-gray-700 hover:text-brand-700 hover:bg-gray-50 block px-3 py-2 rounded-md text-base font-medium">Kontak</a>
-
-          <div class="pt-4 pb-2 px-2">
-            <a href="/daftar.html" class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center">Daftar Sekarang</a>
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    <div class="flex-1 container mx-auto px-4 py-8">
+    <!-- MAIN -->
+    <main class="flex-1 container mx-auto px-4 py-8">
       <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
         <h1 class="text-3xl font-bold text-gray-900 mb-6 text-center">Formulir Pendaftaran</h1>
         <p class="text-center text-gray-600 mb-6">Silakan isi formulir di bawah ini dengan lengkap dan benar.</p>
@@ -704,7 +548,7 @@
           </div>
         </form>
       </div>
-    </div>
+    </main>
 
     <!-- Modal Sukses -->
     <div
@@ -811,7 +655,7 @@
     </div>
 
     <!-- FOOTER -->
-    <footer class="bg-white text-gray-600 py-6 shadow-2xl border-t border-gray-200 mt-auto">
+    <footer class="bg-brand-700 text-white py-6 shadow-inner mt-auto">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <p class="text-sm">&copy; 2025 Pondok Pesantren Al Ikhsan Beji. All rights reserved. <span class="hidden sm:inline">Development by Tim IT Pesantren</span></p>
       </div>
