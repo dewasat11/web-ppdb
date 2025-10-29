@@ -46,6 +46,9 @@
       }
       html, body { font-family: var(--tw-font-sans); }
       [x-cloak] { display: none !important; }
+      /* Force hide modals initially, then show via JS */
+      .modal-hidden { display: none !important; }
+      .modal-visible { display: flex !important; }
 
       /* Responsive typography */
       @media (max-width: 640px) {
@@ -203,12 +206,12 @@
     </main>
 
     <!-- Modal: Hasil Cek Status -->
-    <div x-cloak x-show="$store.cek.open" x-transition class="fixed inset-0 z-50 flex items-center justify-center">
-      <div class="absolute inset-0 bg-black/50" @click="$store.cek.open=false"></div>
+    <div id="modalCekStatus" class="modal-hidden fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/50" onclick="document.getElementById('modalCekStatus').classList.remove('modal-visible'); document.getElementById('modalCekStatus').classList.add('modal-hidden');"></div>
       <div class="relative bg-white rounded-2xl shadow-2xl max-w-3xl w-[92vw] max-h-[85vh] overflow-y-auto">
         <div class="px-6 py-4 bg-gradient-to-br from-brand-700 to-brand-800 text-white rounded-t-2xl flex items-center justify-between">
           <h5 class="font-semibold"><i class="bi bi-clipboard-check"></i> Hasil Cek Status Pendaftaran</h5>
-          <button class="text-white/90 hover:text-white" @click="$store.cek.open=false"><i class="bi bi-x-lg"></i></button>
+          <button class="text-white/90 hover:text-white" onclick="document.getElementById('modalCekStatus').classList.remove('modal-visible'); document.getElementById('modalCekStatus').classList.add('modal-hidden');"><i class="bi bi-x-lg"></i></button>
         </div>
         <div class="p-6">
           <!-- Loading state -->
@@ -262,7 +265,7 @@
           </div>
         </div>
         <div class="px-6 py-4 border-t border-gray-100 rounded-b-2xl flex justify-end">
-          <button type="button" class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-3 rounded-lg" @click="$store.cek.open=false">
+          <button type="button" class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-3 rounded-lg" onclick="document.getElementById('modalCekStatus').classList.remove('modal-visible'); document.getElementById('modalCekStatus').classList.add('modal-hidden');">
               <i class="bi bi-x-circle"></i> Tutup
             </button>
         </div>
@@ -409,41 +412,23 @@
             // Open modal only on success
             console.log('[CEK_STATUS] Opening modal with data:', data);
             
-            // Get modal element
-            const modalEl = document.querySelector('[x-show]');
+            // PURE CSS CLASS APPROACH - NO ALPINE DEPENDENCY
+            const modalEl = document.getElementById('modalCekStatus');
             
-            if (window.Alpine && Alpine.store && Alpine.store('cek')) {
-              Alpine.store('cek').open = true;
-              console.log('[CEK_STATUS] ✓ Alpine store set to TRUE');
+            if (modalEl) {
+              // Remove hidden class, add visible class
+              modalEl.classList.remove('modal-hidden');
+              modalEl.classList.add('modal-visible');
+              console.log('[CEK_STATUS] ✓✓ Modal shown via CSS class (PURE DOM)');
               
-              // IMMEDIATE force show as backup (no wait)
-              if (modalEl) {
-                modalEl.style.display = 'flex';
-                console.log('[CEK_STATUS] ✓ Modal forced to display immediately');
+              // Also set Alpine store if available (for compatibility)
+              if (window.Alpine && Alpine.store && Alpine.store('cek')) {
+                Alpine.store('cek').open = true;
+                console.log('[CEK_STATUS] ✓ Alpine store also set');
               }
-              
-              // Double-check after Alpine processes
-              setTimeout(() => {
-                if (modalEl) {
-                  const computedDisplay = window.getComputedStyle(modalEl).display;
-                  console.log('[CEK_STATUS] Final check - computed display:', computedDisplay);
-                  
-                  if (computedDisplay === 'none') {
-                    console.warn('[CEK_STATUS] ⚠️ Alpine failed, re-forcing display');
-                    modalEl.style.cssText = 'display: flex !important;';
-                  } else {
-                    console.log('[CEK_STATUS] ✓✓ Modal is VISIBLE');
-                  }
-                }
-              }, 100);
             } else {
-              console.error('[CEK_STATUS] ❌ Alpine not ready, using pure DOM');
-              if (modalEl) {
-                modalEl.style.display = 'flex';
-                console.log('[CEK_STATUS] ✓ Modal shown via pure DOM (no Alpine)');
-              } else {
-                alert('Error: Modal element tidak ditemukan!');
-              }
+              console.error('[CEK_STATUS] ❌ Modal element #modalCekStatus not found!');
+              alert('Error: Modal tidak ditemukan!');
             }
           } catch (e) {
             console.error('[CEK_STATUS] Error:', e);
