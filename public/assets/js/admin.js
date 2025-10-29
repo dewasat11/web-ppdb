@@ -144,6 +144,12 @@
   /* =========================
      3) PENDAFTAR
      ========================= */
+  // Cache untuk statistik - jangan fetch ulang terus
+  let cachedAllDataForStats = null;
+  let cachedVerifiedPayments = null;
+  let lastStatsFetchTime = 0;
+  const STATS_CACHE_DURATION = 60000; // 1 menit
+  
   async function loadPendaftar() {
     try {
       console.log('[PENDAFTAR] 📊 Loading page', currentPage, '(pageSize:', pageSize, ')');
@@ -154,64 +160,45 @@
         tbody.innerHTML = '<tr><td colspan="6" class="text-center"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Memuat data...</td></tr>';
       }
       
-      // Fetch pendaftar data dengan pagination
+      // Fetch pendaftar data dengan pagination - WITH TIMEOUT
       const url = `/api/pendaftar_list?page=${currentPage}&pageSize=${pageSize}`;
       console.log('[PENDAFTAR] → API:', url);
       
-      const r = await fetch(url);
-      const result = await r.json();
-      if (!(result.success && result.data)) {
-        console.error("[STATISTIK] ❌ Failed to fetch pendaftar data:", result);
-        return;
-      }
-
-      // Update total data dan pagination info
-      totalData = result.total || result.data.length;
-      console.log('[PENDAFTAR] Page:', currentPage, '| Page Size:', pageSize, '| Total:', totalData);
-
-      console.log("[STATISTIK] 📊 Raw pendaftar data received:");
-      console.log("[STATISTIK]   → Success:", result.success);
-      console.log("[STATISTIK]   → Data length:", result.data ? result.data.length : 0);
-      console.log("[STATISTIK]   → Sample data:", result.data ? result.data.slice(0, 2) : null);
-
-      allPendaftarData = result.data; // simpan untuk detail
-
-      // Fetch ALL data untuk statistik (tanpa pagination)
-      console.log("[STATISTIK] Fetching ALL data for statistics...");
-      const rAll = await fetch("/api/pendaftar_list?page=1&pageSize=1000"); // Ambil maksimal 1000 data
-      const resultAll = await rAll.json();
-      const allDataForStats = resultAll.success && resultAll.data ? resultAll.data : result.data;
-
-      // Fetch pembayaran data untuk sinkronisasi statistik
-      console.log("[STATISTIK] Fetching pembayaran data untuk sinkronisasi...");
-      const rPembayaran = await fetch("/api/pembayaran_list");
-      const pembayaranResult = await rPembayaran.json();
+      // Add timeout to prevent hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
       
-      // Create map of verified payments by NISN/NIK
-      const verifiedPayments = new Map();
-      if (pembayaranResult.success && pembayaranResult.data) {
-        pembayaranResult.data.forEach(p => {
-          if ((p.status || "PENDING").toUpperCase() === "VERIFIED") {
-            // Store all possible identifiers for better matching
-            const identifiers = [
-              p.nisn,
-              p.nik, 
-              p.nikcalon
-            ].filter(Boolean);
-            
-            identifiers.forEach(key => {
-              if (key) verifiedPayments.set(key, true);
-            });
+      try {
+        const r = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        if (!r.ok) {
+          throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+        }
+        
+        const result = await r.json();
+        
+        if (!(result.success && result.data)) {
+          console.error("[PENDAFTAR] ❌ Failed to fetch data:", result);
+          if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">❌ Gagal memuat data. Silakan refresh halaman.</td></tr>';
           }
-        });
-        console.log("[STATISTIK] Verified payments found:", verifiedPayments.size);
-        console.log("[STATISTIK] Verified payment identifiers:", Array.from(verifiedPayments.keys()).slice(0, 5));
-      }
+          return;
+        }
 
-      const tbody = $("#pendaftarTable");
-      if (tbody) {
-        // Calculate starting number based on current page
-        const startNum = (currentPage - 1) * pageSize;
+        console.log('[PENDAFTAR] ✅ Data loaded:', result.data.length, 'items');
+
+        // Update total data dan pagination info
+        totalData = result.total || result.data.length;
+        console.log('[PENDAFTAR] Page:', currentPage, '| Page Size:', pageSize, '| Total:', totalData);
+
+        allPendaftarData = result.data; // simpan untuk detail
+        
+        // ✅ RENDER TABEL DULU (PRIORITY)
+        console.log('[PENDAFTAR] 📋 Rendering table...');
+        if (tbody) {
+          // Calculate starting number based on current page
+          const startNum = (currentPage - 1) * pageSize;
         
         tbody.innerHTML = result.data
           .map((item, i) => {
@@ -259,10 +246,101 @@
             `;
           })
           .join("");
+          
+          console.log('[PENDAFTAR] ✅ Table rendered successfully');
+        }
+        
+        // Update pagination controls
+        updatePaginationUI();
+        
+        // ✅ LOAD STATISTIK SECARA TERPISAH (NON-BLOCKING)
+        // Jangan tunggu statistik selesai, biar tabel sudah bisa diklik
+        setTimeout(() => {
+          console.log('[PENDAFTAR] 📊 Loading statistics in background...');
+          loadStatistikData();
+        }, 100);
+        
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        
+        if (fetchError.name === 'AbortError') {
+          console.error("[PENDAFTAR] ⏱️ Request timeout setelah 10 detik");
+          if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-warning">⏱️ Request timeout. Server terlalu lambat. Silakan coba lagi.</td></tr>';
+          }
+        } else {
+          console.error("[PENDAFTAR] ❌ Fetch error:", fetchError);
+          if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">❌ Error: ' + fetchError.message + '</td></tr>';
+          }
+        }
+        return;
       }
-
-      // Helper function to check if payment is verified
-      const hasVerifiedPayment = (d) => {
+    } catch (e) {
+      console.error("[PENDAFTAR] ❌ Unexpected error:", e);
+      const tbody = $("#pendaftarTable");
+      if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">❌ Terjadi kesalahan: ' + e.message + '</td></tr>';
+      }
+    }
+  }
+  
+  // Fungsi terpisah untuk load statistik (non-blocking)
+  async function loadStatistikData() {
+    try {
+      const now = Date.now();
+      
+      // Gunakan cache jika masih valid
+      if (cachedAllDataForStats && cachedVerifiedPayments && (now - lastStatsFetchTime < STATS_CACHE_DURATION)) {
+        console.log('[STATISTIK] Using cached data');
+        calculateAndUpdateStatistics(cachedAllDataForStats, cachedVerifiedPayments);
+        return;
+      }
+      
+      console.log('[STATISTIK] Fetching fresh data...');
+      
+      // Fetch ALL data untuk statistik (tanpa pagination)
+      const rAll = await fetch("/api/pendaftar_list?page=1&pageSize=1000");
+      const resultAll = await rAll.json();
+      const allDataForStats = resultAll.success && resultAll.data ? resultAll.data : [];
+      
+      // Fetch pembayaran data untuk sinkronisasi statistik
+      const rPembayaran = await fetch("/api/pembayaran_list");
+      const pembayaranResult = await rPembayaran.json();
+      
+      // Create map of verified payments by NISN/NIK
+      const verifiedPayments = new Map();
+      if (pembayaranResult.success && pembayaranResult.data) {
+        pembayaranResult.data.forEach(p => {
+          if ((p.status || "PENDING").toUpperCase() === "VERIFIED") {
+            const identifiers = [p.nisn, p.nik, p.nikcalon].filter(Boolean);
+            identifiers.forEach(key => {
+              if (key) verifiedPayments.set(key, true);
+            });
+          }
+        });
+      }
+      
+      // Cache hasil
+      cachedAllDataForStats = allDataForStats;
+      cachedVerifiedPayments = verifiedPayments;
+      lastStatsFetchTime = now;
+      
+      // Calculate dan update statistik
+      calculateAndUpdateStatistics(allDataForStats, verifiedPayments);
+      
+    } catch (error) {
+      console.error('[STATISTIK] Error loading statistics:', error);
+      // Jangan throw error, biar tabel tetap bisa dipakai
+    }
+  }
+  
+  // Fungsi untuk calculate dan update statistik
+  function calculateAndUpdateStatistics(allDataForStats, verifiedPayments) {
+    console.log('[STATISTIK] Calculating statistics...');
+    
+    // Helper function to check if payment is verified
+    const hasVerifiedPayment = (d) => {
         const identifiers = [
           d.nisn,
           d.nikcalon,
@@ -530,12 +608,8 @@
         upd2.textContent = `Data update: ${new Date().toLocaleTimeString(
           "id-ID"
         )}`;
-
-      // Update pagination UI
-      updatePaginationUI();
-    } catch (err) {
-      console.error("loadPendaftar error:", err);
-    }
+      
+      console.log('[STATISTIK] ✅ Statistics updated successfully');
   }
 
   /* =========================
