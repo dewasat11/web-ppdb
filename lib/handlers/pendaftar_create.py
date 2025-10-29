@@ -130,25 +130,47 @@ class handler(BaseHTTPRequestHandler):
             
             # Insert to Supabase using ANON_KEY (public registration, allowed by RLS)
             supa = supabase_client(service_role=False)  # Use ANON_KEY
+            
+            print(f"[PENDAFTAR_CREATE] Inserting payload with NISN: {payload.get('nisn')}")
+            print(f"[PENDAFTAR_CREATE] Payload keys: {list(payload.keys())}")
+            
             result = supa.table("pendaftar").insert(payload).execute()
             
+            print(f"[PENDAFTAR_CREATE] Insert result.data: {result.data}")
+            
             if not result.data:  # type: ignore
-                raise Exception("Failed to create pendaftar")
+                print("[PENDAFTAR_CREATE] ERROR: result.data is empty!")
+                raise Exception("Failed to create pendaftar - database insert returned no data")
             
             result_data: Dict[str, Any] = result.data[0]  # type: ignore
             
+            print(f"[PENDAFTAR_CREATE] result_data keys: {list(result_data.keys())}")
+            print(f"[PENDAFTAR_CREATE] result_data['nisn']: {result_data.get('nisn')}")
+            print(f"[PENDAFTAR_CREATE] result_data['id']: {result_data.get('id')}")
+            
             # Response success - Use NISN as registration number
+            response_payload = {
+                "ok": True,
+                "id": result_data.get("id"),
+                "nisn": result_data.get("nisn")
+            }
+            
+            print(f"[PENDAFTAR_CREATE] Sending response: {response_payload}")
+            
             self.send_response(201)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
-            self.wfile.write(json.dumps({
-                "ok": True,
-                "id": result_data["id"],
-                "nisn": result_data["nisn"]
-            }).encode())
+            self.wfile.write(json.dumps(response_payload).encode())
             
         except Exception as e:
+            print(f"[PENDAFTAR_CREATE] ❌ EXCEPTION: {str(e)}")
+            print(f"[PENDAFTAR_CREATE] Exception type: {type(e).__name__}")
+            
+            import traceback
+            print(f"[PENDAFTAR_CREATE] Traceback:")
+            traceback.print_exc()
+            
             self.send_response(500)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')

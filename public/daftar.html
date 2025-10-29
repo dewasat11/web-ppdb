@@ -2046,11 +2046,29 @@
           });
 
           console.log("[SUBMIT] Response status:", res.status);
-          const json = await res.json();
-          console.log("[SUBMIT] Response dari server:", json);
+          console.log("[SUBMIT] Response headers:", Object.fromEntries(res.headers.entries()));
+          
+          const responseText = await res.text();
+          console.log("[SUBMIT] Raw response text:", responseText);
+          
+          let json;
+          try {
+            json = JSON.parse(responseText);
+          } catch (parseError) {
+            console.error("[SUBMIT] ❌ Failed to parse JSON:", parseError);
+            console.error("[SUBMIT] Response was:", responseText);
+            throw new Error(`Server response tidak valid (bukan JSON): ${responseText.substring(0, 100)}`);
+          }
+          
+          console.log("[SUBMIT] Parsed response:", json);
+          console.log("[SUBMIT] json.ok =", json.ok);
+          console.log("[SUBMIT] json.nisn =", json.nisn);
+          console.log("[SUBMIT] json.id =", json.id);
 
           if (!json.ok) {
-            console.error("[SUBMIT] Server error:", json.error, json.details);
+            console.error("[SUBMIT] ❌ Server returned ok=false");
+            console.error("[SUBMIT] Error:", json.error);
+            console.error("[SUBMIT] Details:", json.details);
             throw new Error(json.error || "Gagal menyimpan data");
           }
           
@@ -2059,8 +2077,13 @@
           const nisn = json.nisn;
           const pendaftarId = json.id;
 
+          console.log("[SUBMIT] Extracted NISN:", nisn, "Type:", typeof nisn);
+          console.log("[SUBMIT] Extracted ID:", pendaftarId, "Type:", typeof pendaftarId);
+
           if (!nisn) {
-            throw new Error("NISN tidak diterima dari server");
+            console.error("[SUBMIT] ❌ NISN is null/undefined/empty!");
+            console.error("[SUBMIT] Full response object:", JSON.stringify(json, null, 2));
+            throw new Error("NISN tidak diterima dari server. Response: " + JSON.stringify(json));
           }
 
           console.log("NISN:", nisn);
