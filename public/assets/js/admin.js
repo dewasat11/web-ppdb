@@ -23,7 +23,7 @@
 
   // Pagination state untuk pendaftar
   let currentPage = 1;
-  let pageSize = 50; // Default 50 data per halaman
+  let pageSize = 10; // WAJIB 10 data per halaman
   let totalData = 0;
 
   const CACHE_DURATION = 30_000; // (opsi, saat ingin cache) 30s
@@ -576,20 +576,9 @@
     }
   }
 
-  function changePageSize() {
-    const select = $("#pageSizeSelect");
-    if (select) {
-      pageSize = parseInt(select.value, 10);
-      currentPage = 1; // Reset ke halaman pertama
-      console.log('[PAGINATION] Page size changed to:', pageSize);
-      loadPendaftar();
-    }
-  }
-
   // Expose pagination functions
   window.nextPage = nextPage;
   window.previousPage = previousPage;
-  window.changePageSize = changePageSize;
 
   async function updateStatus(id, status) {
     if (!confirm(`Yakin mengubah status menjadi "${status}"?`)) return;
@@ -906,7 +895,28 @@
       if (result.success) {
         const modal = bootstrap.Modal.getInstance($("#verifikasiModal"));
         if (modal) modal.hide();
-        alert(`Status berhasil diubah menjadi "${status}"!`);
+        
+        // Build success message
+        let successMsg = `✅ Status berhasil diubah menjadi "${status}"!`;
+        
+        // Add WhatsApp notification status if available
+        if (result.whatsapp) {
+          if (result.whatsapp.sent) {
+            successMsg += `\n\n📱 WhatsApp Notification: TERKIRIM ✅`;
+            successMsg += `\n   Provider: ${result.whatsapp.provider}`;
+            console.log('[VERIFIKASI] WhatsApp sent:', result.whatsapp);
+          } else {
+            successMsg += `\n\n📱 WhatsApp Notification: GAGAL ⚠️`;
+            successMsg += `\n   ${result.whatsapp.message}`;
+            console.warn('[VERIFIKASI] WhatsApp failed:', result.whatsapp);
+          }
+        } else if (status.toUpperCase() === 'DITERIMA') {
+          // Status diterima but no WhatsApp info (API token not configured)
+          successMsg += `\n\n📱 WhatsApp: Tidak dikonfigurasi (set WHATSAPP_API_TOKEN di Vercel)`;
+          console.warn('[VERIFIKASI] WhatsApp not configured');
+        }
+        
+        alert(successMsg);
         loadPendaftar();
       } else {
         alert("Error: " + (result.error || "Gagal mengubah status"));
@@ -991,13 +1001,33 @@
       const queryString = params.toString();
       const url = `/api/pendaftar_download_zip${queryString ? '?' + queryString : ''}`;
       
-      // Show notification
-      alert('Memproses download ZIP semua berkas...\nProses ini mungkin memakan waktu beberapa saat.');
+      // Show loading notification
+      console.log('⏳ Generating ZIP file...');
+      alert('⏳ Memproses pembuatan ZIP semua berkas...\nProses ini mungkin memakan waktu. Mohon tunggu dan jangan tutup halaman ini.');
       
-      // Trigger download
-      window.location.href = url;
+      // Fetch ZIP generation endpoint
+      console.log('[ZIP] Requesting:', url);
+      const response = await fetch(url);
+      const result = await response.json();
       
-      console.log('✓ ZIP download initiated via server');
+      console.log('[ZIP] Response:', result);
+      
+      if (!result.ok || !result.download_url) {
+        throw new Error(result.error || result.message || 'Gagal membuat file ZIP');
+      }
+      
+      // Success - redirect to download URL
+      console.log('✓ ZIP ready:', result.filename, `(${result.size_mb} MB)`);
+      console.log('✓ Total files:', result.success_count, '/', result.total_files);
+      console.log('✓ Download URL:', result.download_url);
+      
+      // Show success message
+      alert(`✅ ${result.message}\n\n📦 File: ${result.filename}\n📊 Ukuran: ${result.size_mb} MB\n📁 Berhasil: ${result.success_count}/${result.total_files} file\n⏱️ Link berlaku: ${result.expires_in}\n\nDownload akan dimulai...`);
+      
+      // Redirect to signed download URL
+      window.location.href = result.download_url;
+      
+      console.log('✓ ZIP download initiated via storage URL');
     } catch (error) {
       console.error('Error downloading ZIP:', error);
       alert('❌ Error: ' + error.message);
