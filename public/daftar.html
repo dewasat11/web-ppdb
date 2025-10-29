@@ -1934,23 +1934,29 @@
             }
           }
 
-          console.log("Data yang akan dikirim:", data);
+          console.log("[SUBMIT] Data yang akan dikirim:", data);
+          console.log("[SUBMIT] Total fields:", Object.keys(data).length);
 
           submitBtn.innerHTML =
             '<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>Menyimpan data...';
 
+          console.log("[SUBMIT] Sending POST to /api/pendaftar_create...");
           const res = await fetch("/api/pendaftar_create", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
           });
 
+          console.log("[SUBMIT] Response status:", res.status);
           const json = await res.json();
-          console.log("Response dari server:", json);
+          console.log("[SUBMIT] Response dari server:", json);
 
           if (!json.ok) {
+            console.error("[SUBMIT] Server error:", json.error, json.details);
             throw new Error(json.error || "Gagal menyimpan data");
           }
+          
+          console.log("[SUBMIT] ✓ Data berhasil disimpan!");
 
           const nisn = json.nisn;
           const pendaftarId = json.id;

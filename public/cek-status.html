@@ -233,6 +233,7 @@
               <div class="divide-y divide-gray-100">
                 <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500">NISN</span><strong id="f_nisn">-</strong></div>
                 <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500">Nama Lengkap</span><strong id="f_nama">-</strong></div>
+                <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500">Tempat Lahir</span><span id="f_tempat_lahir">-</span></div>
                 <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500">Tanggal Lahir</span><span id="f_tanggal_lahir">-</span></div>
                 <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500">Tanggal Daftar</span><span id="f_tanggal_daftar">-</span></div>
               </div>
@@ -250,7 +251,6 @@
                 </div>
               </div>
             </div>
-            <div id="paymentStatusSection" class="mt-3"></div>
             </div>
 
             <!-- Error -->
@@ -359,49 +359,75 @@
             
             console.log('[CEK_STATUS] Data found, processing...');
 
-            // Map data
+            // Map data from database
             const data = json.data || {};
             document.getElementById('f_nisn').textContent = data.nisn || v;
-            document.getElementById('f_nama').textContent = data.nama || data.namalengkap || '-';
-            document.getElementById('f_tanggal_lahir').textContent = (data.tanggal_lahir || data.tanggalLahir || data.tanggallahir || '-')
-            document.getElementById('f_tanggal_daftar').textContent = (data.tanggal_daftar || data.created_at || data.createdat || '-')
+            document.getElementById('f_nama').textContent = data.nama || '-';
+            document.getElementById('f_tempat_lahir').textContent = data.tempatLahir || '-';
+            
+            // Format tanggal lahir
+            const tglLahir = data.tanggalLahir || '-';
+            document.getElementById('f_tanggal_lahir').textContent = tglLahir !== '-' ? new Date(tglLahir).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-';
+            
+            // Format tanggal daftar
+            const tglDaftar = data.created_at || data.createdat || '-';
+            document.getElementById('f_tanggal_daftar').textContent = tglDaftar !== '-' ? new Date(tglDaftar).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
 
-            // Status badge/icon mapping
-            const status = (data.status || data.statusberkas || '').toUpperCase();
+            // Status badge/icon mapping (sesuai database: PENDING, DITERIMA, DITOLAK, DIPROSES)
+            const status = (data.status || 'PENDING').toUpperCase();
             const iconEl = document.getElementById('statusIcon');
             const badgeEl = document.getElementById('statusBadge');
             const statusTextEl = document.getElementById('f_status_text');
 
             let color = 'gray';
-            let label = 'Menunggu';
-            if (status === 'TERVERIFIKASI' || status === 'VERIFIED') { color = 'green'; label = 'Terverifikasi'; }
-            else if (status === 'DIPROSES' || status === 'PROCESSING') { color = 'blue'; label = 'Diproses'; }
-            else if (status === 'DITOLAK' || status === 'REJECTED') { color = 'red'; label = 'Ditolak'; }
+            let bgColor = 'bg-gray-500';
+            let textColor = 'text-gray-500';
+            let label = 'Menunggu Verifikasi';
+            let icon = 'bi-hourglass-split';
+            
+            if (status === 'DITERIMA' || status === 'TERVERIFIKASI' || status === 'VERIFIED') { 
+              color = 'green'; 
+              bgColor = 'bg-green-600'; 
+              textColor = 'text-green-600';
+              label = 'Diterima / Terverifikasi';
+              icon = 'bi-check-circle-fill';
+            }
+            else if (status === 'DIPROSES' || status === 'PROCESSING') { 
+              color = 'blue'; 
+              bgColor = 'bg-blue-600'; 
+              textColor = 'text-blue-600';
+              label = 'Sedang Diproses';
+              icon = 'bi-clock-fill';
+            }
+            else if (status === 'DITOLAK' || status === 'REJECTED') { 
+              color = 'red'; 
+              bgColor = 'bg-red-600'; 
+              textColor = 'text-red-600';
+              label = 'Ditolak';
+              icon = 'bi-x-circle-fill';
+            }
 
-            iconEl.className = `bi ${color==='green'?'bi-check-circle-fill':color==='red'?'bi-x-circle-fill':'bi-hourglass-split'} text-${color}-500`;
-            badgeEl.className = `px-4 py-2 rounded-full bg-${color}-500 text-white`;
+            iconEl.className = `bi ${icon} ${textColor}`;
+            badgeEl.className = `px-4 py-2 rounded-full ${bgColor} text-white`;
             badgeEl.textContent = label;
-            statusTextEl.className = `inline-block px-3 py-1 rounded bg-${color}-500 text-white text-sm`;
+            statusTextEl.className = `inline-block px-3 py-1 rounded ${bgColor} text-white text-sm`;
             statusTextEl.textContent = label;
 
-            // Catatan
-            document.getElementById('f_catatan').textContent = (data.catatan || data.alasan || '-')
-
-            // Payment section (optional)
-            const pay = data.payment || {};
-            const paySection = document.getElementById('paymentStatusSection');
-            if (pay && (pay.status || pay.url)) {
-              const payLabel = (pay.status || '').toUpperCase() === 'VERIFIED' ? 'Pembayaran Terverifikasi' : 'Status Pembayaran';
-              const payColor = (pay.status || '').toUpperCase() === 'VERIFIED' ? 'green' : 'yellow';
-              paySection.innerHTML = `
-                <div class="mt-3 rounded-lg border border-${payColor}-200 bg-${payColor}-50 p-4">
-                  <div class="font-semibold text-${payColor}-800 mb-1">${payLabel}</div>
-                  <div class="text-sm text-${payColor}-700">${pay.note || '-'}</div>
-                  ${pay.url ? `<a href="${pay.url}" target="_blank" class="inline-block mt-2 text-${payColor}-800 underline">Lihat Bukti</a>` : ''}
-                </div>
-              `;
-            } else {
-              paySection.innerHTML = '';
+            // Catatan admin (alasan)
+            const catatanAdmin = data.alasan || '-';
+            document.getElementById('f_catatan').textContent = catatanAdmin;
+            
+            // Verified info (jika ada)
+            if (data.verified_by && data.verified_at) {
+              const verifiedDate = new Date(data.verified_at).toLocaleDateString('id-ID', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              });
+              const verifiedInfo = `<div class="mt-2 text-sm text-gray-600"><i class="bi bi-person-check"></i> Diverifikasi oleh: <strong>${data.verified_by}</strong> pada ${verifiedDate}</div>`;
+              document.getElementById('f_catatan').insertAdjacentHTML('afterend', verifiedInfo);
             }
 
             // Prepare modal sections for success
