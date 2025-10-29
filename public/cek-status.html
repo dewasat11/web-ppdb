@@ -294,9 +294,28 @@
 
         const btn = document.getElementById('btnCekStatus');
         const input = document.getElementById('nisnInput');
+
+        // Safe toast helper with alert fallback
+        function toast(type, msg){
+          try {
+            if (window.toastr && typeof window.toastr[type] === 'function') return window.toastr[type](msg);
+          } catch {}
+          alert(msg);
+        }
+
+        // Enter key triggers
+        input?.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); btn?.click(); }
+        });
+
         btn?.addEventListener('click', async () => {
           const v = input.value?.trim();
-          if (!/^\d{10}$/.test(v)) { toastr.error('NISN harus 10 digit angka'); return; }
+          if (!/^\d{10}$/.test(v)) { toast('error', 'NISN harus 10 digit angka'); return; }
+          
+          // Button loading state
+          const originalHTML = btn.innerHTML;
+          btn.disabled = true;
+          btn.innerHTML = '<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>Memeriksa...';
           Alpine.store('cek').open = true;
           // Reset modal sections
           document.getElementById('statusLoading').classList.remove('hidden');
@@ -305,7 +324,10 @@
 
           try {
             const cacheBuster = new Date().getTime();
-            const res = await fetch(`/api/pendaftar_cek_status?nisn=${encodeURIComponent(v)}&_t=${cacheBuster}`);
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 12000);
+            const res = await fetch(`/api/pendaftar_cek_status?nisn=${encodeURIComponent(v)}&_t=${cacheBuster}`,{ signal: controller.signal });
+            clearTimeout(timeout);
             const json = await res.json();
             if (!res.ok || !json?.ok) throw new Error(json?.error || `HTTP ${res.status}`);
 
@@ -362,6 +384,9 @@
             document.getElementById('statusLoading').classList.add('hidden');
             document.getElementById('statusError').classList.remove('hidden');
             document.getElementById('statusErrorMsg').textContent = e?.message || 'Terjadi kesalahan.';
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
           }
         });
       });

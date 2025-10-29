@@ -59,6 +59,9 @@
         Alpine.store('modals', { showKonfirmasi: false, showSukses: false });
       });
     </script>
+    <style>
+      [x-cloak] { display: none !important; }
+    </style>
   </head>
   <body class="min-h-screen flex flex-col bg-gray-100 text-gray-800">
     <!-- HEADER -->
@@ -620,7 +623,7 @@
     </main>
 
     <!-- Modal Sukses -->
-    <div x-cloak x-show="$store.modals.showSukses" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div x-cloak x-show="$store.modals.showSukses" aria-hidden="true" style="display:none" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/50" @click="$store.modals.showSukses=false"></div>
       <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-[92vw]">
         <div class="px-6 py-4 bg-green-600 text-white rounded-t-2xl">
@@ -653,7 +656,7 @@
     </div>
 
     <!-- Modal Konfirmasi -->
-    <div x-cloak x-show="$store.modals.showKonfirmasi" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div x-cloak x-show="$store.modals.showKonfirmasi" aria-hidden="true" style="display:none" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/50" @click="$store.modals.showKonfirmasi=false"></div>
       <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-[92vw] max-h-[85vh] overflow-y-auto">
         <div class="px-6 py-4 bg-brand-600 text-white rounded-t-2xl flex items-center justify-between">
@@ -700,6 +703,20 @@
     <script>
       const form = document.getElementById("formPendaftar");
       let formDataGlobal = null;
+
+      // Hard hide modals on first paint, before Alpine takes over
+      document.addEventListener('DOMContentLoaded', () => {
+        try {
+          const m1 = document.querySelector('[x-show="$store.modals.showKonfirmasi"]');
+          const m2 = document.querySelector('[x-show="$store.modals.showSukses"]');
+          if (m1) { m1.style.display = 'none'; m1.setAttribute('aria-hidden', 'true'); }
+          if (m2) { m2.style.display = 'none'; m2.setAttribute('aria-hidden', 'true'); }
+          if (window.Alpine && Alpine.store('modals')) {
+            Alpine.store('modals').showKonfirmasi = false;
+            Alpine.store('modals').showSukses = false;
+          }
+        } catch {}
+      });
 
       // Fungsi untuk mengontrol pilihan Rencana Program berdasarkan Rencana Tingkat
       function handleTingkatChange() {
