@@ -34,6 +34,9 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
+    <!-- Toastify (for toastr shim) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+
     <!-- Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
 
@@ -210,7 +213,7 @@
         <div class="p-6">
           <!-- Loading state -->
           <div id="statusLoading" class="text-center py-6">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent"></div>
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-brand-500 border-t-transparent"></div>
             <p class="mt-4 text-gray-600 font-semibold">Mengambil data status Anda...</p>
           </div>
 
@@ -274,6 +277,21 @@
         Alpine.store('cek', { open: false });
       });
       document.addEventListener('DOMContentLoaded', () => {
+        // Toastify shim for toastr compatibility
+        (function(){
+          const s = document.createElement('script');
+          s.src = 'https://cdn.jsdelivr.net/npm/toastify-js';
+          s.onload = function(){
+            window.toastr = {
+              success(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#10b981', color: '#fff' }}).showToast(); },
+              error(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#ef4444', color: '#fff' }}).showToast(); },
+              warning(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#f59e0b', color: '#fff' }}).showToast(); },
+              info(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#3b82f6', color: '#fff' }}).showToast(); }
+            };
+          };
+          document.head.appendChild(s);
+        })();
+
         const btn = document.getElementById('btnCekStatus');
         const input = document.getElementById('nisnInput');
         btn?.addEventListener('click', async () => {
@@ -287,19 +305,19 @@
 
           try {
             const cacheBuster = new Date().getTime();
-            const res = await fetch(`/api/cek_status?nisn=${encodeURIComponent(v)}&_t=${cacheBuster}`);
+            const res = await fetch(`/api/pendaftar_cek_status?nisn=${encodeURIComponent(v)}&_t=${cacheBuster}`);
             const json = await res.json();
             if (!res.ok || !json?.ok) throw new Error(json?.error || `HTTP ${res.status}`);
 
             // Map data
             const data = json.data || {};
             document.getElementById('f_nisn').textContent = data.nisn || v;
-            document.getElementById('f_nama').textContent = data.nama || '-';
-            document.getElementById('f_tanggal_lahir').textContent = data.tanggal_lahir || '-';
-            document.getElementById('f_tanggal_daftar').textContent = data.tanggal_daftar || '-';
+            document.getElementById('f_nama').textContent = data.nama || data.namalengkap || '-';
+            document.getElementById('f_tanggal_lahir').textContent = (data.tanggal_lahir || data.tanggalLahir || data.tanggallahir || '-')
+            document.getElementById('f_tanggal_daftar').textContent = (data.tanggal_daftar || data.created_at || data.createdat || '-')
 
             // Status badge/icon mapping
-            const status = (data.status || '').toUpperCase();
+            const status = (data.status || data.statusberkas || '').toUpperCase();
             const iconEl = document.getElementById('statusIcon');
             const badgeEl = document.getElementById('statusBadge');
             const statusTextEl = document.getElementById('f_status_text');
@@ -317,7 +335,7 @@
             statusTextEl.textContent = label;
 
             // Catatan
-            document.getElementById('f_catatan').textContent = data.catatan || '-';
+            document.getElementById('f_catatan').textContent = (data.catatan || data.alasan || '-')
 
             // Payment section (optional)
             const pay = data.payment || {};

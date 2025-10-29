@@ -668,7 +668,7 @@
           <button type="button" class="inline-flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-3 rounded-lg w-full sm:w-auto" @click="$store.modals.showKonfirmasi=false">
             <i class="bi bi-pencil"></i> Edit Data
           </button>
-          <button type="button" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-lg w-full sm:w-auto" onclick="submitFinal()">
+          <button id="btnKonfirmasiKirim" type="button" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-lg w-full sm:w-auto" onclick="submitFinal()">
             <i class="bi bi-send"></i> Ya, Kirim Pendaftaran
           </button>
         </div>
@@ -1844,7 +1844,7 @@
 
       // Function to submit final
       async function submitFinal() {
-        const submitBtn = document.querySelector("#konfirmasiModal .btn-success");
+        const submitBtn = document.querySelector('#btnKonfirmasiKirim');
         const originalText = submitBtn.innerHTML;
 
         submitBtn.disabled = true;
