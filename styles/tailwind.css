@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base tweaks (optional) */
+@layer base {
+  html, body { @apply font-sans; }
+}
+
+
