@@ -120,8 +120,14 @@
     } else if (tab === "pendaftar") {
       loadPendaftar();
     } else if (tab === "statistik") {
-      // Load data pendaftar untuk update statistik
-      loadPendaftar();
+      // Statistik sudah auto-update dari loadPendaftar()
+      // Hanya reload jika belum ada data
+      if (allPendaftarData.length === 0) {
+        console.log("[STATISTIK] No cached data, loading...");
+        loadPendaftar();
+      } else {
+        console.log("[STATISTIK] Using cached data:", allPendaftarData.length, "items");
+      }
     } else if (tab === "gelombang") {
       // Load gelombang data
       loadGelombangData();
@@ -140,9 +146,17 @@
      ========================= */
   async function loadPendaftar() {
     try {
+      console.log('[PENDAFTAR] 📊 Loading page', currentPage, '(pageSize:', pageSize, ')');
+      
+      // Show loading state in table
+      const tbody = $("#pendaftarTable");
+      if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Memuat data...</td></tr>';
+      }
+      
       // Fetch pendaftar data dengan pagination
       const url = `/api/pendaftar_list?page=${currentPage}&pageSize=${pageSize}`;
-      console.log('[PENDAFTAR] Fetching:', url);
+      console.log('[PENDAFTAR] → API:', url);
       
       const r = await fetch(url);
       const result = await r.json();
@@ -1038,10 +1052,25 @@
   /* =========================
      5) PEMBAYARAN
      ========================= */
+  // Track if pembayaran has been loaded at least once
+  let pembayaranLoadedOnce = false;
+  
   async function loadPembayaran() {
     try {
+      console.log('[PEMBAYARAN] 💳 Loading payment data...');
+      
+      // Show loading state
+      const tbody = $("#pembayaranTableBody");
+      if (tbody && !pembayaranLoadedOnce) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Memuat data pembayaran...</td></tr>';
+      }
+      
       const r = await fetch("/api/pembayaran_list");
       const result = await r.json();
+      
+      pembayaranLoadedOnce = true;
+      console.log('[PEMBAYARAN] ✅ Data loaded:', result.data?.length || 0, 'items');
+      
       if (!(result.success && result.data)) return;
 
       // Tabel
@@ -1925,8 +1954,14 @@ PONDOK PESANTREN AL IKHSAN BEJI`
      8) INIT
      ========================= */
   document.addEventListener("DOMContentLoaded", () => {
-    // default tab load
+    console.log("[ADMIN] 🚀 Page loaded - initializing...");
+    
+    // ✅ ONLY load active tab (pendaftar)
+    // Other tabs will lazy-load when clicked via switchTab()
+    console.log("[ADMIN] 📊 Loading initial data: Pendaftar only");
     loadPendaftar();
-    loadPembayaran();
+    
+    // ❌ REMOVED: loadPembayaran() - will lazy load on tab switch
+    console.log("[ADMIN] ✅ Initial load complete (lazy loading enabled for other tabs)");
   });
 })();
