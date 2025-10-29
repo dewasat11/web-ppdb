@@ -1,254 +1,585 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Syarat dan ketentuan pendaftaran santri baru Pondok Pesantren Al Ikhsan Beji. Panduan lengkap dokumen dan format unggahan.">
-  <meta name="keywords" content="Syarat Pendaftaran PPDSB, Dokumen Pendaftaran Santri, Pondok Pesantren Al Ikhsan Beji">
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="csrf-token" content="{{CSRF_TOKEN}}" />
+  <meta name="description" content="Syarat dan ketentuan pendaftaran santri baru Pondok Pesantren Al Ikhsan Beji. Panduan lengkap dokumen dan format unggahan." />
+  <meta name="keywords" content="Syarat Pendaftaran PPDSB, Dokumen Pendaftaran Santri, Pondok Pesantren Al Ikhsan Beji" />
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+
   <title>Syarat Pendaftaran - PPDSB Pondok Pesantren Al Ikhsan Beji</title>
 
-  <link rel="icon" href="/favicon.png" type="image/png">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://kit.fontawesome.com/a2e0d1f7f4.js" crossorigin="anonymous"></script>
-  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Optional: Tailwind config tweak
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              300: '#6ee7b7',
+              400: '#34d399',
+              500: '#10b981', // emerald
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+  <!-- Choices.js / Flatpickr / Toastify (opsional, kompatibel dgn snippet lama) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f9fafb;
-      color: #1f2937;
-      scroll-behavior: smooth;
+    :root {
+      --tw-font-sans: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+    }
+    html, body { font-family: var(--tw-font-sans); }
+    [x-cloak] { display: none !important; }
+
+    /* ===== RESPONSIVE ENHANCEMENTS ===== */
+    
+    /* Mobile-first responsive typography */
+    @media (max-width: 640px) {
+      h1 { font-size: 1.875rem !important; line-height: 2.25rem !important; }
+      h2 { font-size: 1.5rem !important; line-height: 2rem !important; }
+      h3 { font-size: 1.25rem !important; line-height: 1.75rem !important; }
+      .text-lg { font-size: 1rem !important; line-height: 1.5rem !important; }
+      .text-xl { font-size: 1.125rem !important; line-height: 1.75rem !important; }
     }
 
-    header {
-      background-color: #064e3b;
-      color: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    header .logo a {
-      color: white;
-      font-weight: 700;
-      font-size: 1.25rem;
-    }
-
-    nav a {
-      color: white;
-      margin: 0 0.75rem;
-      font-weight: 500;
-      transition: 0.3s;
-    }
-    nav a:hover { color: #a7f3d0; }
-
-    main {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 3rem 1rem;
-    }
-
-    h2.title {
-      text-align: center;
-      color: #064e3b;
-      font-weight: 700;
-      margin-bottom: 1rem;
-    }
-
-    p.subtitle {
-      text-align: center;
-      max-width: 700px;
-      margin: 0 auto 2.5rem;
-      color: #4b5563;
-    }
-
-    /* SECTION BOX */
-    .section-box {
-      background: #fff;
-      border-radius: 1rem;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-      padding: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    .section-box h3 {
-      color: #064e3b;
-      margin-bottom: 1rem;
-      font-size: 1.15rem;
-    }
-
-    ul {
-      list-style: none;
-      padding-left: 0;
-    }
-    ul li {
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-    ul li i {
-      color: #047857;
-      font-size: 1rem;
-      margin-top: 0.25rem;
-    }
-
-    a.btn {
-      display: inline-block;
-      background-color: #047857;
-      color: white;
-      padding: 0.6rem 1.2rem;
-      border-radius: 8px;
-      margin-top: 1rem;
-      transition: 0.3s;
-      font-weight: 500;
-      text-decoration: none;
-    }
-    a.btn:hover { background-color: #059669; }
-
-    /* FAQ */
-    .faq {
-      background-color: #fff;
-      border-radius: 1rem;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-      padding: 1.5rem;
-    }
-    details {
-      margin-bottom: 1rem;
-      border-bottom: 1px solid #e5e7eb;
-      padding-bottom: 1rem;
-    }
-    summary {
-      font-weight: 600;
-      color: #064e3b;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    summary:hover { color: #047857; }
-    details p {
-      margin-top: 0.5rem;
-      color: #374151;
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
-
-    footer {
-      background-color: #064e3b;
-      color: #fff;
-      text-align: center;
-      padding: 1.5rem;
-      margin-top: 3rem;
-      font-size: 0.9rem;
-    }
-
+    /* Navbar responsive improvements */
     @media (max-width: 768px) {
-      header {
-        flex-direction: column;
-        align-items: flex-start;
+      .navbar-brand span {
+        font-size: 0.875rem !important;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
-      nav {
-        margin-top: 0.5rem;
-        display: flex;
-        flex-wrap: wrap;
+    }
+
+    /* Hero section responsive */
+    @media (max-width: 640px) {
+      .hero-content {
+        padding: 2rem 1rem !important;
       }
-      nav a {
-        margin: 0.25rem 0.75rem 0.25rem 0;
+    }
+
+    /* Gelombang cards responsive stacking */
+    @media (max-width: 768px) {
+      #gelombangContainer {
+        grid-template-columns: 1fr !important;
       }
-      .section-box { padding: 1.5rem; }
+    }
+
+    /* WhatsApp widget responsive */
+    @media (max-width: 640px) {
+      .whatsapp-widget {
+        padding: 0.75rem 1rem !important;
+        font-size: 0.875rem !important;
+      }
+      .whatsapp-widget .flex-col span:first-child {
+        font-size: 0.75rem !important;
+      }
+      .whatsapp-widget .flex-col span:last-child {
+        font-size: 0.625rem !important;
+      }
+    }
+
+    /* Card hover effects - disable on touch devices */
+    @media (hover: none) {
+      .hover\:-translate-y-2:hover {
+        transform: none !important;
+      }
+    }
+
+    /* Smooth transitions */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Improve button touch targets on mobile */
+    @media (max-width: 640px) {
+      a, button {
+        min-height: 44px;
+        min-width: 44px;
+      }
+    }
+
+    /* Container responsive padding */
+    @media (max-width: 640px) {
+      .container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+      }
+    }
+
+    /* Mobile menu improvements */
+    @media (max-width: 768px) {
+      .mobile-menu {
+        max-width: 280px;
+        width: 85vw;
+      }
     }
   </style>
-</head>
-<body>
 
-  <!-- HEADER -->
-  <header data-aos="fade-down">
-    <div class="logo">
-      <a href="/index.html">PP Al Ikhsan Beji</a>
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="min-h-screen flex flex-col bg-white text-gray-800">
+  <!-- NAVBAR -->
+  <nav class="bg-white shadow-lg sticky top-0 z-50" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo -->
+        <div class="flex-shrink-0 flex items-center">
+          <a href="/" class="flex items-center">
+            <img src="/assets/img/logo-alikhsan.png" class="h-16 w-auto" />
+          </a>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <div class="hidden md:block">
+          <div class="flex items-baseline space-x-4">
+            <a href="/" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Beranda</a>
+
+            <!-- Dropdown Informasi -->
+            <div class="relative">
+              <button @click="profileDropdownOpen=!profileDropdownOpen" class="text-brand-700 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                Informasi
+                <i class="bi bi-caret-down-fill ml-1 text-xs" :class="{'rotate-180': profileDropdownOpen}"></i>
+              </button>
+              <div x-cloak x-show="profileDropdownOpen" @click.outside="profileDropdownOpen=false" x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100">
+                <a href="/alur-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Alur Pendaftaran</a>
+                <a href="/syarat-pendaftaran.html" class="block px-4 py-2 text-sm text-brand-700 hover:bg-gray-50">Syarat Pendaftaran</a>
+                <a href="/biaya.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Biaya</a>
+              </div>
+            </div>
+
+            <a href="/brosur.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Brosur</a>
+            <a href="/kontak.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Kontak</a>
+          </div>
+        </div>
+
+        <!-- CTA Button Desktop -->
+        <div class="hidden md:block">
+          <a href="/login" class="bg-brand-700 hover:bg-brand-800 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg">Admin</a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <div class="md:hidden">
+          <button @click="mobileMenuOpen=!mobileMenuOpen" class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-brand-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <i class="bi" :class="mobileMenuOpen ? 'bi-x-lg' : 'bi-list'"></i>
+          </button>
+        </div>
+      </div>
     </div>
-    <nav>
-      <a href="/index.html">Beranda</a>
-      <a href="/alur-pendaftaran.html">Alur</a>
-      <a href="/syarat-pendaftaran.html" style="text-decoration: underline; font-weight:600;">Syarat</a>
-      <a href="/biaya.html">Biaya</a>
-      <a href="/brosur.html">Brosur</a>
-      <a href="/kontak.html">Kontak</a>
-    </nav>
-  </header>
+
+    <!-- Mobile Backdrop -->
+    <div x-cloak x-show="mobileMenuOpen" @click="mobileMenuOpen=false" class="md:hidden fixed inset-0 z-40 bg-black/50"></div>
+
+    <!-- Mobile Menu -->
+    <div x-cloak x-show="mobileMenuOpen" x-transition class="md:hidden fixed inset-y-0 left-0 z-50 mobile-menu bg-white shadow-xl border-r border-gray-200 overflow-y-auto">
+      <div class="flex items-center justify-between p-4 border-b border-gray-200">
+        <div class="flex items-center">
+          <img src="/assets/img/logo-alikhsan.png" class="h-16 w-auto" />
+        </div>
+        <button @click="mobileMenuOpen=false" class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      <div class="px-2 pt-4 pb-3 space-y-1">
+        <a href="/" class="text-gray-700 hover:text-brand-700 hover:bg-gray-50 block px-3 py-2 rounded-md text-base font-medium">Beranda</a>
+
+        <details class="px-1" open>
+          <summary class="cursor-pointer bg-brand-100 text-brand-700 block px-3 py-2 rounded-md text-base font-medium">Informasi</summary>
+          <div class="pl-6 space-y-1 mt-2">
+            <a href="/alur-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Alur Pendaftaran</a>
+            <a href="/syarat-pendaftaran.html" class="bg-brand-50 text-brand-700 block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Syarat Pendaftaran</a>
+            <a href="/biaya.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Biaya</a>
+          </div>
+        </details>
+
+        <a href="/brosur.html" class="text-gray-700 hover:text-brand-700 hover:bg-gray-50 block px-3 py-2 rounded-md text-base font-medium">Brosur</a>
+        <a href="/kontak.html" class="text-gray-700 hover:text-brand-700 hover:bg-gray-50 block px-3 py-2 rounded-md text-base font-medium">Kontak</a>
+
+        <div class="pt-4 pb-2 px-2">
+          <a href="/login" class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center">Admin</a>
+        </div>
+      </div>
+    </div>
+  </nav>
 
   <!-- MAIN -->
-  <main>
-    <h2 class="title" data-aos="fade-up">Syarat Pendaftaran Santri Baru</h2>
-    <p class="subtitle" data-aos="fade-up" data-aos-delay="100">
-      Siapkan berkas berikut untuk mempercepat proses verifikasi. Semua data akan diproses sesuai kebijakan privasi PPDSB.
-    </p>
-
-    <div class="section-box" data-aos="fade-up" data-aos-delay="150">
-      <h3><i class="fas fa-folder-open"></i> Daftar Dokumen yang Diperlukan</h3>
-      <ul>
-        <li><i class="fas fa-file-alt"></i> Akta Kelahiran — Fotokopi/scan berwarna, nama & NIK terbaca.</li>
-        <li><i class="fas fa-users"></i> Kartu Keluarga — Fotokopi terbaru dan lengkap.</li>
-        <li><i class="fas fa-award"></i> Ijazah Terakhir — Fotokopi legalisir 1 lembar (atau SKL sementara).</li>
-        <li><i class="fas fa-image"></i> Pas Foto 3×4 — Berwarna, latar polos, file JPG/PNG.</li>
-        <li><i class="fas fa-notes-medical"></i> Surat Keterangan Sehat — Dari fasilitas kesehatan (maks. 3 bulan terakhir).</li>
-        <li><i class="fas fa-edit"></i> Formulir Pendaftaran — Isi lengkap secara online di <a href="/daftar.html" style="color:#047857;">halaman pendaftaran</a>.</li>
+  <main class="flex-1 container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">Syarat Pendaftaran</h1>
+    <div class="prose max-w-none">
+      <p>Untuk mendaftar di Pondok Pesantren Al Ikhsan Beji, calon santri harus memenuhi persyaratan berikut:</p>
+      <ul class="list-disc list-inside space-y-2">
+        <li>Fotokopi Akta Kelahiran</li>
+        <li>Fotokopi Kartu Keluarga (KK)</li>
+        <li>Fotokopi Ijazah terakhir (legalisir)</li>
+        <li>Pas foto berwarna ukuran 3x4 (2 lembar)</li>
+        <li>Surat Keterangan Sehat dari dokter</li>
+        <li>Mengisi formulir pendaftaran</li>
+        <li>Membayar biaya pendaftaran</li>
       </ul>
-      <a href="/brosur.html" class="btn"><i class="fas fa-file-download"></i> Unduh Brosur</a>
-      <a href="/daftar.html" class="btn"><i class="fas fa-arrow-right"></i> Mulai Daftar</a>
-    </div>
-
-    <div class="section-box" data-aos="fade-up" data-aos-delay="200">
-      <h3><i class="fas fa-tasks"></i> Alur Singkat Unggah Dokumen</h3>
-      <ul>
-        <li><i class="fas fa-user-plus"></i> 1. Buat Akun & Isi Formulir — masuk ke <a href="/daftar.html" style="color:#047857;">daftar.html</a> dan isi data diri.</li>
-        <li><i class="fas fa-upload"></i> 2. Unggah Dokumen — file JPG/PNG/PDF ≤ 1 MB agar cepat diverifikasi.</li>
-        <li><i class="fas fa-check-circle"></i> 3. Verifikasi Panitia — diproses dalam 1–3 hari kerja, hasil bisa dilihat di dashboard.</li>
-      </ul>
-      <a href="/alur-pendaftaran.html" class="btn"><i class="fas fa-route"></i> Lihat Alur Lengkap</a>
-    </div>
-
-    <div class="faq" data-aos="fade-up" data-aos-delay="250">
-      <h3 style="color:#064e3b; margin-bottom:1rem;"><i class="fas fa-question-circle"></i> Pertanyaan yang Sering Diajukan</h3>
-
-      <details>
-        <summary>Apakah harus legalisir ijazah?</summary>
-        <p>Jika ijazah sudah terbit, unggah fotokopi legalisir. Jika belum, gunakan Surat Keterangan Lulus (SKL) sementara.</p>
-      </details>
-
-      <details>
-        <summary>Format & ukuran file?</summary>
-        <p>Gunakan format JPG/PNG/PDF dengan ukuran maksimal 1 MB per file agar unggah cepat dan jelas terbaca.</p>
-      </details>
-
-      <details>
-        <summary>Apakah bisa daftar offline?</summary>
-        <p>Bisa, dengan datang langsung ke kantor PPDSB pada jam kerja. Namun, pendaftaran online lebih disarankan agar lebih efisien.</p>
-      </details>
-
-      <details>
-        <summary>Kapan pengumuman hasil?</summary>
-        <p>Setelah verifikasi berkas dan tahap seleksi selesai. Hasil akan diumumkan melalui dashboard pendaftar dan email resmi.</p>
-      </details>
-
-      <a href="/biaya.html" class="btn"><i class="fas fa-coins"></i> Lihat Biaya</a>
-      <a href="/kontak.html" class="btn"><i class="fas fa-headset"></i> Butuh Bantuan?</a>
+      <p class="mt-4">Pastikan semua dokumen disiapkan dengan lengkap sebelum proses verifikasi.</p>
     </div>
   </main>
 
   <!-- FOOTER -->
-  <footer>
-    © 2025 Pondok Pesantren Al Ikhsan Beji.
+  <footer class="bg-white text-gray-600 py-6 shadow-2xl border-t border-gray-200 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <p class="text-sm">&copy; 2025 Pondok Pesantren Al Ikhsan Beji. All rights reserved. <span class="hidden sm:inline">Development by Tim IT Pesantren</span></p>
+    </div>
   </footer>
 
-  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-  <script>AOS.init({ duration: 800, once: true });</script>
+  <!-- Vendors JS (optional) -->
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script>
+    // Shim toastr -> toastify agar kompatibel dgn snippet lama
+    window.toastr = {
+      success(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#10b981', color: '#fff' }}).showToast(); },
+      error(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#ef4444', color: '#fff' }}).showToast(); },
+      warning(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#f59e0b', color: '#fff' }}).showToast(); },
+      info(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#3b82f6', color: '#fff' }}).showToast(); }
+    }
+  </script>
 
+  <!-- Gelombang Data Loader (Business Logic: Active-based Status) -->
+  <script>
+    /* ===== UI MAPPING ===== */
+    const UI = {
+      label: {
+        ACTIVE: "Pendaftaran Dibuka",
+        UPCOMING: "Segera Dibuka",
+        CLOSED: "Ditutup",
+        NOT_ACTIVE: "Belum Aktif",
+      },
+      color: {
+        ACTIVE: "green",
+        UPCOMING: "blue",
+        CLOSED: "gray",
+        NOT_ACTIVE: "gray",
+      }
+    };
+
+    /**
+     * Decorate gelombang dengan status berdasarkan activeId
+     * KONDISI BISNIS:
+     * - Jika Gelombang 1 AKTIF → Gelombang 2 & 3 = "Segera Dibuka"
+     * - Jika Gelombang 2 AKTIF → Gelombang 1 = "Ditutup", Gelombang 3 = "Segera Dibuka"
+     * - Jika Gelombang 3 AKTIF → Gelombang 1 & 2 = "Ditutup"
+     * - TIDAK pakai logika tanggal untuk label
+     */
+    function decorateGelombang(waves, activeId) {
+      const byId = Object.fromEntries(waves.map(w => [w.id, w]));
+
+      function setState(id, stateKey) {
+        const w = byId[id]; 
+        if (!w) return;
+        w._state = stateKey;
+        w._label = UI.label[stateKey];
+        w._color = UI.color[stateKey];
+      }
+
+      // Default semua "NOT_ACTIVE"
+      waves.forEach(w => setState(w.id, "NOT_ACTIVE"));
+
+      // Aturan bisnis
+      if (activeId === 1) {
+        setState(1, "ACTIVE");
+        setState(2, "UPCOMING");
+        setState(3, "UPCOMING");
+      } else if (activeId === 2) {
+        setState(2, "ACTIVE");
+        setState(1, "CLOSED");
+        setState(3, "UPCOMING");
+      } else if (activeId === 3) {
+        setState(3, "ACTIVE");
+        setState(1, "CLOSED");
+        setState(2, "CLOSED");
+      }
+
+      return waves;
+    }
+    
+    /**
+     * Fetch and render ALL 3 gelombang dengan status berdasarkan active gelombang
+     */
+    async function loadGelombangAktif() {
+      try {
+        const container = document.getElementById('gelombangContainer');
+        
+        // 1) Fetch all gelombang (3 waves)
+        const cacheBuster = new Date().getTime();
+        const listResponse = await fetch(`/api/get_gelombang_list?_t=${cacheBuster}`);
+        const listResult = await listResponse.json();
+        
+        console.log('[GELOMBANG_LIST] API Response:', listResult);
+        
+        if (!listResult.ok || !listResult.data || listResult.data.length === 0) {
+          console.log('[GELOMBANG_LIST] No gelombang data found');
+          container.innerHTML = `
+            <div class="text-center py-12 col-span-full">
+              <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-calendar-x text-gray-400 text-3xl"></i>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Data Gelombang</h3>
+              <p class="text-gray-500">Silakan tunggu informasi lebih lanjut.</p>
+            </div>
+          `;
+          return;
+        }
+        
+        // 2) Fetch active gelombang ID
+        let activeId = null;
+        try {
+          const activeResponse = await fetch(`/api/gelombang_active?_t=${cacheBuster}`);
+          const activeResult = await activeResponse.json();
+          if (activeResult.ok && activeResult.data && typeof activeResult.data.id === "number") {
+            activeId = activeResult.data.id;
+            console.log('[GELOMBANG_ACTIVE] Active ID:', activeId);
+          }
+        } catch (e) {
+          console.warn('[GELOMBANG_ACTIVE] Failed to fetch active gelombang:', e);
+        }
+        
+        // 3) Decorate gelombang with business logic
+        const gelombangList = decorateGelombang(listResult.data, activeId);
+        
+        console.log('[GELOMBANG_LIST] Rendering', gelombangList.length, 'gelombang with activeId:', activeId);
+        
+        // Map colors to CSS classes
+        const colorMap = {
+          green: {
+            border: 'border-green-200',
+            badge: 'bg-green-500',
+            icon: 'bg-gradient-to-br from-green-500 to-green-600',
+            iconText: 'text-green-500'
+          },
+          blue: {
+            border: 'border-blue-200',
+            badge: 'bg-blue-500',
+            icon: 'bg-gradient-to-br from-blue-500 to-blue-600',
+            iconText: 'text-blue-500'
+          },
+          gray: {
+            border: 'border-gray-200',
+            badge: 'bg-gray-500',
+            icon: 'bg-gradient-to-br from-gray-500 to-gray-600',
+            iconText: 'text-gray-500'
+          }
+        };
+        
+        // 4) Generate HTML for all gelombang cards
+        let cardsHTML = '';
+        
+        gelombangList.forEach(gelombang => {
+          const colors = colorMap[gelombang._color] || colorMap.gray;
+          
+          console.log('[GELOMBANG_LIST] Rendering:', gelombang.nama, '| state:', gelombang._state, '| label:', gelombang._label);
+          
+          // Determine button state based on _state
+          let buttonHTML = '';
+          let statusHTML = '';
+          
+          if (gelombang._state === 'ACTIVE') {
+            buttonHTML = `<a href="/daftar.html" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg inline-block text-center transition shadow-md hover:shadow-lg">
+              <i class="bi bi-pencil-square mr-2"></i>Daftar Sekarang
+            </a>`;
+            statusHTML = `<div class="bg-green-50 rounded-lg p-3 mb-4"><p class="text-sm text-green-700 font-medium">✓ Pendaftaran Dibuka</p></div>`;
+          } else if (gelombang._state === 'UPCOMING') {
+            buttonHTML = `<button class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg cursor-default" disabled>
+              <i class="bi bi-clock mr-2"></i>Segera Dibuka
+            </button>`;
+            statusHTML = `<div class="bg-blue-50 rounded-lg p-3 mb-4"><p class="text-sm text-blue-700 font-medium">📅 Segera Dibuka</p></div>`;
+          } else if (gelombang._state === 'CLOSED') {
+            buttonHTML = `<button class="w-full bg-gray-300 text-gray-600 cursor-not-allowed font-semibold py-3 px-6 rounded-lg" disabled>
+              <i class="bi bi-x-circle mr-2"></i>Ditutup
+            </button>`;
+            statusHTML = `<div class="bg-gray-50 rounded-lg p-3 mb-4"><p class="text-sm text-gray-500 font-medium">⏱ Pendaftaran Ditutup</p></div>`;
+          } else { // NOT_ACTIVE
+            buttonHTML = `<button class="w-full bg-gray-300 text-gray-600 cursor-not-allowed font-semibold py-3 px-6 rounded-lg" disabled>
+              <i class="bi bi-info-circle mr-2"></i>Belum Aktif
+            </button>`;
+            statusHTML = `<div class="bg-gray-50 rounded-lg p-3 mb-4"><p class="text-sm text-gray-500 font-medium">ℹ️ Belum Aktif</p></div>`;
+          }
+          
+          // Format dates
+          const startFormatted = formatDate(gelombang.start_date);
+          const endFormatted = formatDate(gelombang.end_date);
+          
+          // Build card HTML
+          cardsHTML += `
+            <div class="bg-white rounded-2xl p-6 shadow-xl border-2 ${colors.border} relative overflow-hidden hover:shadow-2xl transition">
+              <div class="absolute top-0 right-0 ${colors.badge} text-white px-4 py-2 rounded-bl-lg text-sm font-semibold">${gelombang._label}</div>
+              <div class="text-center mt-4">
+                <div class="w-16 h-16 ${colors.icon} rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <i class="bi bi-calendar-check text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2 text-gray-800">${gelombang.nama}</h3>
+                <div class="space-y-2 mb-4">
+                  <div class="flex items-center justify-center text-gray-600">
+                    <i class="bi bi-calendar-event mr-2 ${colors.iconText}"></i>
+                    <span class="text-sm">${startFormatted} - ${endFormatted}</span>
+                  </div>
+                  <div class="flex items-center justify-center text-gray-600">
+                    <i class="bi bi-mortarboard mr-2 ${colors.iconText}"></i>
+                    <span class="text-sm font-semibold">Tahun Ajaran ${gelombang.tahun_ajaran}</span>
+                  </div>
+                </div>
+                ${statusHTML}
+                ${buttonHTML}
+              </div>
+            </div>
+          `;
+        });
+        
+        // Render all cards in grid
+        container.innerHTML = cardsHTML;
+        
+      } catch (error) {
+        console.error('[GELOMBANG_LIST] Error:', error);
+        document.getElementById('gelombangContainer').innerHTML = `
+          <div class="text-center py-12 col-span-full">
+            <i class="bi bi-exclamation-triangle text-red-500 text-4xl mb-3"></i>
+            <p class="text-gray-600">Gagal memuat data gelombang. Silakan refresh halaman.</p>
+          </div>
+        `;
+      }
+    }
+
+    function formatDate(dateString) {
+      const options = { day: 'numeric', month: 'long', year: 'numeric' };
+      const date = new Date(dateString);
+      return date.toLocaleDateString('id-ID', options);
+    }
+
+    // Load active gelombang when page loads
+    document.addEventListener('DOMContentLoaded', loadGelombangAktif);
+    
+    // ===== REAL-TIME SYNC WITH ADMIN =====
+    
+    // Method 1: Listen for changes from admin panel via localStorage (cross-tab)
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'gelombang_update') {
+        try {
+          const update = JSON.parse(e.newValue);
+          console.log('[GELOMBANG] 📡 Received update from admin (storage event):', update);
+          console.log('[GELOMBANG] 🔄 Reloading gelombang display...');
+          
+          // Show toast notification to user
+          if (typeof toastr !== 'undefined' && toastr.info) {
+            toastr.info('Data gelombang diperbarui!');
+          }
+          
+          // Reload with slight delay to ensure DB is updated
+          setTimeout(() => {
+            loadGelombangAktif();
+          }, 500);
+        } catch (err) {
+          console.log('[GELOMBANG] Admin updated gelombang (legacy format), reloading...');
+          setTimeout(() => {
+            loadGelombangAktif();
+          }, 500);
+        }
+      }
+    });
+    
+    // Method 2: Listen for custom event (same-window sync - if admin in iframe)
+    window.addEventListener('gelombangUpdated', function(e) {
+      console.log('[GELOMBANG] 📡 Received update (custom event):', e.detail);
+      console.log('[GELOMBANG] 🔄 Reloading gelombang display...');
+      
+      setTimeout(() => {
+        loadGelombangAktif();
+      }, 500);
+    });
+    
+    // Method 3: Periodic polling as fallback (every 60 seconds)
+    setInterval(() => {
+      console.log('[GELOMBANG] 🔄 Periodic refresh (fallback)...');
+      loadGelombangAktif();
+    }, 60000); // 60 seconds
+  </script>
+  
+  <!-- Supabase Real-Time Sync (Optional - for cross-tab/cross-device sync) -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    
+    // Initialize Supabase client (same credentials as admin)
+    const SUPABASE_URL = 'https://sxbvadzcwpaovkhghttv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4YnZhZHpjd3Bhb3ZraGdodHR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMDg4MDYsImV4cCI6MjA3NjY4NDgwNn0.miJeKmsNgjgS4fWegGlwrxF_cPUoZBT0YKl1oxmmXTE';
+    
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    console.log('[SUPABASE INDEX] ✅ Client initialized for real-time sync');
+    
+    // Subscribe to gelombang table changes (real-time across devices)
+    const channel = supabase
+      .channel('gelombang-changes-public')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'gelombang' 
+      }, (payload) => {
+        console.log('[SUPABASE INDEX] 🔄 Gelombang data changed:', payload);
+        console.log('[SUPABASE INDEX] Event type:', payload.eventType);
+        
+        // Show notification to user
+        if (typeof toastr !== 'undefined' && toastr.info) {
+          toastr.info('📊 Data gelombang diperbarui dari server');
+        }
+        
+        // Reload immediately (database already consistent)
+        setTimeout(() => {
+          console.log('[SUPABASE INDEX] 🔄 Reloading gelombang display from Supabase event...');
+          if (typeof loadGelombangAktif === 'function') {
+            loadGelombangAktif();
+          }
+        }, 300);
+      })
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('[SUPABASE INDEX] ✅ Subscribed to real-time gelombang updates');
+          console.log('[SUPABASE INDEX] 🎧 Listening for database changes...');
+        } else if (status === 'CLOSED') {
+          console.log('[SUPABASE INDEX] ⚠️ Real-time connection closed');
+        }
+        console.log('[SUPABASE INDEX] Connection status:', status);
+      });
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      console.log('[SUPABASE INDEX] 🔌 Unsubscribing from real-time updates');
+      supabase.removeChannel(channel);
+    });
+  </script>
 </body>
 </html>
