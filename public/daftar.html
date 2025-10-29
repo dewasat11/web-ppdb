@@ -639,7 +639,7 @@
     </main>
 
     <!-- Modal Sukses -->
-    <div x-cloak x-show="$store.modals.showSukses" aria-hidden="true" style="display:none" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div x-cloak x-show="$store.modals.showSukses" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/50" @click="$store.modals.showSukses=false"></div>
       <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-[92vw]">
         <div class="px-6 py-4 bg-green-600 text-white rounded-t-2xl">
@@ -672,7 +672,7 @@
     </div>
 
     <!-- Modal Konfirmasi -->
-    <div x-cloak x-show="$store.modals.showKonfirmasi" aria-hidden="true" style="display:none" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div x-cloak x-show="$store.modals.showKonfirmasi" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/50" @click="$store.modals.showKonfirmasi=false"></div>
       <div class="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-[92vw] max-h-[85vh] overflow-y-auto">
         <div class="px-6 py-4 bg-brand-600 text-white rounded-t-2xl flex items-center justify-between">
@@ -719,20 +719,6 @@
     <script>
       const form = document.getElementById("formPendaftar");
       let formDataGlobal = null;
-
-      // Hard hide modals on first paint, before Alpine takes over
-      document.addEventListener('DOMContentLoaded', () => {
-        try {
-          const m1 = document.querySelector('[x-show="$store.modals.showKonfirmasi"]');
-          const m2 = document.querySelector('[x-show="$store.modals.showSukses"]');
-          if (m1) { m1.style.display = 'none'; m1.setAttribute('aria-hidden', 'true'); }
-          if (m2) { m2.style.display = 'none'; m2.setAttribute('aria-hidden', 'true'); }
-          if (window.Alpine && Alpine.store('modals')) {
-            Alpine.store('modals').showKonfirmasi = false;
-            Alpine.store('modals').showSukses = false;
-          }
-        } catch {}
-      });
 
       // Fungsi untuk mengontrol pilihan Rencana Program berdasarkan Rencana Tingkat
       function handleTingkatChange() {
@@ -1702,12 +1688,41 @@
           document.getElementById("konfirmasiContent").innerHTML = html;
           console.log('[KONFIRMASI] HTML set, opening modal...');
           
+          // Get modal element
+          const modalEl = document.querySelector('[x-show="\\$store.modals.showKonfirmasi"]');
+          
           if (window.Alpine && Alpine.store && Alpine.store('modals')) {
             Alpine.store('modals').showKonfirmasi = true;
-            console.log('[KONFIRMASI] Modal opened successfully');
+            console.log('[KONFIRMASI] ✓ Alpine store set to TRUE');
+            
+            // IMMEDIATE force show as backup (no wait)
+            if (modalEl) {
+              modalEl.style.display = 'flex';
+              console.log('[KONFIRMASI] ✓ Modal forced to display immediately');
+            }
+            
+            // Double-check after Alpine processes
+            setTimeout(() => {
+              if (modalEl) {
+                const computedDisplay = window.getComputedStyle(modalEl).display;
+                console.log('[KONFIRMASI] Final check - computed display:', computedDisplay);
+                
+                if (computedDisplay === 'none') {
+                  console.warn('[KONFIRMASI] ⚠️ Alpine failed, re-forcing display');
+                  modalEl.style.cssText = 'display: flex !important;';
+                } else {
+                  console.log('[KONFIRMASI] ✓✓ Modal is VISIBLE');
+                }
+              }
+            }, 100);
           } else {
-            console.error('[KONFIRMASI] Alpine store not ready!');
-            alert('Alpine.js belum siap. Refresh halaman dan coba lagi.');
+            console.error('[KONFIRMASI] ❌ Alpine not ready, using pure DOM');
+            if (modalEl) {
+              modalEl.style.display = 'flex';
+              console.log('[KONFIRMASI] ✓ Modal shown via pure DOM (no Alpine)');
+            } else {
+              alert('Error: Modal element tidak ditemukan!');
+            }
           }
         } catch (error) {
           console.error('[KONFIRMASI] Error:', error);
