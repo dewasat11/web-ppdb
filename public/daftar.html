@@ -57,6 +57,7 @@
     <script>
       document.addEventListener('alpine:init', () => {
         Alpine.store('modals', { showKonfirmasi: false, showSukses: false });
+        console.log('[ALPINE] Store initialized:', Alpine.store('modals'));
       });
     </script>
     <style>
@@ -623,9 +624,9 @@
 
           <div class="mt-4 flex flex-col sm:flex-row gap-2">
             <button
+              id="btnLanjutKonfirmasi"
               class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-lg w-full sm:w-auto"
               type="button"
-              onclick="showKonfirmasi()"
             >
               <i class="bi bi-check-circle"></i> Lanjut ke Konfirmasi
             </button>
@@ -1498,17 +1499,46 @@
       // Load provinsi saat halaman dimuat
       loadProvinsi();
 
+      // Attach event listener to konfirmasi button
+      const btnKonfirmasi = document.getElementById('btnLanjutKonfirmasi');
+      if (btnKonfirmasi) {
+        btnKonfirmasi.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log('[BUTTON] Konfirmasi button clicked via event listener');
+          showKonfirmasi();
+        });
+        console.log('[INIT] Konfirmasi button event listener attached');
+      } else {
+        console.error('[INIT] Konfirmasi button not found!');
+      }
+
       // Function to show konfirmasi modal
       function showKonfirmasi() {
+        console.log('[KONFIRMASI] Function called');
+        
         // Validate form first
         if (!form.checkValidity()) {
+          console.warn('[KONFIRMASI] Form validation failed');
           form.classList.add("was-validated");
+          
+          // Find first invalid field
+          const invalidField = form.querySelector(':invalid');
+          if (invalidField) {
+            const fieldName = invalidField.name || invalidField.id || 'Unknown';
+            console.warn('[KONFIRMASI] First invalid field:', fieldName, invalidField);
+            invalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            invalidField.focus();
+          }
+          
           toastr.error("Mohon lengkapi semua field yang wajib diisi!");
           return;
         }
+        
+        console.log('[KONFIRMASI] Form valid, building modal...');
 
-        const formData = new FormData(form);
-        formDataGlobal = formData;
+        try {
+          const formData = new FormData(form);
+          formDataGlobal = formData;
 
         // Build konfirmasi HTML
         let html = `
@@ -1570,7 +1600,6 @@
                 formData.get("ijazahFormalTerakhir") || "-"
               }
             </div>
-            <div>
             <div>
               <strong>Rencana Tingkat:</strong><br>${
                 formData.get("rencanaTingkat") || "-"
@@ -1670,8 +1699,20 @@
 
         html += `</div>`;
 
-        document.getElementById("konfirmasiContent").innerHTML = html;
-        Alpine.store('modals').showKonfirmasi = true;
+          document.getElementById("konfirmasiContent").innerHTML = html;
+          console.log('[KONFIRMASI] HTML set, opening modal...');
+          
+          if (window.Alpine && Alpine.store && Alpine.store('modals')) {
+            Alpine.store('modals').showKonfirmasi = true;
+            console.log('[KONFIRMASI] Modal opened successfully');
+          } else {
+            console.error('[KONFIRMASI] Alpine store not ready!');
+            alert('Alpine.js belum siap. Refresh halaman dan coba lagi.');
+          }
+        } catch (error) {
+          console.error('[KONFIRMASI] Error:', error);
+          toastr.error('Terjadi kesalahan: ' + error.message);
+        }
       }
 
       // Function to convert file to base64

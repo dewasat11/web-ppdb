@@ -203,7 +203,7 @@
     </main>
 
     <!-- Modal: Hasil Cek Status -->
-    <div x-cloak x-show="$store.cek?.open" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div x-show="$store.cek.open" x-transition class="fixed inset-0 z-50 flex items-center justify-center" style="display: none;">
       <div class="absolute inset-0 bg-black/50" @click="$store.cek.open=false"></div>
       <div class="relative bg-white rounded-2xl shadow-2xl max-w-3xl w-[92vw] max-h-[85vh] overflow-y-auto">
         <div class="px-6 py-4 bg-gradient-to-br from-brand-700 to-brand-800 text-white rounded-t-2xl flex items-center justify-between">
@@ -274,7 +274,14 @@
 
     <script>
       document.addEventListener('alpine:init', () => {
-        Alpine.store('cek', { open: false });
+        Alpine.store('cek', { 
+          open: false,
+          get isOpen() { 
+            console.log('[ALPINE_STORE] cek.open =', this.open); 
+            return this.open; 
+          }
+        });
+        console.log('[ALPINE] Store initialized:', Alpine.store('cek'));
       });
       document.addEventListener('DOMContentLoaded', () => {
         // Toastify shim for toastr compatibility
@@ -403,7 +410,16 @@
             console.log('[CEK_STATUS] Opening modal with data:', data);
             if (window.Alpine && Alpine.store && Alpine.store('cek')) {
               Alpine.store('cek').open = true;
-              console.log('[CEK_STATUS] Modal opened successfully');
+              console.log('[CEK_STATUS] Modal store set to true');
+              
+              // Force check DOM visibility
+              setTimeout(() => {
+                const modalEl = document.querySelector('[x-show="\\$store.cek.open"]');
+                console.log('[CEK_STATUS] Modal element:', modalEl);
+                console.log('[CEK_STATUS] Modal display style:', modalEl?.style.display);
+                console.log('[CEK_STATUS] Modal computed display:', window.getComputedStyle(modalEl).display);
+                console.log('[CEK_STATUS] Store value after set:', Alpine.store('cek').open);
+              }, 100);
             } else {
               console.error('[CEK_STATUS] Alpine store not ready!');
               alert('Modal tidak dapat dibuka. Silakan refresh halaman.');
