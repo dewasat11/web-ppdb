@@ -21,6 +21,11 @@
   let currentPembayaranData = null; // data pembayaran yang sedang dilihat
   let pembayaranAutoRefreshInterval = null;
 
+  // Pagination state untuk pendaftar
+  let currentPage = 1;
+  let pageSize = 50; // Default 50 data per halaman
+  let totalData = 0;
+
   const CACHE_DURATION = 30_000; // (opsi, saat ingin cache) 30s
   const AUTO_REFRESH_INTERVAL = 30_000; // auto refresh pembayaran tiap 30s
 
@@ -135,13 +140,20 @@
      ========================= */
   async function loadPendaftar() {
     try {
-      // Fetch pendaftar data
-      const r = await fetch("/api/pendaftar_list");
+      // Fetch pendaftar data dengan pagination
+      const url = `/api/pendaftar_list?page=${currentPage}&pageSize=${pageSize}`;
+      console.log('[PENDAFTAR] Fetching:', url);
+      
+      const r = await fetch(url);
       const result = await r.json();
       if (!(result.success && result.data)) {
         console.error("[STATISTIK] ❌ Failed to fetch pendaftar data:", result);
         return;
       }
+
+      // Update total data dan pagination info
+      totalData = result.total || result.data.length;
+      console.log('[PENDAFTAR] Page:', currentPage, '| Page Size:', pageSize, '| Total:', totalData);
 
       console.log("[STATISTIK] 📊 Raw pendaftar data received:");
       console.log("[STATISTIK]   → Success:", result.success);
@@ -149,6 +161,12 @@
       console.log("[STATISTIK]   → Sample data:", result.data ? result.data.slice(0, 2) : null);
 
       allPendaftarData = result.data; // simpan untuk detail
+
+      // Fetch ALL data untuk statistik (tanpa pagination)
+      console.log("[STATISTIK] Fetching ALL data for statistics...");
+      const rAll = await fetch("/api/pendaftar_list?page=1&pageSize=1000"); // Ambil maksimal 1000 data
+      const resultAll = await rAll.json();
+      const allDataForStats = resultAll.success && resultAll.data ? resultAll.data : result.data;
 
       // Fetch pembayaran data untuk sinkronisasi statistik
       console.log("[STATISTIK] Fetching pembayaran data untuk sinkronisasi...");
@@ -178,6 +196,9 @@
 
       const tbody = $("#pendaftarTable");
       if (tbody) {
+        // Calculate starting number based on current page
+        const startNum = (currentPage - 1) * pageSize;
+        
         tbody.innerHTML = result.data
           .map((item, i) => {
             const statusClass =
@@ -191,7 +212,7 @@
 
             return `
               <tr>
-                <td>${i + 1}</td>
+                <td>${startNum + i + 1}</td>
                 <td><strong>${
                   item.nisn || item.nikcalon || item.nik || "-"
                 }</strong></td>
@@ -258,25 +279,25 @@
       
       // Debug: Check data structure and field mapping
       console.log("[STATISTIK] 🔍 Data structure analysis:");
-      console.log("[STATISTIK]   → Total pendaftar:", result.data.length);
+      console.log("[STATISTIK]   → Total pendaftar (ALL DATA):", allDataForStats.length);
       
-      if (result.data.length > 0) {
-        const sample = result.data[0];
+      if (allDataForStats.length > 0) {
+        const sample = allDataForStats[0];
         console.log("[STATISTIK]   → Sample pendaftar fields:", Object.keys(sample));
-        console.log("[STATISTIK]   → Sample status values:", result.data.map(d => d.status).slice(0, 5));
-        console.log("[STATISTIK]   → Sample rencana_program values:", result.data.map(d => d.rencana_program || d.rencanaprogram).slice(0, 5));
-        console.log("[STATISTIK]   → Sample rencanatingkat values:", result.data.map(d => d.rencanatingkat).slice(0, 5));
+        console.log("[STATISTIK]   → Sample status values:", allDataForStats.map(d => d.status).slice(0, 5));
+        console.log("[STATISTIK]   → Sample rencana_program values:", allDataForStats.map(d => d.rencana_program || d.rencanaprogram).slice(0, 5));
+        console.log("[STATISTIK]   → Sample rencanatingkat values:", allDataForStats.map(d => d.rencanatingkat).slice(0, 5));
       }
 
-      // Total count = all pendaftar
-      setText("totalCount", result.data.length);
-      console.log("[STATISTIK] ✅ Set totalCount to:", result.data.length);
+      // Total count = all pendaftar (dari total API, bukan hanya halaman saat ini)
+      setText("totalCount", totalData);
+      console.log("[STATISTIK] ✅ Set totalCount to:", totalData);
       
-      // Status counts (tidak perlu filter pembayaran di sini)
-      const pendingCount = result.data.filter((d) => d.status === "pending").length;
-      const revisiCount = result.data.filter((d) => d.status === "revisi").length;
-      const diterimaCount = result.data.filter((d) => d.status === "diterima").length;
-      const ditolakCount = result.data.filter((d) => d.status === "ditolak").length;
+      // Status counts (gunakan ALL DATA untuk statistik yang akurat)
+      const pendingCount = allDataForStats.filter((d) => d.status === "pending").length;
+      const revisiCount = allDataForStats.filter((d) => d.status === "revisi").length;
+      const diterimaCount = allDataForStats.filter((d) => d.status === "diterima").length;
+      const ditolakCount = allDataForStats.filter((d) => d.status === "ditolak").length;
       
       setText("pendingCount", pendingCount);
       setText("revisiCount", revisiCount);
@@ -301,13 +322,13 @@
       };
       
       // REVISI: Gunakan SEMUA pendaftar untuk statistik, bukan hanya yang verified
-      const allPendaftar = result.data; // Gunakan semua data pendaftar
+      const allPendaftar = allDataForStats; // Gunakan SEMUA data untuk statistik (bukan hanya halaman saat ini)
       
       console.log("[STATISTIK] ========================================");
-      console.log("[STATISTIK] Total pendaftar:", result.data.length);
+      console.log("[STATISTIK] Total pendaftar (ALL DATA):", allDataForStats.length);
       console.log("[STATISTIK] Menggunakan SEMUA pendaftar untuk statistik (bukan hanya verified)");
       console.log("[STATISTIK] Verified payments map size:", verifiedPayments.size);
-      console.log("[STATISTIK] Pendaftar dengan pembayaran VERIFIED:", result.data.filter(hasVerifiedPayment).length);
+      console.log("[STATISTIK] Pendaftar dengan pembayaran VERIFIED:", allDataForStats.filter(hasVerifiedPayment).length);
       
       // Debug: Log sample data for statistics verification
       if (allPendaftar.length > 0) {
@@ -495,10 +516,80 @@
         upd2.textContent = `Data update: ${new Date().toLocaleTimeString(
           "id-ID"
         )}`;
+
+      // Update pagination UI
+      updatePaginationUI();
     } catch (err) {
       console.error("loadPendaftar error:", err);
     }
   }
+
+  /* =========================
+     3.1) PAGINATION FUNCTIONS
+     ========================= */
+  function updatePaginationUI() {
+    const totalPages = Math.ceil(totalData / pageSize);
+    const startIndex = (currentPage - 1) * pageSize + 1;
+    const endIndex = Math.min(currentPage * pageSize, totalData);
+
+    // Update pagination info text
+    const paginationInfo = $("#paginationInfo");
+    if (paginationInfo) {
+      paginationInfo.textContent = `Menampilkan ${startIndex} - ${endIndex} dari ${totalData} data`;
+    }
+
+    // Update page info
+    const pageInfo = $("#pageInfo");
+    if (pageInfo) {
+      pageInfo.textContent = `Halaman ${currentPage} dari ${totalPages}`;
+    }
+
+    // Update button states
+    const btnPrev = $("#btnPrevPage");
+    const btnNext = $("#btnNextPage");
+    
+    if (btnPrev) {
+      btnPrev.disabled = currentPage === 1;
+    }
+    
+    if (btnNext) {
+      btnNext.disabled = currentPage >= totalPages;
+    }
+
+    console.log('[PAGINATION] UI Updated:', { currentPage, totalPages, startIndex, endIndex, totalData });
+  }
+
+  function nextPage() {
+    const totalPages = Math.ceil(totalData / pageSize);
+    if (currentPage < totalPages) {
+      currentPage++;
+      console.log('[PAGINATION] Next page:', currentPage);
+      loadPendaftar();
+    }
+  }
+
+  function previousPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      console.log('[PAGINATION] Previous page:', currentPage);
+      loadPendaftar();
+    }
+  }
+
+  function changePageSize() {
+    const select = $("#pageSizeSelect");
+    if (select) {
+      pageSize = parseInt(select.value, 10);
+      currentPage = 1; // Reset ke halaman pertama
+      console.log('[PAGINATION] Page size changed to:', pageSize);
+      loadPendaftar();
+    }
+  }
+
+  // Expose pagination functions
+  window.nextPage = nextPage;
+  window.previousPage = previousPage;
+  window.changePageSize = changePageSize;
 
   async function updateStatus(id, status) {
     if (!confirm(`Yakin mengubah status menjadi "${status}"?`)) return;

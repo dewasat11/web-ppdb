@@ -58,6 +58,22 @@
         .text-lg { font-size: 1rem !important; line-height: 1.5rem !important; }
         .text-xl { font-size: 1.125rem !important; line-height: 1.75rem !important; }
       }
+
+      /* Payment Notification Animation - Subtle Pulse */
+      @keyframes payment-pulse {
+        0%, 100% { 
+          transform: scale(1);
+          box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+        50% { 
+          transform: scale(1.02);
+          box-shadow: 0 8px 25px rgba(34, 197, 94, 0.5);
+        }
+      }
+      
+      .payment-notification {
+        animation: payment-pulse 2s ease-in-out 3;
+      }
     </style>
   </head>
   <body class="min-h-screen flex flex-col bg-gray-100 text-gray-800">
@@ -223,10 +239,10 @@
           <!-- Hasil sukses -->
           <div id="statusResult" class="hidden">
             <div class="text-center mb-4">
-              <i id="statusIcon" class="bi bi-hourglass-split text-yellow-500" style="font-size: 3rem;"></i>
+              <i id="statusIcon" class="bi bi-hourglass-split text-yellow-600" style="font-size: 3rem;"></i>
             </div>
             <div class="flex justify-center mb-4">
-              <span id="statusBadge" class="px-4 py-2 rounded-full bg-gray-500 text-white">-</span>
+              <span id="statusBadge" class="px-4 py-2 rounded-full bg-yellow-500 text-white">-</span>
               </div>
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-3">
               <div class="px-4 py-3 border-b border-gray-100 font-semibold"><i class="bi bi-person-badge"></i> Informasi Pendaftar</div>
@@ -243,7 +259,7 @@
               <div class="px-4 py-3 space-y-3">
                 <div>
                   <span class="text-gray-500 block mb-1 text-sm">Status Verifikasi</span>
-                  <span id="f_status_text" class="inline-block px-3 py-1 rounded bg-gray-500 text-white text-sm">-</span>
+                  <span id="f_status_text" class="inline-block px-3 py-1 rounded bg-yellow-500 text-white text-sm">-</span>
                 </div>
                 <div id="catatanContainer">
                   <span class="text-gray-500 block mb-1 text-sm">Catatan Admin</span>
@@ -379,9 +395,9 @@
             const badgeEl = document.getElementById('statusBadge');
             const statusTextEl = document.getElementById('f_status_text');
 
-            let color = 'gray';
-            let bgColor = 'bg-gray-500';
-            let textColor = 'text-gray-500';
+            let color = 'yellow';
+            let bgColor = 'bg-yellow-500';
+            let textColor = 'text-yellow-500';
             let label = 'Menunggu Verifikasi';
             let icon = 'bi-hourglass-split';
             
@@ -430,35 +446,43 @@
               document.getElementById('f_catatan').insertAdjacentHTML('afterend', verifiedInfo);
             }
             
-            // Show payment instruction if verified/diterima
-            const statusCatatanSection = document.getElementById('statusCatatanSection');
+            // Show payment instruction if verified/diterima - PALING ATAS!
+            const statusResultContainer = document.getElementById('statusResult');
             if (status === 'DITERIMA' || status === 'TERVERIFIKASI' || status === 'VERIFIED') {
               const paymentInstructionHTML = `
-                <div class="mt-3 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl p-5 shadow-sm">
-                  <div class="flex items-start gap-3">
+                <div class="payment-notification mb-4 bg-gradient-to-r from-green-50 to-emerald-50 border-3 border-green-400 rounded-xl p-6 shadow-xl">
+                  <div class="flex flex-col md:flex-row items-start gap-4">
                     <div class="flex-shrink-0">
-                      <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
-                        <i class="bi bi-credit-card-2-front text-white text-xl"></i>
+                      <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center shadow-lg">
+                        <i class="bi bi-credit-card-2-front text-white text-2xl"></i>
                       </div>
                     </div>
                     <div class="flex-1">
-                      <h6 class="font-bold text-green-800 mb-2 text-lg">
-                        <i class="bi bi-check-circle-fill"></i> Selamat! Pendaftaran Anda Telah Diverifikasi
-                      </h6>
-                      <p class="text-green-700 mb-3">
-                        Langkah selanjutnya adalah melakukan pembayaran untuk menyelesaikan proses pendaftaran.
+                      <h5 class="font-bold text-green-800 mb-2 text-xl">
+                        <i class="bi bi-check-circle-fill"></i> 🎉 Selamat! Pendaftaran Anda Telah Diverifikasi
+                      </h5>
+                      <p class="text-green-700 mb-4 text-base">
+                        <strong>✅ Status:</strong> Berkas Anda telah diverifikasi oleh admin.<br>
+                        <strong>📌 Langkah Terakhir:</strong> Silakan lakukan pembayaran untuk menyelesaikan proses pendaftaran.
                       </p>
-                      <a href="/pembayaran.html?nisn=${data.nisn}" 
-                         class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-3 rounded-lg shadow-md hover:shadow-lg transition-all">
-                        <i class="bi bi-credit-card"></i>
-                        Lanjutkan Pembayaran
-                        <i class="bi bi-arrow-right"></i>
+                      <a href="/pembayaran.html?nisn=${data.nisn}&nama=${encodeURIComponent(data.nama || '')}" 
+                         class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 text-lg">
+                        <i class="bi bi-credit-card text-xl"></i>
+                        Lanjutkan ke Pembayaran
+                        <i class="bi bi-arrow-right-circle text-xl"></i>
                       </a>
                     </div>
                   </div>
                 </div>
               `;
-              statusCatatanSection.insertAdjacentHTML('afterend', paymentInstructionHTML);
+              // Insert di PALING ATAS hasil status (setelah icon/badge, sebelum info pendaftar)
+              const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
+              if (firstCard) {
+                firstCard.insertAdjacentHTML('beforebegin', paymentInstructionHTML);
+              } else {
+                // Fallback jika struktur berbeda
+                statusResultContainer.insertAdjacentHTML('afterbegin', paymentInstructionHTML);
+              }
             }
             
             // Show rejection message if ditolak
@@ -485,12 +509,12 @@
             // Show waiting message if pending/diproses
             else {
               const waitingHTML = `
-                <div class="mt-3 bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+                <div class="mt-3 bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4">
                   <div class="flex items-start gap-3">
-                    <i class="bi bi-hourglass-split text-blue-600 text-2xl"></i>
+                    <i class="bi bi-hourglass-split text-yellow-600 text-2xl"></i>
                     <div>
-                      <h6 class="font-bold text-blue-800 mb-1">Menunggu Verifikasi</h6>
-                      <p class="text-blue-700 text-sm">
+                      <h6 class="font-bold text-yellow-800 mb-1">⏳ Menunggu Verifikasi</h6>
+                      <p class="text-yellow-700 text-sm">
                         Pendaftaran Anda sedang dalam proses verifikasi oleh admin. Mohon tunggu notifikasi lebih lanjut.
                       </p>
                     </div>
