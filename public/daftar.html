@@ -61,6 +61,22 @@
     </script>
     <style>
       [x-cloak] { display: none !important; }
+      /* Tailwind-like baseline for legacy classes (to avoid changing field names/structure) */
+      .form-label { display:block; font-size:0.875rem; font-weight:500; color:#374151; margin-bottom:0.25rem; }
+      .form-control, .form-select { display:block; width:100%; border:1px solid #d1d5db; color:#111827; border-radius:0.5rem; padding:0.75rem 1rem; }
+      .form-control:focus, .form-select:focus { outline:2px solid transparent; outline-offset:2px; --tw-ring-color:#059669; box-shadow:0 0 0 2px var(--tw-ring-color); border-color:#059669; }
+      .form-text, .text-muted.small { font-size:0.75rem; color:#6b7280; margin-top:0.25rem; display:block; }
+      .text-danger { color:#dc2626; }
+      .border-bottom { border-bottom:1px solid #e5e7eb; }
+      .btn { display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; border-radius:0.5rem; padding:0.75rem 1rem; font-weight:600; }
+      .btn.btn-danger { background:#ef4444; color:#fff; }
+      .btn.btn-danger:hover { background:#dc2626; }
+      .btn.btn-lg { padding:0.875rem 1.25rem; }
+      .d-flex { display:flex; }
+      .flex-column { flex-direction:column; }
+      .flex-sm-row { }
+      @media (min-width: 640px){ .flex-sm-row { flex-direction:row; } }
+      .gap-2 { gap:0.5rem; }
     </style>
   </head>
   <body class="min-h-screen flex flex-col bg-gray-100 text-gray-800">
@@ -154,10 +170,10 @@
         <p class="text-center text-gray-600 mb-6">Silakan isi formulir di bawah ini dengan lengkap dan benar.</p>
 
         <form id="formPendaftar" class="space-y-6" novalidate>
-          <div class="row g-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Data Pribadi -->
-            <div class="col-12">
-              <h5 class="border-bottom pb-2 mb-3">
+            <div class="col-span-full">
+              <h5 class="text-lg font-semibold text-gray-800 border-bottom pb-2 mb-3">
                 Data Pribadi Calon Siswa
               </h5>
             </div>
@@ -259,8 +275,8 @@
             </div>
 
             <!-- Alamat -->
-            <div class="col-12 mt-4">
-              <h5 class="border-bottom pb-2 mb-3">Alamat</h5>
+            <div class="col-span-full mt-4">
+              <h5 class="text-lg font-semibold text-gray-800 border-bottom pb-2 mb-3">Alamat</h5>
             </div>
 
             <div class="col-12">
@@ -329,8 +345,8 @@
             </div>
 
             <!-- Pendidikan -->
-            <div class="col-12 mt-4">
-              <h5 class="border-bottom pb-2 mb-3">
+            <div class="col-span-full mt-4">
+              <h5 class="text-lg font-semibold text-gray-800 border-bottom pb-2 mb-3">
                 Pendidikan & Rencana
               </h5>
             </div>
@@ -395,8 +411,8 @@
             </div>
 
             <!-- Data Orang Tua -->
-            <div class="col-12 mt-4">
-              <h5 class="border-bottom pb-2 mb-3">Data Orang Tua</h5>
+            <div class="col-span-full mt-4">
+              <h5 class="text-lg font-semibold text-gray-800 border-bottom pb-2 mb-3">Data Orang Tua</h5>
             </div>
 
             <div class="col-md-6">
@@ -531,8 +547,8 @@
             </div>
 
             <!-- Upload Berkas -->
-            <div class="col-12 mt-4">
-              <h5 class="border-bottom pb-2 mb-3">
+            <div class="col-span-full mt-4">
+              <h5 class="text-lg font-semibold text-gray-800 border-bottom pb-2 mb-3">
                 <i class="bi bi-file-earmark-arrow-up"></i> Upload Berkas
                 (Opsional)
               </h5>
@@ -605,18 +621,17 @@
             </div>
           </div>
 
-          <div class="mt-3 mt-md-4 d-flex flex-column flex-sm-row gap-2">
+          <div class="mt-4 flex flex-col sm:flex-row gap-2">
             <button
-              class="btn btn-lg px-3 px-md-5"
+              class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-lg w-full sm:w-auto"
               type="button"
               onclick="showKonfirmasi()"
-              style="background: #0f9d58; color: white"
             >
               <i class="bi bi-check-circle"></i> Lanjut ke Konfirmasi
             </button>
-            <a href="/" class="btn btn-danger btn-lg"
-              ><i class="bi bi-arrow-left"></i> Kembali</a
-            >
+            <a href="/" class="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-lg w-full sm:w-auto">
+              <i class="bi bi-arrow-left"></i> Kembali
+            </a>
           </div>
         </form>
       </div>

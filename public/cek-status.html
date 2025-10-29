@@ -316,11 +316,6 @@
           const originalHTML = btn.innerHTML;
           btn.disabled = true;
           btn.innerHTML = '<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>Memeriksa...';
-          Alpine.store('cek').open = true;
-          // Reset modal sections
-          document.getElementById('statusLoading').classList.remove('hidden');
-          document.getElementById('statusResult').classList.add('hidden');
-          document.getElementById('statusError').classList.add('hidden');
 
           try {
             const cacheBuster = new Date().getTime();
@@ -330,6 +325,13 @@
             clearTimeout(timeout);
             const json = await res.json();
             if (!res.ok || !json?.ok) throw new Error(json?.error || `HTTP ${res.status}`);
+
+            // If not found
+            if (!json.data) {
+              document.getElementById('statusLoading').classList.add('hidden');
+              try { toast('warning', 'NISN tidak ditemukan.'); } catch {}
+              return;
+            }
 
             // Map data
             const data = json.data || {};
@@ -376,14 +378,16 @@
               paySection.innerHTML = '';
             }
 
-            // Toggle sections
+            // Prepare modal sections for success
+            document.getElementById('statusError').classList.add('hidden');
             document.getElementById('statusLoading').classList.add('hidden');
             document.getElementById('statusResult').classList.remove('hidden');
+            // Open modal only on success
+            Alpine.store('cek').open = true;
           } catch (e) {
             console.error('[CEK_STATUS] Error:', e);
-            document.getElementById('statusLoading').classList.add('hidden');
-            document.getElementById('statusError').classList.remove('hidden');
-            document.getElementById('statusErrorMsg').textContent = e?.message || 'Terjadi kesalahan.';
+            // Show error toast, do not open modal
+            try { toast('error', e?.message || 'Terjadi kesalahan.'); } catch {}
           } finally {
             btn.disabled = false;
             btn.innerHTML = originalHTML;
