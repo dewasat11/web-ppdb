@@ -759,6 +759,12 @@
           slideDiv.style.backgroundImage = `url(${image.image_url})`;
           slideDiv.dataset.slideIndex = index;
           sliderContainer.appendChild(slideDiv);
+          
+          console.log(`[HERO] Created slide ${index}:`, {
+            url: image.image_url,
+            className: slideDiv.className,
+            backgroundImage: slideDiv.style.backgroundImage
+          });
         });
         
         heroSlides = sliderContainer.querySelectorAll('.hero-slide');
