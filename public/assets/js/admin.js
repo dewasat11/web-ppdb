@@ -2371,7 +2371,13 @@ Jazakumullahu khairan,
         }
         
         console.log('[HERO] ✅ Upload successful');
-        toastr.success('✅ Hero image berhasil diupload!');
+        
+        // Show success notification
+        if (typeof toastr !== 'undefined' && toastr.success) {
+          toastr.success('✅ Hero image berhasil diupload!');
+        } else {
+          alert('✅ Hero image berhasil diupload!');
+        }
         
         // Reset form
         form.reset();
@@ -2418,7 +2424,13 @@ Jazakumullahu khairan,
       }
       
       console.log('[HERO] ✅ Image deleted');
-      toastr.success('✅ Hero image berhasil dihapus!');
+      
+      // Show success notification
+      if (typeof toastr !== 'undefined' && toastr.success) {
+        toastr.success('✅ Hero image berhasil dihapus!');
+      } else {
+        alert('✅ Hero image berhasil dihapus!');
+      }
       
       // Reload images
       await loadHeroImages();
