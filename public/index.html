@@ -766,7 +766,7 @@
           const slideDiv = document.createElement('div');
           slideDiv.className = 'hero-slide' + (index === 0 ? ' active' : '');
           
-          // Set styles explicitly with DEBUG border
+          // Set styles for hero image slider
           slideDiv.style.cssText = `
             position: absolute;
             top: 0;
@@ -779,11 +779,9 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            background-color: #ff0000;
             opacity: ${index === 0 ? '1' : '0'};
-            z-index: ${index === 0 ? '50' : '0'};
+            z-index: ${index === 0 ? '1' : '0'};
             transition: opacity 1.5s ease-in-out;
-            border: 5px solid lime;
           `;
           
           slideDiv.dataset.slideIndex = index;
