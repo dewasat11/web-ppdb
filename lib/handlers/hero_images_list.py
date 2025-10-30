@@ -4,17 +4,15 @@ Fetch all hero images for slider (ordered by display_order)
 """
 from http.server import BaseHTTPRequestHandler
 import json
-from lib.supabase_client import get_supabase
+from lib._supabase import supabase_client
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
             print("[HERO_IMAGES_LIST] Fetching hero images...")
             
-            supa = get_supabase()
-            
             # Fetch all active hero images, ordered by display_order ASC
-            result = supa.table("hero_images").select("*").eq("is_active", True).order("display_order").execute()
+            result = supabase_client.table("hero_images").select("*").eq("is_active", True).order("display_order").execute()
             
             print(f"[HERO_IMAGES_LIST] Found {len(result.data) if result.data else 0} active images")
             

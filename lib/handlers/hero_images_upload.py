@@ -7,7 +7,7 @@ import json
 import base64
 import uuid
 from datetime import datetime
-from lib.supabase_client import get_supabase
+from lib._supabase import supabase_client
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -26,10 +26,8 @@ class handler(BaseHTTPRequestHandler):
             if not data.get('filename'):
                 raise ValueError("Missing filename")
             
-            supa = get_supabase()
-            
             # Get current count of hero images
-            existing_result = supa.table("hero_images").select("id").execute()
+            existing_result = supabase_client.table("hero_images").select("id").execute()
             current_count = len(existing_result.data) if existing_result.data else 0
             
             # Limit to max 5 images
@@ -50,7 +48,7 @@ class handler(BaseHTTPRequestHandler):
             print(f"[HERO_UPLOAD] Uploading to storage: {unique_filename}")
             
             # Upload to Supabase Storage (bucket: hero-images)
-            upload_result = supa.storage.from_("hero-images").upload(
+            upload_result = supabase_client.storage.from_("hero-images").upload(
                 path=unique_filename,
                 file=image_bytes,
                 file_options={
@@ -63,14 +61,14 @@ class handler(BaseHTTPRequestHandler):
             print(f"[HERO_UPLOAD] Storage upload result: {upload_result}")
             
             # Get public URL
-            public_url = supa.storage.from_("hero-images").get_public_url(unique_filename)
+            public_url = supabase_client.storage.from_("hero-images").get_public_url(unique_filename)
             
             print(f"[HERO_UPLOAD] Public URL: {public_url}")
             
             # Insert record into hero_images table
             display_order = data.get('display_order', current_count + 1)
             
-            insert_result = supa.table("hero_images").insert({
+            insert_result = supabase_client.table("hero_images").insert({
                 "image_url": public_url,
                 "display_order": display_order,
                 "is_active": True,

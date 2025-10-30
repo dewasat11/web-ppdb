@@ -5,7 +5,7 @@ Update display order of hero images
 from http.server import BaseHTTPRequestHandler
 import json
 from datetime import datetime
-from lib.supabase_client import get_supabase
+from lib._supabase import supabase_client
 
 class handler(BaseHTTPRequestHandler):
     def do_PUT(self):
@@ -24,8 +24,6 @@ class handler(BaseHTTPRequestHandler):
             
             print(f"[HERO_UPDATE_ORDER] Updating order for {len(data['orders'])} images...")
             
-            supa = get_supabase()
-            
             # Update each image's display_order
             updated_count = 0
             for order_data in data['orders']:
@@ -35,7 +33,7 @@ class handler(BaseHTTPRequestHandler):
                 if not image_id or display_order is None:
                     continue
                 
-                update_result = supa.table("hero_images").update({
+                update_result = supabase_client.table("hero_images").update({
                     "display_order": display_order,
                     "updated_at": datetime.utcnow().isoformat()
                 }).eq("id", image_id).execute()
