@@ -149,34 +149,17 @@
     /* ===== HERO SLIDER STYLES ===== */
     #heroSlider {
       position: relative;
+      width: 100%;
+      height: 100%;
     }
 
     .hero-slide {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      opacity: 0;
-      transition: opacity 1.5s ease-in-out;
-      z-index: 0;
+      /* Styles are set via inline CSS for better control */
       pointer-events: none; /* Prevent blocking clicks */
     }
 
     .hero-slide.active {
-      opacity: 1 !important; /* Force visibility */
-      z-index: 1;
-    }
-
-    /* Ensure images don't overflow */
-    #heroSlider::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: transparent;
-      z-index: 2;
+      /* Active state handled via inline styles */
     }
   </style>
 </head>
@@ -271,9 +254,8 @@
     <section class="relative min-h-[60vh] md:min-h-[70vh] flex items-center overflow-hidden">
       <!-- Background Image Slider -->
       <div id="heroSlider" class="absolute inset-0 z-0">
-        <!-- Images will be injected here dynamically -->
-        <!-- Fallback gradient if no images -->
-        <div class="hero-slide active" style="background: linear-gradient(135deg, #047857 0%, #064e3b 100%);"></div>
+        <!-- Fallback gradient (will be removed when images load) -->
+        <div id="heroFallback" class="hero-slide active" style="background: linear-gradient(135deg, #047857 0%, #064e3b 100%);"></div>
       </div>
       
       <!-- Green Overlay (35% opacity) untuk readability -->
@@ -751,17 +733,43 @@
         console.log('[HERO] Image URLs:', result.data.map(img => img.image_url));
         
         const sliderContainer = document.getElementById('heroSlider');
-        sliderContainer.innerHTML = ''; // Clear fallback
         
-        // Create slide elements
+        // IMPORTANT: Remove fallback gradient completely
+        const fallback = document.getElementById('heroFallback');
+        if (fallback) {
+          console.log('[HERO] 🗑️ Removing fallback gradient...');
+          fallback.remove();
+        }
+        
+        // Clear any remaining content
+        sliderContainer.innerHTML = '';
+        
+        // Create slide elements with explicit styles
         result.data.forEach((image, index) => {
           // Clean URL - remove trailing ? if present
           const cleanUrl = image.image_url.replace(/\?$/, '');
           
           const slideDiv = document.createElement('div');
           slideDiv.className = 'hero-slide' + (index === 0 ? ' active' : '');
-          slideDiv.style.backgroundImage = `url("${cleanUrl}")`;
-          slideDiv.style.opacity = index === 0 ? '1' : '0'; // Force first slide visible
+          
+          // Set styles explicitly
+          slideDiv.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("${cleanUrl}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: ${index === 0 ? '1' : '0'};
+            z-index: ${index === 0 ? '1' : '0'};
+            transition: opacity 1.5s ease-in-out;
+          `;
+          
           slideDiv.dataset.slideIndex = index;
           sliderContainer.appendChild(slideDiv);
           
@@ -769,6 +777,8 @@
           const testImg = new Image();
           testImg.onload = () => {
             console.log(`[HERO] ✅ Image ${index} loaded successfully:`, cleanUrl);
+            // Force re-render
+            slideDiv.style.backgroundImage = `url("${cleanUrl}")`;
           };
           testImg.onerror = () => {
             console.error(`[HERO] ❌ Image ${index} failed to load:`, cleanUrl);
@@ -779,24 +789,58 @@
             originalUrl: image.image_url,
             cleanUrl: cleanUrl,
             className: slideDiv.className,
-            backgroundImage: slideDiv.style.backgroundImage
+            width: slideDiv.offsetWidth,
+            height: slideDiv.offsetHeight,
+            inDOM: document.body.contains(slideDiv)
           });
         });
         
         heroSlides = sliderContainer.querySelectorAll('.hero-slide');
         
-        // Debug: Log computed styles of first slide
+        // Debug: Log computed styles and DOM info
         if (heroSlides.length > 0) {
           const firstSlide = heroSlides[0];
           const computedStyle = window.getComputedStyle(firstSlide);
-          console.log('[HERO] 🎨 First slide computed styles:', {
+          const rect = firstSlide.getBoundingClientRect();
+          
+          console.log('[HERO] 🎨 First slide DEBUG INFO:');
+          console.log('  → Computed styles:', {
             opacity: computedStyle.opacity,
             zIndex: computedStyle.zIndex,
             backgroundImage: computedStyle.backgroundImage,
             width: computedStyle.width,
             height: computedStyle.height,
-            position: computedStyle.position
+            position: computedStyle.position,
+            display: computedStyle.display,
+            visibility: computedStyle.visibility
           });
+          console.log('  → Bounding rect:', {
+            width: rect.width,
+            height: rect.height,
+            top: rect.top,
+            left: rect.left,
+            visible: rect.width > 0 && rect.height > 0
+          });
+          console.log('  → Parent container:', {
+            id: sliderContainer.id,
+            width: sliderContainer.offsetWidth,
+            height: sliderContainer.offsetHeight,
+            childCount: sliderContainer.children.length
+          });
+        }
+        
+        // CRITICAL: Force first slide to be visible
+        if (heroSlides.length > 0) {
+          const firstSlide = heroSlides[0];
+          firstSlide.style.opacity = '1';
+          firstSlide.style.zIndex = '1';
+          console.log('[HERO] 🔥 FORCED first slide visible');
+          
+          // Verify after 100ms
+          setTimeout(() => {
+            const stillVisible = window.getComputedStyle(firstSlide).opacity;
+            console.log('[HERO] 🔍 Verification: First slide opacity after 100ms =', stillVisible);
+          }, 100);
         }
         
         // Start auto-slider if more than 1 image
