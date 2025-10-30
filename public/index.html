@@ -734,14 +734,20 @@
         console.log('[HERO] Loading hero images...');
         
         const response = await fetch('/api/hero_images_list');
+        console.log('[HERO] API Response status:', response.status, response.statusText);
+        
         const result = await response.json();
+        console.log('[HERO] API Result:', result);
         
         if (!result.ok || !result.data || result.data.length === 0) {
           console.log('[HERO] No hero images found, using fallback gradient');
+          console.log('[HERO] result.ok:', result.ok);
+          console.log('[HERO] result.data:', result.data);
           return;
         }
         
         console.log('[HERO] Found', result.data.length, 'hero images');
+        console.log('[HERO] Image URLs:', result.data.map(img => img.image_url));
         
         const sliderContainer = document.getElementById('heroSlider');
         sliderContainer.innerHTML = ''; // Clear fallback
