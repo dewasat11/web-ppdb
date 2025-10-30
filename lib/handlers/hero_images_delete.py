@@ -21,8 +21,11 @@ class handler(BaseHTTPRequestHandler):
             
             print(f"[HERO_DELETE] Deleting hero image ID: {image_id}")
             
+            # Get Supabase client with service role for admin operations
+            supa = supabase_client(service_role=True)
+            
             # Get image data first (to delete from storage)
-            image_result = supabase_client().table("hero_images").select("*").eq("id", image_id).execute()
+            image_result = supa.table("hero_images").select("*").eq("id", image_id).execute()
             
             if not image_result.data or len(image_result.data) == 0:
                 raise ValueError(f"Hero image with ID {image_id} not found")
@@ -37,14 +40,14 @@ class handler(BaseHTTPRequestHandler):
             if filename:
                 try:
                     print(f"[HERO_DELETE] Deleting from storage: {filename}")
-                    supabase_client().storage.from_("hero-images").remove([filename])
+                    supa.storage.from_("hero-images").remove([filename])
                     print(f"[HERO_DELETE] ✅ Deleted from storage: {filename}")
                 except Exception as storage_err:
                     print(f"[HERO_DELETE] ⚠️ Storage delete warning: {storage_err}")
                     # Continue even if storage delete fails
             
             # Delete from database
-            delete_result = supabase_client().table("hero_images").delete().eq("id", image_id).execute()
+            delete_result = supa.table("hero_images").delete().eq("id", image_id).execute()
             
             print(f"[HERO_DELETE] ✅ Image deleted from database: ID {image_id}")
             

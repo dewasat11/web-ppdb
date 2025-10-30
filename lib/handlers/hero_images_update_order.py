@@ -24,6 +24,9 @@ class handler(BaseHTTPRequestHandler):
             
             print(f"[HERO_UPDATE_ORDER] Updating order for {len(data['orders'])} images...")
             
+            # Get Supabase client with service role for admin operations
+            supa = supabase_client(service_role=True)
+            
             # Update each image's display_order
             updated_count = 0
             for order_data in data['orders']:
@@ -33,7 +36,7 @@ class handler(BaseHTTPRequestHandler):
                 if not image_id or display_order is None:
                     continue
                 
-                update_result = supabase_client().table("hero_images").update({
+                update_result = supa.table("hero_images").update({
                     "display_order": display_order,
                     "updated_at": datetime.utcnow().isoformat()
                 }).eq("id", image_id).execute()

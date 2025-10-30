@@ -11,8 +11,11 @@ class handler(BaseHTTPRequestHandler):
         try:
             print("[HERO_IMAGES_LIST] Fetching hero images...")
             
+            # Get Supabase client with service role for admin operations
+            supa = supabase_client(service_role=True)
+            
             # Fetch all active hero images, ordered by display_order ASC
-            result = supabase_client().table("hero_images").select("*").eq("is_active", True).order("display_order").execute()
+            result = supa.table("hero_images").select("*").eq("is_active", True).order("display_order").execute()
             
             print(f"[HERO_IMAGES_LIST] Found {len(result.data) if result.data else 0} active images")
             
