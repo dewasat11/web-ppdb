@@ -33,7 +33,7 @@ class handler(BaseHTTPRequestHandler):
                 if not image_id or display_order is None:
                     continue
                 
-                update_result = supabase_client.table("hero_images").update({
+                update_result = supabase_client().table("hero_images").update({
                     "display_order": display_order,
                     "updated_at": datetime.utcnow().isoformat()
                 }).eq("id", image_id).execute()

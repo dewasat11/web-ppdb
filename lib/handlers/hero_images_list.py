@@ -12,7 +12,7 @@ class handler(BaseHTTPRequestHandler):
             print("[HERO_IMAGES_LIST] Fetching hero images...")
             
             # Fetch all active hero images, ordered by display_order ASC
-            result = supabase_client.table("hero_images").select("*").eq("is_active", True).order("display_order").execute()
+            result = supabase_client().table("hero_images").select("*").eq("is_active", True).order("display_order").execute()
             
             print(f"[HERO_IMAGES_LIST] Found {len(result.data) if result.data else 0} active images")
             
