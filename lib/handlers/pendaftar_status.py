@@ -2,7 +2,6 @@ from http.server import BaseHTTPRequestHandler
 import json
 from typing import Any, Dict
 from lib._supabase import supabase_client
-from lib.whatsapp_notifier import send_whatsapp_verification
 
 class handler(BaseHTTPRequestHandler):
     def do_PATCH(self):
@@ -111,44 +110,8 @@ class handler(BaseHTTPRequestHandler):
                 }).encode())
                 return
             
-            # ✨ KIRIM WHATSAPP NOTIFICATION jika status DITERIMA
-            whatsapp_result = None
-            if p_status == 'DITERIMA':
-                try:
-                    print(f"[VERIFIKASI] Status DITERIMA - sending WhatsApp notification...")
-                    
-                    # Get pendaftar data for notification
-                    pendaftar_data = result.data[0] if result.data else None
-                    
-                    if pendaftar_data:
-                        nama = pendaftar_data.get('namalengkap', '')
-                        nisn = pendaftar_data.get('nisn', '')
-                        nomor_hp = pendaftar_data.get('nomorhp', '')
-                        
-                        if nomor_hp and nama and nisn:
-                            print(f"[VERIFIKASI] Sending WA to {nama} ({nomor_hp[:6]}...)")
-                            
-                            # Send WhatsApp notification
-                            wa_response = send_whatsapp_verification(
-                                phone=nomor_hp,
-                                nama=nama,
-                                nisn=nisn
-                            )
-                            
-                            whatsapp_result = wa_response
-                            
-                            if wa_response.get("success"):
-                                print(f"[VERIFIKASI] ✅ WhatsApp sent successfully via {wa_response.get('provider')}")
-                            else:
-                                print(f"[VERIFIKASI] ⚠️ WhatsApp failed: {wa_response.get('message')}")
-                        else:
-                            print(f"[VERIFIKASI] ⚠️ Missing data - HP: {bool(nomor_hp)}, Nama: {bool(nama)}, NISN: {bool(nisn)}")
-                    else:
-                        print("[VERIFIKASI] ⚠️ No pendaftar data returned")
-                        
-                except Exception as e:
-                    print(f"[VERIFIKASI] ❌ WhatsApp notification error (non-critical): {e}")
-                    # Don't fail the request if WhatsApp fails
+            # Get pendaftar data for response (untuk WhatsApp manual di frontend)
+            pendaftar_data = result.data[0] if result.data else None
             
             # Response success
             response_data = {
@@ -156,12 +119,12 @@ class handler(BaseHTTPRequestHandler):
                 "message": f"Status pendaftar berhasil diubah menjadi {p_status}"
             }
             
-            # Include WhatsApp status in response
-            if whatsapp_result:
-                response_data["whatsapp"] = {
-                    "sent": whatsapp_result.get("success", False),
-                    "provider": whatsapp_result.get("provider", "unknown"),
-                    "message": whatsapp_result.get("message", "")
+            # Include pendaftar data jika status DITERIMA (untuk WhatsApp manual)
+            if p_status == 'DITERIMA' and pendaftar_data:
+                response_data["pendaftar"] = {
+                    "nama": pendaftar_data.get('namalengkap', ''),
+                    "nisn": pendaftar_data.get('nisn', ''),
+                    "telepon": pendaftar_data.get('teleponorangtua', ''),  # Nomor HP orang tua
                 }
             
             self.send_response(200)

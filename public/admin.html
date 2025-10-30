@@ -113,9 +113,45 @@
     .form-control:focus,.form-select:focus{border-color:#667eea;box-shadow:0 0 0 .2rem rgba(102,126,234,.25);}
     .alert{border-radius:12px;border:none;padding:15px 20px;box-shadow:0 2px 10px rgba(0,0,0,.1);}
 
-    /* Logout Button */
-    #logoutBtn{background:linear-gradient(135deg,#f5576c 0%,#f093fb 100%);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:600;transition:.3s;}
-    #logoutBtn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(245,87,108,.4);}
+    /* Fixed Bottom-Right Buttons */
+    .fixed-bottom-buttons{
+      position:fixed;
+      bottom:20px;
+      right:20px;
+      z-index:1030;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .fixed-bottom-buttons .btn{
+      min-width:120px;
+      padding:10px 20px;
+      border-radius:10px;
+      font-weight:600;
+      box-shadow:0 4px 15px rgba(0,0,0,.2);
+      transition:.3s;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+    }
+    .fixed-bottom-buttons .btn:hover{
+      transform:translateY(-3px);
+      box-shadow:0 6px 25px rgba(0,0,0,.3);
+    }
+    .fixed-bottom-buttons .btn-outline-light{
+      background:rgba(255,255,255,.95);
+      color:#2a5298;
+      border:2px solid #2a5298;
+    }
+    .fixed-bottom-buttons .btn-outline-light:hover{
+      background:#2a5298;
+      color:#fff;
+    }
+    .fixed-bottom-buttons .btn-danger{
+      background:linear-gradient(135deg,#f5576c 0%,#f093fb 100%);
+      border:none;
+    }
 
     /* ============================================
        RESPONSIVE DESIGN (Mobile-First Approach)
@@ -553,6 +589,34 @@
       .mobile-only{display:block!important;}
     }
     
+    /* Fixed Bottom Buttons - Mobile Responsive */
+    @media (max-width:767px){
+      .fixed-bottom-buttons{
+        bottom:15px;
+        right:15px;
+      }
+      .fixed-bottom-buttons .btn{
+        min-width:100px;
+        padding:8px 15px;
+        font-size:.85rem;
+      }
+    }
+    @media (max-width:575px){
+      .fixed-bottom-buttons{
+        bottom:10px;
+        right:10px;
+        gap:8px;
+      }
+      .fixed-bottom-buttons .btn{
+        min-width:90px;
+        padding:8px 12px;
+        font-size:.8rem;
+      }
+      .fixed-bottom-buttons .btn i{
+        font-size:.9rem;
+      }
+    }
+    
     /* Utility: Touch-Friendly Tap Targets (44x44px minimum) */
     @media (max-width:991px){
       .btn,
@@ -649,20 +713,6 @@
         </li>
       </ul>
 
-      <hr class="mx-3" style="border-color:rgba(255,255,255,.2)"/>
-
-      <ul class="nav flex-column px-2 mb-4">
-        <li class="nav-item">
-          <a class="nav-link" href="/">
-            <i class="bi bi-house-fill"></i> Ke Website
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#" id="logoutBtn" onclick="logout(); return false;" style="background:rgba(245,87,108,.15);border-left-color:#f5576c">
-            <i class="bi bi-box-arrow-right"></i> Logout
-          </a>
-        </li>
-      </ul>
     </aside>
 
     <!-- Main Content -->
@@ -1032,6 +1082,16 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <!-- Fixed Bottom-Right Buttons -->
+  <div class="fixed-bottom-buttons">
+    <a href="/" class="btn btn-outline-light btn-sm mb-2" title="Kembali ke Website">
+      <i class="bi bi-house-fill"></i> Website
+    </a>
+    <button class="btn btn-danger btn-sm" onclick="logout()" title="Logout">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </button>
   </div>
 
   <!-- Modal: Detail Pendaftar -->

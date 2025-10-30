@@ -92,6 +92,37 @@ class handler(BaseHTTPRequestHandler):
             print(f"[CEK_STATUS] Found data for: {row.get('namalengkap')}")
             print(f"[CEK_STATUS] Catatan Admin (alasan): {row.get('alasan')}")
 
+            # Query data pembayaran juga
+            pembayaran_data = None
+            try:
+                print(f"[CEK_STATUS] Querying pembayaran with nisn={nisn}")
+                pembayaran_result = supa.table("pembayaran").select(
+                    "nisn,nik,nama,metode_pembayaran,jumlah,bukti_bayar_url,status_pembayaran,verified_by,catatan_admin,tanggal_verifikasi,created_at,updated_at"
+                ).eq("nisn", nisn).execute()
+                
+                if pembayaran_result.data and len(pembayaran_result.data) > 0:
+                    pembayaran_row = pembayaran_result.data[0]
+                    pembayaran_data = {
+                        "nisn": pembayaran_row.get("nisn", ""),
+                        "nik": pembayaran_row.get("nik", ""),
+                        "nama": pembayaran_row.get("nama", ""),
+                        "metode_pembayaran": pembayaran_row.get("metode_pembayaran", ""),
+                        "jumlah": pembayaran_row.get("jumlah", 0),
+                        "bukti_bayar_url": pembayaran_row.get("bukti_bayar_url", ""),
+                        "status_pembayaran": pembayaran_row.get("status_pembayaran", "PENDING"),
+                        "verified_by": pembayaran_row.get("verified_by", ""),
+                        "catatan_admin": pembayaran_row.get("catatan_admin", ""),
+                        "tanggal_verifikasi": pembayaran_row.get("tanggal_verifikasi"),
+                        "created_at": pembayaran_row.get("created_at"),
+                        "updated_at": pembayaran_row.get("updated_at")
+                    }
+                    print(f"[CEK_STATUS] Pembayaran found: status={pembayaran_data['status_pembayaran']}")
+                else:
+                    print("[CEK_STATUS] Pembayaran belum ada untuk NISN ini")
+            except Exception as e:
+                print(f"[CEK_STATUS] Warning: Error querying pembayaran: {e}")
+                # Continue even if pembayaran query fails
+
             # Transform sesuai spec
             data = {
                 "nisn": row.get("nisn", ""),
@@ -104,7 +135,8 @@ class handler(BaseHTTPRequestHandler):
                 "verified_at": row.get("verifiedat"),
                 "created_at": row.get("createdat"),
                 "createdat": row.get("createdat"),  # Add both formats for compatibility
-                "updated_at": row.get("updatedat")
+                "updated_at": row.get("updatedat"),
+                "pembayaran": pembayaran_data  # Tambahkan data pembayaran
             }
 
             print("[CEK_STATUS] Sending success response")

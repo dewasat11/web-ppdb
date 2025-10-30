@@ -963,6 +963,136 @@
       ).show();
   }
 
+  // 📱 MODAL WHATSAPP - Anti Popup Blocker! (Pendaftaran)
+  function showWhatsAppModal(nama, nisn, phone, waLink) {
+    // Hapus modal lama jika ada
+    const oldModal = document.getElementById('whatsappNotifModal');
+    if (oldModal) oldModal.remove();
+    
+    // Buat modal baru
+    const modalHTML = `
+      <div class="modal fade" id="whatsappNotifModal" tabindex="-1" aria-labelledby="whatsappNotifModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-success text-white">
+              <h5 class="modal-title" id="whatsappNotifModalLabel">
+                <i class="bi bi-check-circle-fill me-2"></i>Verifikasi Pendaftaran Berhasil!
+              </h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+              <div class="mb-3">
+                <i class="bi bi-whatsapp text-success" style="font-size: 4rem;"></i>
+              </div>
+              <h6 class="fw-bold mb-3">Kirim Notifikasi WhatsApp</h6>
+              <div class="alert alert-info mb-3">
+                <small>
+                  <strong>Kepada:</strong> ${nama}<br>
+                  <strong>NISN:</strong> ${nisn}<br>
+                  <strong>Nomor:</strong> ${phone}
+                </small>
+              </div>
+              <p class="text-muted small mb-4">
+                Klik tombol di bawah untuk membuka WhatsApp dan mengirim notifikasi verifikasi pendaftaran kepada siswa.
+              </p>
+              
+              <!-- BUTTON UTAMA - Direct user click = No popup blocker! -->
+              <a href="${waLink}" 
+                 target="_blank" 
+                 class="btn btn-success btn-lg w-100 mb-2"
+                 onclick="this.classList.add('disabled'); this.innerHTML='<i class=\\'bi bi-check2\\'></i> WhatsApp Terbuka...'; setTimeout(() => { const modal = bootstrap.Modal.getInstance(document.getElementById('whatsappNotifModal')); if (modal) modal.hide(); window.loadPendaftar(); }, 1500);">
+                <i class="bi bi-whatsapp me-2"></i>
+                Buka WhatsApp & Kirim Notifikasi
+              </a>
+              
+              <button type="button" class="btn btn-outline-secondary w-100" data-bs-dismiss="modal" onclick="window.loadPendaftar();">
+                <i class="bi bi-x-circle me-2"></i>Skip, Nanti Saja
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Append ke body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Show modal
+    const modalEl = document.getElementById('whatsappNotifModal');
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+    
+    // Cleanup saat modal ditutup
+    modalEl.addEventListener('hidden.bs.modal', function () {
+      modalEl.remove();
+    });
+  }
+
+  // 📱 MODAL WHATSAPP - Anti Popup Blocker! (Pembayaran)
+  function showWhatsAppModalPembayaran(nama, nisn, phone, waLink) {
+    // Hapus modal lama jika ada
+    const oldModal = document.getElementById('whatsappNotifModalPembayaran');
+    if (oldModal) oldModal.remove();
+    
+    // Buat modal baru
+    const modalHTML = `
+      <div class="modal fade" id="whatsappNotifModalPembayaran" tabindex="-1" aria-labelledby="whatsappNotifModalPembayaranLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-success text-white">
+              <h5 class="modal-title" id="whatsappNotifModalPembayaranLabel">
+                <i class="bi bi-check-circle-fill me-2"></i>Pembayaran Terverifikasi!
+              </h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+              <div class="mb-3">
+                <i class="bi bi-whatsapp text-success" style="font-size: 4rem;"></i>
+              </div>
+              <h6 class="fw-bold mb-3">🎉 Proses Pendaftaran Selesai!</h6>
+              <div class="alert alert-success mb-3">
+                <small>
+                  <strong>Kepada:</strong> ${nama}<br>
+                  <strong>NISN:</strong> ${nisn}<br>
+                  <strong>Nomor:</strong> ${phone}
+                </small>
+              </div>
+              <p class="text-muted small mb-4">
+                Klik tombol di bawah untuk membuka WhatsApp dan mengirim notifikasi bahwa pembayaran telah terverifikasi.
+              </p>
+              
+              <!-- BUTTON UTAMA - Direct user click = No popup blocker! -->
+              <a href="${waLink}" 
+                 target="_blank" 
+                 class="btn btn-success btn-lg w-100 mb-2"
+                 onclick="this.classList.add('disabled'); this.innerHTML='<i class=\\'bi bi-check2\\'></i> WhatsApp Terbuka...'; setTimeout(() => { const modal = bootstrap.Modal.getInstance(document.getElementById('whatsappNotifModalPembayaran')); if (modal) modal.hide(); window.loadPembayaran(); }, 1500);">
+                <i class="bi bi-whatsapp me-2"></i>
+                Buka WhatsApp & Kirim Notifikasi
+              </a>
+              
+              <button type="button" class="btn btn-outline-secondary w-100" data-bs-dismiss="modal" onclick="window.loadPembayaran();">
+                <i class="bi bi-x-circle me-2"></i>Skip, Nanti Saja
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Append ke body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Show modal
+    const modalEl = document.getElementById('whatsappNotifModalPembayaran');
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+    
+    // Cleanup saat modal ditutup
+    modalEl.addEventListener('hidden.bs.modal', function () {
+      modalEl.remove();
+    });
+  }
+
   async function confirmVerifikasi() {
     const id = $("#verifikasi-id")?.value;
     const status = $("#verifikasi-status")?.value;
@@ -984,28 +1114,55 @@
         const modal = bootstrap.Modal.getInstance($("#verifikasiModal"));
         if (modal) modal.hide();
         
-        // Build success message
-        let successMsg = `✅ Status berhasil diubah menjadi "${status}"!`;
-        
-        // Add WhatsApp notification status if available
-        if (result.whatsapp) {
-          if (result.whatsapp.sent) {
-            successMsg += `\n\n📱 WhatsApp Notification: TERKIRIM ✅`;
-            successMsg += `\n   Provider: ${result.whatsapp.provider}`;
-            console.log('[VERIFIKASI] WhatsApp sent:', result.whatsapp);
+        // 📱 WHATSAPP MANUAL - Tampilkan modal konfirmasi (ANTI POPUP BLOCKER!)
+        if (status.toUpperCase() === 'DITERIMA' && result.pendaftar) {
+          const { nama, nisn, telepon } = result.pendaftar;
+          
+          if (telepon && nama) {
+            // Format nomor telepon (hapus karakter non-digit)
+            let phone = telepon.replace(/\D/g, '');
+            
+            // Tambah 62 jika dimulai dengan 0
+            if (phone.startsWith('0')) {
+              phone = '62' + phone.substring(1);
+            }
+            
+            // Template pesan WhatsApp
+            const message = encodeURIComponent(
+`Assalamualaikum Wr. Wb.
+
+✅ *Pendaftaran PPDSB Telah DIVERIFIKASI*
+
+• Nama Siswa: *${nama}*
+• NISN: ${nisn}
+
+🎉 *Selamat!* Berkas pendaftaran Anda telah diverifikasi dan diterima.
+
+📌 *Langkah Selanjutnya:*
+Silakan lakukan pembayaran untuk menyelesaikan proses pendaftaran.
+
+Cek status dan lakukan pembayaran melalui:
+https://www.alikhsan-beji.app/cek-status.html
+
+Jazakumullahu khairan,
+*PONDOK PESANTREN AL IKHSAN BEJI*`
+            );
+            
+            const waWeb = `https://wa.me/${phone}?text=${message}`;
+            
+            console.log('[VERIFIKASI] Preparing WhatsApp for:', nama, phone);
+            
+            // Tampilkan modal WhatsApp (100% tidak kena popup blocker!)
+            showWhatsAppModal(nama, nisn, phone, waWeb);
           } else {
-            successMsg += `\n\n📱 WhatsApp Notification: GAGAL ⚠️`;
-            successMsg += `\n   ${result.whatsapp.message}`;
-            console.warn('[VERIFIKASI] WhatsApp failed:', result.whatsapp);
+            console.warn('[VERIFIKASI] No phone number available for:', nama);
+            alert('⚠️ Nomor telepon tidak tersedia. Silakan hubungi manual.');
+            loadPendaftar();
           }
-        } else if (status.toUpperCase() === 'DITERIMA') {
-          // Status diterima but no WhatsApp info (API token not configured)
-          successMsg += `\n\n📱 WhatsApp: Tidak dikonfigurasi (set WHATSAPP_API_TOKEN di Vercel)`;
-          console.warn('[VERIFIKASI] WhatsApp not configured');
+        } else {
+          alert(`✅ Status berhasil diubah menjadi "${status}"!`);
+          loadPendaftar();
         }
-        
-        alert(successMsg);
-        loadPendaftar();
       } else {
         alert("Error: " + (result.error || "Gagal mengubah status"));
       }
@@ -1348,8 +1505,6 @@
       const result = await r.json();
       if (!r.ok) throw new Error(result.error || "Gagal verifikasi");
 
-      alert("✅ Pembayaran berhasil diverifikasi!");
-
       // tutup modal verifikasi & detail
       const vModal = bootstrap.Modal.getInstance(
         $("#verifikasiPembayaranModal")
@@ -1358,7 +1513,7 @@
       const dModal = bootstrap.Modal.getInstance($("#detailPembayaranModal"));
       if (dModal) dModal.hide();
 
-      // Kirim WA jika VERIFIED
+      // 📱 WHATSAPP MODAL - Kirim WA jika VERIFIED (ANTI POPUP BLOCKER!)
       if (status === "VERIFIED" && currentPembayaranData) {
         try {
           const pRes = await fetch("/api/pendaftar_list");
@@ -1369,9 +1524,13 @@
                 (p.nisn || p.nikcalon || p.nik) === (currentPembayaranData.nisn || currentPembayaranData.nik)
             );
             if (pendaftar && pendaftar.telepon_orang_tua) {
-              const phone = pendaftar.telepon_orang_tua.replace(/^0/, "62");
+              let phone = pendaftar.telepon_orang_tua.replace(/\D/g, '');
+              if (phone.startsWith('0')) {
+                phone = '62' + phone.substring(1);
+              }
+              
               const message = encodeURIComponent(
-                `Assalamualaikum Bapak/Ibu,
+                `Assalamualaikum Wr. Wb.
 
 ✅ *Pembayaran telah TERVERIFIKASI*
 
@@ -1383,39 +1542,35 @@
 Kami akan menghubungi Anda kembali untuk informasi lebih lanjut.
 
 Jazakumullahu khairan,
-PONDOK PESANTREN AL IKHSAN BEJI`
+*PONDOK PESANTREN AL IKHSAN BEJI*`
               );
 
-              // coba buka WA app, fallback ke web
-              const waApp = `whatsapp://send?phone=${phone}&text=${message}`;
               const waWeb = `https://wa.me/${phone}?text=${message}`;
-
-              const a = document.createElement("a");
-              a.href = waApp;
-              a.target = "_blank";
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-
-              setTimeout(() => {
-                if (
-                  confirm(
-                    "Jika WhatsApp tidak terbuka, klik OK untuk membuka di browser."
-                  )
-                ) {
-                  window.open(waWeb, "_blank");
-                }
-              }, 2000);
+              
+              // Tampilkan modal WhatsApp (100% tidak kena popup blocker!)
+              showWhatsAppModalPembayaran(
+                currentPembayaranData.nama_lengkap,
+                currentPembayaranData.nisn || currentPembayaranData.nik,
+                phone,
+                waWeb
+              );
+            } else {
+              alert("✅ Pembayaran berhasil diverifikasi!");
+              loadPembayaran();
             }
+          } else {
+            alert("✅ Pembayaran berhasil diverifikasi!");
+            loadPembayaran();
           }
         } catch (err) {
           console.error("WA notify error:", err);
-          alert("⚠️ Gagal mengirim notifikasi WhatsApp.");
+          alert("✅ Pembayaran berhasil diverifikasi!");
+          loadPembayaran();
         }
+      } else {
+        alert(`✅ Pembayaran berhasil di${status.toLowerCase()}!`);
+        loadPembayaran();
       }
-
-      // refresh
-      loadPembayaran();
     } catch (e) {
       console.error("verify error:", e);
       alert("❌ Error: " + e.message);
