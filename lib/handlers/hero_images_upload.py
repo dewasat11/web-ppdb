@@ -51,17 +51,25 @@ class handler(BaseHTTPRequestHandler):
             print(f"[HERO_UPLOAD] Uploading to storage: {unique_filename}")
             
             # Upload to Supabase Storage (bucket: hero-images)
-            upload_result = supa.storage.from_("hero-images").upload(
-                path=unique_filename,
-                file=image_bytes,
-                file_options={
-                    "content-type": f"image/{file_ext}",
-                    "cache-control": "3600",
-                    "upsert": "false"
-                }
-            )
-            
-            print(f"[HERO_UPLOAD] Storage upload result: {upload_result}")
+            try:
+                upload_result = supa.storage.from_("hero-images").upload(
+                    path=unique_filename,
+                    file=image_bytes,
+                    file_options={"content-type": f"image/{file_ext}"}
+                )
+                
+                print(f"[HERO_UPLOAD] Storage upload result: {upload_result}")
+            except Exception as storage_error:
+                error_msg = str(storage_error)
+                print(f"[HERO_UPLOAD] ❌ Storage upload failed: {error_msg}")
+                
+                # Check for common errors
+                if "Bucket not found" in error_msg or "404" in error_msg:
+                    raise ValueError("Storage bucket 'hero-images' belum dibuat. Silakan buat bucket di Supabase Dashboard > Storage dengan nama 'hero-images' dan set sebagai PUBLIC.")
+                elif "already exists" in error_msg.lower():
+                    raise ValueError("File dengan nama yang sama sudah ada. Silakan coba lagi.")
+                else:
+                    raise ValueError(f"Gagal upload ke storage: {error_msg}")
             
             # Get public URL
             public_url = supa.storage.from_("hero-images").get_public_url(unique_filename)

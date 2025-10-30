@@ -2,7 +2,7 @@
 
 ## Fitur Hero Slider
 ✅ Auto-slide setiap **4 detik**  
-✅ Transparansi hijau **65%** untuk readability teks  
+✅ Transparansi hijau **35%** untuk readability teks  
 ✅ Maksimal **5 gambar** hero  
 ✅ CRUD management di admin panel  
 ✅ Real-time sync (perubahan langsung terlihat di website)  
@@ -101,7 +101,7 @@ USING (
 1. **Login ke Admin Panel:** `/admin.html`
 2. **Klik tab "Hero Slider"** di sidebar
 3. **Pilih gambar** (max 5 MB, landscape recommended)
-4. **Preview otomatis** muncul dengan green overlay 65%
+4. **Preview otomatis** muncul dengan green overlay 35%
 5. **Klik "Upload Gambar"**
 6. ✅ **Gambar langsung muncul** di slider homepage
 
@@ -130,15 +130,15 @@ USING (
 
 ---
 
-## 🎨 Green Overlay (65% Opacity)
+## 🎨 Green Overlay (35% Opacity)
 
 **Tujuan:** Agar teks konten (putih) tetap terbaca di atas gambar hero
 
 **CSS:**
 ```css
 background: linear-gradient(135deg, 
-  rgba(4, 120, 87, 0.65),    /* brand-800 with 65% opacity */
-  rgba(6, 78, 59, 0.65)      /* brand-900 with 65% opacity */
+  rgba(4, 120, 87, 0.35),    /* brand-800 with 35% opacity */
+  rgba(6, 78, 59, 0.35)      /* brand-900 with 35% opacity */
 );
 ```
 
