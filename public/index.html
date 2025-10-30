@@ -145,6 +145,38 @@
         width: 85vw;
       }
     }
+
+    /* ===== HERO SLIDER STYLES ===== */
+    #heroSlider {
+      position: relative;
+    }
+
+    .hero-slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
+      z-index: 0;
+    }
+
+    .hero-slide.active {
+      opacity: 1;
+      z-index: 1;
+    }
+
+    /* Ensure images don't overflow */
+    #heroSlider::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: transparent;
+      z-index: 2;
+    }
   </style>
 </head>
 
@@ -235,12 +267,16 @@
   <!-- MAIN -->
   <main class="flex-1">
     <!-- HERO -->
-    <section class="relative bg-gradient-to-br from-brand-800 to-brand-900 min-h-[50vh] flex items-center overflow-hidden">
-      <!-- Background Pattern / Banner -->
-      <div class="absolute inset-0 opacity-10 z-10">
-        <!-- TODO: ganti banner -->
-        <div class="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800"></div>
+    <section class="relative min-h-[50vh] flex items-center overflow-hidden">
+      <!-- Background Image Slider -->
+      <div id="heroSlider" class="absolute inset-0 z-0">
+        <!-- Images will be injected here dynamically -->
+        <!-- Fallback gradient if no images -->
+        <div class="hero-slide active" style="background: linear-gradient(135deg, #047857 0%, #064e3b 100%);"></div>
       </div>
+      
+      <!-- Green Overlay (65% opacity) untuk readability -->
+      <div class="absolute inset-0 bg-gradient-to-br from-brand-800/65 to-brand-900/65 z-10"></div>
 
       <!-- Content -->
       <div class="relative z-20 container mx-auto px-4">
@@ -677,6 +713,150 @@
     window.addEventListener('beforeunload', () => {
       console.log('[SUPABASE INDEX] 🔌 Unsubscribing from real-time updates');
       supabase.removeChannel(channel);
+    });
+  </script>
+  
+  <!-- Hero Slider Script -->
+  <script>
+    /**
+     * Hero Image Slider
+     * Auto-slides every 4 seconds with fade transition
+     */
+    let heroSlides = [];
+    let currentSlideIndex = 0;
+    let sliderInterval = null;
+
+    /**
+     * Load hero images from API
+     */
+    async function loadHeroImages() {
+      try {
+        console.log('[HERO] Loading hero images...');
+        
+        const response = await fetch('/api/hero_images_list');
+        const result = await response.json();
+        
+        if (!result.ok || !result.data || result.data.length === 0) {
+          console.log('[HERO] No hero images found, using fallback gradient');
+          return;
+        }
+        
+        console.log('[HERO] Found', result.data.length, 'hero images');
+        
+        const sliderContainer = document.getElementById('heroSlider');
+        sliderContainer.innerHTML = ''; // Clear fallback
+        
+        // Create slide elements
+        result.data.forEach((image, index) => {
+          const slideDiv = document.createElement('div');
+          slideDiv.className = 'hero-slide' + (index === 0 ? ' active' : '');
+          slideDiv.style.backgroundImage = `url(${image.image_url})`;
+          slideDiv.dataset.slideIndex = index;
+          sliderContainer.appendChild(slideDiv);
+        });
+        
+        heroSlides = sliderContainer.querySelectorAll('.hero-slide');
+        
+        // Start auto-slider if more than 1 image
+        if (heroSlides.length > 1) {
+          startSlider();
+          console.log('[HERO] ✅ Slider started with', heroSlides.length, 'images');
+        } else {
+          console.log('[HERO] ✅ Single image loaded (no auto-slide)');
+        }
+        
+      } catch (error) {
+        console.error('[HERO] Error loading hero images:', error);
+        // Fallback gradient stays visible
+      }
+    }
+
+    /**
+     * Start auto-slider (4 seconds per slide)
+     */
+    function startSlider() {
+      if (sliderInterval) {
+        clearInterval(sliderInterval);
+      }
+      
+      sliderInterval = setInterval(() => {
+        nextSlide();
+      }, 4000); // 4 seconds
+    }
+
+    /**
+     * Move to next slide
+     */
+    function nextSlide() {
+      if (heroSlides.length === 0) return;
+      
+      // Remove active class from current
+      heroSlides[currentSlideIndex].classList.remove('active');
+      
+      // Calculate next index (loop back to 0 after last)
+      currentSlideIndex = (currentSlideIndex + 1) % heroSlides.length;
+      
+      // Add active class to next
+      heroSlides[currentSlideIndex].classList.add('active');
+      
+      console.log('[HERO] Slide changed to index:', currentSlideIndex);
+    }
+
+    /**
+     * Stop slider (if needed)
+     */
+    function stopSlider() {
+      if (sliderInterval) {
+        clearInterval(sliderInterval);
+        sliderInterval = null;
+        console.log('[HERO] Slider stopped');
+      }
+    }
+
+    // Load hero images on page load
+    document.addEventListener('DOMContentLoaded', loadHeroImages);
+    
+    // Pause slider when page is hidden (performance optimization)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopSlider();
+      } else {
+        if (heroSlides.length > 1) {
+          startSlider();
+        }
+      }
+    });
+    
+    // ===== REAL-TIME SYNC: Listen to hero_images changes =====
+    window.addEventListener('load', function() {
+      if (typeof supabase !== 'undefined') {
+        const heroChannel = supabase
+          .channel('hero-images-public')
+          .on('postgres_changes', { 
+            event: '*', 
+            schema: 'public', 
+            table: 'hero_images' 
+          }, (payload) => {
+            console.log('[HERO] 🔄 Hero images changed from admin:', payload);
+            console.log('[HERO] 🔄 Reloading hero slider...');
+            
+            // Reload hero images
+            stopSlider();
+            setTimeout(() => {
+              loadHeroImages();
+            }, 500);
+          })
+          .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              console.log('[HERO] 🎧 Subscribed to real-time hero_images updates');
+            }
+          });
+        
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+          supabase.removeChannel(heroChannel);
+        });
+      }
     });
   </script>
 </body>

@@ -110,8 +110,17 @@ class handler(BaseHTTPRequestHandler):
                 }).encode())
                 return
             
-            # Get pendaftar data for response (untuk WhatsApp manual di frontend)
-            pendaftar_data = result.data[0] if result.data else None
+            # Get FULL pendaftar data for response (untuk WhatsApp manual di frontend)
+            # Update query mungkin tidak return semua field, jadi query lagi untuk dapat semua field
+            print(f"[VERIFIKASI] Fetching full pendaftar data for ID: {p_id}")
+            full_data_result = supa.table("pendaftar").select("*").eq("id", p_id).execute()
+            
+            if full_data_result.data:
+                pendaftar_data = full_data_result.data[0]
+                print(f"[VERIFIKASI] Full data fetched. Available fields: {list(pendaftar_data.keys())}")
+            else:
+                pendaftar_data = result.data[0] if result.data else None
+                print(f"[VERIFIKASI] Using update result data")
             
             # Response success
             response_data = {
@@ -121,10 +130,21 @@ class handler(BaseHTTPRequestHandler):
             
             # Include pendaftar data jika status DITERIMA (untuk WhatsApp manual)
             if p_status == 'DITERIMA' and pendaftar_data:
+                # Get phone number from multiple possible field names
+                telepon = (
+                    pendaftar_data.get('telepon_orang_tua') or 
+                    pendaftar_data.get('teleponorangtua') or 
+                    pendaftar_data.get('nomorhportu') or 
+                    pendaftar_data.get('nomorhp') or 
+                    ''
+                )
+                
+                print(f"[VERIFIKASI] Phone number found: {telepon[:6] if telepon else 'NONE'}...")
+                
                 response_data["pendaftar"] = {
                     "nama": pendaftar_data.get('namalengkap', ''),
                     "nisn": pendaftar_data.get('nisn', ''),
-                    "telepon": pendaftar_data.get('teleponorangtua', ''),  # Nomor HP orang tua
+                    "telepon": telepon,
                 }
             
             self.send_response(200)

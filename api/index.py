@@ -107,6 +107,22 @@ class handler(BaseHTTPRequestHandler):
                     SupaProxyHandler.do_GET(self)
                 else:
                     SupaProxyHandler.do_OPTIONS(self)
+            
+            elif action == 'hero_images_list':
+                from lib.handlers.hero_images_list import handler as HeroImagesListHandler
+                HeroImagesListHandler.do_GET(self) if self.command == 'GET' else HeroImagesListHandler.do_OPTIONS(self)
+            
+            elif action == 'hero_images_upload':
+                from lib.handlers.hero_images_upload import handler as HeroImagesUploadHandler
+                HeroImagesUploadHandler.do_POST(self) if self.command == 'POST' else HeroImagesUploadHandler.do_OPTIONS(self)
+            
+            elif action == 'hero_images_delete':
+                from lib.handlers.hero_images_delete import handler as HeroImagesDeleteHandler
+                HeroImagesDeleteHandler.do_DELETE(self) if self.command == 'DELETE' else HeroImagesDeleteHandler.do_OPTIONS(self)
+            
+            elif action == 'hero_images_update_order':
+                from lib.handlers.hero_images_update_order import handler as HeroImagesUpdateOrderHandler
+                HeroImagesUpdateOrderHandler.do_PUT(self) if self.command == 'PUT' else HeroImagesUpdateOrderHandler.do_OPTIONS(self)
                     
             else:
                 # Default response for unknown actions
@@ -137,6 +153,12 @@ class handler(BaseHTTPRequestHandler):
         self._route_request()
     
     def do_PATCH(self):
+        self._route_request()
+    
+    def do_DELETE(self):
+        self._route_request()
+    
+    def do_PUT(self):
         self._route_request()
     
     def do_OPTIONS(self):

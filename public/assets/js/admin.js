@@ -131,6 +131,13 @@
     } else if (tab === "gelombang") {
       // Load gelombang data
       loadGelombangData();
+    } else if (tab === "hero") {
+      // Load hero images
+      loadHeroImages();
+      // Initialize upload form if not already initialized
+      setTimeout(() => {
+        initHeroUpload();
+      }, 100);
     }
 
     // Tutup sidebar di mobile
@@ -1118,6 +1125,9 @@
         if (status.toUpperCase() === 'DITERIMA' && result.pendaftar) {
           const { nama, nisn, telepon } = result.pendaftar;
           
+          console.log('[VERIFIKASI] Pendaftar data received:', result.pendaftar);
+          console.log('[VERIFIKASI] Phone number:', telepon);
+          
           if (telepon && nama) {
             // Format nomor telepon (hapus karakter non-digit)
             let phone = telepon.replace(/\D/g, '');
@@ -1205,16 +1215,13 @@ Jazakumullahu khairan,
    */
   function exportToExcel() {
     try {
-      // Show alert notification
-      alert('Memproses export Excel...\nFile akan segera diunduh.');
-      
-      // Trigger server-side Excel download
+      // Trigger server-side Excel download (no notification, direct download)
+      console.log('[EXCEL] Starting export...');
       window.location.href = '/api/export_pendaftar_xlsx';
-      
-      console.log('✓ Excel export initiated via server');
+      console.log('[EXCEL] ✓ Export initiated via server');
     } catch (error) {
-      console.error('Error exporting Excel:', error);
-      alert('❌ Error: ' + error.message);
+      console.error('[EXCEL] Error:', error);
+      alert('❌ Error export Excel: ' + error.message);
     }
   }
   window.exportToExcel = exportToExcel;
@@ -1246,12 +1253,10 @@ Jazakumullahu khairan,
       const queryString = params.toString();
       const url = `/api/pendaftar_download_zip${queryString ? '?' + queryString : ''}`;
       
-      // Show loading notification
-      console.log('⏳ Generating ZIP file...');
-      alert('⏳ Memproses pembuatan ZIP semua berkas...\nProses ini mungkin memakan waktu. Mohon tunggu dan jangan tutup halaman ini.');
-      
-      // Fetch ZIP generation endpoint
+      // Fetch ZIP generation endpoint (silent, no notification)
       console.log('[ZIP] Requesting:', url);
+      console.log('[ZIP] ⏳ Generating ZIP file...');
+      
       const response = await fetch(url);
       const result = await response.json();
       
@@ -1261,18 +1266,16 @@ Jazakumullahu khairan,
         throw new Error(result.error || result.message || 'Gagal membuat file ZIP');
       }
       
-      // Success - redirect to download URL
-      console.log('✓ ZIP ready:', result.filename, `(${result.size_mb} MB)`);
-      console.log('✓ Total files:', result.success_count, '/', result.total_files);
-      console.log('✓ Download URL:', result.download_url);
+      // Success - log details and start download
+      console.log('[ZIP] ✓ ZIP ready:', result.filename, `(${result.size_mb} MB)`);
+      console.log('[ZIP] ✓ Total files:', result.success_count, '/', result.total_files);
+      console.log('[ZIP] ✓ Download URL:', result.download_url);
+      console.log('[ZIP] ✓ Expires in:', result.expires_in);
       
-      // Show success message
-      alert(`✅ ${result.message}\n\n📦 File: ${result.filename}\n📊 Ukuran: ${result.size_mb} MB\n📁 Berhasil: ${result.success_count}/${result.total_files} file\n⏱️ Link berlaku: ${result.expires_in}\n\nDownload akan dimulai...`);
-      
-      // Redirect to signed download URL
+      // Redirect to signed download URL (silent download)
       window.location.href = result.download_url;
       
-      console.log('✓ ZIP download initiated via storage URL');
+      console.log('[ZIP] ✓ Download initiated via storage URL');
     } catch (error) {
       console.error('Error downloading ZIP:', error);
       alert('❌ Error: ' + error.message);
@@ -2179,7 +2182,288 @@ Jazakumullahu khairan,
   window.setGelombangActive = setGelombangActive;
 
   /* =========================
-     8) INIT
+     8) HERO SLIDER MANAGEMENT
+     ========================= */
+  
+  /**
+   * Load and display hero images
+   */
+  async function loadHeroImages() {
+    try {
+      console.log('[HERO] Loading hero images...');
+      
+      const container = $('#heroImagesContainer');
+      if (!container) {
+        console.warn('[HERO] Container not found');
+        return;
+      }
+      
+      // Show loading
+      container.innerHTML = `
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="text-muted mt-3">Memuat hero images...</p>
+        </div>
+      `;
+      
+      const response = await fetch('/api/hero_images_list');
+      const result = await response.json();
+      
+      if (!result.ok) {
+        throw new Error(result.error || 'Failed to load hero images');
+      }
+      
+      const heroImages = result.data || [];
+      console.log('[HERO] Loaded', heroImages.length, 'images');
+      
+      // Update count
+      const countEl = $('#heroImageCount');
+      if (countEl) {
+        countEl.textContent = heroImages.length;
+      }
+      
+      if (heroImages.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-5">
+            <i class="bi bi-images text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-3">Belum ada hero images. Upload gambar pertama Anda!</p>
+          </div>
+        `;
+        return;
+      }
+      
+      // Render hero images grid
+      let html = '<div class="row g-3">';
+      
+      heroImages.forEach((image, index) => {
+        html += `
+          <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+              <div class="position-relative">
+                <img src="${image.image_url}" class="card-img-top" alt="Hero ${index + 1}" style="height: 200px; object-fit: cover;">
+                <!-- Green Overlay Preview -->
+                <div class="position-absolute top-0 start-0 w-100 h-100" 
+                     style="background: linear-gradient(135deg, rgba(4, 120, 87, 0.65), rgba(6, 78, 59, 0.65)); pointer-events: none;">
+                </div>
+                <div class="position-absolute top-0 end-0 m-2">
+                  <span class="badge bg-primary">Slide ${index + 1}</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <small class="text-muted">
+                    <i class="bi bi-clock"></i> Order: ${image.display_order}
+                  </small>
+                  <span class="badge ${image.is_active ? 'bg-success' : 'bg-secondary'}">
+                    ${image.is_active ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-primary flex-fill" onclick="window.open('${image.image_url}', '_blank')">
+                    <i class="bi bi-eye"></i> View
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" onclick="deleteHeroImage(${image.id}, '${image.image_url}')">
+                    <i class="bi bi-trash"></i> Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      
+      html += '</div>';
+      container.innerHTML = html;
+      
+      console.log('[HERO] ✅ Images rendered');
+      
+    } catch (error) {
+      console.error('[HERO] Error:', error);
+      const container = $('#heroImagesContainer');
+      if (container) {
+        container.innerHTML = `
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> Error: ${error.message}
+          </div>
+        `;
+      }
+    }
+  }
+  
+  /**
+   * Handle hero image upload form
+   */
+  function initHeroUpload() {
+    const form = $('#heroUploadForm');
+    const input = $('#heroImageInput');
+    const preview = $('#heroImagePreview');
+    const previewImg = $('#heroPreviewImg');
+    
+    if (!form || !input) {
+      console.warn('[HERO] Upload form not found');
+      return;
+    }
+    
+    // Image preview on file select
+    input.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) {
+        preview.style.display = 'none';
+        return;
+      }
+      
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('❌ File terlalu besar! Maksimal 5 MB.');
+        input.value = '';
+        preview.style.display = 'none';
+        return;
+      }
+      
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        previewImg.src = event.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    });
+    
+    // Handle form submit
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const file = input.files[0];
+      if (!file) {
+        alert('❌ Pilih gambar terlebih dahulu!');
+        return;
+      }
+      
+      try {
+        const btn = $('#btnUploadHero');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Uploading...';
+        
+        console.log('[HERO] Uploading image:', file.name);
+        
+        // Convert to base64
+        const base64 = await fileToBase64(file);
+        
+        // Upload to API
+        const response = await fetch('/api/hero_images_upload', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            image_base64: base64,
+            filename: file.name
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (!result.ok) {
+          throw new Error(result.error || 'Upload failed');
+        }
+        
+        console.log('[HERO] ✅ Upload successful');
+        toastr.success('✅ Hero image berhasil diupload!');
+        
+        // Reset form
+        form.reset();
+        preview.style.display = 'none';
+        
+        // Reload images
+        await loadHeroImages();
+        
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        
+      } catch (error) {
+        console.error('[HERO] Upload error:', error);
+        alert('❌ Error upload: ' + error.message);
+        
+        const btn = $('#btnUploadHero');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-upload"></i> Upload Gambar';
+      }
+    });
+    
+    console.log('[HERO] Upload form initialized');
+  }
+  
+  /**
+   * Delete hero image
+   */
+  async function deleteHeroImage(imageId, imageUrl) {
+    if (!confirm('⚠️ Apakah Anda yakin ingin menghapus hero image ini?\n\nGambar akan langsung terhapus dari slider.')) {
+      return;
+    }
+    
+    try {
+      console.log('[HERO] Deleting image ID:', imageId);
+      
+      const response = await fetch(`/api/hero_images_delete?id=${imageId}`, {
+        method: 'DELETE'
+      });
+      
+      const result = await response.json();
+      
+      if (!result.ok) {
+        throw new Error(result.error || 'Delete failed');
+      }
+      
+      console.log('[HERO] ✅ Image deleted');
+      toastr.success('✅ Hero image berhasil dihapus!');
+      
+      // Reload images
+      await loadHeroImages();
+      
+    } catch (error) {
+      console.error('[HERO] Delete error:', error);
+      alert('❌ Error delete: ' + error.message);
+    }
+  }
+  
+  /**
+   * Reset hero upload form
+   */
+  function resetHeroForm() {
+    const form = $('#heroUploadForm');
+    const preview = $('#heroImagePreview');
+    
+    if (form) {
+      form.reset();
+    }
+    
+    if (preview) {
+      preview.style.display = 'none';
+    }
+  }
+  
+  /**
+   * Helper: Convert file to base64
+   */
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  }
+  
+  // Expose hero functions
+  window.loadHeroImages = loadHeroImages;
+  window.deleteHeroImage = deleteHeroImage;
+  window.resetHeroForm = resetHeroForm;
+
+  /* =========================
+     9) INIT
      ========================= */
   document.addEventListener("DOMContentLoaded", () => {
     console.log("[ADMIN] 🚀 Page loaded - initializing...");

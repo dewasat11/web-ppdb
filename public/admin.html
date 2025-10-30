@@ -711,6 +711,11 @@
             <i class="bi bi-calendar-range"></i> Kelola Gelombang
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="hero" onclick="switchTab('hero')">
+            <i class="bi bi-images"></i> Hero Slider
+          </a>
+        </li>
       </ul>
 
     </aside>
@@ -1077,6 +1082,82 @@
                 <span class="visually-hidden">Memuat...</span>
               </div>
               <p class="text-muted mt-3">Memuat data gelombang...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Hero Slider -->
+        <div id="tab-hero" class="tab-content" style="display:none">
+          <div class="page-header">
+            <h2><i class="bi bi-images"></i> Hero Slider Management</h2>
+            <p>Kelola gambar slider hero di halaman utama website (Auto-slide 4 detik, Transparansi 65%)</p>
+          </div>
+
+          <!-- Upload Section -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="bi bi-cloud-upload"></i> Upload Hero Image</h5>
+            </div>
+            <div class="card-body">
+              <div class="alert alert-info mb-3">
+                <i class="bi bi-info-circle"></i> <strong>Catatan:</strong>
+                <ul class="mb-0 mt-2">
+                  <li>Maksimal 5 gambar hero</li>
+                  <li>Gambar akan auto-slide setiap 4 detik</li>
+                  <li>Transparansi hijau 65% otomatis diterapkan untuk readability</li>
+                  <li>Gunakan gambar landscape (16:9 atau 21:9) untuk hasil terbaik</li>
+                  <li>Ukuran file maksimal: 5 MB</li>
+                </ul>
+              </div>
+
+              <form id="heroUploadForm">
+                <div class="mb-3">
+                  <label for="heroImageInput" class="form-label">Pilih Gambar Hero</label>
+                  <input type="file" class="form-control" id="heroImageInput" accept="image/*" required>
+                  <small class="text-muted">Format: JPG, PNG, WEBP (Rekomendasi: 1920x1080px atau lebih)</small>
+                </div>
+                
+                <!-- Image Preview -->
+                <div id="heroImagePreview" class="mb-3" style="display:none">
+                  <label class="form-label">Preview:</label>
+                  <div class="position-relative" style="max-width: 600px;">
+                    <img id="heroPreviewImg" src="" class="img-fluid rounded shadow" alt="Preview">
+                    <!-- Green Overlay Preview -->
+                    <div class="position-absolute top-0 start-0 w-100 h-100 rounded" 
+                         style="background: linear-gradient(135deg, rgba(4, 120, 87, 0.65), rgba(6, 78, 59, 0.65)); pointer-events: none;">
+                    </div>
+                  </div>
+                  <small class="text-muted d-block mt-2"><i class="bi bi-eye"></i> Preview dengan green overlay (65% opacity)</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="btnUploadHero">
+                  <i class="bi bi-upload"></i> Upload Gambar
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="resetHeroForm()">
+                  <i class="bi bi-x-circle"></i> Cancel
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Hero Images List -->
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0"><i class="bi bi-collection"></i> Hero Images (<span id="heroImageCount">0</span>/5)</h5>
+              <button class="btn btn-sm btn-outline-light" onclick="loadHeroImages()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+              </button>
+            </div>
+            <div class="card-body">
+              <div id="heroImagesContainer">
+                <!-- Loading state -->
+                <div class="text-center py-5">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <p class="text-muted mt-3">Memuat hero images...</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
