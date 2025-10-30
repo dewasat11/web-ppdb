@@ -74,6 +74,10 @@ class handler(BaseHTTPRequestHandler):
             # Get public URL
             public_url = supa.storage.from_("hero-images").get_public_url(unique_filename)
             
+            # Clean URL - remove trailing ? if present
+            if isinstance(public_url, str) and public_url.endswith('?'):
+                public_url = public_url.rstrip('?')
+            
             print(f"[HERO_UPLOAD] Public URL: {public_url}")
             
             # Insert record into hero_images table

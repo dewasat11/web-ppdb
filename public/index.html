@@ -162,10 +162,11 @@
       opacity: 0;
       transition: opacity 1.5s ease-in-out;
       z-index: 0;
+      pointer-events: none; /* Prevent blocking clicks */
     }
 
     .hero-slide.active {
-      opacity: 1;
+      opacity: 1 !important; /* Force visibility */
       z-index: 1;
     }
 
@@ -267,7 +268,7 @@
   <!-- MAIN -->
   <main class="flex-1">
     <!-- HERO -->
-    <section class="relative min-h-[50vh] flex items-center overflow-hidden">
+    <section class="relative min-h-[60vh] md:min-h-[70vh] flex items-center overflow-hidden">
       <!-- Background Image Slider -->
       <div id="heroSlider" class="absolute inset-0 z-0">
         <!-- Images will be injected here dynamically -->
@@ -754,20 +755,49 @@
         
         // Create slide elements
         result.data.forEach((image, index) => {
+          // Clean URL - remove trailing ? if present
+          const cleanUrl = image.image_url.replace(/\?$/, '');
+          
           const slideDiv = document.createElement('div');
           slideDiv.className = 'hero-slide' + (index === 0 ? ' active' : '');
-          slideDiv.style.backgroundImage = `url(${image.image_url})`;
+          slideDiv.style.backgroundImage = `url("${cleanUrl}")`;
+          slideDiv.style.opacity = index === 0 ? '1' : '0'; // Force first slide visible
           slideDiv.dataset.slideIndex = index;
           sliderContainer.appendChild(slideDiv);
           
+          // Verify image loads
+          const testImg = new Image();
+          testImg.onload = () => {
+            console.log(`[HERO] ✅ Image ${index} loaded successfully:`, cleanUrl);
+          };
+          testImg.onerror = () => {
+            console.error(`[HERO] ❌ Image ${index} failed to load:`, cleanUrl);
+          };
+          testImg.src = cleanUrl;
+          
           console.log(`[HERO] Created slide ${index}:`, {
-            url: image.image_url,
+            originalUrl: image.image_url,
+            cleanUrl: cleanUrl,
             className: slideDiv.className,
             backgroundImage: slideDiv.style.backgroundImage
           });
         });
         
         heroSlides = sliderContainer.querySelectorAll('.hero-slide');
+        
+        // Debug: Log computed styles of first slide
+        if (heroSlides.length > 0) {
+          const firstSlide = heroSlides[0];
+          const computedStyle = window.getComputedStyle(firstSlide);
+          console.log('[HERO] 🎨 First slide computed styles:', {
+            opacity: computedStyle.opacity,
+            zIndex: computedStyle.zIndex,
+            backgroundImage: computedStyle.backgroundImage,
+            width: computedStyle.width,
+            height: computedStyle.height,
+            position: computedStyle.position
+          });
+        }
         
         // Start auto-slider if more than 1 image
         if (heroSlides.length > 1) {
