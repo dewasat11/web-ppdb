@@ -87,6 +87,14 @@
       .hero-content {
         padding: 2rem 1rem !important;
       }
+      section.relative.min-h-\[70vh\] {
+        min-height: 60vh !important;
+      }
+    }
+    
+    /* Better text readability on hero */
+    .hero-text-shadow {
+      text-shadow: 2px 4px 8px rgba(0,0,0,0.4);
     }
 
     /* Gelombang cards responsive stacking */
@@ -251,7 +259,7 @@
   <!-- MAIN -->
   <main class="flex-1">
     <!-- HERO -->
-    <section class="relative min-h-[60vh] md:min-h-[70vh] flex items-center overflow-hidden">
+    <section class="relative min-h-[70vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden">
       <!-- Background Image Slider -->
       <div id="heroSlider" class="absolute inset-0 z-0">
         <!-- Fallback gradient (will be removed when images load) -->
@@ -262,22 +270,28 @@
       <div class="absolute inset-0 bg-gradient-to-br from-brand-800/35 to-brand-900/35 z-10"></div>
 
       <!-- Content -->
-      <div class="relative z-20 container mx-auto px-4">
+      <div class="relative z-20 container mx-auto px-4 py-8">
         <div class="flex justify-center">
           <div class="w-full lg:w-5/6 text-center">
-            <div class="inline-flex items-center bg-white text-brand-700 mb-3 px-5 py-1 rounded-lg font-medium">
+            <div class="inline-flex items-center bg-white text-brand-700 mb-4 px-5 py-2 rounded-lg font-medium shadow-lg">
               <i class="bi bi-calendar-event mr-2"></i> Tahun Ajaran 2026/2027
             </div>
-            <h1 class="text-4xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-              <span class="text-yellow-400">Penerimaan Peserta Didik dan Santri Baru</span><br/>
+            <h1 class="text-4xl lg:text-6xl font-bold text-white mb-5 leading-tight" style="text-shadow: 2px 4px 8px rgba(0,0,0,0.4);">
+              <span class="text-yellow-400" style="text-shadow: 2px 4px 8px rgba(0,0,0,0.5);">Penerimaan Peserta Didik dan Santri Baru</span><br/>
               (PPDSB) PONDOK PESANTREN AL IKHSAN BEJI
             </h1>
-            <p class="text-lg lg:text-xl text-gray-200 mb-4">
-              Bergabunglah menjadi santri Pondok Pesantren Al Ikhsan Beji. Pendidikan islami terpadu dengan pembinaan akhlak, tahfidz Al-Qur'an, dan ilmu pengetahuan yang membentuk generasi Qur'ani dan berprestasi.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-3 justify-center">
-              <a href="/daftar.html" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-brand-900 font-semibold px-6 py-3 rounded-lg shadow">Daftar Sekarang</a>
-              <a href="/cek-status.html" class="inline-block bg-white/10 hover:bg-white/20 border border-white/30 text-white font-medium px-6 py-3 rounded-lg">Cek Status</a>
+            <div class="max-w-3xl mx-auto">
+              <p class="text-lg lg:text-xl text-white mb-6 leading-relaxed" style="text-shadow: 1px 2px 6px rgba(0,0,0,0.4);">
+                Bergabunglah menjadi santri Pondok Pesantren Al Ikhsan Beji. Pendidikan islami terpadu dengan pembinaan akhlak, tahfidz Al-Qur'an, dan ilmu pengetahuan yang membentuk generasi Qur'ani dan berprestasi.
+              </p>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              <a href="/daftar.html" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-brand-900 font-bold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition transform hover:scale-105">
+                <i class="bi bi-pencil-square mr-2"></i> Daftar Sekarang
+              </a>
+              <a href="/cek-status.html" class="inline-block bg-white/20 hover:bg-white/30 backdrop-blur-sm border-2 border-white text-white font-semibold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition">
+                <i class="bi bi-search mr-2"></i> Cek Status
+              </a>
             </div>
           </div>
         </div>
@@ -752,7 +766,7 @@
           const slideDiv = document.createElement('div');
           slideDiv.className = 'hero-slide' + (index === 0 ? ' active' : '');
           
-          // Set styles explicitly
+          // Set styles explicitly with DEBUG border
           slideDiv.style.cssText = `
             position: absolute;
             top: 0;
@@ -765,9 +779,11 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            background-color: #ff0000;
             opacity: ${index === 0 ? '1' : '0'};
-            z-index: ${index === 0 ? '1' : '0'};
+            z-index: ${index === 0 ? '50' : '0'};
             transition: opacity 1.5s ease-in-out;
+            border: 5px solid lime;
           `;
           
           slideDiv.dataset.slideIndex = index;
