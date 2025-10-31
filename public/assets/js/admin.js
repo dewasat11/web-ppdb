@@ -48,6 +48,61 @@
 
   const badge = (text, cls) => `<span class="badge bg-${cls}">${text}</span>`;
 
+  /**
+   * Safe Toastr wrapper to prevent "Cannot read properties of undefined" errors
+   * Checks for full Toastr initialization (toastr.options must exist)
+   */
+  const safeToastr = {
+    success: (message) => {
+      try {
+        if (typeof toastr !== 'undefined' && toastr.success && toastr.options) {
+          toastr.success(message);
+        } else {
+          alert('✅ ' + message);
+        }
+      } catch (error) {
+        console.warn('[TOASTR] Error in success notification, using alert:', error);
+        alert('✅ ' + message);
+      }
+    },
+    error: (message) => {
+      try {
+        if (typeof toastr !== 'undefined' && toastr.error && toastr.options) {
+          toastr.error(message);
+        } else {
+          alert('❌ ' + message);
+        }
+      } catch (error) {
+        console.warn('[TOASTR] Error in error notification, using alert:', error);
+        alert('❌ ' + message);
+      }
+    },
+    warning: (message) => {
+      try {
+        if (typeof toastr !== 'undefined' && toastr.warning && toastr.options) {
+          toastr.warning(message);
+        } else {
+          alert('⚠️ ' + message);
+        }
+      } catch (error) {
+        console.warn('[TOASTR] Error in warning notification, using alert:', error);
+        alert('⚠️ ' + message);
+      }
+    },
+    info: (message) => {
+      try {
+        if (typeof toastr !== 'undefined' && toastr.info && toastr.options) {
+          toastr.info(message);
+        } else {
+          alert('ℹ️ ' + message);
+        }
+      } catch (error) {
+        console.warn('[TOASTR] Error in info notification, using alert:', error);
+        alert('ℹ️ ' + message);
+      }
+    }
+  };
+
   /* =========================
      1) LOGIN GUARD & HEADER
      ========================= */
@@ -1885,20 +1940,12 @@ Jazakumullahu khairan,
     
     // Validate
     if (!startDate || !endDate || !tahunAjaran) {
-      if (typeof toastr !== 'undefined' && toastr.error) {
-        toastr.error('Semua field harus diisi!');
-      } else {
-        alert('Semua field harus diisi!');
-      }
+      safeToastr.error('Semua field harus diisi!');
       return;
     }
     
     if (new Date(startDate) > new Date(endDate)) {
-      if (typeof toastr !== 'undefined' && toastr.error) {
-        toastr.error('Tanggal mulai harus lebih kecil atau sama dengan tanggal akhir!');
-      } else {
-        alert('Tanggal mulai harus lebih kecil atau sama dengan tanggal akhir!');
-      }
+      safeToastr.error('Tanggal mulai harus lebih kecil atau sama dengan tanggal akhir!');
       return;
     }
     
@@ -1939,9 +1986,7 @@ Jazakumullahu khairan,
       }
       
       // Success notification (FAST)
-      if (typeof toastr !== 'undefined' && toastr.success) {
-        toastr.success('✓ Perubahan berhasil disimpan!');
-      }
+      safeToastr.success('✓ Perubahan berhasil disimpan!');
       
       // Restore button immediately
       button.disabled = false;
@@ -1958,11 +2003,7 @@ Jazakumullahu khairan,
       
     } catch (error) {
       console.error('[GELOMBANG] Error updating:', error);
-      if (typeof toastr !== 'undefined' && toastr.error) {
-        toastr.error(`✗ Gagal menyimpan: ${error.message}`);
-      } else {
-        alert(`✗ Gagal menyimpan: ${error.message}`);
-      }
+      safeToastr.error(`✗ Gagal menyimpan: ${error.message}`);
       
       // Restore button
       button.disabled = false;
@@ -2237,12 +2278,31 @@ Jazakumullahu khairan,
         return;
       }
       
-      // Render hero images grid
+      // Render hero images grid with fade-in animation
+      // Add CSS for fade-in animation if not already added
+      if (!document.getElementById('heroImagesAnimationStyle')) {
+        const style = document.createElement('style');
+        style.id = 'heroImagesAnimationStyle';
+        style.textContent = `
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      
       let html = '<div class="row g-3">';
       
       heroImages.forEach((image, index) => {
         html += `
-          <div class="col-md-4">
+          <div class="col-md-4" data-image-id="${image.id}" style="animation: fadeInUp 0.4s ease-out ${index * 0.1}s both;">
             <div class="card h-100 shadow-sm">
               <div class="position-relative">
                 <img src="${image.image_url}" class="card-img-top" alt="Slider Image ${index + 1}" style="height: 200px; object-fit: cover;">
@@ -2264,7 +2324,7 @@ Jazakumullahu khairan,
                   <button class="btn btn-sm btn-outline-primary flex-fill" onclick="window.open('${image.image_url}', '_blank')">
                     <i class="bi bi-eye"></i> View
                   </button>
-                  <button class="btn btn-sm btn-outline-danger" onclick="deleteHeroImage(${image.id}, '${image.image_url}')">
+                  <button class="btn btn-sm btn-outline-danger" onclick="deleteHeroImage(${image.id}, '${image.image_url}', event)">
                     <i class="bi bi-trash"></i> Delete
                   </button>
                 </div>
@@ -2275,9 +2335,16 @@ Jazakumullahu khairan,
       });
       
       html += '</div>';
-      container.innerHTML = html;
       
-      console.log('[HERO] ✅ Images rendered');
+      // Smooth update: fade out old content, then fade in new content
+      container.style.opacity = '0.5';
+      container.style.transition = 'opacity 0.2s';
+      
+      setTimeout(() => {
+        container.innerHTML = html;
+        container.style.opacity = '1';
+        console.log('[HERO] ✅ Images rendered');
+      }, 150);
       
     } catch (error) {
       console.error('[HERO] Error:', error);
@@ -2402,24 +2469,27 @@ Jazakumullahu khairan,
           
           console.log('[HERO] ✅ Upload successful');
           
-          // Show success notification
-          if (typeof toastr !== 'undefined' && toastr && toastr.success) {
-            toastr.success('✅ Hero image berhasil diupload!');
-          } else {
-            alert('✅ Hero image berhasil diupload!');
-          }
-          
-          // Reset form
+          // Reset form immediately for better UX
           form.reset();
           if (preview) preview.style.display = 'none';
           
-          // Reload images
-          await loadHeroImages();
-          
+          // Restore button state
           if (btn) {
             btn.disabled = false;
             btn.innerHTML = originalText;
           }
+          
+          // Reload images immediately (without waiting for notification)
+          await loadHeroImages();
+          
+          // Scroll to images container to show the new image
+          const container = document.getElementById('heroImagesContainer');
+          if (container) {
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+          
+          // Show success notification after UI update
+          safeToastr.success('✅ Hero image berhasil diupload dan ditambahkan!');
           
         } catch (error) {
           console.error('[HERO] Upload error:', error);
@@ -2448,13 +2518,27 @@ Jazakumullahu khairan,
   /**
    * Delete hero image
    */
-  async function deleteHeroImage(imageId, imageUrl) {
+  async function deleteHeroImage(imageId, imageUrl, event = null) {
     if (!confirm('⚠️ Apakah Anda yakin ingin menghapus hero image ini?\n\nGambar akan langsung terhapus dari slider.')) {
       return;
     }
     
+    // Find the image card element for immediate UI update
+    const imageCard = event?.target?.closest?.('.col-md-4') || 
+                     document.querySelector(`[data-image-id="${imageId}"]`);
+    
+    // Store reference for animation
+    let cardElement = imageCard;
+    
     try {
       console.log('[HERO] Deleting image ID:', imageId);
+      
+      // Start fade-out animation immediately (optimistic UI update)
+      if (cardElement) {
+        cardElement.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+        cardElement.style.opacity = '0';
+        cardElement.style.transform = 'scale(0.9)';
+      }
       
       const response = await fetch(`/api/hero_images_delete?id=${imageId}`, {
         method: 'DELETE'
@@ -2468,19 +2552,35 @@ Jazakumullahu khairan,
       
       console.log('[HERO] ✅ Image deleted');
       
-      // Show success notification
-      if (typeof toastr !== 'undefined' && toastr.success) {
-        toastr.success('✅ Hero image berhasil dihapus!');
-      } else {
-        alert('✅ Hero image berhasil dihapus!');
+      // Remove element from DOM after animation
+      if (cardElement) {
+        setTimeout(() => {
+          if (cardElement && cardElement.parentNode) {
+            cardElement.remove();
+          }
+        }, 300);
       }
       
-      // Reload images
+      // Reload images to sync with server and update counts
       await loadHeroImages();
+      
+      // Show success notification
+      safeToastr.success('✅ Hero image berhasil dihapus!');
       
     } catch (error) {
       console.error('[HERO] Delete error:', error);
-      alert('❌ Error delete: ' + error.message);
+      
+      // Revert animation on error
+      if (cardElement) {
+        cardElement.style.transition = 'opacity 0.3s ease-in, transform 0.3s ease-in';
+        cardElement.style.opacity = '1';
+        cardElement.style.transform = 'scale(1)';
+      }
+      
+      safeToastr.error('❌ Error delete: ' + error.message);
+      
+      // Reload images on error to ensure consistency
+      await loadHeroImages();
     }
   }
   
@@ -2533,9 +2633,7 @@ Jazakumullahu khairan,
       
       if (!result.ok || !result.data) {
         console.error('[WHY_SECTION] Failed to load data');
-        if (typeof toastr !== 'undefined' && toastr.error) {
-          toastr.error('Gagal memuat data Why Section');
-        }
+        safeToastr.error('Gagal memuat data Why Section');
         return;
       }
       
@@ -2557,9 +2655,7 @@ Jazakumullahu khairan,
       
     } catch (error) {
       console.error('[WHY_SECTION] Error loading data:', error);
-      if (typeof toastr !== 'undefined' && toastr.error) {
-        toastr.error('Error: ' + error.message);
-      }
+      safeToastr.error('Error: ' + error.message);
     }
   }
   
@@ -2617,11 +2713,7 @@ Jazakumullahu khairan,
       const content = contentInput.value.trim();
       
       if (!title || !content) {
-        if (typeof toastr !== 'undefined' && toastr.warning) {
-          toastr.warning('Judul dan konten harus diisi!');
-        } else {
-          alert('Judul dan konten harus diisi!');
-        }
+        safeToastr.warning('Judul dan konten harus diisi!');
         return;
       }
       
@@ -2655,11 +2747,7 @@ Jazakumullahu khairan,
       console.log('[WHY_SECTION] ✅ Data saved successfully');
       
       // Show success notification
-      if (typeof toastr !== 'undefined' && toastr.success) {
-        toastr.success('✅ Why Section berhasil disimpan!');
-      } else {
-        alert('✅ Why Section berhasil disimpan!');
-      }
+      safeToastr.success('✅ Why Section berhasil disimpan!');
       
       // Update preview
       updateWhyPreview();
@@ -2679,11 +2767,7 @@ Jazakumullahu khairan,
     } catch (error) {
       console.error('[WHY_SECTION] Error saving:', error);
       
-      if (typeof toastr !== 'undefined' && toastr.error) {
-        toastr.error('❌ Error: ' + error.message);
-      } else {
-        alert('❌ Error: ' + error.message);
-      }
+      safeToastr.error('❌ Error: ' + error.message);
       
       const btnSave = document.getElementById('btnSaveWhy');
       if (btnSave) {
