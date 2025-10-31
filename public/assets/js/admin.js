@@ -2296,110 +2296,153 @@ Jazakumullahu khairan,
    * Handle hero image upload form
    */
   function initHeroUpload() {
-    const form = $('#heroUploadForm');
-    const input = $('#heroImageInput');
-    const preview = $('#heroImagePreview');
-    const previewImg = $('#heroPreviewImg');
-    
-    if (!form || !input) {
-      console.warn('[HERO] Upload form not found');
-      return;
+    try {
+      console.log('[HERO] Initializing upload form...');
+      
+      const form = document.getElementById('heroUploadForm');
+      const input = document.getElementById('heroImageInput');
+      const preview = document.getElementById('heroImagePreview');
+      const previewImg = document.getElementById('heroPreviewImg');
+      
+      if (!form) {
+        console.warn('[HERO] Upload form not found in DOM');
+        return;
+      }
+      
+      if (!input) {
+        console.warn('[HERO] Upload input not found in DOM');
+        return;
+      }
+      
+      // Check if already initialized to prevent duplicate listeners
+      if (form.dataset.initialized === 'true') {
+        console.log('[HERO] Form already initialized, skipping');
+        return;
+      }
+      
+      // Image preview on file select
+      input.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+          if (preview) preview.style.display = 'none';
+          return;
+        }
+        
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          alert('❌ File terlalu besar! Maksimal 5 MB.');
+          input.value = '';
+          if (preview) preview.style.display = 'none';
+          return;
+        }
+        
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (previewImg) previewImg.src = event.target.result;
+          if (preview) preview.style.display = 'block';
+        };
+        reader.onerror = (error) => {
+          console.error('[HERO] Error reading file:', error);
+          alert('❌ Error membaca file gambar');
+        };
+        reader.readAsDataURL(file);
+      });
+      
+      // Handle form submit
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const file = input.files[0];
+        if (!file) {
+          alert('❌ Pilih gambar terlebih dahulu!');
+          return;
+        }
+        
+        const btn = document.getElementById('btnUploadHero');
+        let originalText = '<i class="bi bi-upload"></i> Upload Gambar';
+        
+        try {
+          if (btn) {
+            originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Uploading...';
+          }
+          
+          console.log('[HERO] Uploading image:', file.name, 'Size:', file.size, 'bytes');
+          
+          // Validate file type
+          if (!file.type.startsWith('image/')) {
+            throw new Error('File harus berupa gambar');
+          }
+          
+          // Convert to base64
+          console.log('[HERO] Converting to base64...');
+          const base64 = await fileToBase64(file);
+          console.log('[HERO] Base64 conversion complete, length:', base64.length);
+          
+          // Upload to API
+          console.log('[HERO] Uploading to API...');
+          const response = await fetch('/api/hero_images_upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              image_base64: base64,
+              filename: file.name
+            })
+          });
+          
+          const result = await response.json();
+          
+          if (!result.ok) {
+            throw new Error(result.error || 'Upload failed');
+          }
+          
+          console.log('[HERO] ✅ Upload successful');
+          
+          // Show success notification
+          if (typeof toastr !== 'undefined' && toastr && toastr.success) {
+            toastr.success('✅ Hero image berhasil diupload!');
+          } else {
+            alert('✅ Hero image berhasil diupload!');
+          }
+          
+          // Reset form
+          form.reset();
+          if (preview) preview.style.display = 'none';
+          
+          // Reload images
+          await loadHeroImages();
+          
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+          }
+          
+        } catch (error) {
+          console.error('[HERO] Upload error:', error);
+          console.error('[HERO] Error stack:', error.stack);
+          
+          const errorMsg = error.message || 'Unknown error';
+          alert('❌ Error upload: ' + errorMsg);
+          
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+          }
+        }
+      });
+      
+      // Mark as initialized
+      form.dataset.initialized = 'true';
+      console.log('[HERO] ✅ Upload form initialized successfully');
+      
+    } catch (error) {
+      console.error('[HERO] Error in initHeroUpload:', error);
+      console.error('[HERO] Error stack:', error.stack);
     }
-    
-    // Image preview on file select
-    input.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) {
-        preview.style.display = 'none';
-        return;
-      }
-      
-      // Validate file size (5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('❌ File terlalu besar! Maksimal 5 MB.');
-        input.value = '';
-        preview.style.display = 'none';
-        return;
-      }
-      
-      // Show preview
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        previewImg.src = event.target.result;
-        preview.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    });
-    
-    // Handle form submit
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const file = input.files[0];
-      if (!file) {
-        alert('❌ Pilih gambar terlebih dahulu!');
-        return;
-      }
-      
-      try {
-        const btn = $('#btnUploadHero');
-        const originalText = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Uploading...';
-        
-        console.log('[HERO] Uploading image:', file.name);
-        
-        // Convert to base64
-        const base64 = await fileToBase64(file);
-        
-        // Upload to API
-        const response = await fetch('/api/hero_images_upload', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            image_base64: base64,
-            filename: file.name
-          })
-        });
-        
-        const result = await response.json();
-        
-        if (!result.ok) {
-          throw new Error(result.error || 'Upload failed');
-        }
-        
-        console.log('[HERO] ✅ Upload successful');
-        
-        // Show success notification
-        if (typeof toastr !== 'undefined' && toastr.success) {
-          toastr.success('✅ Hero image berhasil diupload!');
-        } else {
-          alert('✅ Hero image berhasil diupload!');
-        }
-        
-        // Reset form
-        form.reset();
-        preview.style.display = 'none';
-        
-        // Reload images
-        await loadHeroImages();
-        
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-        
-      } catch (error) {
-        console.error('[HERO] Upload error:', error);
-        alert('❌ Error upload: ' + error.message);
-        
-        const btn = $('#btnUploadHero');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-upload"></i> Upload Gambar';
-      }
-    });
-    
-    console.log('[HERO] Upload form initialized');
   }
   
   /**

@@ -184,10 +184,10 @@
     #imageSliderContainer {
       position: relative;
       width: 100%;
-      max-width: 1200px;
+      max-width: 1000px;
       margin: 0 auto;
-      padding: 2rem 1rem;
-      height: 500px; /* Ukuran umum image slider */
+      padding: 1.5rem 1rem;
+      height: 380px; /* Ukuran dikecilkan */
     }
 
     #imageSlider {
@@ -195,8 +195,8 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
       background: #f5f5f5;
     }
 
@@ -221,19 +221,19 @@
     /* Mobile responsive */
     @media (max-width: 768px) {
       #imageSliderContainer {
-        height: 400px;
+        height: 280px;
         padding: 1rem;
       }
     }
 
     @media (max-width: 640px) {
       #imageSliderContainer {
-        height: 300px;
+        height: 220px;
         padding: 0.75rem;
       }
       
       #imageSlider {
-        border-radius: 8px;
+        border-radius: 12px;
       }
     }
   </style>
@@ -357,7 +357,7 @@
     </section>
 
     <!-- IMAGE SLIDER SECTION (Card Minimalis - Slide Animation) -->
-    <section class="py-12 bg-gray-50">
+    <section class="py-8 bg-gray-50">
       <div id="imageSliderContainer">
         <div id="imageSlider">
           <div id="sliderTrack" class="slider-track">
@@ -368,21 +368,16 @@
       </div>
     </section>
 
-    <!-- WHY SECTION (Narasi) -->
-    <section class="py-16 bg-gray-50">
+    <!-- WHY SECTION (Modern 2-Column Layout) -->
+    <section class="py-16 bg-white">
       <div class="container mx-auto px-4">
-        <div class="max-w-4xl mx-auto">
-          <div id="whySectionContent" class="text-center">
+        <div class="max-w-6xl mx-auto">
+          <div id="whySectionContent" class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <!-- Loading state -->
-            <div class="animate-pulse">
-              <div class="h-8 bg-gray-200 rounded mb-4 max-w-2xl mx-auto"></div>
-              <div class="h-4 bg-gray-200 rounded mb-2 max-w-xl mx-auto"></div>
-              <div class="h-4 bg-gray-200 rounded mb-6 max-w-lg mx-auto"></div>
-              <div class="space-y-4 mt-8">
-                <div class="h-4 bg-gray-200 rounded"></div>
-                <div class="h-4 bg-gray-200 rounded"></div>
-                <div class="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
-              </div>
+            <div class="animate-pulse lg:col-span-2">
+              <div class="h-8 bg-gray-200 rounded mb-4 max-w-md"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2 max-w-xl"></div>
+              <div class="h-4 bg-gray-200 rounded mb-6 max-w-lg"></div>
             </div>
           </div>
         </div>
@@ -687,11 +682,40 @@
         
         const data = result.data;
         
+        // Modern 2-column layout: Title left, Card right
         container.innerHTML = `
-          <h2 class="text-3xl lg:text-5xl font-bold mb-4 text-gray-800">${data.title || 'Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?'}</h2>
-          ${data.subtitle ? `<p class="text-lg lg:text-xl text-gray-600 mb-8">${data.subtitle}</p>` : ''}
-          <div class="prose prose-lg max-w-none text-left mx-auto">
-            <p class="text-gray-700 leading-relaxed whitespace-pre-line">${data.content || ''}</p>
+          <!-- Left Column: Title -->
+          <div class="flex flex-col justify-center">
+            <h2 class="text-4xl lg:text-5xl xl:text-6xl font-bold text-brand-800 leading-tight mb-4 lg:mb-0">
+              ${data.title || 'Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?'}
+            </h2>
+          </div>
+          
+          <!-- Right Column: Card with Subtitle + Content -->
+          <div class="relative">
+            <div class="bg-gradient-to-br from-brand-50 to-white border-l-4 border-brand-600 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 lg:p-10">
+              ${data.subtitle ? `
+                <div class="flex items-start mb-6">
+                  <div class="flex-shrink-0 w-12 h-12 bg-brand-600 rounded-lg flex items-center justify-center mr-4">
+                    <i class="bi bi-star-fill text-white text-xl"></i>
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="text-xl lg:text-2xl font-semibold text-brand-900 mb-2">
+                      ${data.subtitle}
+                    </h3>
+                  </div>
+                </div>
+              ` : ''}
+              
+              <div class="prose prose-lg max-w-none">
+                <p class="text-gray-700 leading-relaxed whitespace-pre-line text-justify">
+                  ${data.content || ''}
+                </p>
+              </div>
+              
+              <!-- Decorative element -->
+              <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-brand-100 rounded-full opacity-20 blur-2xl"></div>
+            </div>
           </div>
         `;
         
@@ -702,9 +726,24 @@
         const container = document.getElementById('whySectionContent');
         if (container) {
           container.innerHTML = `
-            <h2 class="text-3xl lg:text-5xl font-bold mb-4 text-gray-800">Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?</h2>
-            <p class="text-lg text-gray-600 mb-8">Pendidikan islami terpadu: tahfidz Al-Qur'an, akhlak mulia, dan ilmu pengetahuan</p>
-            <p class="text-gray-700 leading-relaxed">Bergabunglah dengan Pondok Pesantren Al Ikhsan Beji untuk mendapatkan pendidikan islami terpadu yang membentuk karakter santri yang berakhlak mulia.</p>
+            <!-- Left Column: Title -->
+            <div class="flex flex-col justify-center">
+              <h2 class="text-4xl lg:text-5xl xl:text-6xl font-bold text-brand-800 leading-tight mb-4 lg:mb-0">
+                Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?
+              </h2>
+            </div>
+            
+            <!-- Right Column: Card -->
+            <div class="relative">
+              <div class="bg-gradient-to-br from-brand-50 to-white border-l-4 border-brand-600 rounded-2xl shadow-lg p-8 lg:p-10">
+                <h3 class="text-xl lg:text-2xl font-semibold text-brand-900 mb-4">
+                  Pendidikan islami terpadu: tahfidz Al-Qur'an, akhlak mulia, dan ilmu pengetahuan
+                </h3>
+                <p class="text-gray-700 leading-relaxed">
+                  Bergabunglah dengan Pondok Pesantren Al Ikhsan Beji untuk mendapatkan pendidikan islami terpadu yang membentuk karakter santri yang berakhlak mulia.
+                </p>
+              </div>
+            </div>
           `;
         }
       }
