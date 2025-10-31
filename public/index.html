@@ -90,6 +90,32 @@
       section.relative.min-h-\[70vh\] {
         min-height: 60vh !important;
       }
+      
+      /* Adjust hero text size on mobile */
+      section.relative h1 {
+        font-size: 1.75rem !important;
+        line-height: 2.25rem !important;
+        margin-bottom: 1.25rem !important;
+      }
+      
+      section.relative p {
+        font-size: 1rem !important;
+        line-height: 1.5rem !important;
+      }
+      
+      /* Adjust buttons on mobile */
+      section.relative a {
+        padding: 0.75rem 1.5rem !important;
+        font-size: 0.875rem !important;
+      }
+    }
+    
+    /* Tablet adjustments */
+    @media (min-width: 641px) and (max-width: 1024px) {
+      section.relative h1 {
+        font-size: 2.5rem !important;
+        line-height: 3rem !important;
+      }
     }
     
     /* Better text readability on hero */
@@ -156,20 +182,35 @@
 
     /* ===== HERO SLIDER STYLES ===== */
     #heroSlider {
-      position: relative;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       width: 100%;
       height: 100%;
+      overflow: hidden;
     }
 
     .hero-slide {
       /* Styles are set via inline CSS for better control */
-      pointer-events: none; /* Prevent blocking clicks */
-      will-change: opacity; /* Optimize transitions */
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      will-change: opacity;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: opacity 1.5s ease-in-out;
     }
 
     .hero-slide.active {
       /* Active state handled via inline styles */
       opacity: 1;
+      z-index: 1;
     }
   </style>
 </head>
@@ -265,24 +306,25 @@
       <!-- Background Image Slider -->
       <div id="heroSlider" class="absolute inset-0 z-0">
         <!-- Fallback gradient (will be removed when images load) -->
-        <div id="heroFallback" class="hero-slide active" style="background: linear-gradient(135deg, #047857 0%, #064e3b 100%);"></div>
+        <div id="heroFallback" class="hero-slide active" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #047857 0%, #064e3b 100%);"></div>
       </div>
       
       <!-- Green Overlay (35% opacity) untuk readability -->
       <div class="absolute inset-0 bg-gradient-to-br from-brand-800/35 to-brand-900/35 z-10"></div>
 
-      <!-- Content -->
-      <div class="relative z-20 container mx-auto px-4 py-8 flex items-center justify-center">
-        <div class="w-full lg:w-5/6 text-center">
-            <div class="inline-flex items-center bg-white text-brand-700 mb-4 px-5 py-2 rounded-lg font-medium shadow-lg">
+      <!-- Content - Centered Vertically and Horizontally -->
+      <div class="relative z-20 w-full h-full flex items-center justify-center">
+        <div class="container mx-auto px-4 py-12">
+          <div class="w-full flex flex-col items-center justify-center text-center">
+            <div class="inline-flex items-center bg-white text-brand-700 mb-6 px-5 py-2 rounded-lg font-medium shadow-lg">
               <i class="bi bi-calendar-event mr-2"></i> Tahun Ajaran 2026/2027
             </div>
-            <h1 class="text-4xl lg:text-6xl font-bold text-white mb-5 leading-tight" style="text-shadow: 2px 4px 8px rgba(0,0,0,0.4);">
+            <h1 class="text-4xl lg:text-6xl font-bold text-white mb-6 leading-tight max-w-5xl" style="text-shadow: 2px 4px 8px rgba(0,0,0,0.4);">
               <span class="text-yellow-400" style="text-shadow: 2px 4px 8px rgba(0,0,0,0.5);">Penerimaan Peserta Didik dan Santri Baru</span><br/>
               (PPDSB) PONDOK PESANTREN AL IKHSAN BEJI
             </h1>
-            <div class="max-w-3xl mx-auto">
-              <p class="text-lg lg:text-xl text-white mb-6 leading-relaxed" style="text-shadow: 1px 2px 6px rgba(0,0,0,0.4);">
+            <div class="max-w-3xl mx-auto mb-8">
+              <p class="text-lg lg:text-xl text-white leading-relaxed" style="text-shadow: 1px 2px 6px rgba(0,0,0,0.4);">
                 Bergabunglah menjadi santri Pondok Pesantren Al Ikhsan Beji. Pendidikan islami terpadu dengan pembinaan akhlak, tahfidz Al-Qur'an, dan ilmu pengetahuan yang membentuk generasi Qur'ani dan berprestasi.
               </p>
             </div>
@@ -295,6 +337,7 @@
               </a>
             </div>
           </div>
+        </div>
       </div>
     </section>
 
@@ -728,25 +771,31 @@
      */
     async function loadHeroImages() {
       try {
-        console.log('[HERO] Loading hero images...');
+        console.log('[HERO] 🚀 Starting to load hero images...');
         
-        const response = await fetch('/api/hero_images_list');
+        // Add cache buster to ensure fresh data
+        const cacheBuster = new Date().getTime();
+        const response = await fetch(`/api/hero_images_list?_t=${cacheBuster}`);
         console.log('[HERO] API Response status:', response.status, response.statusText);
         
         const result = await response.json();
         console.log('[HERO] API Result:', result);
         
         if (!result.ok || !result.data || result.data.length === 0) {
-          console.log('[HERO] No hero images found, using fallback gradient');
+          console.log('[HERO] ⚠️ No hero images found, keeping fallback gradient');
           console.log('[HERO] result.ok:', result.ok);
           console.log('[HERO] result.data:', result.data);
           return;
         }
         
-        console.log('[HERO] Found', result.data.length, 'hero images');
+        console.log('[HERO] ✅ Found', result.data.length, 'hero images');
         console.log('[HERO] Image URLs:', result.data.map(img => img.image_url));
         
         const sliderContainer = document.getElementById('heroSlider');
+        if (!sliderContainer) {
+          console.error('[HERO] ❌ Slider container not found!');
+          return;
+        }
         
         // IMPORTANT: Remove fallback gradient completely
         const fallback = document.getElementById('heroFallback');
@@ -757,45 +806,53 @@
         
         // Clear any remaining content
         sliderContainer.innerHTML = '';
+        console.log('[HERO] 🧹 Cleared slider container');
         
         // Create slide elements with explicit styles
         result.data.forEach((image, index) => {
           // Clean URL - remove trailing ? if present
-          const cleanUrl = image.image_url.replace(/\?$/, '');
+          let cleanUrl = image.image_url;
+          if (cleanUrl) {
+            cleanUrl = cleanUrl.trim().replace(/\?$/, '');
+          }
+          
+          console.log(`[HERO] 📸 Creating slide ${index} with URL:`, cleanUrl);
           
           const slideDiv = document.createElement('div');
           slideDiv.className = 'hero-slide' + (index === 0 ? ' active' : '');
           
-          // Set styles for hero image slider
+          // Set styles for hero image slider with !important to override any conflicts
           slideDiv.style.cssText = `
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url("${cleanUrl}");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: ${index === 0 ? '1' : '0'};
-            z-index: ${index === 0 ? '1' : '0'};
-            transition: opacity 1.5s ease-in-out;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background-image: url("${cleanUrl}") !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            opacity: ${index === 0 ? '1' : '0'} !important;
+            z-index: ${index === 0 ? '1' : '0'} !important;
+            transition: opacity 1.5s ease-in-out !important;
+            pointer-events: none !important;
+            will-change: opacity !important;
           `;
           
           slideDiv.dataset.slideIndex = index;
+          slideDiv.dataset.imageUrl = cleanUrl;
           sliderContainer.appendChild(slideDiv);
           
           // Verify image loads
           const testImg = new Image();
           testImg.onload = () => {
             console.log(`[HERO] ✅ Image ${index} loaded successfully:`, cleanUrl);
-            // Force re-render
-            slideDiv.style.backgroundImage = `url("${cleanUrl}")`;
           };
           testImg.onerror = () => {
             console.error(`[HERO] ❌ Image ${index} failed to load:`, cleanUrl);
+            console.error(`[HERO] Check if URL is accessible and CORS is configured`);
           };
           testImg.src = cleanUrl;
           
@@ -803,70 +860,61 @@
             originalUrl: image.image_url,
             cleanUrl: cleanUrl,
             className: slideDiv.className,
-            width: slideDiv.offsetWidth,
-            height: slideDiv.offsetHeight,
-            inDOM: document.body.contains(slideDiv)
+            isFirst: index === 0
           });
         });
         
         heroSlides = sliderContainer.querySelectorAll('.hero-slide');
+        console.log('[HERO] 📊 Total slides created:', heroSlides.length);
         
-        // Debug: Log computed styles and DOM info
+        // Debug: Log computed styles for first slide
         if (heroSlides.length > 0) {
           const firstSlide = heroSlides[0];
-          const computedStyle = window.getComputedStyle(firstSlide);
-          const rect = firstSlide.getBoundingClientRect();
           
-          console.log('[HERO] 🎨 First slide DEBUG INFO:');
-          console.log('  → Computed styles:', {
-            opacity: computedStyle.opacity,
-            zIndex: computedStyle.zIndex,
-            backgroundImage: computedStyle.backgroundImage,
-            width: computedStyle.width,
-            height: computedStyle.height,
-            position: computedStyle.position,
-            display: computedStyle.display,
-            visibility: computedStyle.visibility
-          });
-          console.log('  → Bounding rect:', {
-            width: rect.width,
-            height: rect.height,
-            top: rect.top,
-            left: rect.left,
-            visible: rect.width > 0 && rect.height > 0
-          });
-          console.log('  → Parent container:', {
-            id: sliderContainer.id,
-            width: sliderContainer.offsetWidth,
-            height: sliderContainer.offsetHeight,
-            childCount: sliderContainer.children.length
-          });
-        }
-        
-        // CRITICAL: Force first slide to be visible
-        if (heroSlides.length > 0) {
-          const firstSlide = heroSlides[0];
-          firstSlide.style.opacity = '1';
-          firstSlide.style.zIndex = '1';
-          console.log('[HERO] 🔥 FORCED first slide visible');
-          
-          // Verify after 100ms
           setTimeout(() => {
-            const stillVisible = window.getComputedStyle(firstSlide).opacity;
-            console.log('[HERO] 🔍 Verification: First slide opacity after 100ms =', stillVisible);
+            const computedStyle = window.getComputedStyle(firstSlide);
+            const rect = firstSlide.getBoundingClientRect();
+            
+            console.log('[HERO] 🎨 First slide DEBUG INFO:');
+            console.log('  → Computed styles:', {
+              opacity: computedStyle.opacity,
+              zIndex: computedStyle.zIndex,
+              backgroundImage: computedStyle.backgroundImage,
+              width: computedStyle.width,
+              height: computedStyle.height,
+              position: computedStyle.position,
+              display: computedStyle.display,
+              visibility: computedStyle.visibility,
+              backgroundSize: computedStyle.backgroundSize,
+              backgroundPosition: computedStyle.backgroundPosition
+            });
+            console.log('  → Bounding rect:', {
+              width: rect.width,
+              height: rect.height,
+              top: rect.top,
+              left: rect.left,
+              visible: rect.width > 0 && rect.height > 0
+            });
+            console.log('  → Parent container:', {
+              id: sliderContainer.id,
+              width: sliderContainer.offsetWidth,
+              height: sliderContainer.offsetHeight,
+              childCount: sliderContainer.children.length
+            });
           }, 100);
         }
         
         // Start auto-slider if more than 1 image
         if (heroSlides.length > 1) {
           startSlider();
-          console.log('[HERO] ✅ Slider started with', heroSlides.length, 'images');
-        } else {
+          console.log('[HERO] ✅ Slider started with', heroSlides.length, 'images (auto-rotate every 4s)');
+        } else if (heroSlides.length === 1) {
           console.log('[HERO] ✅ Single image loaded (no auto-slide)');
         }
         
       } catch (error) {
-        console.error('[HERO] Error loading hero images:', error);
+        console.error('[HERO] ❌ Error loading hero images:', error);
+        console.error('[HERO] Error details:', error.message, error.stack);
         // Fallback gradient stays visible
       }
     }
