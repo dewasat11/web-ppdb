@@ -671,11 +671,26 @@
         console.log('[WHY_SECTION] Loading Why Section content...');
         
         const response = await fetch('/api/why_section_list');
+        
+        if (!response.ok) {
+          console.error('[WHY_SECTION] HTTP Error:', response.status, response.statusText);
+          // Show default content on error
+          showDefaultWhyContent();
+          return;
+        }
+        
         const result = await response.json();
         
         if (!result.ok || !result.data) {
-          console.error('[WHY_SECTION] Failed to load content');
+          console.error('[WHY_SECTION] Failed to load content:', result.error);
+          // Show default content
+          showDefaultWhyContent();
           return;
+        }
+        
+        // Show warning if table doesn't exist
+        if (result.warning) {
+          console.warn('[WHY_SECTION] ⚠️', result.warning);
         }
         
         const container = document.getElementById('whySectionContent');
@@ -724,29 +739,34 @@
         
       } catch (error) {
         console.error('[WHY_SECTION] Error:', error);
-        const container = document.getElementById('whySectionContent');
-        if (container) {
-          container.innerHTML = `
-            <!-- Left Column: Title -->
-            <div class="flex flex-col justify-center">
-              <h2 class="text-4xl lg:text-5xl xl:text-6xl font-bold text-brand-800 leading-tight mb-4 lg:mb-0">
-                Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?
-              </h2>
+        showDefaultWhyContent();
+      }
+    }
+    
+    // Helper function to show default content
+    function showDefaultWhyContent() {
+      const container = document.getElementById('whySectionContent');
+      if (container) {
+        container.innerHTML = `
+          <!-- Left Column: Title -->
+          <div class="flex flex-col justify-center">
+            <h2 class="text-4xl lg:text-5xl xl:text-6xl font-bold text-brand-800 leading-tight mb-4 lg:mb-0">
+              Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?
+            </h2>
+          </div>
+          
+          <!-- Right Column: Card -->
+          <div class="relative">
+            <div class="bg-gradient-to-br from-brand-50 to-white border-l-4 border-brand-600 rounded-2xl shadow-lg p-8 lg:p-10">
+              <h3 class="text-xl lg:text-2xl font-semibold text-brand-900 mb-4">
+                Pendidikan islami terpadu: tahfidz Al-Qur'an, akhlak mulia, dan ilmu pengetahuan
+              </h3>
+              <p class="text-gray-700 leading-relaxed">
+                Bergabunglah dengan Pondok Pesantren Al Ikhsan Beji untuk mendapatkan pendidikan islami terpadu yang membentuk karakter santri yang berakhlak mulia.
+              </p>
             </div>
-            
-            <!-- Right Column: Card -->
-            <div class="relative">
-              <div class="bg-gradient-to-br from-brand-50 to-white border-l-4 border-brand-600 rounded-2xl shadow-lg p-8 lg:p-10">
-                <h3 class="text-xl lg:text-2xl font-semibold text-brand-900 mb-4">
-                  Pendidikan islami terpadu: tahfidz Al-Qur'an, akhlak mulia, dan ilmu pengetahuan
-                </h3>
-                <p class="text-gray-700 leading-relaxed">
-                  Bergabunglah dengan Pondok Pesantren Al Ikhsan Beji untuk mendapatkan pendidikan islami terpadu yang membentuk karakter santri yang berakhlak mulia.
-                </p>
-              </div>
-            </div>
-          `;
-        }
+          </div>
+        `;
       }
     }
     

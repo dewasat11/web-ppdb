@@ -10,14 +10,13 @@ CREATE TABLE IF NOT EXISTS why_section (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Insert default content
+-- Insert default content (only if table is empty)
 INSERT INTO why_section (title, subtitle, content)
-VALUES (
+SELECT 
   'Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?',
   'Pendidikan islami terpadu: tahfidz Al-Qur''an, akhlak mulia, dan ilmu pengetahuan',
   'Bergabunglah dengan Pondok Pesantren Al Ikhsan Beji untuk mendapatkan pendidikan islami terpadu yang membentuk karakter santri yang berakhlak mulia. Program tahfidz Al-Qur''an dengan metode terbukti akan membimbing santri menghafal Al-Qur''an dengan tartil dan pemahaman makna. Dengan pendampingan 24 jam, kami membentuk karakter santri yang ta''at beribadah dan santun dalam pergaulan. Fasilitas asrama yang nyaman dilengkapi dengan masjid, ruang belajar, perpustakaan, dan fasilitas olahraga yang lengkap untuk mendukung proses belajar mengajar yang optimal.'
-)
-ON CONFLICT DO NOTHING;
+WHERE NOT EXISTS (SELECT 1 FROM why_section);
 
 -- Enable RLS (Row Level Security)
 ALTER TABLE why_section ENABLE ROW LEVEL SECURITY;
