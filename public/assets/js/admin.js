@@ -138,6 +138,9 @@
       setTimeout(() => {
         initHeroUpload();
       }, 100);
+    } else if (tab === "why") {
+      // Load Why Section data
+      loadWhySectionData();
     }
 
     // Tutup sidebar di mobile
@@ -2470,6 +2473,204 @@ Jazakumullahu khairan,
   window.loadHeroImages = loadHeroImages;
   window.deleteHeroImage = deleteHeroImage;
   window.resetHeroForm = resetHeroForm;
+
+  /* =========================
+     10) WHY SECTION MANAGEMENT
+     ========================= */
+  
+  /**
+   * Load Why Section data and populate form
+   */
+  async function loadWhySectionData() {
+    try {
+      console.log('[WHY_SECTION] Loading Why Section data...');
+      
+      const response = await fetch('/api/why_section_list');
+      const result = await response.json();
+      
+      if (!result.ok || !result.data) {
+        console.error('[WHY_SECTION] Failed to load data');
+        if (typeof toastr !== 'undefined' && toastr.error) {
+          toastr.error('Gagal memuat data Why Section');
+        }
+        return;
+      }
+      
+      const data = result.data;
+      
+      // Populate form
+      const titleInput = document.getElementById('whyTitle');
+      const subtitleInput = document.getElementById('whySubtitle');
+      const contentInput = document.getElementById('whyContent');
+      
+      if (titleInput) titleInput.value = data.title || '';
+      if (subtitleInput) subtitleInput.value = data.subtitle || '';
+      if (contentInput) contentInput.value = data.content || '';
+      
+      // Update preview
+      updateWhyPreview();
+      
+      console.log('[WHY_SECTION] ✅ Data loaded successfully');
+      
+    } catch (error) {
+      console.error('[WHY_SECTION] Error loading data:', error);
+      if (typeof toastr !== 'undefined' && toastr.error) {
+        toastr.error('Error: ' + error.message);
+      }
+    }
+  }
+  
+  /**
+   * Update preview of Why Section
+   */
+  function updateWhyPreview() {
+    const titleInput = document.getElementById('whyTitle');
+    const subtitleInput = document.getElementById('whySubtitle');
+    const contentInput = document.getElementById('whyContent');
+    const preview = document.getElementById('whyPreview');
+    
+    if (!preview) return;
+    
+    const title = titleInput ? titleInput.value : '';
+    const subtitle = subtitleInput ? subtitleInput.value : '';
+    const content = contentInput ? contentInput.value : '';
+    
+    if (!title && !content) {
+      preview.innerHTML = '<p class="text-muted text-center mb-0">Preview akan muncul setelah mengisi form</p>';
+      return;
+    }
+    
+    preview.innerHTML = `
+      <div class="text-center">
+        <h2 class="h3 mb-3">${title || 'Judul'}</h2>
+        ${subtitle ? `<p class="text-muted mb-4">${subtitle}</p>` : ''}
+        <div class="text-start">
+          <p class="text-muted mb-0" style="white-space: pre-line;">${content || 'Konten narasi...'}</p>
+        </div>
+      </div>
+    `;
+  }
+  
+  /**
+   * Save Why Section data
+   */
+  async function saveWhySection(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    
+    try {
+      const titleInput = document.getElementById('whyTitle');
+      const subtitleInput = document.getElementById('whySubtitle');
+      const contentInput = document.getElementById('whyContent');
+      const btnSave = document.getElementById('btnSaveWhy');
+      
+      if (!titleInput || !contentInput) {
+        throw new Error('Form fields not found');
+      }
+      
+      const title = titleInput.value.trim();
+      const subtitle = subtitleInput ? subtitleInput.value.trim() : '';
+      const content = contentInput.value.trim();
+      
+      if (!title || !content) {
+        if (typeof toastr !== 'undefined' && toastr.warning) {
+          toastr.warning('Judul dan konten harus diisi!');
+        } else {
+          alert('Judul dan konten harus diisi!');
+        }
+        return;
+      }
+      
+      // Show loading state
+      const originalText = btnSave ? btnSave.innerHTML : '';
+      if (btnSave) {
+        btnSave.disabled = true;
+        btnSave.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
+      }
+      
+      console.log('[WHY_SECTION] Saving data...', { title, subtitle, content });
+      
+      const response = await fetch('/api/why_section_update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: title,
+          subtitle: subtitle,
+          content: content
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (!result.ok) {
+        throw new Error(result.error || 'Gagal menyimpan data');
+      }
+      
+      console.log('[WHY_SECTION] ✅ Data saved successfully');
+      
+      // Show success notification
+      if (typeof toastr !== 'undefined' && toastr.success) {
+        toastr.success('✅ Why Section berhasil disimpan!');
+      } else {
+        alert('✅ Why Section berhasil disimpan!');
+      }
+      
+      // Update preview
+      updateWhyPreview();
+      
+      // Broadcast update to other tabs/windows
+      localStorage.setItem('why_section_update', JSON.stringify({
+        timestamp: Date.now(),
+        action: 'updated'
+      }));
+      
+      // Restore button
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = originalText;
+      }
+      
+    } catch (error) {
+      console.error('[WHY_SECTION] Error saving:', error);
+      
+      if (typeof toastr !== 'undefined' && toastr.error) {
+        toastr.error('❌ Error: ' + error.message);
+      } else {
+        alert('❌ Error: ' + error.message);
+      }
+      
+      const btnSave = document.getElementById('btnSaveWhy');
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = '<i class="bi bi-save"></i> Simpan Perubahan';
+      }
+    }
+  }
+  
+  // Update preview on input change
+  document.addEventListener('DOMContentLoaded', () => {
+    const titleInput = document.getElementById('whyTitle');
+    const subtitleInput = document.getElementById('whySubtitle');
+    const contentInput = document.getElementById('whyContent');
+    
+    if (titleInput) {
+      titleInput.addEventListener('input', updateWhyPreview);
+    }
+    if (subtitleInput) {
+      subtitleInput.addEventListener('input', updateWhyPreview);
+    }
+    if (contentInput) {
+      contentInput.addEventListener('input', updateWhyPreview);
+    }
+  });
+  
+  // Expose functions
+  window.loadWhySectionData = loadWhySectionData;
+  window.saveWhySection = saveWhySection;
+  window.updateWhyPreview = updateWhyPreview;
 
   /* =========================
      9) INIT

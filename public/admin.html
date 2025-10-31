@@ -658,6 +658,11 @@
             <i class="bi bi-images"></i> Hero Slider
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="why" onclick="switchTab('why')">
+            <i class="bi bi-file-text"></i> Why Section
+          </a>
+        </li>
       </ul>
 
       <!-- Sidebar Footer Buttons -->
@@ -1110,6 +1115,67 @@
                     <span class="visually-hidden">Loading...</span>
                   </div>
                   <p class="text-muted mt-3">Memuat hero images...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Why Section -->
+        <div id="tab-why" class="tab-content" style="display:none">
+          <div class="page-header">
+            <h2><i class="bi bi-file-text"></i> Kelola Why Section (Narasi)</h2>
+            <p>Edit narasi di section "Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?"</p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="bi bi-pencil-square"></i> Edit Narasi Why Section</h5>
+            </div>
+            <div class="card-body">
+              <form id="whySectionForm" onsubmit="saveWhySection(event)">
+                <div class="mb-3">
+                  <label for="whyTitle" class="form-label">
+                    <i class="bi bi-type-h1"></i> Judul
+                  </label>
+                  <input type="text" class="form-control" id="whyTitle" 
+                         placeholder="Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?" required>
+                  <small class="text-muted">Judul utama yang akan ditampilkan</small>
+                </div>
+
+                <div class="mb-3">
+                  <label for="whySubtitle" class="form-label">
+                    <i class="bi bi-type"></i> Subtitle (Opsional)
+                  </label>
+                  <input type="text" class="form-control" id="whySubtitle" 
+                         placeholder="Pendidikan islami terpadu: tahfidz Al-Qur'an, akhlak mulia, dan ilmu pengetahuan">
+                  <small class="text-muted">Subtitle atau deskripsi singkat di bawah judul</small>
+                </div>
+
+                <div class="mb-3">
+                  <label for="whyContent" class="form-label">
+                    <i class="bi bi-file-text"></i> Konten Narasi
+                  </label>
+                  <textarea class="form-control" id="whyContent" rows="10" 
+                            placeholder="Tuliskan narasi lengkap tentang mengapa memilih Pondok Pesantren Al Ikhsan Beji. Gunakan baris baru untuk paragraf baru." required></textarea>
+                  <small class="text-muted">Narasi akan ditampilkan sebagai teks biasa (bukan card). Gunakan enter untuk paragraf baru.</small>
+                </div>
+
+                <div class="d-flex gap-2">
+                  <button type="submit" class="btn btn-primary" id="btnSaveWhy">
+                    <i class="bi bi-save"></i> Simpan Perubahan
+                  </button>
+                  <button type="button" class="btn btn-secondary" onclick="loadWhySectionData()">
+                    <i class="bi bi-arrow-clockwise"></i> Reset / Muat Ulang
+                  </button>
+                </div>
+              </form>
+
+              <!-- Preview Section -->
+              <div class="mt-4">
+                <h6 class="mb-3"><i class="bi bi-eye"></i> Preview</h6>
+                <div class="border rounded p-4 bg-light" id="whyPreview">
+                  <p class="text-muted text-center mb-0">Preview akan muncul setelah mengisi form</p>
                 </div>
               </div>
             </div>

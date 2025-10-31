@@ -180,37 +180,61 @@
       }
     }
 
-    /* ===== IMAGE SLIDER STYLES ===== */
+    /* ===== IMAGE SLIDER STYLES (Card Minimalis dengan Slide Animation) ===== */
+    #imageSliderContainer {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      height: 500px; /* Ukuran umum image slider */
+    }
+
     #imageSlider {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      position: relative;
       width: 100%;
       height: 100%;
       overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      background: #f5f5f5;
+    }
+
+    .slider-track {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
     }
 
     .slider-slide {
-      /* Styles are set via inline CSS for better control */
-      position: absolute;
-      top: 0;
-      left: 0;
+      min-width: 100%;
       width: 100%;
       height: 100%;
-      pointer-events: none;
-      will-change: opacity;
+      flex-shrink: 0;
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      transition: opacity 1.5s ease-in-out;
     }
 
-    .slider-slide.active {
-      /* Active state handled via inline styles - FULL OPACITY, NO TRANSPARENCY */
-      opacity: 1 !important;
-      z-index: 10 !important;
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      #imageSliderContainer {
+        height: 400px;
+        padding: 1rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      #imageSliderContainer {
+        height: 300px;
+        padding: 0.75rem;
+      }
+      
+      #imageSlider {
+        border-radius: 8px;
+      }
     }
   </style>
 </head>
@@ -332,44 +356,34 @@
       </div>
     </section>
 
-    <!-- IMAGE SLIDER SECTION (Auto-slide 4 detik) -->
-    <section class="relative w-full h-[60vh] md:h-[70vh] overflow-hidden">
-      <div id="imageSlider" class="absolute inset-0">
-        <!-- Fallback gradient -->
-        <div id="sliderFallback" class="slider-slide active" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #047857 0%, #064e3b 100%);"></div>
+    <!-- IMAGE SLIDER SECTION (Card Minimalis - Slide Animation) -->
+    <section class="py-12 bg-gray-50">
+      <div id="imageSliderContainer">
+        <div id="imageSlider">
+          <div id="sliderTrack" class="slider-track">
+            <!-- Fallback gradient -->
+            <div id="sliderFallback" class="slider-slide" style="background: linear-gradient(135deg, #047857 0%, #064e3b 100%);"></div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- WHY SECTION -->
-    <section class="py-12">
+    <!-- WHY SECTION (Narasi) -->
+    <section class="py-16 bg-gray-50">
       <div class="container mx-auto px-4">
-        <div class="flex justify-center mb-12">
-          <div class="w-full lg:w-2/3 text-center">
-            <h2 class="text-3xl lg:text-5xl font-bold mb-3">Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?</h2>
-            <p class="text-lg text-gray-600">Pendidikan islami terpadu: tahfidz Al-Qur'an, akhlak mulia, dan ilmu pengetahuan</p>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-            <div class="w-20 h-20 bg-gradient-to-br from-brand-800 to-brand-900 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="bi bi-journal-text text-white text-2xl"></i>
+        <div class="max-w-4xl mx-auto">
+          <div id="whySectionContent" class="text-center">
+            <!-- Loading state -->
+            <div class="animate-pulse">
+              <div class="h-8 bg-gray-200 rounded mb-4 max-w-2xl mx-auto"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2 max-w-xl mx-auto"></div>
+              <div class="h-4 bg-gray-200 rounded mb-6 max-w-lg mx-auto"></div>
+              <div class="space-y-4 mt-8">
+                <div class="h-4 bg-gray-200 rounded"></div>
+                <div class="h-4 bg-gray-200 rounded"></div>
+                <div class="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+              </div>
             </div>
-            <h3 class="text-center mb-3 text-xl font-semibold">Program Tahfidz Al-Qur'an</h3>
-            <p class="text-center text-gray-600">Program tahfidz intensif dengan metode terbukti, membimbing santri menghafal Al-Qur'an dengan tartil dan pemahaman makna.</p>
-          </div>
-          <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-            <div class="w-20 h-20 bg-gradient-to-br from-brand-800 to-brand-900 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="bi bi-heart text-white text-2xl"></i>
-            </div>
-            <h3 class="text-center mb-3 text-xl font-semibold">Pembinaan Akhlak Islami</h3>
-            <p class="text-center text-gray-600">Pendampingan 24 jam untuk membentuk karakter santri yang berakhlak mulia, ta'at beribadah, dan santun dalam pergaulan.</p>
-          </div>
-          <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-            <div class="w-20 h-20 bg-gradient-to-br from-brand-800 to-brand-900 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="bi bi-buildings text-white text-2xl"></i>
-            </div>
-            <h3 class="text-center mb-3 text-xl font-semibold">Fasilitas Asrama Nyaman</h3>
-            <p class="text-center text-gray-600">Asrama nyaman dengan pembinaan 24 jam, masjid, ruang belajar, perpustakaan, dan fasilitas olahraga yang lengkap.</p>
           </div>
         </div>
       </div>
@@ -655,6 +669,50 @@
     // Load active gelombang when page loads
     document.addEventListener('DOMContentLoaded', loadGelombangAktif);
     
+    // Load Why Section content
+    async function loadWhySection() {
+      try {
+        console.log('[WHY_SECTION] Loading Why Section content...');
+        
+        const response = await fetch('/api/why_section_list');
+        const result = await response.json();
+        
+        if (!result.ok || !result.data) {
+          console.error('[WHY_SECTION] Failed to load content');
+          return;
+        }
+        
+        const container = document.getElementById('whySectionContent');
+        if (!container) return;
+        
+        const data = result.data;
+        
+        container.innerHTML = `
+          <h2 class="text-3xl lg:text-5xl font-bold mb-4 text-gray-800">${data.title || 'Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?'}</h2>
+          ${data.subtitle ? `<p class="text-lg lg:text-xl text-gray-600 mb-8">${data.subtitle}</p>` : ''}
+          <div class="prose prose-lg max-w-none text-left mx-auto">
+            <p class="text-gray-700 leading-relaxed whitespace-pre-line">${data.content || ''}</p>
+          </div>
+        `;
+        
+        console.log('[WHY_SECTION] ✅ Content loaded successfully');
+        
+      } catch (error) {
+        console.error('[WHY_SECTION] Error:', error);
+        const container = document.getElementById('whySectionContent');
+        if (container) {
+          container.innerHTML = `
+            <h2 class="text-3xl lg:text-5xl font-bold mb-4 text-gray-800">Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?</h2>
+            <p class="text-lg text-gray-600 mb-8">Pendidikan islami terpadu: tahfidz Al-Qur'an, akhlak mulia, dan ilmu pengetahuan</p>
+            <p class="text-gray-700 leading-relaxed">Bergabunglah dengan Pondok Pesantren Al Ikhsan Beji untuk mendapatkan pendidikan islami terpadu yang membentuk karakter santri yang berakhlak mulia.</p>
+          `;
+        }
+      }
+    }
+    
+    // Load Why Section on page load
+    document.addEventListener('DOMContentLoaded', loadWhySection);
+    
     // ===== REAL-TIME SYNC WITH ADMIN =====
     
     // Method 1: Listen for changes from admin panel via localStorage (cross-tab)
@@ -755,15 +813,15 @@
     });
   </script>
   
-  <!-- Image Slider Script -->
+  <!-- Image Slider Script (Card Minimalis - Slide Animation) -->
   <script>
     /**
-     * Image Slider Section (Auto-slide 4 detik)
-     * Displays images from hero_images table
+     * Image Slider Section (Card Minimalis dengan Slide Animation)
+     * Animasi geser ke samping - NO FADE
      */
-    let imageSlides = [];
     let currentImageSlideIndex = 0;
     let imageSliderInterval = null;
+    let sliderTrack = null;
 
     /**
      * Load images from API for slider section
@@ -780,30 +838,33 @@
         const result = await response.json();
         console.log('[IMAGE_SLIDER] API Result:', result);
         
+        // Get slider track element
+        sliderTrack = document.getElementById('sliderTrack');
+        if (!sliderTrack) {
+          console.error('[IMAGE_SLIDER] ❌ Slider track not found!');
+          return;
+        }
+        
         if (!result.ok || !result.data || result.data.length === 0) {
           console.log('[IMAGE_SLIDER] ⚠️ No images found, keeping fallback gradient');
+          // Reset position to 0
+          sliderTrack.style.transform = 'translateX(0)';
           return;
         }
         
         console.log('[IMAGE_SLIDER] ✅ Found', result.data.length, 'images');
         console.log('[IMAGE_SLIDER] Image URLs:', result.data.map(img => img.image_url));
         
-        const sliderContainer = document.getElementById('imageSlider');
-        if (!sliderContainer) {
-          console.error('[IMAGE_SLIDER] ❌ Slider container not found!');
-          return;
-        }
-        
-        // Remove fallback gradient FIRST (before clearing container)
+        // Remove fallback gradient
         const fallback = document.getElementById('sliderFallback');
         if (fallback) {
           console.log('[IMAGE_SLIDER] 🗑️ Removing fallback gradient...');
           fallback.remove();
         }
         
-        // Clear container
-        sliderContainer.innerHTML = '';
-        console.log('[IMAGE_SLIDER] 🧹 Cleared slider container');
+        // Clear track
+        sliderTrack.innerHTML = '';
+        console.log('[IMAGE_SLIDER] 🧹 Cleared slider track');
         
         // Create slide elements
         result.data.forEach((image, index) => {
@@ -815,31 +876,17 @@
           console.log(`[IMAGE_SLIDER] 📸 Creating slide ${index} with URL:`, cleanUrl);
           
           const slideDiv = document.createElement('div');
-          slideDiv.className = 'slider-slide' + (index === 0 ? ' active' : '');
+          slideDiv.className = 'slider-slide';
           
-          // CRITICAL: Ensure opacity is 1 for visible slide, NO transparency overlay
-          slideDiv.style.cssText = `
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            background-image: url("${cleanUrl}") !important;
-            background-size: cover !important;
-            background-position: center !important;
-            background-repeat: no-repeat !important;
-            opacity: ${index === 0 ? '1' : '0'} !important;
-            z-index: ${index === 0 ? '10' : '0'} !important;
-            transition: opacity 1.5s ease-in-out !important;
-            pointer-events: none !important;
-            will-change: opacity !important;
-          `;
+          // Set background image - NO opacity, NO fade, just background
+          slideDiv.style.backgroundImage = `url("${cleanUrl}")`;
+          slideDiv.style.backgroundSize = 'cover';
+          slideDiv.style.backgroundPosition = 'center';
+          slideDiv.style.backgroundRepeat = 'no-repeat';
           
           slideDiv.dataset.slideIndex = index;
           slideDiv.dataset.imageUrl = cleanUrl;
-          sliderContainer.appendChild(slideDiv);
+          sliderTrack.appendChild(slideDiv);
           
           // Verify image loads
           const testImg = new Image();
@@ -852,14 +899,17 @@
           testImg.src = cleanUrl;
         });
         
-        imageSlides = sliderContainer.querySelectorAll('.slider-slide');
-        console.log('[IMAGE_SLIDER] 📊 Total slides created:', imageSlides.length);
+        // Reset to first slide
+        currentImageSlideIndex = 0;
+        updateSliderPosition();
+        
+        console.log('[IMAGE_SLIDER] 📊 Total slides created:', result.data.length);
         
         // Start auto-slider if more than 1 image
-        if (imageSlides.length > 1) {
+        if (result.data.length > 1) {
           startImageSlider();
-          console.log('[IMAGE_SLIDER] ✅ Slider started with', imageSlides.length, 'images (auto-rotate every 4s)');
-        } else if (imageSlides.length === 1) {
+          console.log('[IMAGE_SLIDER] ✅ Slider started with', result.data.length, 'images (auto-rotate every 4s - SLIDE animation)');
+        } else if (result.data.length === 1) {
           console.log('[IMAGE_SLIDER] ✅ Single image loaded (no auto-slide)');
         }
         
@@ -867,6 +917,19 @@
         console.error('[IMAGE_SLIDER] ❌ Error loading images:', error);
         console.error('[IMAGE_SLIDER] Error details:', error.message, error.stack);
       }
+    }
+
+    /**
+     * Update slider position using translateX (SLIDE animation, NO FADE)
+     */
+    function updateSliderPosition() {
+      if (!sliderTrack) return;
+      
+      // Calculate translateX: move track to the left by current index * 100%
+      const translateX = -currentImageSlideIndex * 100;
+      sliderTrack.style.transform = `translateX(${translateX}%)`;
+      
+      console.log('[IMAGE_SLIDER] Position updated to index:', currentImageSlideIndex, 'translateX:', translateX + '%');
     }
 
     /**
@@ -883,23 +946,19 @@
     }
 
     /**
-     * Move to next slide
+     * Move to next slide (SLIDE animation)
      */
     function nextImageSlide() {
-      if (imageSlides.length === 0) return;
+      if (!sliderTrack) return;
       
-      // Hide current slide
-      imageSlides[currentImageSlideIndex].classList.remove('active');
-      imageSlides[currentImageSlideIndex].style.opacity = '0';
-      imageSlides[currentImageSlideIndex].style.zIndex = '0';
+      const slides = sliderTrack.querySelectorAll('.slider-slide');
+      if (slides.length === 0) return;
       
       // Calculate next index (loop back to 0 after last)
-      currentImageSlideIndex = (currentImageSlideIndex + 1) % imageSlides.length;
+      currentImageSlideIndex = (currentImageSlideIndex + 1) % slides.length;
       
-      // Show next slide - ENSURE FULL OPACITY (NO TRANSPARENCY)
-      imageSlides[currentImageSlideIndex].classList.add('active');
-      imageSlides[currentImageSlideIndex].style.opacity = '1';
-      imageSlides[currentImageSlideIndex].style.zIndex = '10';
+      // Update position with slide animation (translateX)
+      updateSliderPosition();
       
       console.log('[IMAGE_SLIDER] Slide changed to index:', currentImageSlideIndex);
     }
@@ -915,6 +974,14 @@
       }
     }
 
+    /**
+     * Reset slider to first slide
+     */
+    function resetImageSlider() {
+      currentImageSlideIndex = 0;
+      updateSliderPosition();
+    }
+
     // Load images on page load
     document.addEventListener('DOMContentLoaded', loadImageSlider);
     
@@ -923,8 +990,11 @@
       if (document.hidden) {
         stopImageSlider();
       } else {
-        if (imageSlides.length > 1) {
-          startImageSlider();
+        if (sliderTrack) {
+          const slides = sliderTrack.querySelectorAll('.slider-slide');
+          if (slides.length > 1) {
+            startImageSlider();
+          }
         }
       }
     });

@@ -123,6 +123,14 @@ class handler(BaseHTTPRequestHandler):
             elif action == 'hero_images_update_order':
                 from lib.handlers.hero_images_update_order import handler as HeroImagesUpdateOrderHandler
                 HeroImagesUpdateOrderHandler.do_PUT(self) if self.command == 'PUT' else HeroImagesUpdateOrderHandler.do_OPTIONS(self)
+            
+            elif action == 'why_section_list':
+                from lib.handlers.why_section_list import handler as WhySectionListHandler
+                WhySectionListHandler.do_GET(self) if self.command == 'GET' else WhySectionListHandler.do_OPTIONS(self)
+            
+            elif action == 'why_section_update':
+                from lib.handlers.why_section_update import handler as WhySectionUpdateHandler
+                WhySectionUpdateHandler.do_POST(self) if self.command == 'POST' else WhySectionUpdateHandler.do_OPTIONS(self)
                     
             else:
                 # Default response for unknown actions
