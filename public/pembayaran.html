@@ -403,9 +403,11 @@
                 <i class="bi bi-whatsapp me-2 text-success"></i>
                 <strong>Butuh Bantuan?</strong><br>
                 Hubungi kami di WhatsApp: 
-                <a href="#" id="waHelpLink" class="text-success fw-bold text-decoration-none" target="_blank">
+                <a href="#" id="waHelpLink" class="text-success fw-bold text-decoration-none">
                   <i class="bi bi-whatsapp"></i> 081218768593
                 </a>
+                <br>
+                <small class="text-muted">Klik untuk langsung chat dengan pesan otomatis pemberitahuan pembayaran</small>
               </div>
             </div>
 
@@ -428,9 +430,11 @@
                 <i class="bi bi-whatsapp me-2 text-success"></i>
                 <strong>Butuh Bantuan?</strong><br>
                 Hubungi kami di WhatsApp: 
-                <a href="#" id="waHelpLink" class="text-success fw-bold text-decoration-none" target="_blank">
+                <a href="#" id="waHelpLink" class="text-success fw-bold text-decoration-none">
                   <i class="bi bi-whatsapp"></i> 081218768593
                 </a>
+                <br>
+                <small class="text-muted">Klik untuk langsung chat dengan pesan otomatis pemberitahuan pembayaran</small>
               </div>
             </div>
           </div>
@@ -464,6 +468,67 @@
       const nama = urlParams.get("nama");
 
       console.log('[PEMBAYARAN] URL Params:', { nisn, nama });
+
+      // Update WhatsApp link with automatic message
+      function openWhatsAppAdmin() {
+        const adminPhone = '081218768593'; // Nomor WA admin
+        const formattedPhone = adminPhone.startsWith('0') ? '62' + adminPhone.substring(1) : adminPhone;
+        const namaDecoded = nama ? decodeURIComponent(nama) : '-';
+        
+        // Build message dengan gaya pesantren
+        let message = 'Assalamualaikum Wr. Wb.\n\n';
+        message += '*Saya sudah melakukan pembayaran untuk pendaftaran PPDSB*\n';
+        message += 'Pondok Pesantren Al Ikhsan Beji.\n\n';
+        
+        message += '📋 *Detail Pendaftar:*\n';
+        if (nisn) {
+          message += `• NISN: ${nisn}\n`;
+        }
+        if (namaDecoded && namaDecoded !== '-') {
+          message += `• Nama: ${namaDecoded}\n`;
+        }
+        
+        message += '\n⚠️ *Mohon segera verifikasi pembayaran saya.*\n\n';
+        message += 'Terima kasih atas perhatiannya.\n\n';
+        message += 'Jazakumullahu khairan.';
+        
+        // Encode message for URL
+        const encodedMessage = encodeURIComponent(message);
+        
+        // WhatsApp link (will open in app or web based on device)
+        const waLink = `https://wa.me/${formattedPhone}?text=${encodedMessage}`;
+        
+        console.log('[WA] Opening WhatsApp:', waLink);
+        console.log('[WA] Message preview:', message);
+        
+        // Open WhatsApp (will open in app if installed, otherwise web)
+        window.open(waLink, '_blank');
+      }
+
+      // Update WhatsApp link on page load (set onclick handler)
+      function updateWhatsAppLink() {
+        const waLinkElements = document.querySelectorAll('#waHelpLink');
+        waLinkElements.forEach(link => {
+          link.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openWhatsAppAdmin();
+            return false;
+          };
+          
+          // Remove target="_blank" if exists (not needed for onclick handler)
+          link.removeAttribute('target');
+        });
+        
+        console.log('[WA] WhatsApp links initialized:', waLinkElements.length);
+      }
+
+      // Initialize WhatsApp link after DOM ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateWhatsAppLink);
+      } else {
+        updateWhatsAppLink();
+      }
 
       // Redirect if no params
       if (!nisn || !nama) {

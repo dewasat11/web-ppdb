@@ -7,7 +7,8 @@ import json
 from lib._supabase import supabase_client
 
 class handler(BaseHTTPRequestHandler):
-    def do_GET(self):
+    @staticmethod
+    def do_GET(request_handler):
         try:
             print("[WHY_SECTION_LIST] Fetching Why Section content...")
             
@@ -20,10 +21,10 @@ class handler(BaseHTTPRequestHandler):
             print(f"[WHY_SECTION_LIST] Found {len(result.data) if result.data else 0} records")
             
             # Send success response
-            self.send_response(200)
-            self.send_header("Content-type", "application/json")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
+            request_handler.send_response(200)
+            request_handler.send_header("Content-type", "application/json")
+            request_handler.send_header("Access-Control-Allow-Origin", "*")
+            request_handler.end_headers()
             
             if result.data and len(result.data) > 0:
                 response = {
@@ -41,26 +42,29 @@ class handler(BaseHTTPRequestHandler):
                     }
                 }
             
-            self.wfile.write(json.dumps(response).encode())
+            request_handler.wfile.write(json.dumps(response).encode())
             print("[WHY_SECTION_LIST] ✅ Success")
             
         except Exception as e:
             print(f"[WHY_SECTION_LIST] ❌ Error: {e}")
+            import traceback
+            traceback.print_exc()
             
-            self.send_response(500)
-            self.send_header("Content-type", "application/json")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
+            request_handler.send_response(500)
+            request_handler.send_header("Content-type", "application/json")
+            request_handler.send_header("Access-Control-Allow-Origin", "*")
+            request_handler.end_headers()
             
-            self.wfile.write(json.dumps({
+            request_handler.wfile.write(json.dumps({
                 "ok": False,
                 "error": str(e)
             }).encode())
     
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
-        self.end_headers()
+    @staticmethod
+    def do_OPTIONS(request_handler):
+        request_handler.send_response(200)
+        request_handler.send_header("Access-Control-Allow-Origin", "*")
+        request_handler.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
+        request_handler.send_header("Access-Control-Allow-Headers", "Content-Type")
+        request_handler.end_headers()
 

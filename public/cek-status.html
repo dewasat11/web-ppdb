@@ -389,7 +389,7 @@
             const tglDaftar = data.created_at || data.createdat || '-';
             document.getElementById('f_tanggal_daftar').textContent = tglDaftar !== '-' ? new Date(tglDaftar).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
 
-            // Status badge/icon mapping (sesuai database: PENDING, DITERIMA, DITOLAK, DIPROSES)
+            // Status badge/icon mapping (sesuai database: PENDING, REVISI, DITERIMA, DITOLAK, DIPROSES)
             const status = (data.status || 'PENDING').toUpperCase();
             const iconEl = document.getElementById('statusIcon');
             const badgeEl = document.getElementById('statusBadge');
@@ -408,12 +408,12 @@
               label = 'Diterima / Terverifikasi';
               icon = 'bi-check-circle-fill';
             }
-            else if (status === 'DIPROSES' || status === 'PROCESSING') { 
-              color = 'blue'; 
-              bgColor = 'bg-blue-600'; 
-              textColor = 'text-blue-600';
-              label = 'Sedang Diproses';
-              icon = 'bi-clock-fill';
+            else if (status === 'REVISI') { 
+              color = 'orange'; 
+              bgColor = 'bg-orange-600'; 
+              textColor = 'text-orange-600';
+              label = 'Perlu Revisi';
+              icon = 'bi-exclamation-triangle-fill';
             }
             else if (status === 'DITOLAK' || status === 'REJECTED') { 
               color = 'red'; 
@@ -421,6 +421,13 @@
               textColor = 'text-red-600';
               label = 'Ditolak';
               icon = 'bi-x-circle-fill';
+            }
+            else if (status === 'DIPROSES' || status === 'PROCESSING') { 
+              color = 'blue'; 
+              bgColor = 'bg-blue-600'; 
+              textColor = 'text-blue-600';
+              label = 'Sedang Diproses';
+              icon = 'bi-clock-fill';
             }
 
             iconEl.className = `bi ${icon} ${textColor}`;
@@ -465,34 +472,55 @@
                     <div class="inline-block w-24 h-24 bg-green-600 rounded-full flex items-center justify-center shadow-2xl mb-4 animate-bounce">
                       <i class="bi bi-check-circle-fill text-white text-5xl"></i>
                     </div>
-                    <h3 class="font-black text-green-900 text-3xl mb-3">
-                      🎉 SELAMAT! PENDAFTARAN BERHASIL! 🎉
+                    <h3 class="font-black text-green-900 text-3xl mb-3" style="font-family: 'Inter', sans-serif;">
+                      الحمد لله<br/>
+                      <span class="text-2xl">Alhamdulillah</span>
                     </h3>
-                    <div class="inline-block bg-green-600 text-white px-6 py-3 rounded-full text-xl font-bold shadow-lg">
+                    <div class="inline-block bg-green-600 text-white px-6 py-3 rounded-full text-xl font-bold shadow-lg mb-3">
                       ✅ Pendaftaran & Pembayaran Terverifikasi
                     </div>
+                    <p class="text-green-800 text-lg font-semibold mt-2">
+                      🎉 Selamat! Semuanya Sudah Sukses! 🎉
+                    </p>
                   </div>
-                  <div class="bg-white/80 rounded-xl p-6 space-y-3">
+                  <div class="bg-white/80 rounded-xl p-6 space-y-4">
+                    <div class="text-center mb-4">
+                      <p class="text-green-800 text-base leading-relaxed">
+                        <strong>Barakallahu fiikum</strong> (Semoga Allah memberkahi kalian).<br/>
+                        Proses pendaftaran dan pembayaran Anda telah lengkap dan terverifikasi oleh admin Pondok Pesantren Al Ikhsan Beji.
+                      </p>
+                    </div>
                     <div class="flex items-start gap-3">
                       <i class="bi bi-check-circle-fill text-green-600 text-2xl mt-1"></i>
                       <div>
                         <h6 class="font-bold text-green-900 text-lg">Pendaftaran Diverifikasi</h6>
-                        <p class="text-green-700">Berkas pendaftaran Anda telah diterima dan diverifikasi</p>
+                        <p class="text-green-700 text-sm">Berkas pendaftaran Anda telah diterima dan diverifikasi dengan lengkap</p>
                       </div>
                     </div>
                     <div class="flex items-start gap-3">
                       <i class="bi bi-credit-card-fill text-green-600 text-2xl mt-1"></i>
                       <div>
                         <h6 class="font-bold text-green-900 text-lg">Pembayaran Terverifikasi</h6>
-                        <p class="text-green-700">Pembayaran Anda sebesar <strong>Rp ${pembayaran?.jumlah?.toLocaleString('id-ID') || '0'}</strong> telah dikonfirmasi</p>
-                        ${pembayaran?.tanggal_verifikasi ? `<p class="text-green-600 text-sm mt-1"><i class="bi bi-calendar-check"></i> Diverifikasi: ${new Date(pembayaran.tanggal_verifikasi).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>` : ''}
+                        <p class="text-green-700 text-sm">Pembayaran Anda sebesar <strong>Rp ${pembayaran?.jumlah?.toLocaleString('id-ID') || '0'}</strong> telah dikonfirmasi dan diterima</p>
+                        ${pembayaran?.tanggal_verifikasi ? `<p class="text-green-600 text-xs mt-1"><i class="bi bi-calendar-check"></i> Diverifikasi: ${new Date(pembayaran.tanggal_verifikasi).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>` : ''}
                       </div>
                     </div>
                   </div>
-                  <div class="mt-6 bg-blue-50 border-2 border-blue-300 rounded-xl p-4">
-                    <p class="text-blue-800 font-semibold text-center">
-                      <i class="bi bi-info-circle-fill text-blue-600"></i> 
-                      Silakan tunggu informasi lebih lanjut dari sekolah melalui kontak yang Anda daftarkan.
+                  <div class="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl p-5">
+                    <div class="text-center">
+                      <i class="bi bi-info-circle-fill text-blue-600 text-xl mb-2"></i>
+                      <p class="text-blue-800 font-semibold mb-2">
+                        Informasi Selanjutnya
+                      </p>
+                      <p class="text-blue-700 text-sm leading-relaxed">
+                        <strong>Jazakumullahu khairan</strong> (Semoga Allah membalas kebaikan kalian).<br/>
+                        Silakan tunggu informasi lebih lanjut dari Pondok Pesantren Al Ikhsan Beji melalui kontak yang telah Anda daftarkan. Kami akan menghubungi Anda segera.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="mt-4 text-center">
+                    <p class="text-green-700 text-sm italic">
+                      Terima kasih atas kepercayaan Anda kepada kami. Barakallahu fiikum.
                     </p>
                   </div>
                 </div>
@@ -551,7 +579,54 @@
               }
             }
             
-            // KONDISI 3: Pendaftaran DITERIMA + Pembayaran PENDING/belum ada = Lanjutkan Pembayaran
+            // KONDISI 3A: Pendaftaran DITERIMA + Pembayaran sudah upload (PENDING) = Menunggu Verifikasi
+            else if ((status === 'DITERIMA' || status === 'TERVERIFIKASI' || status === 'VERIFIED') && 
+                     pembayaran && statusPembayaran === 'PENDING') {
+              const paymentPendingHTML = `
+                <div class="payment-notification mb-4 bg-gradient-to-r from-yellow-50 to-amber-50 border-3 border-yellow-400 rounded-xl p-6 shadow-xl">
+                  <div class="flex flex-col md:flex-row items-start gap-4">
+                    <div class="flex-shrink-0">
+                      <div class="w-16 h-16 bg-yellow-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                        <i class="bi bi-hourglass-split text-white text-2xl"></i>
+                      </div>
+                    </div>
+                    <div class="flex-1">
+                      <h5 class="font-bold text-yellow-800 mb-2 text-xl">
+                        <i class="bi bi-clock-history"></i> Pembayaran Menunggu Verifikasi
+                      </h5>
+                      <p class="text-yellow-700 mb-2 text-base">
+                        <strong>✅ Status Pendaftaran:</strong> Telah Diverifikasi<br>
+                        <strong>⏳ Status Pembayaran:</strong> Menunggu Verifikasi Admin
+                      </p>
+                      <div class="bg-yellow-100 border-l-4 border-yellow-500 p-3 mb-4 rounded">
+                        <p class="text-yellow-800 font-semibold text-sm mb-1">
+                          <i class="bi bi-info-circle-fill"></i> Informasi:
+                        </p>
+                        <p class="text-yellow-900 text-sm">
+                          Bukti pembayaran Anda telah kami terima dan sedang dalam proses verifikasi oleh admin. Mohon tunggu konfirmasi lebih lanjut.
+                        </p>
+                        ${pembayaran?.jumlah ? `<p class="text-yellow-700 text-xs mt-2"><i class="bi bi-cash-coin"></i> Jumlah: <strong>Rp ${pembayaran.jumlah.toLocaleString('id-ID')}</strong></p>` : ''}
+                        ${pembayaran?.created_at ? `<p class="text-yellow-700 text-xs mt-1"><i class="bi bi-calendar-plus"></i> Upload: ${new Date(pembayaran.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>` : ''}
+                      </div>
+                      <a href="/pembayaran.html?nisn=${data.nisn}&nama=${encodeURIComponent(data.nama || '')}" 
+                         class="inline-flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white font-bold px-8 py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 text-lg">
+                        <i class="bi bi-eye text-xl"></i>
+                        Lihat Detail Pembayaran
+                        <i class="bi bi-arrow-right-circle text-xl"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              `;
+              const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
+              if (firstCard) {
+                firstCard.insertAdjacentHTML('beforebegin', paymentPendingHTML);
+              } else {
+                statusResultContainer.insertAdjacentHTML('afterbegin', paymentPendingHTML);
+              }
+            }
+            
+            // KONDISI 3B: Pendaftaran DITERIMA + Belum ada pembayaran = Lanjutkan Pembayaran
             else if (status === 'DITERIMA' || status === 'TERVERIFIKASI' || status === 'VERIFIED') {
               const paymentInstructionHTML = `
                 <div class="payment-notification mb-4 bg-gradient-to-r from-green-50 to-emerald-50 border-3 border-green-400 rounded-xl p-6 shadow-xl">
@@ -569,17 +644,10 @@
                         <strong>✅ Status:</strong> Berkas Anda telah diverifikasi oleh admin.<br>
                         <strong>📌 Langkah Terakhir:</strong> Silakan lakukan pembayaran untuk menyelesaikan proses pendaftaran.
                       </p>
-                      ${pembayaran && statusPembayaran === 'PENDING' ? `
-                      <div class="bg-yellow-50 border-l-4 border-yellow-500 p-3 mb-4 rounded">
-                        <p class="text-yellow-800 font-semibold text-sm">
-                          <i class="bi bi-hourglass-split"></i> Pembayaran Anda sedang dalam proses verifikasi
-                        </p>
-                      </div>
-                      ` : ''}
                       <a href="/pembayaran.html?nisn=${data.nisn}&nama=${encodeURIComponent(data.nama || '')}" 
                          class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 text-lg">
                         <i class="bi bi-credit-card text-xl"></i>
-                        ${pembayaran && statusPembayaran === 'PENDING' ? 'Lihat Status Pembayaran' : 'Lanjutkan ke Pembayaran'}
+                        Lanjutkan ke Pembayaran
                         <i class="bi bi-arrow-right-circle text-xl"></i>
                       </a>
                     </div>
@@ -596,25 +664,74 @@
               }
             }
             
+            // Show revision message if revisi
+            else if (status === 'REVISI') {
+              const revisiHTML = `
+                <div class="payment-notification mb-4 bg-gradient-to-r from-orange-50 to-amber-50 border-3 border-orange-400 rounded-xl p-6 shadow-xl">
+                  <div class="flex flex-col md:flex-row items-start gap-4">
+                    <div class="flex-shrink-0">
+                      <div class="w-16 h-16 bg-orange-600 rounded-full flex items-center justify-center shadow-lg">
+                        <i class="bi bi-exclamation-triangle-fill text-white text-2xl"></i>
+                      </div>
+                    </div>
+                    <div class="flex-1">
+                      <h5 class="font-bold text-orange-800 mb-2 text-xl">
+                        <i class="bi bi-pencil-square"></i> Pendaftaran Perlu Revisi
+                      </h5>
+                      <p class="text-orange-700 mb-2 text-base">
+                        <strong>⚠️ Status:</strong> Admin meminta Anda untuk melakukan revisi pada berkas pendaftaran.
+                      </p>
+                      <p class="text-orange-700 mb-4 text-sm">
+                        Silakan periksa catatan admin di atas dan perbaiki data yang diminta. Setelah direvisi, kirim ulang untuk verifikasi kembali.
+                      </p>
+                      <a href="/daftar.html?nisn=${data.nisn}&revisi=true" 
+                         class="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-bold px-8 py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 text-lg">
+                        <i class="bi bi-pencil-square text-xl"></i>
+                        Perbaiki Data Pendaftaran
+                        <i class="bi bi-arrow-right-circle text-xl"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              `;
+              const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
+              if (firstCard) {
+                firstCard.insertAdjacentHTML('beforebegin', revisiHTML);
+              } else {
+                statusResultContainer.insertAdjacentHTML('afterbegin', revisiHTML);
+              }
+            }
+            
             // Show rejection message if ditolak
             else if (status === 'DITOLAK' || status === 'REJECTED') {
               const rejectionHTML = `
-                <div class="mt-3 bg-red-50 border-2 border-red-200 rounded-xl p-4">
-                  <div class="flex items-start gap-3">
-                    <i class="bi bi-exclamation-circle-fill text-red-600 text-2xl"></i>
-                    <div>
-                      <h6 class="font-bold text-red-800 mb-1">Pendaftaran Ditolak</h6>
-                      <p class="text-red-700 text-sm mb-2">
-                        Mohon perhatikan catatan admin di atas dan perbaiki data Anda.
+                <div class="payment-notification mb-4 bg-gradient-to-r from-red-50 to-rose-50 border-3 border-red-400 rounded-xl p-6 shadow-xl">
+                  <div class="flex flex-col md:flex-row items-start gap-4">
+                    <div class="flex-shrink-0">
+                      <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
+                        <i class="bi bi-x-circle-fill text-white text-2xl"></i>
+                      </div>
+                    </div>
+                    <div class="flex-1">
+                      <h5 class="font-bold text-red-800 mb-2 text-xl">
+                        <i class="bi bi-x-circle-fill"></i> Pendaftaran Ditolak
+                      </h5>
+                      <p class="text-red-700 mb-2 text-base">
+                        <strong>❌ Status:</strong> Pendaftaran Anda telah ditolak oleh admin.
                       </p>
-                      <p class="text-red-600 text-xs">
-                        Jika ada pertanyaan, silakan hubungi admin kami.
+                      <p class="text-red-700 mb-4 text-sm">
+                        Silakan periksa catatan admin di atas untuk mengetahui alasan penolakan. Jika ada pertanyaan, silakan hubungi admin kami.
                       </p>
                     </div>
                   </div>
                 </div>
               `;
-              statusCatatanSection.insertAdjacentHTML('afterend', rejectionHTML);
+              const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
+              if (firstCard) {
+                firstCard.insertAdjacentHTML('beforebegin', rejectionHTML);
+              } else {
+                statusResultContainer.insertAdjacentHTML('afterbegin', rejectionHTML);
+              }
             }
             
             // Show waiting message if pending/diproses
@@ -680,3 +797,4 @@
     </footer>
   </body>
 </html>
+

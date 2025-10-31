@@ -34,6 +34,8 @@
     { "source": "/api/hero_images_upload", "destination": "/api/index?action=hero_images_upload" },
     { "source": "/api/hero_images_delete", "destination": "/api/index?action=hero_images_delete" },
     { "source": "/api/hero_images_update_order", "destination": "/api/index?action=hero_images_update_order" },
+    { "source": "/api/why_section_list", "destination": "/api/index?action=why_section_list" },
+    { "source": "/api/why_section_update", "destination": "/api/index?action=why_section_update" },
     { "source": "/", "destination": "/index.html" },
     { "source": "/daftar", "destination": "/daftar.html" },
     { "source": "/admin", "destination": "/admin.html" },

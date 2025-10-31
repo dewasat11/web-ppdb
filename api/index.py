@@ -126,11 +126,17 @@ class handler(BaseHTTPRequestHandler):
             
             elif action == 'why_section_list':
                 from lib.handlers.why_section_list import handler as WhySectionListHandler
-                WhySectionListHandler.do_GET(self) if self.command == 'GET' else WhySectionListHandler.do_OPTIONS(self)
+                if self.command == 'GET':
+                    WhySectionListHandler.do_GET(self)
+                else:
+                    WhySectionListHandler.do_OPTIONS(self)
             
             elif action == 'why_section_update':
                 from lib.handlers.why_section_update import handler as WhySectionUpdateHandler
-                WhySectionUpdateHandler.do_POST(self) if self.command == 'POST' else WhySectionUpdateHandler.do_OPTIONS(self)
+                if self.command == 'POST':
+                    WhySectionUpdateHandler.do_POST(self)
+                else:
+                    WhySectionUpdateHandler.do_OPTIONS(self)
                     
             else:
                 # Default response for unknown actions
