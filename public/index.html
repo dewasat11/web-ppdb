@@ -180,8 +180,8 @@
       }
     }
 
-    /* ===== HERO SLIDER STYLES ===== */
-    #heroSlider {
+    /* ===== IMAGE SLIDER STYLES ===== */
+    #imageSlider {
       position: absolute;
       top: 0;
       left: 0;
@@ -192,7 +192,7 @@
       overflow: hidden;
     }
 
-    .hero-slide {
+    .slider-slide {
       /* Styles are set via inline CSS for better control */
       position: absolute;
       top: 0;
@@ -207,10 +207,10 @@
       transition: opacity 1.5s ease-in-out;
     }
 
-    .hero-slide.active {
-      /* Active state handled via inline styles */
-      opacity: 1;
-      z-index: 1;
+    .slider-slide.active {
+      /* Active state handled via inline styles - FULL OPACITY, NO TRANSPARENCY */
+      opacity: 1 !important;
+      z-index: 10 !important;
     }
   </style>
 </head>
@@ -302,16 +302,7 @@
   <!-- MAIN -->
   <main class="flex-1">
     <!-- HERO -->
-    <section class="relative min-h-[70vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden">
-      <!-- Background Image Slider -->
-      <div id="heroSlider" class="absolute inset-0 z-0">
-        <!-- Fallback gradient (will be removed when images load) -->
-        <div id="heroFallback" class="hero-slide active" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #047857 0%, #064e3b 100%);"></div>
-      </div>
-      
-      <!-- Green Overlay (35% opacity) untuk readability -->
-      <div class="absolute inset-0 bg-gradient-to-br from-brand-800/35 to-brand-900/35 z-10"></div>
-
+    <section class="relative min-h-[70vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden" style="background: linear-gradient(135deg, #047857 0%, #064e3b 100%);">
       <!-- Content - Centered Vertically and Horizontally -->
       <div class="relative z-20 w-full h-full flex items-center justify-center">
         <div class="container mx-auto px-4 py-12">
@@ -338,6 +329,14 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- IMAGE SLIDER SECTION (Auto-slide 4 detik) -->
+    <section class="relative w-full h-[60vh] md:h-[70vh] overflow-hidden">
+      <div id="imageSlider" class="absolute inset-0">
+        <!-- Fallback gradient -->
+        <div id="sliderFallback" class="slider-slide active" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #047857 0%, #064e3b 100%);"></div>
       </div>
     </section>
 
@@ -756,72 +755,69 @@
     });
   </script>
   
-  <!-- Hero Slider Script -->
+  <!-- Image Slider Script -->
   <script>
     /**
-     * Hero Image Slider
-     * Auto-slides every 4 seconds with fade transition
+     * Image Slider Section (Auto-slide 4 detik)
+     * Displays images from hero_images table
      */
-    let heroSlides = [];
-    let currentSlideIndex = 0;
-    let sliderInterval = null;
+    let imageSlides = [];
+    let currentImageSlideIndex = 0;
+    let imageSliderInterval = null;
 
     /**
-     * Load hero images from API
+     * Load images from API for slider section
      */
-    async function loadHeroImages() {
+    async function loadImageSlider() {
       try {
-        console.log('[HERO] 🚀 Starting to load hero images...');
+        console.log('[IMAGE_SLIDER] 🚀 Starting to load images...');
         
         // Add cache buster to ensure fresh data
         const cacheBuster = new Date().getTime();
         const response = await fetch(`/api/hero_images_list?_t=${cacheBuster}`);
-        console.log('[HERO] API Response status:', response.status, response.statusText);
+        console.log('[IMAGE_SLIDER] API Response status:', response.status, response.statusText);
         
         const result = await response.json();
-        console.log('[HERO] API Result:', result);
+        console.log('[IMAGE_SLIDER] API Result:', result);
         
         if (!result.ok || !result.data || result.data.length === 0) {
-          console.log('[HERO] ⚠️ No hero images found, keeping fallback gradient');
-          console.log('[HERO] result.ok:', result.ok);
-          console.log('[HERO] result.data:', result.data);
+          console.log('[IMAGE_SLIDER] ⚠️ No images found, keeping fallback gradient');
           return;
         }
         
-        console.log('[HERO] ✅ Found', result.data.length, 'hero images');
-        console.log('[HERO] Image URLs:', result.data.map(img => img.image_url));
+        console.log('[IMAGE_SLIDER] ✅ Found', result.data.length, 'images');
+        console.log('[IMAGE_SLIDER] Image URLs:', result.data.map(img => img.image_url));
         
-        const sliderContainer = document.getElementById('heroSlider');
+        const sliderContainer = document.getElementById('imageSlider');
         if (!sliderContainer) {
-          console.error('[HERO] ❌ Slider container not found!');
+          console.error('[IMAGE_SLIDER] ❌ Slider container not found!');
           return;
         }
         
-        // IMPORTANT: Remove fallback gradient completely
-        const fallback = document.getElementById('heroFallback');
+        // Remove fallback gradient FIRST (before clearing container)
+        const fallback = document.getElementById('sliderFallback');
         if (fallback) {
-          console.log('[HERO] 🗑️ Removing fallback gradient...');
+          console.log('[IMAGE_SLIDER] 🗑️ Removing fallback gradient...');
           fallback.remove();
         }
         
-        // Clear any remaining content
+        // Clear container
         sliderContainer.innerHTML = '';
-        console.log('[HERO] 🧹 Cleared slider container');
+        console.log('[IMAGE_SLIDER] 🧹 Cleared slider container');
         
-        // Create slide elements with explicit styles
+        // Create slide elements
         result.data.forEach((image, index) => {
-          // Clean URL - remove trailing ? if present
           let cleanUrl = image.image_url;
           if (cleanUrl) {
             cleanUrl = cleanUrl.trim().replace(/\?$/, '');
           }
           
-          console.log(`[HERO] 📸 Creating slide ${index} with URL:`, cleanUrl);
+          console.log(`[IMAGE_SLIDER] 📸 Creating slide ${index} with URL:`, cleanUrl);
           
           const slideDiv = document.createElement('div');
-          slideDiv.className = 'hero-slide' + (index === 0 ? ' active' : '');
+          slideDiv.className = 'slider-slide' + (index === 0 ? ' active' : '');
           
-          // Set styles for hero image slider with !important to override any conflicts
+          // CRITICAL: Ensure opacity is 1 for visible slide, NO transparency overlay
           slideDiv.style.cssText = `
             position: absolute !important;
             top: 0 !important;
@@ -835,7 +831,7 @@
             background-position: center !important;
             background-repeat: no-repeat !important;
             opacity: ${index === 0 ? '1' : '0'} !important;
-            z-index: ${index === 0 ? '1' : '0'} !important;
+            z-index: ${index === 0 ? '10' : '0'} !important;
             transition: opacity 1.5s ease-in-out !important;
             pointer-events: none !important;
             will-change: opacity !important;
@@ -848,133 +844,87 @@
           // Verify image loads
           const testImg = new Image();
           testImg.onload = () => {
-            console.log(`[HERO] ✅ Image ${index} loaded successfully:`, cleanUrl);
+            console.log(`[IMAGE_SLIDER] ✅ Image ${index} loaded successfully:`, cleanUrl);
           };
           testImg.onerror = () => {
-            console.error(`[HERO] ❌ Image ${index} failed to load:`, cleanUrl);
-            console.error(`[HERO] Check if URL is accessible and CORS is configured`);
+            console.error(`[IMAGE_SLIDER] ❌ Image ${index} failed to load:`, cleanUrl);
           };
           testImg.src = cleanUrl;
-          
-          console.log(`[HERO] Created slide ${index}:`, {
-            originalUrl: image.image_url,
-            cleanUrl: cleanUrl,
-            className: slideDiv.className,
-            isFirst: index === 0
-          });
         });
         
-        heroSlides = sliderContainer.querySelectorAll('.hero-slide');
-        console.log('[HERO] 📊 Total slides created:', heroSlides.length);
-        
-        // Debug: Log computed styles for first slide
-        if (heroSlides.length > 0) {
-          const firstSlide = heroSlides[0];
-          
-          setTimeout(() => {
-            const computedStyle = window.getComputedStyle(firstSlide);
-            const rect = firstSlide.getBoundingClientRect();
-            
-            console.log('[HERO] 🎨 First slide DEBUG INFO:');
-            console.log('  → Computed styles:', {
-              opacity: computedStyle.opacity,
-              zIndex: computedStyle.zIndex,
-              backgroundImage: computedStyle.backgroundImage,
-              width: computedStyle.width,
-              height: computedStyle.height,
-              position: computedStyle.position,
-              display: computedStyle.display,
-              visibility: computedStyle.visibility,
-              backgroundSize: computedStyle.backgroundSize,
-              backgroundPosition: computedStyle.backgroundPosition
-            });
-            console.log('  → Bounding rect:', {
-              width: rect.width,
-              height: rect.height,
-              top: rect.top,
-              left: rect.left,
-              visible: rect.width > 0 && rect.height > 0
-            });
-            console.log('  → Parent container:', {
-              id: sliderContainer.id,
-              width: sliderContainer.offsetWidth,
-              height: sliderContainer.offsetHeight,
-              childCount: sliderContainer.children.length
-            });
-          }, 100);
-        }
+        imageSlides = sliderContainer.querySelectorAll('.slider-slide');
+        console.log('[IMAGE_SLIDER] 📊 Total slides created:', imageSlides.length);
         
         // Start auto-slider if more than 1 image
-        if (heroSlides.length > 1) {
-          startSlider();
-          console.log('[HERO] ✅ Slider started with', heroSlides.length, 'images (auto-rotate every 4s)');
-        } else if (heroSlides.length === 1) {
-          console.log('[HERO] ✅ Single image loaded (no auto-slide)');
+        if (imageSlides.length > 1) {
+          startImageSlider();
+          console.log('[IMAGE_SLIDER] ✅ Slider started with', imageSlides.length, 'images (auto-rotate every 4s)');
+        } else if (imageSlides.length === 1) {
+          console.log('[IMAGE_SLIDER] ✅ Single image loaded (no auto-slide)');
         }
         
       } catch (error) {
-        console.error('[HERO] ❌ Error loading hero images:', error);
-        console.error('[HERO] Error details:', error.message, error.stack);
-        // Fallback gradient stays visible
+        console.error('[IMAGE_SLIDER] ❌ Error loading images:', error);
+        console.error('[IMAGE_SLIDER] Error details:', error.message, error.stack);
       }
     }
 
     /**
      * Start auto-slider (4 seconds per slide)
      */
-    function startSlider() {
-      if (sliderInterval) {
-        clearInterval(sliderInterval);
+    function startImageSlider() {
+      if (imageSliderInterval) {
+        clearInterval(imageSliderInterval);
       }
       
-      sliderInterval = setInterval(() => {
-        nextSlide();
+      imageSliderInterval = setInterval(() => {
+        nextImageSlide();
       }, 4000); // 4 seconds
     }
 
     /**
      * Move to next slide
      */
-    function nextSlide() {
-      if (heroSlides.length === 0) return;
+    function nextImageSlide() {
+      if (imageSlides.length === 0) return;
       
       // Hide current slide
-      heroSlides[currentSlideIndex].classList.remove('active');
-      heroSlides[currentSlideIndex].style.opacity = '0';
-      heroSlides[currentSlideIndex].style.zIndex = '0';
+      imageSlides[currentImageSlideIndex].classList.remove('active');
+      imageSlides[currentImageSlideIndex].style.opacity = '0';
+      imageSlides[currentImageSlideIndex].style.zIndex = '0';
       
       // Calculate next index (loop back to 0 after last)
-      currentSlideIndex = (currentSlideIndex + 1) % heroSlides.length;
+      currentImageSlideIndex = (currentImageSlideIndex + 1) % imageSlides.length;
       
-      // Show next slide
-      heroSlides[currentSlideIndex].classList.add('active');
-      heroSlides[currentSlideIndex].style.opacity = '1';
-      heroSlides[currentSlideIndex].style.zIndex = '1';
+      // Show next slide - ENSURE FULL OPACITY (NO TRANSPARENCY)
+      imageSlides[currentImageSlideIndex].classList.add('active');
+      imageSlides[currentImageSlideIndex].style.opacity = '1';
+      imageSlides[currentImageSlideIndex].style.zIndex = '10';
       
-      console.log('[HERO] Slide changed to index:', currentSlideIndex);
+      console.log('[IMAGE_SLIDER] Slide changed to index:', currentImageSlideIndex);
     }
 
     /**
-     * Stop slider (if needed)
+     * Stop slider
      */
-    function stopSlider() {
-      if (sliderInterval) {
-        clearInterval(sliderInterval);
-        sliderInterval = null;
-        console.log('[HERO] Slider stopped');
+    function stopImageSlider() {
+      if (imageSliderInterval) {
+        clearInterval(imageSliderInterval);
+        imageSliderInterval = null;
+        console.log('[IMAGE_SLIDER] Slider stopped');
       }
     }
 
-    // Load hero images on page load
-    document.addEventListener('DOMContentLoaded', loadHeroImages);
+    // Load images on page load
+    document.addEventListener('DOMContentLoaded', loadImageSlider);
     
     // Pause slider when page is hidden (performance optimization)
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
-        stopSlider();
+        stopImageSlider();
       } else {
-        if (heroSlides.length > 1) {
-          startSlider();
+        if (imageSlides.length > 1) {
+          startImageSlider();
         }
       }
     });
@@ -982,31 +932,31 @@
     // ===== REAL-TIME SYNC: Listen to hero_images changes =====
     window.addEventListener('load', function() {
       if (typeof supabase !== 'undefined') {
-        const heroChannel = supabase
-          .channel('hero-images-public')
+        const imageChannel = supabase
+          .channel('image-slider-public')
           .on('postgres_changes', { 
             event: '*', 
             schema: 'public', 
             table: 'hero_images' 
           }, (payload) => {
-            console.log('[HERO] 🔄 Hero images changed from admin:', payload);
-            console.log('[HERO] 🔄 Reloading hero slider...');
+            console.log('[IMAGE_SLIDER] 🔄 Images changed from admin:', payload);
+            console.log('[IMAGE_SLIDER] 🔄 Reloading slider...');
             
-            // Reload hero images
-            stopSlider();
+            // Reload images
+            stopImageSlider();
             setTimeout(() => {
-              loadHeroImages();
+              loadImageSlider();
             }, 500);
           })
           .subscribe((status) => {
             if (status === 'SUBSCRIBED') {
-              console.log('[HERO] 🎧 Subscribed to real-time hero_images updates');
+              console.log('[IMAGE_SLIDER] 🎧 Subscribed to real-time updates');
             }
           });
         
         // Cleanup
         window.addEventListener('beforeunload', () => {
-          supabase.removeChannel(heroChannel);
+          supabase.removeChannel(imageChannel);
         });
       }
     });

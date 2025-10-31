@@ -2242,11 +2242,8 @@ Jazakumullahu khairan,
           <div class="col-md-4">
             <div class="card h-100 shadow-sm">
               <div class="position-relative">
-                <img src="${image.image_url}" class="card-img-top" alt="Hero ${index + 1}" style="height: 200px; object-fit: cover;">
-                <!-- Green Overlay Preview -->
-                <div class="position-absolute top-0 start-0 w-100 h-100" 
-                     style="background: linear-gradient(135deg, rgba(4, 120, 87, 0.35), rgba(6, 78, 59, 0.35)); pointer-events: none;">
-                </div>
+                <img src="${image.image_url}" class="card-img-top" alt="Slider Image ${index + 1}" style="height: 200px; object-fit: cover;">
+                <!-- NO OVERLAY - Images display full opacity in slider -->
                 <div class="position-absolute top-0 end-0 m-2">
                   <span class="badge bg-primary">Slide ${index + 1}</span>
                 </div>
