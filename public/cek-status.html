@@ -498,22 +498,44 @@
             console.log('[CEK_STATUS] Pembayaran data:', pembayaran);
             console.log('[CEK_STATUS] Status pembayaran:', statusPembayaranRaw || 'N/A');
 
-            // Show notification based on status - PALING ATAS!
-            const shouldForcePendingStatus = isStatusDiterima && !isPaymentVerified && !isPaymentRejected;
-
-            if (shouldForcePendingStatus) {
-              const pendingLabel = hasPaymentRecord
-                ? 'Menunggu Verifikasi Pembayaran'
-                : 'Menunggu Pembayaran';
-              const pendingBg = 'bg-yellow-500';
-              const pendingText = 'text-yellow-600';
-              iconEl.className = `bi bi-hourglass-split ${pendingText}`;
-              badgeEl.className = `px-4 py-2 rounded-full ${pendingBg} text-white`;
-              badgeEl.textContent = pendingLabel;
-              statusTextEl.className = `inline-block px-3 py-1 rounded ${pendingBg} text-white text-sm`;
-              statusTextEl.textContent = pendingLabel;
+            if (isStatusDiterima) {
+              if (isPaymentVerified) {
+                if (iconEl) iconEl.className = 'bi bi-check-circle-fill text-green-600';
+                if (badgeEl) {
+                  badgeEl.className = 'px-4 py-2 rounded-full bg-green-600 text-white';
+                  badgeEl.textContent = 'Berhasil Sempurna';
+                }
+                if (statusTextEl) {
+                  statusTextEl.className = 'inline-block px-3 py-1 rounded bg-green-600 text-white text-sm font-semibold';
+                  statusTextEl.textContent = 'Berhasil Sempurna';
+                }
+              } else if (isPaymentRejected) {
+                if (iconEl) iconEl.className = 'bi bi-x-circle-fill text-red-600';
+                if (badgeEl) {
+                  badgeEl.className = 'px-4 py-2 rounded-full bg-red-600 text-white';
+                  badgeEl.textContent = 'Pembayaran Ditolak';
+                }
+                if (statusTextEl) {
+                  statusTextEl.className = 'inline-block px-3 py-1 rounded bg-red-600 text-white text-sm font-semibold';
+                  statusTextEl.textContent = 'Pembayaran Ditolak';
+                }
+              } else {
+                const pendingLabel = hasPaymentRecord
+                  ? 'Menunggu Verifikasi Pembayaran'
+                  : 'Menunggu Pembayaran';
+                if (iconEl) iconEl.className = 'bi bi-hourglass-split text-yellow-600';
+                if (badgeEl) {
+                  badgeEl.className = 'px-4 py-2 rounded-full bg-yellow-500 text-white';
+                  badgeEl.textContent = pendingLabel;
+                }
+                if (statusTextEl) {
+                  statusTextEl.className = 'inline-block px-3 py-1 rounded bg-yellow-500 text-white text-sm';
+                  statusTextEl.textContent = pendingLabel;
+                }
+              }
             }
 
+            // Show notification based on status - PALING ATAS!
             // KONDISI 1: Pendaftaran DITERIMA + Pembayaran VERIFIED = SUKSES LENGKAP! 🎉
             if (isStatusDiterima && isPaymentVerified) {
               if (badgeEl) {
