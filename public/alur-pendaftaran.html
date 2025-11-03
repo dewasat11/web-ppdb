@@ -237,15 +237,10 @@
     <h1 class="text-3xl font-bold text-gray-900 mb-6">Alur Pendaftaran</h1>
     <div class="prose max-w-none">
       <p>Berikut adalah langkah-langkah alur pendaftaran Pondok Pesantren Al Ikhsan Beji:</p>
-      <ol class="list-decimal list-inside space-y-2">
-        <li><strong>Pendaftaran Online:</strong> Calon santri mengisi formulir pendaftaran secara online melalui situs web ini.</li>
-        <li><strong>Pembayaran Biaya Pendaftaran:</strong> Melakukan pembayaran biaya pendaftaran sesuai dengan instruksi yang diberikan.</li>
-        <li><strong>Verifikasi Dokumen:</strong> Mengunggah dokumen-dokumen yang diperlukan untuk verifikasi.</li>
-        <li><strong>Tes Seleksi:</strong> Mengikuti tes seleksi yang diselenggarakan oleh pondok pesantren.</li>
-        <li><strong>Pengumuman Hasil:</strong> Melihat hasil tes seleksi melalui situs web.</li>
-        <li><strong>Daftar Ulang:</strong> Melakukan daftar ulang bagi calon santri yang dinyatakan lolos seleksi.</li>
+      <ol id="alurStepsList" class="list-decimal list-inside space-y-2">
+        <li class="text-gray-500">Memuat data alur pendaftaran...</li>
       </ol>
-      <p class="mt-4">Untuk informasi lebih lanjut, silakan hubungi bagian pendaftaran.</p>
+      <p class="mt-4 text-sm text-gray-600" id="alurLastUpdate"></p>
     </div>
   </main>
 
@@ -268,6 +263,69 @@
       warning(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#f59e0b', color: '#fff' }}).showToast(); },
       info(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#3b82f6', color: '#fff' }}).showToast(); }
     }
+  </script>
+
+  <script>
+    (function() {
+      const escapeHtml = (value = "") =>
+        String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+
+      async function loadAlurContent() {
+        const listEl = document.getElementById("alurStepsList");
+        const infoEl = document.getElementById("alurLastUpdate");
+        if (!listEl) return;
+
+        listEl.innerHTML = `<li class="text-gray-500">Memuat data alur pendaftaran...</li>`;
+        if (infoEl) infoEl.textContent = "";
+
+        try {
+          const response = await fetch("/api/alur_steps");
+          const result = await response.json();
+          if (!result.ok) {
+            throw new Error(result.error || "Gagal memuat data");
+          }
+
+          const steps = Array.isArray(result.data) ? result.data : [];
+          steps.sort(
+            (a, b) =>
+              (a?.order_index || 0) - (b?.order_index || 0)
+          );
+
+          if (!steps.length) {
+            listEl.innerHTML = `<li class="text-gray-500">Belum ada data alur. Silakan hubungi admin.</li>`;
+            return;
+          }
+
+          listEl.innerHTML = steps
+            .map((step) => {
+              const title = escapeHtml(step.title || "");
+              const description = escapeHtml(step.description || "");
+              return `<li><strong>${title}</strong>${description ? `: ${description}` : ""}</li>`;
+            })
+            .join("");
+
+          if (infoEl) {
+            const latestTimestamp = steps.reduce((max, step) => {
+              const ts = step?.updated_at ? Date.parse(step.updated_at) : 0;
+              return Number.isNaN(ts) ? max : Math.max(max, ts);
+            }, 0);
+            infoEl.textContent = latestTimestamp
+              ? `Terakhir diperbarui: ${new Date(latestTimestamp).toLocaleString("id-ID")}`
+              : "";
+          }
+        } catch (error) {
+          console.error("[ALUR_PAGE] Error memuat alur:", error);
+          listEl.innerHTML = `<li class="text-red-500">Gagal memuat alur pendaftaran. Silakan coba beberapa saat lagi.</li>`;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadAlurContent);
+    })();
   </script>
 
   <!-- Gelombang Data Loader (Business Logic: Active-based Status) -->

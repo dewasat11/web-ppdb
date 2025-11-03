@@ -237,31 +237,8 @@
     <h1 class="text-3xl font-bold text-gray-900 mb-6">Brosur Pendaftaran</h1>
     <div class="prose max-w-none">
       <p>Unduh brosur resmi untuk melihat program pendidikan, fasilitas, biaya, dan alur pendaftaran santri di Pondok Pesantren Al Ikhsan Beji:</p>
-      <div class="brosur-grid">
-        <div class="brosur-card" data-aos="fade-up" data-aos-delay="150">
-          <i class="bi bi-file-earmark-arrow-down text-brand-700 text-4xl mb-4"></i>
-          <h3 class="text-xl font-semibold text-gray-800 mb-2">Brosur Umum PPDSB</h3>
-          <p class="text-gray-600 mb-4">Ringkasan seluruh unit, program, dan fasilitas Pondok Pesantren Al Ikhsan Beji.</p>
-          <a href="https://www.alikhsan-beji.app/downloads/brosur-ppdsb.pdf" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-brand-700 hover:bg-brand-800" target="_blank">
-            <i class="bi bi-download mr-2"></i> Unduh PDF
-          </a>
-        </div>
-        <div class="brosur-card" data-aos="fade-up" data-aos-delay="250">
-          <i class="bi bi-book text-brand-700 text-4xl mb-4"></i>
-          <h3 class="text-xl font-semibold text-gray-800 mb-2">Brosur Unit MTs</h3>
-          <p class="text-gray-600 mb-4">Kurikulum, kegiatan, dan fasilitas untuk santri jenjang MTs di PPDSB.</p>
-          <a href="https://www.alikhsan-beji.app/downloads/brosur-mts.pdf" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-brand-700 hover:bg-brand-800" target="_blank">
-            <i class="bi bi-download mr-2"></i> Unduh PDF
-          </a>
-        </div>
-        <div class="brosur-card" data-aos="fade-up" data-aos-delay="350">
-          <i class="bi bi-award text-brand-700 text-4xl mb-4"></i>
-          <h3 class="text-xl font-semibold text-gray-800 mb-2">Brosur Unit MA</h3>
-          <p class="text-gray-600 mb-4">Program akademik, peminatan, dan fasilitas untuk santri jenjang MA di PPDSB.</p>
-          <a href="https://www.alikhsan-beji.app/downloads/brosur-ma.pdf" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-brand-700 hover:bg-brand-800" target="_blank">
-            <i class="bi bi-download mr-2"></i> Unduh PDF
-          </a>
-        </div>
+      <div class="brosur-grid" id="brosurContainer">
+        <div class="text-gray-500">Memuat daftar brosur...</div>
       </div>
     </div>
   </main>
@@ -285,6 +262,80 @@
       warning(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#f59e0b', color: '#fff' }}).showToast(); },
       info(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#3b82f6', color: '#fff' }}).showToast(); }
     }
+  </script>
+
+  <script>
+    (function() {
+      const escapeHtml = (value = "") =>
+        String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+
+      const escapeAttribute = escapeHtml;
+
+      function buildBrosurCard(item, index) {
+        const delay = 150 + index * 100;
+        const iconClass =
+          item.icon_class && item.icon_class.trim()
+            ? item.icon_class.trim()
+            : "bi bi-file-earmark-arrow-down";
+        const title = escapeHtml(item.title || "");
+        const description = escapeHtml(item.description || "");
+        const buttonLabel = escapeHtml(item.button_label || "Unduh PDF");
+        const url = escapeAttribute(item.button_url || "#");
+
+        return `
+          <div class="brosur-card" data-aos="fade-up" data-aos-delay="${delay}">
+            <i class="${iconClass} text-brand-700 text-4xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">${title}</h3>
+            <p class="text-gray-600 mb-4">${description}</p>
+            <a href="${url}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-brand-700 hover:bg-brand-800" target="_blank" rel="noopener">
+              <i class="bi bi-download mr-2"></i> ${buttonLabel}
+            </a>
+          </div>
+        `;
+      }
+
+      async function loadBrosurContent() {
+        const container = document.getElementById("brosurContainer");
+        if (!container) return;
+
+        container.innerHTML = `<div class="text-gray-500">Memuat daftar brosur...</div>`;
+
+        try {
+          const response = await fetch("/api/brosur_items");
+          const result = await response.json();
+          if (!result.ok) {
+            throw new Error(result.error || "Gagal memuat data");
+          }
+
+          const items = Array.isArray(result.data) ? result.data : [];
+          items.sort(
+            (a, b) =>
+              (a?.order_index || 0) - (b?.order_index || 0)
+          );
+
+          if (!items.length) {
+            container.innerHTML = `<div class="text-gray-500">Belum ada brosur yang tersedia saat ini.</div>`;
+            return;
+          }
+
+          container.innerHTML = items
+            .map((item, index) => buildBrosurCard(item, index))
+            .join("");
+        } catch (error) {
+          console.error("[BROSUR_PAGE] Error memuat brosur:", error);
+          container.innerHTML = `<div class="text-red-500">Gagal memuat brosur. Silakan coba beberapa saat lagi.</div>`;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadBrosurContent();
+      });
+    })();
   </script>
 
   <!-- Gelombang Data Loader (Business Logic: Active-based Status) -->

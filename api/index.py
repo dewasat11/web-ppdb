@@ -137,6 +137,80 @@ class handler(BaseHTTPRequestHandler):
                     WhySectionUpdateHandler.do_POST(self)
                 else:
                     WhySectionUpdateHandler.do_OPTIONS(self)
+
+            elif action == 'alur_steps':
+                from lib.handlers.alur_steps import handler as AlurStepsHandler
+                if self.command == 'GET':
+                    AlurStepsHandler.do_GET(self)
+                elif self.command == 'POST':
+                    AlurStepsHandler.do_POST(self)
+                elif self.command == 'PUT':
+                    AlurStepsHandler.do_PUT(self)
+                elif self.command == 'DELETE':
+                    AlurStepsHandler.do_DELETE(self)
+                else:
+                    AlurStepsHandler.do_OPTIONS(self)
+
+            elif action == 'syarat_items':
+                from lib.handlers.syarat_items import handler as SyaratItemsHandler
+                if self.command == 'GET':
+                    SyaratItemsHandler.do_GET(self)
+                elif self.command == 'POST':
+                    SyaratItemsHandler.do_POST(self)
+                elif self.command == 'PUT':
+                    SyaratItemsHandler.do_PUT(self)
+                elif self.command == 'DELETE':
+                    SyaratItemsHandler.do_DELETE(self)
+                else:
+                    SyaratItemsHandler.do_OPTIONS(self)
+
+            elif action == 'biaya_items':
+                from lib.handlers.biaya_items import handler as BiayaItemsHandler
+                if self.command == 'GET':
+                    BiayaItemsHandler.do_GET(self)
+                elif self.command == 'POST':
+                    BiayaItemsHandler.do_POST(self)
+                elif self.command == 'PUT':
+                    BiayaItemsHandler.do_PUT(self)
+                elif self.command == 'DELETE':
+                    BiayaItemsHandler.do_DELETE(self)
+                else:
+                    BiayaItemsHandler.do_OPTIONS(self)
+
+            elif action == 'brosur_items':
+                from lib.handlers.brosur_items import handler as BrosurItemsHandler
+                if self.command == 'GET':
+                    BrosurItemsHandler.do_GET(self)
+                elif self.command == 'POST':
+                    BrosurItemsHandler.do_POST(self)
+                elif self.command == 'PUT':
+                    BrosurItemsHandler.do_PUT(self)
+                elif self.command == 'DELETE':
+                    BrosurItemsHandler.do_DELETE(self)
+                else:
+                    BrosurItemsHandler.do_OPTIONS(self)
+
+            elif action == 'kontak_items':
+                from lib.handlers.kontak_items import handler as KontakItemsHandler
+                if self.command == 'GET':
+                    KontakItemsHandler.do_GET(self)
+                elif self.command == 'POST':
+                    KontakItemsHandler.do_POST(self)
+                elif self.command == 'PUT':
+                    KontakItemsHandler.do_PUT(self)
+                elif self.command == 'DELETE':
+                    KontakItemsHandler.do_DELETE(self)
+                else:
+                    KontakItemsHandler.do_OPTIONS(self)
+
+            elif action == 'kontak_settings':
+                from lib.handlers.kontak_settings import handler as KontakSettingsHandler
+                if self.command == 'GET':
+                    KontakSettingsHandler.do_GET(self)
+                elif self.command == 'POST':
+                    KontakSettingsHandler.do_POST(self)
+                else:
+                    KontakSettingsHandler.do_OPTIONS(self)
                     
             else:
                 # Default response for unknown actions
@@ -177,4 +251,3 @@ class handler(BaseHTTPRequestHandler):
     
     def do_OPTIONS(self):
         self._route_request()
-

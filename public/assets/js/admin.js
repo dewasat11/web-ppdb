@@ -15,11 +15,28 @@
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const exists = (el) => !!el;
+  const escapeHtml = (value = "") =>
+    String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  const toInteger = (value, fallback = 0) => {
+    const parsed = Number.parseInt(value, 10);
+    return Number.isNaN(parsed) ? fallback : parsed;
+  };
 
   // Global state (dipakai lintas modul)
   let allPendaftarData = []; // cache pendaftar untuk detail
   let currentPembayaranData = null; // data pembayaran yang sedang dilihat
   let pembayaranAutoRefreshInterval = null;
+  let alurStepsData = [];
+  let syaratItemsData = [];
+  let biayaItemsData = [];
+  let brosurItemsData = [];
+  let kontakItemsData = [];
+  let kontakSettingsData = null;
 
   // Pagination state untuk pendaftar
   let currentPage = 1;
@@ -36,6 +53,21 @@
     prestasi: "Prestasi",
     berita: "Berita",
     gelombang: "Kelola Gelombang",
+    hero: "Hero Slider",
+    why: "Why Section",
+    alur: "Alur Pendaftaran",
+    syarat: "Syarat Pendaftaran",
+    biaya: "Biaya Pendaftaran",
+    brosur: "Brosur",
+    kontak: "Kontak",
+  };
+  const INFORMASI_ENDPOINTS = {
+    alur: "/api/alur_steps",
+    syarat: "/api/syarat_items",
+    biaya: "/api/biaya_items",
+    brosur: "/api/brosur_items",
+    kontak: "/api/kontak_items",
+    kontakSettings: "/api/kontak_settings",
   };
 
   const formatIDDate = (d) =>
@@ -101,6 +133,72 @@
         alert('ℹ️ ' + message);
       }
     }
+  };
+
+  const jsonRequest = async (url, { method = "GET", body, headers } = {}) => {
+    const response = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...(headers || {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    let result;
+    try {
+      result = await response.json();
+    } catch (error) {
+      throw new Error(`Response tidak valid (${response.status})`);
+    }
+
+    if (result && result.ok) {
+      return result;
+    }
+
+    const message =
+      (result && result.error) ||
+      `Permintaan gagal (${response.status})`;
+    throw new Error(message);
+  };
+
+  const setButtonLoading = (button, isLoading, loadingText = "Menyimpan...") => {
+    if (!button) return;
+    if (isLoading) {
+      if (!button.dataset.originalText) {
+        button.dataset.originalText = button.innerHTML;
+      }
+      button.disabled = true;
+      button.innerHTML = `<span class="spinner-border spinner-border-sm"></span> ${loadingText}`;
+    } else {
+      button.disabled = false;
+      if (button.dataset.originalText) {
+        button.innerHTML = button.dataset.originalText;
+        delete button.dataset.originalText;
+      }
+    }
+  };
+
+  const renderLoadingRow = (tbody, colSpan, message = "Memuat...") => {
+    if (!tbody) return;
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="${colSpan}" class="text-center text-muted py-4">
+          <span class="spinner-border spinner-border-sm text-primary me-2"></span>${message}
+        </td>
+      </tr>
+    `;
+  };
+
+  const renderEmptyRow = (tbody, colSpan, message = "Belum ada data") => {
+    if (!tbody) return;
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="${colSpan}" class="text-center text-muted py-4">
+          <i class="bi bi-info-circle me-2"></i>${message}
+        </td>
+      </tr>
+    `;
   };
 
   /* =========================
@@ -196,6 +294,17 @@
     } else if (tab === "why") {
       // Load Why Section data
       loadWhySectionData();
+    } else if (tab === "alur") {
+      loadAlurSteps(true);
+    } else if (tab === "syarat") {
+      loadSyaratItems(true);
+    } else if (tab === "biaya") {
+      loadBiayaItems(true);
+    } else if (tab === "brosur") {
+      loadBrosurItems(true);
+    } else if (tab === "kontak") {
+      loadKontakItems(true);
+      loadKontakSettings();
     }
 
     // Tutup sidebar di mobile
@@ -2798,6 +2907,1189 @@ Jazakumullahu khairan,
   window.loadWhySectionData = loadWhySectionData;
   window.saveWhySection = saveWhySection;
   window.updateWhyPreview = updateWhyPreview;
+
+  /* =========================
+     8) INFORMASI PAGES (Alur, Syarat, Biaya, Brosur, Kontak)
+     ========================= */
+  const sortByOrderIndex = (list = []) =>
+    [...list].sort(
+      (a, b) => toInteger(a?.order_index, 0) - toInteger(b?.order_index, 0)
+    );
+
+  const parseId = (value) => {
+    const num = Number(value);
+    return Number.isFinite(num) && num > 0 ? num : null;
+  };
+
+  async function persistInformasiOrder(endpointKey, list, successMessage, reloadFn) {
+    const endpoint = INFORMASI_ENDPOINTS[endpointKey];
+    if (!endpoint) return;
+
+    const payload = {
+      items: list.map((item, idx) => ({
+        id: item.id,
+        order_index: idx + 1,
+      })),
+    };
+
+    try {
+      await jsonRequest(endpoint, { method: "PUT", body: payload });
+      if (successMessage) {
+        safeToastr.success(successMessage);
+      }
+    } catch (error) {
+      console.error(`[${endpointKey.toUpperCase()}][ORDER] Error:`, error);
+      safeToastr.error(error.message || "Gagal memperbarui urutan");
+    } finally {
+      if (typeof reloadFn === "function") {
+        await reloadFn(false);
+      }
+    }
+  }
+
+  /* ---------- Alur Pendaftaran ---------- */
+  function resetAlurForm() {
+    const form = $("#alurForm");
+    if (form) form.reset();
+    const idField = $("#alurId");
+    if (idField) idField.value = "";
+    const btn = $("#btnSaveAlur");
+    if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Simpan Langkah';
+  }
+
+  function populateAlurForm(item) {
+    if (!item) return;
+    const idField = $("#alurId");
+    if (idField) idField.value = item.id;
+    const titleField = $("#alurTitle");
+    if (titleField) titleField.value = item.title || "";
+    const descField = $("#alurDescription");
+    if (descField) descField.value = item.description || "";
+    const btn = $("#btnSaveAlur");
+    if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Update Langkah';
+    if (titleField) titleField.focus();
+  }
+
+  async function loadAlurSteps(showToast = false) {
+    const tbody = $("#alurTableBody");
+    if (tbody) renderLoadingRow(tbody, 4, "Memuat data alur...");
+
+    try {
+      const result = await jsonRequest(INFORMASI_ENDPOINTS.alur);
+      alurStepsData = sortByOrderIndex(result.data || []);
+      renderAlurSteps();
+      if (showToast) {
+        safeToastr.success("Data alur pendaftaran dimuat");
+      }
+    } catch (error) {
+      console.error("[ALUR] Load error:", error);
+      if (tbody) {
+        renderEmptyRow(tbody, 4, "Gagal memuat data alur");
+      }
+      safeToastr.error(error.message || "Gagal memuat data alur");
+    }
+  }
+
+  function renderAlurSteps() {
+    const tbody = $("#alurTableBody");
+    if (!tbody) return;
+
+    if (!alurStepsData.length) {
+      renderEmptyRow(
+        tbody,
+        4,
+        "Belum ada langkah alur. Tambahkan langkah baru melalui form."
+      );
+      return;
+    }
+
+    const rows = alurStepsData
+      .map((item, index) => {
+        const orderNumber = index + 1;
+        const disableUp = index === 0 ? "disabled" : "";
+        const disableDown =
+          index === alurStepsData.length - 1 ? "disabled" : "";
+
+        return `
+          <tr data-id="${item.id}">
+            <td>
+              <span class="badge bg-primary">${orderNumber}</span>
+              <div class="btn-group btn-group-sm ms-2">
+                <button type="button" class="btn btn-outline-secondary" onclick="moveAlurStep(${item.id}, 'up')" ${disableUp}>
+                  <i class="bi bi-arrow-up"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="moveAlurStep(${item.id}, 'down')" ${disableDown}>
+                  <i class="bi bi-arrow-down"></i>
+                </button>
+              </div>
+            </td>
+            <td><strong>${escapeHtml(item.title || "")}</strong></td>
+            <td>${escapeHtml(item.description || "")}</td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-warning" onclick="editAlurStep(${item.id})">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-danger" onclick="deleteAlurStep(${item.id})">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    tbody.innerHTML = rows;
+  }
+
+  async function handleAlurSubmit(event) {
+    event.preventDefault();
+
+    const idValue = $("#alurId")?.value;
+    const id = parseId(idValue);
+    const title = ($("#alurTitle")?.value || "").trim();
+    const description = ($("#alurDescription")?.value || "").trim();
+
+    if (!title || !description) {
+      safeToastr.warning("Judul dan deskripsi wajib diisi");
+      return;
+    }
+
+    const btn = $("#btnSaveAlur");
+    setButtonLoading(btn, true, id ? "Mengupdate..." : "Menyimpan...");
+
+    try {
+      const payload = { title, description };
+      let message = "Langkah alur ditambahkan";
+      if (id) {
+        payload.id = id;
+        message = "Langkah alur diperbarui";
+        await jsonRequest(INFORMASI_ENDPOINTS.alur, {
+          method: "PUT",
+          body: payload,
+        });
+      } else {
+        await jsonRequest(INFORMASI_ENDPOINTS.alur, {
+          method: "POST",
+          body: payload,
+        });
+      }
+
+      safeToastr.success(message);
+      resetAlurForm();
+      await loadAlurSteps(false);
+    } catch (error) {
+      console.error("[ALUR] Save error:", error);
+      safeToastr.error(error.message || "Gagal menyimpan langkah alur");
+    } finally {
+      setButtonLoading(btn, false);
+    }
+  }
+
+  function editAlurStep(id) {
+    const item = alurStepsData.find(
+      (row) => Number(row.id) === Number(id)
+    );
+    if (!item) {
+      safeToastr.warning("Data tidak ditemukan");
+      return;
+    }
+    populateAlurForm(item);
+  }
+
+  async function deleteAlurStep(id) {
+    const item = alurStepsData.find(
+      (row) => Number(row.id) === Number(id)
+    );
+    if (!item) return;
+
+    if (
+      !confirm(
+        `Hapus langkah "${item.title}"?\nTindakan ini tidak bisa dibatalkan.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await jsonRequest(INFORMASI_ENDPOINTS.alur, {
+        method: "DELETE",
+        body: { id: item.id },
+      });
+      safeToastr.success("Langkah alur dihapus");
+      resetAlurForm();
+      await loadAlurSteps(false);
+    } catch (error) {
+      console.error("[ALUR] Delete error:", error);
+      safeToastr.error(error.message || "Gagal menghapus langkah alur");
+    }
+  }
+
+  function moveAlurStep(id, direction) {
+    const index = alurStepsData.findIndex(
+      (row) => Number(row.id) === Number(id)
+    );
+    if (index === -1) return;
+
+    const delta = direction === "up" ? -1 : 1;
+    const newIndex = index + delta;
+
+    if (newIndex < 0 || newIndex >= alurStepsData.length) {
+      return;
+    }
+
+    const updated = [...alurStepsData];
+    const [moved] = updated.splice(index, 1);
+    updated.splice(newIndex, 0, moved);
+    updated.forEach((item, idx) => {
+      item.order_index = idx + 1;
+    });
+    alurStepsData = updated;
+    renderAlurSteps();
+    persistInformasiOrder(
+      "alur",
+      updated,
+      "Urutan alur diperbarui",
+      loadAlurSteps
+    );
+  }
+
+  /* ---------- Syarat Pendaftaran ---------- */
+  function resetSyaratForm() {
+    const form = $("#syaratForm");
+    if (form) form.reset();
+    const idField = $("#syaratId");
+    if (idField) idField.value = "";
+    const btn = $("#btnSaveSyarat");
+    if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Simpan Syarat';
+  }
+
+  function populateSyaratForm(item) {
+    const idField = $("#syaratId");
+    if (idField) idField.value = item.id;
+    const nameField = $("#syaratName");
+    if (nameField) nameField.value = item.name || "";
+    const btn = $("#btnSaveSyarat");
+    if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Update Syarat';
+    if (nameField) nameField.focus();
+  }
+
+  async function loadSyaratItems(showToast = false) {
+    const tbody = $("#syaratTableBody");
+    if (tbody) renderLoadingRow(tbody, 3, "Memuat data syarat...");
+
+    try {
+      const result = await jsonRequest(INFORMASI_ENDPOINTS.syarat);
+      syaratItemsData = sortByOrderIndex(result.data || []);
+      renderSyaratItems();
+      if (showToast) {
+        safeToastr.success("Data syarat dimuat");
+      }
+    } catch (error) {
+      console.error("[SYARAT] Load error:", error);
+      if (tbody) renderEmptyRow(tbody, 3, "Gagal memuat data syarat");
+      safeToastr.error(error.message || "Gagal memuat data syarat");
+    }
+  }
+
+  function renderSyaratItems() {
+    const tbody = $("#syaratTableBody");
+    if (!tbody) return;
+
+    if (!syaratItemsData.length) {
+      renderEmptyRow(
+        tbody,
+        3,
+        "Belum ada syarat. Tambahkan persyaratan melalui form."
+      );
+      return;
+    }
+
+    const rows = syaratItemsData
+      .map((item, index) => {
+        const orderNumber = index + 1;
+        const disableUp = index === 0 ? "disabled" : "";
+        const disableDown =
+          index === syaratItemsData.length - 1 ? "disabled" : "";
+        return `
+          <tr data-id="${item.id}">
+            <td>
+              <span class="badge bg-success">${orderNumber}</span>
+              <div class="btn-group btn-group-sm ms-2">
+                <button type="button" class="btn btn-outline-secondary" onclick="moveSyaratItem(${item.id}, 'up')" ${disableUp}>
+                  <i class="bi bi-arrow-up"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="moveSyaratItem(${item.id}, 'down')" ${disableDown}>
+                  <i class="bi bi-arrow-down"></i>
+                </button>
+              </div>
+            </td>
+            <td>${escapeHtml(item.name || "")}</td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-warning" onclick="editSyaratItem(${item.id})">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-danger" onclick="deleteSyaratItem(${item.id})">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    tbody.innerHTML = rows;
+  }
+
+  async function handleSyaratSubmit(event) {
+    event.preventDefault();
+
+    const id = parseId($("#syaratId")?.value);
+    const name = ($("#syaratName")?.value || "").trim();
+
+    if (!name) {
+      safeToastr.warning("Nama syarat wajib diisi");
+      return;
+    }
+
+    const btn = $("#btnSaveSyarat");
+    setButtonLoading(btn, true, id ? "Mengupdate..." : "Menyimpan...");
+
+    try {
+      const payload = { name };
+      let message = "Syarat ditambahkan";
+      if (id) {
+        payload.id = id;
+        message = "Syarat diperbarui";
+        await jsonRequest(INFORMASI_ENDPOINTS.syarat, {
+          method: "PUT",
+          body: payload,
+        });
+      } else {
+        await jsonRequest(INFORMASI_ENDPOINTS.syarat, {
+          method: "POST",
+          body: payload,
+        });
+      }
+      safeToastr.success(message);
+      resetSyaratForm();
+      await loadSyaratItems(false);
+    } catch (error) {
+      console.error("[SYARAT] Save error:", error);
+      safeToastr.error(error.message || "Gagal menyimpan syarat");
+    } finally {
+      setButtonLoading(btn, false);
+    }
+  }
+
+  function editSyaratItem(id) {
+    const item = syaratItemsData.find(
+      (row) => Number(row.id) === Number(id)
+    );
+    if (!item) {
+      safeToastr.warning("Data tidak ditemukan");
+      return;
+    }
+    populateSyaratForm(item);
+  }
+
+  async function deleteSyaratItem(id) {
+    const item = syaratItemsData.find(
+      (row) => Number(row.id) === Number(id)
+    );
+    if (!item) return;
+
+    if (
+      !confirm(
+        `Hapus syarat "${item.name}"?\nTindakan ini tidak bisa dibatalkan.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await jsonRequest(INFORMASI_ENDPOINTS.syarat, {
+        method: "DELETE",
+        body: { id: item.id },
+      });
+      safeToastr.success("Syarat dihapus");
+      resetSyaratForm();
+      await loadSyaratItems(false);
+    } catch (error) {
+      console.error("[SYARAT] Delete error:", error);
+      safeToastr.error(error.message || "Gagal menghapus syarat");
+    }
+  }
+
+  function moveSyaratItem(id, direction) {
+    const index = syaratItemsData.findIndex(
+      (row) => Number(row.id) === Number(id)
+    );
+    if (index === -1) return;
+
+    const delta = direction === "up" ? -1 : 1;
+    const newIndex = index + delta;
+    if (newIndex < 0 || newIndex >= syaratItemsData.length) return;
+
+    const updated = [...syaratItemsData];
+    const [moved] = updated.splice(index, 1);
+    updated.splice(newIndex, 0, moved);
+    updated.forEach((item, idx) => {
+      item.order_index = idx + 1;
+    });
+    syaratItemsData = updated;
+    renderSyaratItems();
+    persistInformasiOrder(
+      "syarat",
+      updated,
+      "Urutan syarat diperbarui",
+      loadSyaratItems
+    );
+  }
+
+  /* ---------- Biaya ---------- */
+  function resetBiayaForm() {
+    const form = $("#biayaForm");
+    if (form) form.reset();
+    const idField = $("#biayaId");
+    if (idField) idField.value = "";
+    const btn = $("#btnSaveBiaya");
+    if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Simpan Biaya';
+  }
+
+  function populateBiayaForm(item) {
+    const idField = $("#biayaId");
+    if (idField) idField.value = item.id;
+    const labelField = $("#biayaLabel");
+    if (labelField) labelField.value = item.label || "";
+    const amountField = $("#biayaAmount");
+    if (amountField) amountField.value = item.amount || "";
+    const btn = $("#btnSaveBiaya");
+    if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Update Biaya';
+    if (labelField) labelField.focus();
+  }
+
+  async function loadBiayaItems(showToast = false) {
+    const tbody = $("#biayaTableBody");
+    if (tbody) renderLoadingRow(tbody, 4, "Memuat data biaya...");
+
+    try {
+      const result = await jsonRequest(INFORMASI_ENDPOINTS.biaya);
+      biayaItemsData = sortByOrderIndex(result.data || []);
+      renderBiayaItems();
+      if (showToast) {
+        safeToastr.success("Data biaya dimuat");
+      }
+    } catch (error) {
+      console.error("[BIAYA] Load error:", error);
+      if (tbody) renderEmptyRow(tbody, 4, "Gagal memuat data biaya");
+      safeToastr.error(error.message || "Gagal memuat data biaya");
+    }
+  }
+
+  function renderBiayaItems() {
+    const tbody = $("#biayaTableBody");
+    if (!tbody) return;
+
+    if (!biayaItemsData.length) {
+      renderEmptyRow(
+        tbody,
+        4,
+        "Belum ada data biaya. Tambahkan melalui form."
+      );
+      return;
+    }
+
+    const rows = biayaItemsData
+      .map((item, index) => {
+        const orderNumber = index + 1;
+        const disableUp = index === 0 ? "disabled" : "";
+        const disableDown =
+          index === biayaItemsData.length - 1 ? "disabled" : "";
+        return `
+          <tr data-id="${item.id}">
+            <td>
+              <span class="badge bg-info">${orderNumber}</span>
+              <div class="btn-group btn-group-sm ms-2">
+                <button type="button" class="btn btn-outline-secondary" onclick="moveBiayaItem(${item.id}, 'up')" ${disableUp}>
+                  <i class="bi bi-arrow-up"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="moveBiayaItem(${item.id}, 'down')" ${disableDown}>
+                  <i class="bi bi-arrow-down"></i>
+                </button>
+              </div>
+            </td>
+            <td>${escapeHtml(item.label || "")}</td>
+            <td>${escapeHtml(item.amount || "")}</td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-warning" onclick="editBiayaItem(${item.id})">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-danger" onclick="deleteBiayaItem(${item.id})">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    tbody.innerHTML = rows;
+  }
+
+  async function handleBiayaSubmit(event) {
+    event.preventDefault();
+
+    const id = parseId($("#biayaId")?.value);
+    const label = ($("#biayaLabel")?.value || "").trim();
+    const amount = ($("#biayaAmount")?.value || "").trim();
+
+    if (!label || !amount) {
+      safeToastr.warning("Keterangan dan nominal wajib diisi");
+      return;
+    }
+
+    const btn = $("#btnSaveBiaya");
+    setButtonLoading(btn, true, id ? "Mengupdate..." : "Menyimpan...");
+
+    try {
+      const payload = { label, amount };
+      let message = "Biaya ditambahkan";
+      if (id) {
+        payload.id = id;
+        message = "Biaya diperbarui";
+        await jsonRequest(INFORMASI_ENDPOINTS.biaya, {
+          method: "PUT",
+          body: payload,
+        });
+      } else {
+        await jsonRequest(INFORMASI_ENDPOINTS.biaya, {
+          method: "POST",
+          body: payload,
+        });
+      }
+      safeToastr.success(message);
+      resetBiayaForm();
+      await loadBiayaItems(false);
+    } catch (error) {
+      console.error("[BIAYA] Save error:", error);
+      safeToastr.error(error.message || "Gagal menyimpan data biaya");
+    } finally {
+      setButtonLoading(btn, false);
+    }
+  }
+
+  function editBiayaItem(id) {
+    const item = biayaItemsData.find(
+      (row) => Number(row.id) === Number(id)
+    );
+    if (!item) {
+      safeToastr.warning("Data tidak ditemukan");
+      return;
+    }
+    populateBiayaForm(item);
+  }
+
+  async function deleteBiayaItem(id) {
+    const item = biayaItemsData.find(
+      (row) => Number(row.id) === Number(id)
+    );
+    if (!item) return;
+
+    if (
+      !confirm(
+        `Hapus data biaya "${item.label}"?\nTindakan ini tidak bisa dibatalkan.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await jsonRequest(INFORMASI_ENDPOINTS.biaya, {
+        method: "DELETE",
+        body: { id: item.id },
+      });
+      safeToastr.success("Data biaya dihapus");
+      resetBiayaForm();
+      await loadBiayaItems(false);
+    } catch (error) {
+      console.error("[BIAYA] Delete error:", error);
+      safeToastr.error(error.message || "Gagal menghapus data biaya");
+    }
+  }
+
+  function moveBiayaItem(id, direction) {
+    const index = biayaItemsData.findIndex(
+      (row) => Number(row.id) === Number(id)
+    );
+    if (index === -1) return;
+
+    const delta = direction === "up" ? -1 : 1;
+    const newIndex = index + delta;
+    if (newIndex < 0 || newIndex >= biayaItemsData.length) return;
+
+    const updated = [...biayaItemsData];
+    const [moved] = updated.splice(index, 1);
+    updated.splice(newIndex, 0, moved);
+    updated.forEach((item, idx) => {
+      item.order_index = idx + 1;
+    });
+    biayaItemsData = updated;
+    renderBiayaItems();
+    persistInformasiOrder(
+      "biaya",
+      updated,
+      "Urutan biaya diperbarui",
+      loadBiayaItems
+    );
+  }
+
+  /* ---------- Brosur ---------- */
+  function resetBrosurForm() {
+    const form = $("#brosurForm");
+    if (form) form.reset();
+    const idField = $("#brosurId");
+    if (idField) idField.value = "";
+    const btn = $("#btnSaveBrosur");
+    if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Simpan Brosur';
+    const labelField = $("#brosurButtonLabel");
+    if (labelField && !labelField.value) {
+      labelField.value = "Unduh PDF";
+    }
+    const iconField = $("#brosurIconClass");
+    if (iconField && !iconField.value) {
+      iconField.value = "bi bi-file-earmark-arrow-down";
+    }
+  }
+
+  function populateBrosurForm(item) {
+    const idField = $("#brosurId");
+    if (idField) idField.value = item.id;
+    const titleField = $("#brosurTitle");
+    if (titleField) titleField.value = item.title || "";
+    const descField = $("#brosurDescription");
+    if (descField) descField.value = item.description || "";
+    const labelField = $("#brosurButtonLabel");
+    if (labelField) labelField.value = item.button_label || "";
+    const urlField = $("#brosurButtonUrl");
+    if (urlField) urlField.value = item.button_url || "";
+    const iconField = $("#brosurIconClass");
+    if (iconField) iconField.value = item.icon_class || "";
+    const btn = $("#btnSaveBrosur");
+    if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Update Brosur';
+    if (titleField) titleField.focus();
+  }
+
+  async function loadBrosurItems(showToast = false) {
+    const tbody = $("#brosurTableBody");
+    if (tbody) renderLoadingRow(tbody, 4, "Memuat data brosur...");
+
+    try {
+      const result = await jsonRequest(INFORMASI_ENDPOINTS.brosur);
+      brosurItemsData = sortByOrderIndex(result.data || []);
+      renderBrosurItems();
+      if (showToast) {
+        safeToastr.success("Data brosur dimuat");
+      }
+    } catch (error) {
+      console.error("[BROSUR] Load error:", error);
+      if (tbody) renderEmptyRow(tbody, 4, "Gagal memuat data brosur");
+      safeToastr.error(error.message || "Gagal memuat data brosur");
+    }
+  }
+
+  function renderBrosurItems() {
+    const tbody = $("#brosurTableBody");
+    if (!tbody) return;
+
+    if (!brosurItemsData.length) {
+      renderEmptyRow(
+        tbody,
+        4,
+        "Belum ada brosur. Tambahkan brosur melalui form."
+      );
+      return;
+    }
+
+    const rows = brosurItemsData
+      .map((item, index) => {
+        const orderNumber = index + 1;
+        const disableUp = index === 0 ? "disabled" : "";
+        const disableDown =
+          index === brosurItemsData.length - 1 ? "disabled" : "";
+        const url = escapeHtml(item.button_url || "");
+        return `
+          <tr data-id="${item.id}">
+            <td>
+              <span class="badge bg-secondary">${orderNumber}</span>
+              <div class="btn-group btn-group-sm ms-2">
+                <button type="button" class="btn btn-outline-secondary" onclick="moveBrosurItem(${item.id}, 'up')" ${disableUp}>
+                  <i class="bi bi-arrow-up"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="moveBrosurItem(${item.id}, 'down')" ${disableDown}>
+                  <i class="bi bi-arrow-down"></i>
+                </button>
+              </div>
+            </td>
+            <td>
+              <div class="fw-semibold">${escapeHtml(item.title || "")}</div>
+              <div class="text-muted small">${escapeHtml(item.description || "")}</div>
+            </td>
+            <td>
+              <span class="d-block text-truncate" style="max-width: 220px;" title="${url}">${url}</span>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-warning" onclick="editBrosurItem(${item.id})">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-danger" onclick="deleteBrosurItem(${item.id})">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    tbody.innerHTML = rows;
+  }
+
+  async function handleBrosurSubmit(event) {
+    event.preventDefault();
+
+    const id = parseId($("#brosurId")?.value);
+    const title = ($("#brosurTitle")?.value || "").trim();
+    const description = ($("#brosurDescription")?.value || "").trim();
+    const buttonLabel = ($("#brosurButtonLabel")?.value || "Unduh PDF").trim();
+    const buttonUrl = ($("#brosurButtonUrl")?.value || "").trim();
+    const iconClass = ($("#brosurIconClass")?.value || "").trim();
+
+    if (!title || !description || !buttonUrl) {
+      safeToastr.warning("Judul, deskripsi, dan URL wajib diisi");
+      return;
+    }
+
+    const btn = $("#btnSaveBrosur");
+    setButtonLoading(btn, true, id ? "Mengupdate..." : "Menyimpan...");
+
+    try {
+      const payload = {
+        title,
+        description,
+        button_label: buttonLabel || "Unduh PDF",
+        button_url: buttonUrl,
+        icon_class: iconClass || "bi bi-file-earmark-arrow-down",
+      };
+      let message = "Brosur ditambahkan";
+      if (id) {
+        payload.id = id;
+        message = "Brosur diperbarui";
+        await jsonRequest(INFORMASI_ENDPOINTS.brosur, {
+          method: "PUT",
+          body: payload,
+        });
+      } else {
+        await jsonRequest(INFORMASI_ENDPOINTS.brosur, {
+          method: "POST",
+          body: payload,
+        });
+      }
+      safeToastr.success(message);
+      resetBrosurForm();
+      await loadBrosurItems(false);
+    } catch (error) {
+      console.error("[BROSUR] Save error:", error);
+      safeToastr.error(error.message || "Gagal menyimpan brosur");
+    } finally {
+      setButtonLoading(btn, false);
+    }
+  }
+
+  function editBrosurItem(id) {
+    const item = brosurItemsData.find(
+      (row) => Number(row.id) === Number(id)
+    );
+    if (!item) {
+      safeToastr.warning("Data tidak ditemukan");
+      return;
+    }
+    populateBrosurForm(item);
+  }
+
+  async function deleteBrosurItem(id) {
+    const item = brosurItemsData.find(
+      (row) => Number(row.id) === Number(id)
+    );
+    if (!item) return;
+
+    if (
+      !confirm(
+        `Hapus brosur "${item.title}"?\nTindakan ini tidak bisa dibatalkan.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await jsonRequest(INFORMASI_ENDPOINTS.brosur, {
+        method: "DELETE",
+        body: { id: item.id },
+      });
+      safeToastr.success("Brosur dihapus");
+      resetBrosurForm();
+      await loadBrosurItems(false);
+    } catch (error) {
+      console.error("[BROSUR] Delete error:", error);
+      safeToastr.error(error.message || "Gagal menghapus brosur");
+    }
+  }
+
+  function moveBrosurItem(id, direction) {
+    const index = brosurItemsData.findIndex(
+      (row) => Number(row.id) === Number(id)
+    );
+    if (index === -1) return;
+
+    const delta = direction === "up" ? -1 : 1;
+    const newIndex = index + delta;
+    if (newIndex < 0 || newIndex >= brosurItemsData.length) return;
+
+    const updated = [...brosurItemsData];
+    const [moved] = updated.splice(index, 1);
+    updated.splice(newIndex, 0, moved);
+    updated.forEach((item, idx) => {
+      item.order_index = idx + 1;
+    });
+    brosurItemsData = updated;
+    renderBrosurItems();
+    persistInformasiOrder(
+      "brosur",
+      updated,
+      "Urutan brosur diperbarui",
+      loadBrosurItems
+    );
+  }
+
+  /* ---------- Kontak ---------- */
+  function resetKontakForm() {
+    const form = $("#kontakForm");
+    if (form) form.reset();
+    const idField = $("#kontakId");
+    if (idField) idField.value = "";
+    const btn = $("#btnSaveKontak");
+    if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Simpan Kontak';
+    const typeSelect = $("#kontakType");
+    if (typeSelect) typeSelect.value = "info";
+  }
+
+  function populateKontakForm(item) {
+    const idField = $("#kontakId");
+    if (idField) idField.value = item.id;
+    const titleField = $("#kontakTitle");
+    if (titleField) titleField.value = item.title || "";
+    const valueField = $("#kontakValue");
+    if (valueField) valueField.value = item.value || "";
+    const typeField = $("#kontakType");
+    if (typeField) typeField.value = item.item_type || "info";
+    const linkField = $("#kontakLinkUrl");
+    if (linkField) linkField.value = item.link_url || "";
+    const iconField = $("#kontakIconClass");
+    if (iconField) iconField.value = item.icon_class || "";
+    const btn = $("#btnSaveKontak");
+    if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Update Kontak';
+    if (titleField) titleField.focus();
+  }
+
+  async function loadKontakItems(showToast = false) {
+    const tbody = $("#kontakTableBody");
+    if (tbody) renderLoadingRow(tbody, 4, "Memuat data kontak...");
+
+    try {
+      const result = await jsonRequest(INFORMASI_ENDPOINTS.kontak);
+      kontakItemsData = sortByOrderIndex(result.data || []);
+      renderKontakItems();
+      if (showToast) {
+        safeToastr.success("Data kontak dimuat");
+      }
+    } catch (error) {
+      console.error("[KONTAK] Load error:", error);
+      if (tbody) renderEmptyRow(tbody, 4, "Gagal memuat data kontak");
+      safeToastr.error(error.message || "Gagal memuat data kontak");
+    }
+  }
+
+  function renderKontakItems() {
+    const tbody = $("#kontakTableBody");
+    if (!tbody) return;
+
+    if (!kontakItemsData.length) {
+      renderEmptyRow(
+        tbody,
+        4,
+        "Belum ada data kontak. Tambahkan kontak melalui form."
+      );
+      return;
+    }
+
+    const rows = kontakItemsData
+      .map((item, index) => {
+        const orderNumber = index + 1;
+        const disableUp = index === 0 ? "disabled" : "";
+        const disableDown =
+          index === kontakItemsData.length - 1 ? "disabled" : "";
+        return `
+          <tr data-id="${item.id}">
+            <td>
+              <span class="badge bg-dark">${orderNumber}</span>
+              <div class="btn-group btn-group-sm ms-2">
+                <button type="button" class="btn btn-outline-secondary" onclick="moveKontakItem(${item.id}, 'up')" ${disableUp}>
+                  <i class="bi bi-arrow-up"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="moveKontakItem(${item.id}, 'down')" ${disableDown}>
+                  <i class="bi bi-arrow-down"></i>
+                </button>
+              </div>
+            </td>
+            <td>
+              <div class="fw-semibold">${escapeHtml(item.title || "")}</div>
+              <div class="text-muted small">${escapeHtml(item.item_type || "info")}</div>
+            </td>
+            <td>
+              <div>${escapeHtml(item.value || "")}</div>
+              ${
+                item.link_url
+                  ? `<div class="small text-muted text-truncate" style="max-width:220px;" title="${escapeHtml(item.link_url)}">${escapeHtml(item.link_url)}</div>`
+                  : ""
+              }
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-warning" onclick="editKontakItem(${item.id})">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-danger" onclick="deleteKontakItem(${item.id})">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    tbody.innerHTML = rows;
+  }
+
+  async function handleKontakSubmit(event) {
+    event.preventDefault();
+
+    const id = parseId($("#kontakId")?.value);
+    const title = ($("#kontakTitle")?.value || "").trim();
+    const value = ($("#kontakValue")?.value || "").trim();
+    const itemType = ($("#kontakType")?.value || "info").trim() || "info";
+    const linkUrl = ($("#kontakLinkUrl")?.value || "").trim();
+    const iconClass = ($("#kontakIconClass")?.value || "").trim();
+
+    if (!title || !value) {
+      safeToastr.warning("Judul dan nilai kontak wajib diisi");
+      return;
+    }
+
+    const btn = $("#btnSaveKontak");
+    setButtonLoading(btn, true, id ? "Mengupdate..." : "Menyimpan...");
+
+    try {
+      const payload = {
+        title,
+        value,
+        item_type: itemType,
+        link_url: linkUrl || null,
+        icon_class: iconClass || "bi bi-info-circle",
+      };
+      let message = "Kontak ditambahkan";
+      if (id) {
+        payload.id = id;
+        message = "Kontak diperbarui";
+        await jsonRequest(INFORMASI_ENDPOINTS.kontak, {
+          method: "PUT",
+          body: payload,
+        });
+      } else {
+        await jsonRequest(INFORMASI_ENDPOINTS.kontak, {
+          method: "POST",
+          body: payload,
+        });
+      }
+      safeToastr.success(message);
+      resetKontakForm();
+      await loadKontakItems(false);
+    } catch (error) {
+      console.error("[KONTAK] Save error:", error);
+      safeToastr.error(error.message || "Gagal menyimpan data kontak");
+    } finally {
+      setButtonLoading(btn, false);
+    }
+  }
+
+  function editKontakItem(id) {
+    const item = kontakItemsData.find(
+      (row) => Number(row.id) === Number(id)
+    );
+    if (!item) {
+      safeToastr.warning("Data tidak ditemukan");
+      return;
+    }
+    populateKontakForm(item);
+  }
+
+  async function deleteKontakItem(id) {
+    const item = kontakItemsData.find(
+      (row) => Number(row.id) === Number(id)
+    );
+    if (!item) return;
+
+    if (
+      !confirm(
+        `Hapus kontak "${item.title}"?\nTindakan ini tidak bisa dibatalkan.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await jsonRequest(INFORMASI_ENDPOINTS.kontak, {
+        method: "DELETE",
+        body: { id: item.id },
+      });
+      safeToastr.success("Kontak dihapus");
+      resetKontakForm();
+      await loadKontakItems(false);
+    } catch (error) {
+      console.error("[KONTAK] Delete error:", error);
+      safeToastr.error(error.message || "Gagal menghapus kontak");
+    }
+  }
+
+  function moveKontakItem(id, direction) {
+    const index = kontakItemsData.findIndex(
+      (row) => Number(row.id) === Number(id)
+    );
+    if (index === -1) return;
+
+    const delta = direction === "up" ? -1 : 1;
+    const newIndex = index + delta;
+    if (newIndex < 0 || newIndex >= kontakItemsData.length) return;
+
+    const updated = [...kontakItemsData];
+    const [moved] = updated.splice(index, 1);
+    updated.splice(newIndex, 0, moved);
+    updated.forEach((item, idx) => {
+      item.order_index = idx + 1;
+    });
+    kontakItemsData = updated;
+    renderKontakItems();
+    persistInformasiOrder(
+      "kontak",
+      updated,
+      "Urutan kontak diperbarui",
+      loadKontakItems
+    );
+  }
+
+  /* ---------- Kontak Settings (Map) ---------- */
+  async function loadKontakSettings() {
+    try {
+      const result = await jsonRequest(INFORMASI_ENDPOINTS.kontakSettings);
+      kontakSettingsData = result.data || {};
+      const mapField = $("#kontakMapUrl");
+      if (mapField && kontakSettingsData.map_embed_url) {
+        mapField.value = kontakSettingsData.map_embed_url;
+      }
+    } catch (error) {
+      console.error("[KONTAK_SETTINGS] Load error:", error);
+      safeToastr.error(error.message || "Gagal memuat pengaturan kontak");
+    }
+  }
+
+  async function handleKontakSettingsSubmit(event) {
+    event.preventDefault();
+
+    const mapUrl = ($("#kontakMapUrl")?.value || "").trim();
+    if (!mapUrl) {
+      safeToastr.warning("URL embed Google Maps wajib diisi");
+      return;
+    }
+
+    const btn = $("#btnSaveKontakSettings");
+    setButtonLoading(btn, true, "Menyimpan...");
+
+    try {
+      await jsonRequest(INFORMASI_ENDPOINTS.kontakSettings, {
+        method: "POST",
+        body: { map_embed_url: mapUrl },
+      });
+      safeToastr.success("Pengaturan peta tersimpan");
+      await loadKontakSettings();
+    } catch (error) {
+      console.error("[KONTAK_SETTINGS] Save error:", error);
+      safeToastr.error(error.message || "Gagal menyimpan pengaturan kontak");
+    } finally {
+      setButtonLoading(btn, false);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    $("#alurForm")?.addEventListener("submit", handleAlurSubmit);
+    $("#btnResetAlur")?.addEventListener("click", resetAlurForm);
+
+    $("#syaratForm")?.addEventListener("submit", handleSyaratSubmit);
+    $("#btnResetSyarat")?.addEventListener("click", resetSyaratForm);
+
+    $("#biayaForm")?.addEventListener("submit", handleBiayaSubmit);
+    $("#btnResetBiaya")?.addEventListener("click", resetBiayaForm);
+
+    $("#brosurForm")?.addEventListener("submit", handleBrosurSubmit);
+    $("#btnResetBrosur")?.addEventListener("click", resetBrosurForm);
+
+    $("#kontakForm")?.addEventListener("submit", handleKontakSubmit);
+    $("#btnResetKontak")?.addEventListener("click", resetKontakForm);
+
+    $("#kontakSettingsForm")?.addEventListener("submit", handleKontakSettingsSubmit);
+  });
+
+  // Expose functions for inline handlers
+  window.loadAlurSteps = loadAlurSteps;
+  window.editAlurStep = editAlurStep;
+  window.deleteAlurStep = deleteAlurStep;
+  window.moveAlurStep = moveAlurStep;
+
+  window.loadSyaratItems = loadSyaratItems;
+  window.editSyaratItem = editSyaratItem;
+  window.deleteSyaratItem = deleteSyaratItem;
+  window.moveSyaratItem = moveSyaratItem;
+
+  window.loadBiayaItems = loadBiayaItems;
+  window.editBiayaItem = editBiayaItem;
+  window.deleteBiayaItem = deleteBiayaItem;
+  window.moveBiayaItem = moveBiayaItem;
+
+  window.loadBrosurItems = loadBrosurItems;
+  window.editBrosurItem = editBrosurItem;
+  window.deleteBrosurItem = deleteBrosurItem;
+  window.moveBrosurItem = moveBrosurItem;
+
+  window.loadKontakItems = loadKontakItems;
+  window.editKontakItem = editKontakItem;
+  window.deleteKontakItem = deleteKontakItem;
+  window.moveKontakItem = moveKontakItem;
+  window.loadKontakSettings = loadKontakSettings;
 
   /* =========================
      9) INIT

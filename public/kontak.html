@@ -238,28 +238,15 @@
     <h1 class="text-3xl font-bold text-gray-900 mb-6">Kontak Kami</h1>
     <div class="prose max-w-none">
       <p class="mb-4">Untuk informasi lebih lanjut mengenai Pondok Pesantren Al Ikhsan Beji, silakan hubungi kami melalui saluran berikut:</p>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <div class="bg-brand-50 p-6 rounded-lg shadow-md text-center">
-          <i class="bi bi-whatsapp text-4xl text-brand-700 mb-3"></i>
-          <h3 class="text-xl font-semibold text-gray-800 mb-2">WhatsApp</h3>
-          <a href="https://wa.me/6281234567890" target="_blank" class="text-brand-600 hover:underline">+62 812-3456-7890</a>
-        </div>
-        <div class="bg-brand-50 p-6 rounded-lg shadow-md text-center">
-          <i class="bi bi-envelope-fill text-4xl text-brand-700 mb-3"></i>
-          <h3 class="text-xl font-semibold text-gray-800 mb-2">Email</h3>
-          <a href="mailto:info@alikhsanbeji.sch.id" class="text-brand-600 hover:underline">info@alikhsanbeji.sch.id</a>
-        </div>
-        <div class="bg-brand-50 p-6 rounded-lg shadow-md text-center">
-          <i class="bi bi-geo-alt-fill text-4xl text-brand-700 mb-3"></i>
-          <h3 class="text-xl font-semibold text-gray-800 mb-2">Alamat</h3>
-          <p class="text-gray-700">Jl. Raya Beji No. 100, Depok, Jawa Barat</p>
-        </div>
+      <div id="kontakCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="bg-brand-50 p-6 rounded-lg shadow-md text-center text-gray-500">Memuat data kontak...</div>
       </div>
 
       <h2 class="text-2xl font-bold text-gray-900 mb-4">Lokasi Kami</h2>
       <div class="aspect-w-16 aspect-h-9 w-full rounded-lg overflow-hidden shadow-lg border border-gray-200">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.176460965377!2d106.8291583147699!3d-6.368685995393539!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69ec0e7e1c1f1f%3A0x6d9f7e7e7e7e7e7e!2sPondok%20Pesantren%20Al%20Ikhsan!5e0!3m2!1sen!2sid!4v1678901234567!5m2!1sen!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <iframe id="kontakMapFrame" src="" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
+      <p class="mt-2 text-sm text-gray-500" id="kontakMapInfo"></p>
     </div>
   </main>
 
@@ -282,6 +269,111 @@
       warning(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#f59e0b', color: '#fff' }}).showToast(); },
       info(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#3b82f6', color: '#fff' }}).showToast(); }
     }
+  </script>
+
+  <script>
+    (function() {
+      const escapeHtml = (value = "") =>
+        String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      const escapeAttribute = escapeHtml;
+
+      function buildKontakCard(item, index) {
+        const iconClass =
+          item.icon_class && item.icon_class.trim()
+            ? item.icon_class.trim()
+            : "bi bi-info-circle";
+        const title = escapeHtml(item.title || "");
+        const value = escapeHtml(item.value || "");
+        const link = item.link_url ? item.link_url.trim() : "";
+        const delay = 150 + index * 100;
+        const typeLabel = item.item_type ? escapeHtml(item.item_type) : "";
+
+        const valueMarkup = link
+          ? `<a href="${escapeAttribute(link)}" target="_blank" rel="noopener" class="text-brand-600 hover:underline">${value}</a>`
+          : `<p class="text-gray-700">${value}</p>`;
+
+        return `
+          <div class="bg-brand-50 p-6 rounded-lg shadow-md text-center" data-aos="fade-up" data-aos-delay="${delay}">
+            <i class="${iconClass} text-4xl text-brand-700 mb-3"></i>
+            <h3 class="text-xl font-semibold text-gray-800 mb-1">${title}</h3>
+            ${typeLabel ? `<p class="text-xs uppercase tracking-wide text-brand-600 mb-2">${typeLabel}</p>` : ""}
+            ${valueMarkup}
+          </div>
+        `;
+      }
+
+      async function loadKontakCards() {
+        const container = document.getElementById("kontakCards");
+        if (!container) return;
+
+        container.innerHTML = `<div class="bg-brand-50 p-6 rounded-lg shadow-md text-center text-gray-500">Memuat data kontak...</div>`;
+
+        try {
+          const response = await fetch("/api/kontak_items");
+          const result = await response.json();
+          if (!result.ok) {
+            throw new Error(result.error || "Gagal memuat data");
+          }
+
+          const items = Array.isArray(result.data) ? result.data : [];
+          items.sort(
+            (a, b) =>
+              (a?.order_index || 0) - (b?.order_index || 0)
+          );
+
+          if (!items.length) {
+            container.innerHTML = `<div class="bg-brand-50 p-6 rounded-lg shadow-md text-center text-gray-500">Kontak belum tersedia.</div>`;
+            return;
+          }
+
+          container.innerHTML = items
+            .map((item, index) => buildKontakCard(item, index))
+            .join("");
+        } catch (error) {
+          console.error("[KONTAK_PAGE] Error memuat kontak:", error);
+          container.innerHTML = `<div class="bg-red-50 p-6 rounded-lg shadow-md text-center text-red-600">Gagal memuat kontak.</div>`;
+        }
+      }
+
+      async function loadKontakMap() {
+        const frame = document.getElementById("kontakMapFrame");
+        const infoEl = document.getElementById("kontakMapInfo");
+        if (!frame) return;
+
+        if (infoEl) infoEl.textContent = "Memuat peta lokasi...";
+
+        try {
+          const response = await fetch("/api/kontak_settings");
+          const result = await response.json();
+          if (!result.ok) {
+            throw new Error(result.error || "Gagal memuat pengaturan peta");
+          }
+
+          const mapUrl = result.data?.map_embed_url;
+          if (mapUrl) {
+            frame.src = mapUrl;
+            if (infoEl) infoEl.textContent = "";
+          } else {
+            frame.removeAttribute("src");
+            if (infoEl) infoEl.textContent = "Lokasi belum tersedia.";
+          }
+        } catch (error) {
+          console.error("[KONTAK_PAGE] Error memuat peta:", error);
+          frame.removeAttribute("src");
+          if (infoEl) infoEl.textContent = "Gagal memuat peta lokasi.";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadKontakCards();
+        loadKontakMap();
+      });
+    })();
   </script>
 
   <!-- Gelombang Data Loader (Business Logic: Active-based Status) -->

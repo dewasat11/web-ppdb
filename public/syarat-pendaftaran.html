@@ -237,16 +237,10 @@
     <h1 class="text-3xl font-bold text-gray-900 mb-6">Syarat Pendaftaran</h1>
     <div class="prose max-w-none">
       <p>Untuk mendaftar di Pondok Pesantren Al Ikhsan Beji, calon santri harus memenuhi persyaratan berikut:</p>
-      <ul class="list-disc list-inside space-y-2">
-        <li>Fotokopi Akta Kelahiran</li>
-        <li>Fotokopi Kartu Keluarga (KK)</li>
-        <li>Fotokopi Ijazah terakhir (legalisir)</li>
-        <li>Pas foto berwarna ukuran 3x4 (2 lembar)</li>
-        <li>Surat Keterangan Sehat dari dokter</li>
-        <li>Mengisi formulir pendaftaran</li>
-        <li>Membayar biaya pendaftaran</li>
+      <ul id="syaratList" class="list-disc list-inside space-y-2">
+        <li class="text-gray-500">Memuat daftar syarat...</li>
       </ul>
-      <p class="mt-4">Pastikan semua dokumen disiapkan dengan lengkap sebelum proses verifikasi.</p>
+      <p class="mt-4 text-sm text-gray-600" id="syaratLastUpdate"></p>
     </div>
   </main>
 
@@ -269,6 +263,65 @@
       warning(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#f59e0b', color: '#fff' }}).showToast(); },
       info(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#3b82f6', color: '#fff' }}).showToast(); }
     }
+  </script>
+
+  <script>
+    (function() {
+      const escapeHtml = (value = "") =>
+        String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+
+      async function loadSyaratContent() {
+        const listEl = document.getElementById("syaratList");
+        const infoEl = document.getElementById("syaratLastUpdate");
+        if (!listEl) return;
+
+        listEl.innerHTML = `<li class="text-gray-500">Memuat daftar syarat...</li>`;
+        if (infoEl) infoEl.textContent = "";
+
+        try {
+          const response = await fetch("/api/syarat_items");
+          const result = await response.json();
+          if (!result.ok) {
+            throw new Error(result.error || "Gagal memuat data");
+          }
+
+          const items = Array.isArray(result.data) ? result.data : [];
+          items.sort(
+            (a, b) =>
+              (a?.order_index || 0) - (b?.order_index || 0)
+          );
+
+          if (!items.length) {
+            listEl.innerHTML = `<li class="text-gray-500">Belum ada syarat yang terdaftar.</li>`;
+            return;
+          }
+
+          listEl.innerHTML = items
+            .map((item) => `<li>${escapeHtml(item.name || "")}</li>`)
+            .join("");
+
+          if (infoEl) {
+            const latestTimestamp = items.reduce((max, item) => {
+              const ts = item?.updated_at ? Date.parse(item.updated_at) : 0;
+              return Number.isNaN(ts) ? max : Math.max(max, ts);
+            }, 0);
+            infoEl.textContent = latestTimestamp
+              ? `Terakhir diperbarui: ${new Date(latestTimestamp).toLocaleString("id-ID")}`
+              : "";
+          }
+        } catch (error) {
+          console.error("[SYARAT_PAGE] Error memuat syarat:", error);
+          listEl.innerHTML = `<li class="text-red-500">Gagal memuat persyaratan pendaftaran.</li>`;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadSyaratContent);
+    })();
   </script>
 
   <!-- Gelombang Data Loader (Business Logic: Active-based Status) -->

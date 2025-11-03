@@ -680,6 +680,31 @@
             <i class="bi bi-file-text"></i> Why Section
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="alur" onclick="switchTab('alur')">
+            <i class="bi bi-diagram-3"></i> Alur Pendaftaran
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="syarat" onclick="switchTab('syarat')">
+            <i class="bi bi-clipboard-check"></i> Syarat Pendaftaran
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="biaya" onclick="switchTab('biaya')">
+            <i class="bi bi-cash-stack"></i> Biaya
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="brosur" onclick="switchTab('brosur')">
+            <i class="bi bi-file-earmark-text"></i> Brosur
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="kontak" onclick="switchTab('kontak')">
+            <i class="bi bi-telephone"></i> Kontak
+          </a>
+        </li>
       </ul>
 
       <!-- Sidebar Footer Buttons - Fixed at reasonable position -->
@@ -1193,6 +1218,416 @@
                 <h6 class="mb-3"><i class="bi bi-eye"></i> Preview</h6>
                 <div class="border rounded p-4 bg-light" id="whyPreview">
                   <p class="text-muted text-center mb-0">Preview akan muncul setelah mengisi form</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Alur Pendaftaran -->
+        <div id="tab-alur" class="tab-content" style="display:none">
+          <div class="page-header">
+            <h2><i class="bi bi-diagram-3"></i> Kelola Alur Pendaftaran</h2>
+            <p>Susun langkah-langkah pendaftaran santri baru</p>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-lg-4">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h5 class="mb-0"><i class="bi bi-pencil-square"></i> Form Langkah</h5>
+                </div>
+                <div class="card-body">
+                  <form id="alurForm">
+                    <input type="hidden" id="alurId">
+                    <div class="mb-3">
+                      <label for="alurTitle" class="form-label">Judul Langkah</label>
+                      <input type="text" class="form-control" id="alurTitle" placeholder="Contoh: Pendaftaran Online" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="alurDescription" class="form-label">Deskripsi</label>
+                      <textarea class="form-control" id="alurDescription" rows="4" placeholder="Deskripsi singkat langkah" required></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button type="submit" class="btn btn-primary flex-grow-1" id="btnSaveAlur">
+                        <i class="bi bi-save"></i> Simpan Langkah
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary" id="btnResetAlur">
+                        <i class="bi bi-x-circle"></i> Reset
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-8">
+              <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0"><i class="bi bi-list-ol"></i> Daftar Langkah</h5>
+                  <button type="button" class="btn btn-light btn-sm" onclick="loadAlurSteps()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                  </button>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                      <thead>
+                        <tr>
+                          <th style="width:80px">Urutan</th>
+                          <th>Judul</th>
+                          <th>Deskripsi</th>
+                          <th style="width:180px">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody id="alurTableBody">
+                        <tr>
+                          <td colspan="4" class="text-center text-muted py-4">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Data belum dimuat
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <small class="text-muted">Gunakan tombol panah untuk mengatur urutan langkah.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Syarat Pendaftaran -->
+        <div id="tab-syarat" class="tab-content" style="display:none">
+          <div class="page-header">
+            <h2><i class="bi bi-clipboard-check"></i> Kelola Syarat Pendaftaran</h2>
+            <p>Daftar dokumen dan persyaratan pendaftaran santri baru</p>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-lg-4">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Tambah / Edit Syarat</h5>
+                </div>
+                <div class="card-body">
+                  <form id="syaratForm">
+                    <input type="hidden" id="syaratId">
+                    <div class="mb-3">
+                      <label for="syaratName" class="form-label">Nama Syarat</label>
+                      <input type="text" class="form-control" id="syaratName" placeholder="Contoh: Fotokopi Akta Kelahiran" required>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button type="submit" class="btn btn-primary flex-grow-1" id="btnSaveSyarat">
+                        <i class="bi bi-save"></i> Simpan Syarat
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary" id="btnResetSyarat">
+                        <i class="bi bi-x-circle"></i> Reset
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-8">
+              <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0"><i class="bi bi-list-check"></i> Daftar Syarat</h5>
+                  <button type="button" class="btn btn-light btn-sm" onclick="loadSyaratItems()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                  </button>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                      <thead>
+                        <tr>
+                          <th style="width:80px">Urutan</th>
+                          <th>Syarat</th>
+                          <th style="width:180px">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody id="syaratTableBody">
+                        <tr>
+                          <td colspan="3" class="text-center text-muted py-4">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Data belum dimuat
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <small class="text-muted">Gunakan tombol panah untuk mengatur urutan persyaratan.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Biaya -->
+        <div id="tab-biaya" class="tab-content" style="display:none">
+          <div class="page-header">
+            <h2><i class="bi bi-cash-stack"></i> Kelola Biaya Pendaftaran</h2>
+            <p>Atur rincian biaya pendaftaran dan pendidikan</p>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-lg-4">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Tambah / Edit Biaya</h5>
+                </div>
+                <div class="card-body">
+                  <form id="biayaForm">
+                    <input type="hidden" id="biayaId">
+                    <div class="mb-3">
+                      <label for="biayaLabel" class="form-label">Keterangan</label>
+                      <input type="text" class="form-control" id="biayaLabel" placeholder="Contoh: Biaya Pendaftaran" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="biayaAmount" class="form-label">Nominal</label>
+                      <input type="text" class="form-control" id="biayaAmount" placeholder="Contoh: Rp 300.000,-" required>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button type="submit" class="btn btn-primary flex-grow-1" id="btnSaveBiaya">
+                        <i class="bi bi-save"></i> Simpan Biaya
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary" id="btnResetBiaya">
+                        <i class="bi bi-x-circle"></i> Reset
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-8">
+              <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0"><i class="bi bi-table"></i> Daftar Biaya</h5>
+                  <button type="button" class="btn btn-light btn-sm" onclick="loadBiayaItems()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                  </button>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                      <thead>
+                        <tr>
+                          <th style="width:80px">Urutan</th>
+                          <th>Keterangan</th>
+                          <th>Nominal</th>
+                          <th style="width:180px">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody id="biayaTableBody">
+                        <tr>
+                          <td colspan="4" class="text-center text-muted py-4">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Data belum dimuat
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <small class="text-muted">Gunakan tombol panah untuk mengatur urutan biaya.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Brosur -->
+        <div id="tab-brosur" class="tab-content" style="display:none">
+          <div class="page-header">
+            <h2><i class="bi bi-file-earmark-text"></i> Kelola Brosur</h2>
+            <p>Kelola daftar brosur yang bisa diunduh calon santri</p>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-lg-5">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Tambah / Edit Brosur</h5>
+                </div>
+                <div class="card-body">
+                  <form id="brosurForm">
+                    <input type="hidden" id="brosurId">
+                    <div class="mb-3">
+                      <label for="brosurTitle" class="form-label">Judul</label>
+                      <input type="text" class="form-control" id="brosurTitle" placeholder="Contoh: Brosur Umum PPDSB" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="brosurDescription" class="form-label">Deskripsi</label>
+                      <textarea class="form-control" id="brosurDescription" rows="3" placeholder="Deskripsi singkat brosur" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                      <label for="brosurButtonLabel" class="form-label">Label Tombol</label>
+                      <input type="text" class="form-control" id="brosurButtonLabel" placeholder="Contoh: Unduh PDF" value="Unduh PDF">
+                    </div>
+                    <div class="mb-3">
+                      <label for="brosurButtonUrl" class="form-label">URL Unduhan</label>
+                      <input type="url" class="form-control" id="brosurButtonUrl" placeholder="https://...pdf" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="brosurIconClass" class="form-label">Kelas Ikon</label>
+                      <input type="text" class="form-control" id="brosurIconClass" placeholder="Contoh: bi bi-file-earmark-arrow-down" value="bi bi-file-earmark-arrow-down">
+                      <small class="text-muted">Gunakan kelas ikon Bootstrap Icons</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button type="submit" class="btn btn-primary flex-grow-1" id="btnSaveBrosur">
+                        <i class="bi bi-save"></i> Simpan Brosur
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary" id="btnResetBrosur">
+                        <i class="bi bi-x-circle"></i> Reset
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-7">
+              <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0"><i class="bi bi-journal-text"></i> Daftar Brosur</h5>
+                  <button type="button" class="btn btn-light btn-sm" onclick="loadBrosurItems()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                  </button>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                      <thead>
+                        <tr>
+                          <th style="width:80px">Urutan</th>
+                          <th>Judul</th>
+                          <th>Link</th>
+                          <th style="width:200px">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody id="brosurTableBody">
+                        <tr>
+                          <td colspan="4" class="text-center text-muted py-4">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Data belum dimuat
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <small class="text-muted">Pastikan tautan brosur mengarah ke file PDF.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Kontak -->
+        <div id="tab-kontak" class="tab-content" style="display:none">
+          <div class="page-header">
+            <h2><i class="bi bi-telephone"></i> Kelola Kontak</h2>
+            <p>Atur daftar saluran kontak dan tautan peta lokasi</p>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-lg-6">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h5 class="mb-0"><i class="bi bi-person-lines-fill"></i> Tambah / Edit Kontak</h5>
+                </div>
+                <div class="card-body">
+                  <form id="kontakForm">
+                    <input type="hidden" id="kontakId">
+                    <div class="mb-3">
+                      <label for="kontakTitle" class="form-label">Judul</label>
+                      <input type="text" class="form-control" id="kontakTitle" placeholder="Contoh: WhatsApp" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="kontakValue" class="form-label">Nilai</label>
+                      <input type="text" class="form-control" id="kontakValue" placeholder="Contoh: +62 812-3456-7890" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="kontakType" class="form-label">Jenis</label>
+                      <select class="form-select" id="kontakType">
+                        <option value="info">Info Lainnya</option>
+                        <option value="whatsapp">WhatsApp</option>
+                        <option value="email">Email</option>
+                        <option value="address">Alamat</option>
+                        <option value="phone">Telepon</option>
+                        <option value="website">Website</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label for="kontakLinkUrl" class="form-label">URL (Opsional)</label>
+                      <input type="url" class="form-control" id="kontakLinkUrl" placeholder="https:// atau mailto:">
+                      <small class="text-muted">Kosongkan jika tidak perlu tautan</small>
+                    </div>
+                    <div class="mb-3">
+                      <label for="kontakIconClass" class="form-label">Kelas Ikon</label>
+                      <input type="text" class="form-control" id="kontakIconClass" placeholder="Contoh: bi bi-whatsapp" value="bi bi-info-circle">
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button type="submit" class="btn btn-primary flex-grow-1" id="btnSaveKontak">
+                        <i class="bi bi-save"></i> Simpan Kontak
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary" id="btnResetKontak">
+                        <i class="bi bi-x-circle"></i> Reset
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0"><i class="bi bi-list-ul"></i> Daftar Kontak</h5>
+                  <button type="button" class="btn btn-light btn-sm" onclick="loadKontakItems()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                  </button>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                      <thead>
+                        <tr>
+                          <th style="width:80px">Urutan</th>
+                          <th>Judul</th>
+                          <th>Nilai</th>
+                          <th style="width:200px">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody id="kontakTableBody">
+                        <tr>
+                          <td colspan="4" class="text-center text-muted py-4">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Data belum dimuat
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <small class="text-muted">Gunakan tombol panah untuk mengatur urutan kontak.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-2">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0"><i class="bi bi-geo-alt"></i> Pengaturan Peta Lokasi</h5>
+                  <button type="button" class="btn btn-light btn-sm" onclick="loadKontakSettings()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                  </button>
+                </div>
+                <div class="card-body">
+                  <form id="kontakSettingsForm">
+                    <div class="mb-3">
+                      <label for="kontakMapUrl" class="form-label">URL Embed Google Maps</label>
+                      <input type="url" class="form-control" id="kontakMapUrl" placeholder="https://www.google.com/maps/embed?..." required>
+                      <small class="text-muted">Gunakan URL embed yang dimulai dengan https://www.google.com/maps/embed?...</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button type="submit" class="btn btn-primary" id="btnSaveKontakSettings">
+                        <i class="bi bi-save"></i> Simpan Map
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>

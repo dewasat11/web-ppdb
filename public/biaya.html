@@ -128,7 +128,7 @@
               <div x-cloak x-show="profileDropdownOpen" @click.outside="profileDropdownOpen=false" x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100">
                 <a href="/alur-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Alur Pendaftaran</a>
                 <a href="/syarat-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Syarat Pendaftaran</a>
-                <a href="/biaya.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Biaya</a>
+                <a href="/biaya.html" aria-current="page" class="block px-4 py-2 text-sm font-medium text-brand-700 bg-brand-50 rounded-md">Biaya</a>
               </div>
             </div>
 
@@ -164,14 +164,14 @@
       </div>
 
       <div class="px-2 pt-4 pb-3 space-y-1">
-        <a href="/" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50">Beranda</a>
+        <a href="/" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-700 hover:bg-gray-50">Beranda</a>
 
-        <details class="px-1">
-          <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium">Informasi</summary>
+        <details class="px-1" open>
+          <summary class="cursor-pointer bg-brand-100 text-brand-700 block px-3 py-2 rounded-md text-base font-medium">Informasi</summary>
           <div class="pl-6 space-y-1 mt-2">
             <a href="/alur-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Alur Pendaftaran</a>
             <a href="/syarat-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Syarat Pendaftaran</a>
-            <a href="/biaya.html" class="bg-brand-100 text-brand-700 block px-3 py-2 text-sm rounded-md">Biaya</a>
+            <a href="/biaya.html" aria-current="page" class="block px-3 py-2 text-sm font-medium rounded-md bg-brand-50 text-brand-700">Biaya</a>
           </div>
         </details>
 
@@ -179,7 +179,7 @@
         <a href="/kontak.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50">Kontak</a>
 
         <div class="pt-4 pb-2 px-2">
-          <a href="/login.html" class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center">Admin</a>
+          <a href="/login" class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center">Admin</a>
         </div>
       </div>
     </div>
@@ -197,26 +197,9 @@
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Biaya</th>
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
+        <tbody id="biayaTableBody" class="bg-white divide-y divide-gray-200">
           <tr>
-            <td class="px-6 py-4 whitespace-nowrap">Biaya Pendaftaran</td>
-            <td class="px-6 py-4 whitespace-nowrap">Rp 300.000,-</td>
-          </tr>
-          <tr>
-            <td class="px-6 py-4 whitespace-nowrap">Uang Pangkal (Sarana & Prasarana)</td>
-            <td class="px-6 py-4 whitespace-nowrap">Rp 3.000.000,-</td>
-          </tr>
-          <tr>
-            <td class="px-6 py-4 whitespace-nowrap">Uang DSP (Dana Sumbangan Pendidikan)</td>
-            <td class="px-6 py-4 whitespace-nowrap">Rp 2.500.000,-</td>
-          </tr>
-          <tr>
-            <td class="px-6 py-4 whitespace-nowrap">Uang Buku & Seragam (per tahun)</td>
-            <td class="px-6 py-4 whitespace-nowrap">Rp 1.500.000,-</td>
-          </tr>
-          <tr>
-            <td class="px-6 py-4 whitespace-nowrap">SPP Bulanan</td>
-            <td class="px-6 py-4 whitespace-nowrap">Rp 750.000,-</td>
+            <td colspan="2" class="px-6 py-4 text-center text-gray-500">Memuat data biaya...</td>
           </tr>
         </tbody>
       </table>
@@ -243,6 +226,72 @@
       warning(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#f59e0b', color: '#fff' }}).showToast(); },
       info(msg){ Toastify({ text: msg, duration: 4000, close: true, gravity: 'top', position: 'right', style: { background: '#3b82f6', color: '#fff' }}).showToast(); }
     }
+  </script>
+
+  <script>
+    (function() {
+      const escapeHtml = (value = "") =>
+        String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+
+      async function loadBiayaContent() {
+        const tbody = document.getElementById("biayaTableBody");
+        if (!tbody) return;
+
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="2" class="px-6 py-4 text-center text-gray-500">Memuat data biaya...</td>
+          </tr>
+        `;
+
+        try {
+          const response = await fetch("/api/biaya_items");
+          const result = await response.json();
+          if (!result.ok) {
+            throw new Error(result.error || "Gagal memuat data");
+          }
+
+          const items = Array.isArray(result.data) ? result.data : [];
+          items.sort(
+            (a, b) =>
+              (a?.order_index || 0) - (b?.order_index || 0)
+          );
+
+          if (!items.length) {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="2" class="px-6 py-4 text-center text-gray-500">Belum ada data biaya.</td>
+              </tr>
+            `;
+            return;
+          }
+
+          tbody.innerHTML = items
+            .map(
+              (item) => `
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">${escapeHtml(item.label || "")}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">${escapeHtml(item.amount || "")}</td>
+                </tr>
+              `
+            )
+            .join("");
+        } catch (error) {
+          console.error("[BIAYA_PAGE] Error memuat biaya:", error);
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="2" class="px-6 py-4 text-center text-red-500">Gagal memuat data biaya. Silakan coba lagi.</td>
+            </tr>
+          `;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadBiayaContent);
+    })();
   </script>
 
   <!-- Alpine.js -->
