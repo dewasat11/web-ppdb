@@ -329,6 +329,22 @@
           alert(msg);
         }
 
+        const formatRupiah = (value) => {
+          if (value === null || value === undefined) return '0';
+          const numeric = Number(value);
+          if (Number.isFinite(numeric)) {
+            return numeric.toLocaleString('id-ID');
+          }
+          const digitsOnlyStr = String(value).replace(/[^\d]/g, '');
+          if (digitsOnlyStr.length > 0) {
+            const digitsOnly = Number(digitsOnlyStr);
+            if (Number.isFinite(digitsOnly)) {
+              return digitsOnly.toLocaleString('id-ID');
+            }
+          }
+          return String(value);
+        };
+
         // Enter key triggers
         input?.addEventListener('keydown', (e) => {
           if (e.key === 'Enter') { e.preventDefault(); btn?.click(); }
@@ -377,6 +393,18 @@
 
             // Map data from database
             const data = json.data || {};
+            const statusResultContainer = document.getElementById('statusResult');
+            const statusCatatanSection = document.getElementById('statusCatatanSection');
+
+            if (statusResultContainer) {
+              statusResultContainer
+                .querySelectorAll('[data-dynamic]')
+                .forEach((el) => el.remove());
+
+              statusResultContainer
+                .querySelectorAll('.verified-info')
+                .forEach((el) => el.remove());
+            }
             document.getElementById('f_nisn').textContent = data.nisn || v;
             document.getElementById('f_nama').textContent = data.nama || '-';
             document.getElementById('f_tempat_lahir').textContent = data.tempatLahir || '-';
@@ -438,8 +466,11 @@
 
             // Catatan admin (alasan)
             const catatanAdmin = data.alasan || '-';
-            document.getElementById('f_catatan').textContent = catatanAdmin;
-            
+            const catatanEl = document.getElementById('f_catatan');
+            if (catatanEl) {
+              catatanEl.textContent = catatanAdmin;
+            }
+
             // Verified info (jika ada)
             if (data.verified_by && data.verified_at) {
               const verifiedDate = new Date(data.verified_at).toLocaleDateString('id-ID', { 
@@ -449,25 +480,51 @@
                 hour: '2-digit', 
                 minute: '2-digit' 
               });
-              const verifiedInfo = `<div class="mt-2 text-sm text-gray-600"><i class="bi bi-person-check"></i> Diverifikasi oleh: <strong>${data.verified_by}</strong> pada ${verifiedDate}</div>`;
-              document.getElementById('f_catatan').insertAdjacentHTML('afterend', verifiedInfo);
+              const verifiedInfo = `<div class="verified-info status-extra mt-2 text-sm text-gray-600" data-dynamic="true"><i class="bi bi-person-check"></i> Diverifikasi oleh: <strong>${data.verified_by}</strong> pada ${verifiedDate}</div>`;
+              catatanEl?.insertAdjacentHTML('afterend', verifiedInfo);
             }
             
             // Cek data pembayaran
             const pembayaran = data.pembayaran || null;
-            const statusPembayaran = pembayaran?.status_pembayaran?.toUpperCase() || 'PENDING';
+            const statusPembayaranRaw = pembayaran?.status_pembayaran
+              ? pembayaran.status_pembayaran.toString().trim().toUpperCase()
+              : '';
+            const isStatusDiterima = ['DITERIMA', 'TERVERIFIKASI', 'VERIFIED'].includes(status);
+            const isPaymentVerified = ['VERIFIED', 'APPROVED', 'SUCCESS', 'PAID', 'LUNAS', 'COMPLETED', 'TERVERIFIKASI'].includes(statusPembayaranRaw);
+            const isPaymentRejected = ['REJECTED', 'DITOLAK'].includes(statusPembayaranRaw);
+            const isPaymentPending = ['PENDING', 'MENUNGGU', 'WAITING', 'IN_REVIEW', 'PROCESSING'].includes(statusPembayaranRaw);
+            const hasPaymentRecord = Boolean(pembayaran);
             
             console.log('[CEK_STATUS] Pembayaran data:', pembayaran);
-            console.log('[CEK_STATUS] Status pembayaran:', statusPembayaran);
+            console.log('[CEK_STATUS] Status pembayaran:', statusPembayaranRaw || 'N/A');
 
             // Show notification based on status - PALING ATAS!
-            const statusResultContainer = document.getElementById('statusResult');
-            
+            const shouldForcePendingStatus = isStatusDiterima && !isPaymentVerified && !isPaymentRejected;
+
+            if (shouldForcePendingStatus) {
+              const pendingLabel = hasPaymentRecord
+                ? 'Menunggu Verifikasi Pembayaran'
+                : 'Menunggu Pembayaran';
+              const pendingBg = 'bg-yellow-500';
+              const pendingText = 'text-yellow-600';
+              iconEl.className = `bi bi-hourglass-split ${pendingText}`;
+              badgeEl.className = `px-4 py-2 rounded-full ${pendingBg} text-white`;
+              badgeEl.textContent = pendingLabel;
+              statusTextEl.className = `inline-block px-3 py-1 rounded ${pendingBg} text-white text-sm`;
+              statusTextEl.textContent = pendingLabel;
+            }
+
             // KONDISI 1: Pendaftaran DITERIMA + Pembayaran VERIFIED = SUKSES LENGKAP! 🎉
-            if ((status === 'DITERIMA' || status === 'TERVERIFIKASI' || status === 'VERIFIED') && 
-                statusPembayaran === 'VERIFIED') {
+            if (isStatusDiterima && isPaymentVerified) {
+              if (badgeEl) {
+                badgeEl.textContent = 'Berhasil Sempurna';
+              }
+              if (statusTextEl) {
+                statusTextEl.textContent = 'Berhasil Sempurna';
+                statusTextEl.classList.add('font-semibold');
+              }
               const successHTML = `
-                <div class="payment-notification mb-4 bg-gradient-to-r from-green-100 via-emerald-100 to-green-100 border-4 border-green-500 rounded-2xl p-8 shadow-2xl">
+                <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-green-100 via-emerald-100 to-green-100 border-4 border-green-500 rounded-2xl p-8 shadow-2xl" data-dynamic="true">
                   <div class="text-center mb-6">
                     <div class="inline-block w-24 h-24 bg-green-600 rounded-full flex items-center justify-center shadow-2xl mb-4 animate-bounce">
                       <i class="bi bi-check-circle-fill text-white text-5xl"></i>
@@ -477,7 +534,7 @@
                       <span class="text-2xl">Alhamdulillah</span>
                     </h3>
                     <div class="inline-block bg-green-600 text-white px-6 py-3 rounded-full text-xl font-bold shadow-lg mb-3">
-                      ✅ Pendaftaran & Pembayaran Terverifikasi
+                      ✅ Berhasil Sempurna
                     </div>
                     <p class="text-green-800 text-lg font-semibold mt-2">
                       🎉 Selamat! Semuanya Sudah Sukses! 🎉
@@ -501,7 +558,7 @@
                       <i class="bi bi-credit-card-fill text-green-600 text-2xl mt-1"></i>
                       <div>
                         <h6 class="font-bold text-green-900 text-lg">Pembayaran Terverifikasi</h6>
-                        <p class="text-green-700 text-sm">Pembayaran Anda sebesar <strong>Rp ${pembayaran?.jumlah?.toLocaleString('id-ID') || '0'}</strong> telah dikonfirmasi dan diterima</p>
+                        <p class="text-green-700 text-sm">Pembayaran Anda sebesar <strong>Rp ${formatRupiah(pembayaran?.jumlah)}</strong> telah dikonfirmasi dan diterima</p>
                         ${pembayaran?.tanggal_verifikasi ? `<p class="text-green-600 text-xs mt-1"><i class="bi bi-calendar-check"></i> Diverifikasi: ${new Date(pembayaran.tanggal_verifikasi).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>` : ''}
                       </div>
                     </div>
@@ -525,19 +582,20 @@
                   </div>
                 </div>
               `;
-              const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
-              if (firstCard) {
-                firstCard.insertAdjacentHTML('beforebegin', successHTML);
-              } else {
-                statusResultContainer.insertAdjacentHTML('afterbegin', successHTML);
+              if (statusResultContainer) {
+                const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
+                if (firstCard) {
+                  firstCard.insertAdjacentHTML('beforebegin', successHTML);
+                } else {
+                  statusResultContainer.insertAdjacentHTML('afterbegin', successHTML);
+                }
               }
             }
             
             // KONDISI 2: Pendaftaran DITERIMA + Pembayaran REJECTED = Pembayaran Ditolak
-            else if ((status === 'DITERIMA' || status === 'TERVERIFIKASI' || status === 'VERIFIED') && 
-                     statusPembayaran === 'REJECTED') {
+            else if (isStatusDiterima && isPaymentRejected) {
               const rejectedPaymentHTML = `
-                <div class="payment-notification mb-4 bg-gradient-to-r from-orange-50 to-red-50 border-3 border-orange-400 rounded-xl p-6 shadow-xl">
+                <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-orange-50 to-red-50 border-3 border-orange-400 rounded-xl p-6 shadow-xl" data-dynamic="true">
                   <div class="flex flex-col md:flex-row items-start gap-4">
                     <div class="flex-shrink-0">
                       <div class="w-16 h-16 bg-orange-600 rounded-full flex items-center justify-center shadow-lg">
@@ -571,19 +629,20 @@
                   </div>
                 </div>
               `;
-              const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
-              if (firstCard) {
-                firstCard.insertAdjacentHTML('beforebegin', rejectedPaymentHTML);
-              } else {
-                statusResultContainer.insertAdjacentHTML('afterbegin', rejectedPaymentHTML);
+              if (statusResultContainer) {
+                const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
+                if (firstCard) {
+                  firstCard.insertAdjacentHTML('beforebegin', rejectedPaymentHTML);
+                } else {
+                  statusResultContainer.insertAdjacentHTML('afterbegin', rejectedPaymentHTML);
+                }
               }
             }
             
             // KONDISI 3A: Pendaftaran DITERIMA + Pembayaran sudah upload (PENDING) = Menunggu Verifikasi
-            else if ((status === 'DITERIMA' || status === 'TERVERIFIKASI' || status === 'VERIFIED') && 
-                     pembayaran && statusPembayaran === 'PENDING') {
+            else if (isStatusDiterima && hasPaymentRecord && isPaymentPending) {
               const paymentPendingHTML = `
-                <div class="payment-notification mb-4 bg-gradient-to-r from-yellow-50 to-amber-50 border-3 border-yellow-400 rounded-xl p-6 shadow-xl">
+                <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-yellow-50 to-amber-50 border-3 border-yellow-400 rounded-xl p-6 shadow-xl" data-dynamic="true">
                   <div class="flex flex-col md:flex-row items-start gap-4">
                     <div class="flex-shrink-0">
                       <div class="w-16 h-16 bg-yellow-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
@@ -605,7 +664,7 @@
                         <p class="text-yellow-900 text-sm">
                           Bukti pembayaran Anda telah kami terima dan sedang dalam proses verifikasi oleh admin. Mohon tunggu konfirmasi lebih lanjut.
                         </p>
-                        ${pembayaran?.jumlah ? `<p class="text-yellow-700 text-xs mt-2"><i class="bi bi-cash-coin"></i> Jumlah: <strong>Rp ${pembayaran.jumlah.toLocaleString('id-ID')}</strong></p>` : ''}
+                        ${pembayaran?.jumlah ? `<p class="text-yellow-700 text-xs mt-2"><i class="bi bi-cash-coin"></i> Jumlah: <strong>Rp ${formatRupiah(pembayaran.jumlah)}</strong></p>` : ''}
                         ${pembayaran?.created_at ? `<p class="text-yellow-700 text-xs mt-1"><i class="bi bi-calendar-plus"></i> Upload: ${new Date(pembayaran.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>` : ''}
                       </div>
                       <a href="/pembayaran.html?nisn=${data.nisn}&nama=${encodeURIComponent(data.nama || '')}" 
@@ -618,18 +677,20 @@
                   </div>
                 </div>
               `;
-              const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
-              if (firstCard) {
-                firstCard.insertAdjacentHTML('beforebegin', paymentPendingHTML);
-              } else {
-                statusResultContainer.insertAdjacentHTML('afterbegin', paymentPendingHTML);
+              if (statusResultContainer) {
+                const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
+                if (firstCard) {
+                  firstCard.insertAdjacentHTML('beforebegin', paymentPendingHTML);
+                } else {
+                  statusResultContainer.insertAdjacentHTML('afterbegin', paymentPendingHTML);
+                }
               }
             }
             
             // KONDISI 3B: Pendaftaran DITERIMA + Belum ada pembayaran = Lanjutkan Pembayaran
-            else if (status === 'DITERIMA' || status === 'TERVERIFIKASI' || status === 'VERIFIED') {
+            else if (isStatusDiterima && !hasPaymentRecord) {
               const paymentInstructionHTML = `
-                <div class="payment-notification mb-4 bg-gradient-to-r from-green-50 to-emerald-50 border-3 border-green-400 rounded-xl p-6 shadow-xl">
+                <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-green-50 to-emerald-50 border-3 border-green-400 rounded-xl p-6 shadow-xl" data-dynamic="true">
                   <div class="flex flex-col md:flex-row items-start gap-4">
                     <div class="flex-shrink-0">
                       <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center shadow-lg">
@@ -655,19 +716,20 @@
                 </div>
               `;
               // Insert di PALING ATAS hasil status (setelah icon/badge, sebelum info pendaftar)
-              const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
-              if (firstCard) {
-                firstCard.insertAdjacentHTML('beforebegin', paymentInstructionHTML);
-              } else {
-                // Fallback jika struktur berbeda
-                statusResultContainer.insertAdjacentHTML('afterbegin', paymentInstructionHTML);
+              if (statusResultContainer) {
+                const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
+                if (firstCard) {
+                  firstCard.insertAdjacentHTML('beforebegin', paymentInstructionHTML);
+                } else {
+                  statusResultContainer.insertAdjacentHTML('afterbegin', paymentInstructionHTML);
+                }
               }
             }
             
             // Show revision message if revisi
             else if (status === 'REVISI') {
               const revisiHTML = `
-                <div class="payment-notification mb-4 bg-gradient-to-r from-orange-50 to-amber-50 border-3 border-orange-400 rounded-xl p-6 shadow-xl">
+                <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-orange-50 to-amber-50 border-3 border-orange-400 rounded-xl p-6 shadow-xl" data-dynamic="true">
                   <div class="flex flex-col md:flex-row items-start gap-4">
                     <div class="flex-shrink-0">
                       <div class="w-16 h-16 bg-orange-600 rounded-full flex items-center justify-center shadow-lg">
@@ -694,18 +756,20 @@
                   </div>
                 </div>
               `;
-              const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
-              if (firstCard) {
-                firstCard.insertAdjacentHTML('beforebegin', revisiHTML);
-              } else {
-                statusResultContainer.insertAdjacentHTML('afterbegin', revisiHTML);
+              if (statusResultContainer) {
+                const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
+                if (firstCard) {
+                  firstCard.insertAdjacentHTML('beforebegin', revisiHTML);
+                } else {
+                  statusResultContainer.insertAdjacentHTML('afterbegin', revisiHTML);
+                }
               }
             }
             
             // Show rejection message if ditolak
             else if (status === 'DITOLAK' || status === 'REJECTED') {
               const rejectionHTML = `
-                <div class="payment-notification mb-4 bg-gradient-to-r from-red-50 to-rose-50 border-3 border-red-400 rounded-xl p-6 shadow-xl">
+                <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-red-50 to-rose-50 border-3 border-red-400 rounded-xl p-6 shadow-xl" data-dynamic="true">
                   <div class="flex flex-col md:flex-row items-start gap-4">
                     <div class="flex-shrink-0">
                       <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
@@ -726,18 +790,20 @@
                   </div>
                 </div>
               `;
-              const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
-              if (firstCard) {
-                firstCard.insertAdjacentHTML('beforebegin', rejectionHTML);
-              } else {
-                statusResultContainer.insertAdjacentHTML('afterbegin', rejectionHTML);
+              if (statusResultContainer) {
+                const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
+                if (firstCard) {
+                  firstCard.insertAdjacentHTML('beforebegin', rejectionHTML);
+                } else {
+                  statusResultContainer.insertAdjacentHTML('afterbegin', rejectionHTML);
+                }
               }
             }
             
             // Show waiting message if pending/diproses
             else {
               const waitingHTML = `
-                <div class="mt-3 bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4">
+                <div class="mt-3 bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4 status-extra" data-dynamic="true">
                   <div class="flex items-start gap-3">
                     <i class="bi bi-hourglass-split text-yellow-600 text-2xl"></i>
                     <div>
@@ -749,7 +815,7 @@
                   </div>
                 </div>
               `;
-              statusCatatanSection.insertAdjacentHTML('afterend', waitingHTML);
+              statusCatatanSection?.insertAdjacentHTML('afterend', waitingHTML);
             }
 
             // Prepare modal sections for success
@@ -797,4 +863,3 @@
     </footer>
   </body>
 </html>
-
