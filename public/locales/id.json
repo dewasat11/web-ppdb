@@ -1,14 +1,17 @@
 {
-  "meta": {
-    "title": {
-      "home": "Beranda - PPDSB Pondok Pesantren Al Ikhsan Beji",
-      "register": "Formulir Pendaftaran - PPDSB Pondok Pesantren Al Ikhsan Beji"
-    },
-    "description": {
-      "home": "PPDSB Pondok Pesantren Al Ikhsan Beji. Penerimaan Peserta Didik dan Santri Baru tahun ajaran 2026/2027. Pendidikan islami terpadu dengan akhlak dan prestasi.",
-      "register": "Formulir pendaftaran santri baru Pondok Pesantren Al Ikhsan Beji. Isi data diri, pendidikan, orang tua, dan unggah berkas pendaftaran."
-    }
-  },
+  "meta.title.home": "Beranda - PPDSB Pondok Pesantren Al Ikhsan Beji",
+  "meta.title.register": "Formulir Pendaftaran - PPDSB Pondok Pesantren Al Ikhsan Beji",
+  "meta.description.home": "PPDSB Pondok Pesantren Al Ikhsan Beji. Penerimaan Peserta Didik dan Santri Baru tahun ajaran 2026/2027. Pendidikan islami terpadu dengan akhlak dan prestasi.",
+  "meta.description.register": "Formulir pendaftaran santri baru Pondok Pesantren Al Ikhsan Beji. Isi data diri, pendidikan, orang tua, dan unggah dokumen pendaftaran.",
+  "section.hero.title": "Penerimaan Santri Baru 2026/2027",
+  "section.hero.body": "<p>Pendidikan islami terpadu dengan akhlak dan prestasi.</p>",
+  "hero.badge": "Tahun Ajaran 2026/2027",
+  "hero.title.line1": "Penerimaan Peserta Didik dan Santri Baru",
+  "hero.title.line2": "(PPDSB) PONDOK PESANTREN AL IKHSAN BEJI",
+  "hero.body": "Bergabunglah menjadi santri Pondok Pesantren Al Ikhsan Beji. Pendidikan islami terpadu dengan pembinaan akhlak, tahfidz Al-Qur'an, dan ilmu pengetahuan yang membentuk generasi Qur'ani dan berprestasi.",
+  "hero.ctaApply": "Daftar Sekarang",
+  "hero.ctaStatus": "Cek Status",
+
   "nav": {
     "home": "Beranda",
     "info": "Informasi",

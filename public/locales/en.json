@@ -1,14 +1,13 @@
 {
-  "meta": {
-    "title": {
-      "home": "Home - PPDSB Pondok Pesantren Al Ikhsan Beji",
-      "register": "Registration Form - PPDSB Pondok Pesantren Al Ikhsan Beji"
-    },
-    "description": {
-      "home": "PPDSB Pondok Pesantren Al Ikhsan Beji. New Student and Santri Admissions for the 2026/2027 academic year. Integrated Islamic education that builds character and achievements.",
-      "register": "New santri registration form for Pondok Pesantren Al Ikhsan Beji. Fill in personal data, education, parents, and upload registration documents."
-    }
-  },
+    "meta.title.home": "Home - PPDSB Pondok Pesantren Al Ikhsan Beji",
+    "meta.title.register": "Registration Form - PPDSB Pondok Pesantren Al Ikhsan Beji",
+    "meta.description.home": "PPDSB Pondok Pesantren Al Ikhsan Beji. New Student and Santri Admissions for the 2026/2027 academic year. Integrated Islamic education that builds character and achievements.",
+    "meta.description.register": "New santri registration form for Pondok Pesantren Al Ikhsan Beji. Fill in personal data, education, parents, and upload registration documents.",
+  
+    "section.hero.title": "New Students Admission 2026/2027",
+    "section.hero.body": "<p>Integrated Islamic education with character and achievement.</p>"
+  ,
+  
   "nav": {
     "home": "Home",
     "info": "Information",
