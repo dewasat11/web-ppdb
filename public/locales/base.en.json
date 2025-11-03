@@ -1,0 +1,455 @@
+{
+  "meta": {
+    "title": {
+      "home": "Home - PPDSB Pondok Pesantren Al Ikhsan Beji",
+      "register": "Registration Form - PPDSB Pondok Pesantren Al Ikhsan Beji"
+    },
+    "description": {
+      "home": "PPDSB Pondok Pesantren Al Ikhsan Beji. New Student and Santri Admissions for the 2026/2027 academic year. Integrated Islamic education that builds character and achievements.",
+      "register": "New santri registration form for Pondok Pesantren Al Ikhsan Beji. Fill in personal data, education, parents, and upload registration documents."
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "info": "Information",
+    "flow": "Registration Flow",
+    "requirements": "Requirements",
+    "fees": "Fees",
+    "brochure": "Brochure",
+    "contact": "Contact",
+    "admin": "Admin",
+    "language": {
+      "id": "ID",
+      "en": "EN"
+    }
+  },
+  "hero": {
+    "badge": "Academic Year 2026/2027",
+    "titleHighlight": "New Student and Santri Admissions",
+    "titleMain": "(PPDSB) PONDOK PESANTREN AL IKHSAN BEJI",
+    "subtitle": "Become a santri at Pondok Pesantren Al Ikhsan Beji. Integrated Islamic education with character building, Qur'an memorisation, and knowledge to shape a Qur'anic and high-achieving generation.",
+    "ctaApply": "Apply Now",
+    "ctaStatus": "Check Status"
+  },
+  "sections": {
+    "gelombang": {
+      "title": "Registration Waves",
+      "subtitle": "Choose the wave that fits your family's schedule",
+      "loading": "Loading registration waves...",
+      "loadingAlt": "Loading registration waves...",
+      "emptyTitle": "No Registration Waves Yet",
+      "emptyDescription": "Please wait for further information.",
+      "error": "Failed to load registration waves. Please refresh the page.",
+      "status": {
+        "active": "Registration Open",
+        "upcoming": "Opening Soon",
+        "closed": "Closed",
+        "notActive": "Not Active"
+      },
+      "statusBadge": {
+        "active": "✓ Registration Open",
+        "upcoming": "📅 Opening Soon",
+        "closed": "⏱ Registration Closed",
+        "notActive": "ℹ️ Not Active"
+      },
+      "button": {
+        "active": "Register Now",
+        "upcoming": "Opening Soon",
+        "closed": "Closed",
+        "notActive": "Not Active"
+      },
+      "yearPrefix": "Academic Year",
+      "toast": {
+        "updated": "Registration waves updated!",
+        "server": "📊 Registration waves were refreshed from the server"
+      }
+    },
+    "why": {
+      "title": "Why Choose Pondok Pesantren Al Ikhsan Beji?",
+      "subtitle": "Integrated Islamic education: Qur'an memorisation, noble character, and knowledge",
+      "description": "Join Pondok Pesantren Al Ikhsan Beji to receive integrated Islamic education that shapes santri with noble character."
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 Pondok Pesantren Al Ikhsan Beji. All rights reserved.",
+    "credit": "Development by the Pesantren IT Team"
+  },
+  "whatsapp": {
+    "headline": "Need Help?",
+    "subtitle": "Chat with PPDSB Admin"
+  },
+  "form": {
+    "heading": "Registration Form",
+    "intro": "Please complete the form below accurately.",
+    "sections": {
+      "personal": "Prospective Student Personal Data",
+      "address": "Address",
+      "education": "Education & Plan",
+      "parents": "Parent Data",
+      "documents": "Upload Documents"
+    },
+    "fields": {
+      "nik": {
+        "label": "Student NIK",
+        "helper": "16 digits"
+      },
+      "nisn": {
+        "label": "NISN"
+      },
+      "namaLengkap": {
+        "label": "Full Name"
+      },
+      "provinsiTempatLahir": {
+        "label": "Province of Birth"
+      },
+      "tempatLahir": {
+        "label": "City/Regency of Birth"
+      },
+      "tanggalLahir": {
+        "label": "Date of Birth"
+      },
+      "jenisKelamin": {
+        "label": "Gender"
+      },
+      "alamatJalan": {
+        "label": "Street Address",
+        "placeholder": "Example: Jl. Merdeka No. 123"
+      },
+      "provinsi": {
+        "label": "Province"
+      },
+      "kota": {
+        "label": "City/Regency"
+      },
+      "kecamatan": {
+        "label": "District"
+      },
+      "desa": {
+        "label": "Village/Sub-district"
+      },
+      "ijazahFormalTerakhir": {
+        "label": "Latest Formal Diploma"
+      },
+      "rencanaTingkat": {
+        "label": "Intended Education Level"
+      },
+      "rencanaProgram": {
+        "label": "Dormitory Option"
+      },
+      "namaAyah": {
+        "label": "Father's Name"
+      },
+      "nikAyah": {
+        "label": "Father's NIK"
+      },
+      "statusAyah": {
+        "label": "Father's Status"
+      },
+      "pekerjaanAyah": {
+        "label": "Father's Occupation"
+      },
+      "namaIbu": {
+        "label": "Mother's Name"
+      },
+      "nikIbu": {
+        "label": "Mother's NIK"
+      },
+      "statusIbu": {
+        "label": "Mother's Status"
+      },
+      "pekerjaanIbu": {
+        "label": "Mother's Occupation"
+      },
+      "teleponOrtu": {
+        "label": "Parent Phone Number"
+      }
+    },
+    "documents": {
+      "title": "Upload Documents",
+      "optionalTag": "(Optional)",
+      "note": "Format: PDF, JPG, PNG. Maximum 2MB per file.",
+      "fields": {
+        "ijazah": {
+          "label": "Latest Diploma Scan",
+          "helper": "PDF, JPG, or PNG (max 2MB)"
+        },
+        "akta": {
+          "label": "Birth Certificate Scan",
+          "helper": "PDF, JPG, or PNG (max 2MB)"
+        },
+        "foto": {
+          "label": "3x4 Photo",
+          "helper": "JPG or PNG (max 2MB)"
+        },
+        "bpjs": {
+          "label": "BPJS Card",
+          "helper": "PDF, JPG, or PNG (max 2MB) - Optional"
+        }
+      }
+    },
+    "buttons": {
+      "review": "Continue to Confirmation",
+      "back": "Back",
+      "copyNisn": "Copy NISN",
+      "checkStatus": "Check Registration Status",
+      "registerAgain": "Register Again",
+      "editData": "Edit Data",
+      "submit": "Yes, Submit Registration"
+    },
+    "modals": {
+      "success": {
+        "title": "Registration Successful!",
+        "headline": "🎉 Congratulations!",
+        "description": "Your registration has been saved.",
+        "nisnLabel": "Your NISN:",
+        "reminder": "Save this NISN to track your registration status."
+      },
+      "confirm": {
+        "title": "Confirm Registration Data",
+        "alertTitle": "Attention!",
+        "alertText": "Please make sure all data is correct before submitting."
+      }
+    },
+    "review": {
+      "sections": {
+        "personal": "Prospective Student Data",
+        "address": "Address",
+        "education": "Education & Plan",
+        "parents": "Parent Data",
+        "documents": "Files to Be Uploaded"
+      },
+      "labels": {
+        "nikCalon": "Student NIK",
+        "namaLengkap": "Full Name",
+        "tempatLahir": "Place of Birth",
+        "tanggalLahir": "Date of Birth",
+        "jenisKelamin": "Gender",
+        "alamatLengkap": "Full Address",
+        "ijazah": "Latest Diploma",
+        "rencanaTingkat": "Intended Level",
+        "rencanaProgram": "Program Plan",
+        "namaAyah": "Father's Name",
+        "nikAyah": "Father's NIK",
+        "statusAyah": "Father's Status",
+        "pekerjaanAyah": "Father's Occupation",
+        "namaIbu": "Mother's Name",
+        "nikIbu": "Mother's NIK",
+        "statusIbu": "Mother's Status",
+        "pekerjaanIbu": "Mother's Occupation",
+        "teleponOrtu": "Parent Phone Number"
+      },
+      "files": {
+        "ijazah": "Diploma Scan",
+        "akta": "Birth Certificate Scan",
+        "foto": "Photo",
+        "bpjs": "BPJS Card (Optional)"
+      },
+      "noFiles": "No files uploaded"
+    },
+    "options": {
+      "select": "Select...",
+      "selectProvince": "Select Province...",
+      "selectProvinceFirst": "Select a Province First...",
+      "selectCity": "Select City/Regency...",
+      "selectCityFirst": "Select a Province First...",
+      "selectDistrict": "Select District...",
+      "selectDistrictFirst": "Select a City First...",
+      "selectVillage": "Select a District First...",
+      "loading": "Loading...",
+      "gender": {
+        "male": "Male",
+        "female": "Female"
+      },
+      "education": {
+        "sdMi": "SD/MI",
+        "smpMts": "SMP/MTs",
+        "smaMa": "SMA/MA"
+      },
+      "planLevel": {
+        "mts": "MTs (Junior Islamic High School)",
+        "ma": "MA (Senior Islamic High School)",
+        "college": "College"
+      },
+      "planProgram": {
+        "putraInduk": "Boys' Main Dormitory",
+        "putraTahfidz": "Boys' Tahfidz Dormitory",
+        "putri": "Girls' Dormitory",
+        "nonAsrama": "Non Dormitory"
+      },
+      "parentStatus": {
+        "alive": "Alive",
+        "deceased": "Deceased"
+      },
+      "job": {
+        "pns": "Civil Servant",
+        "tniPolri": "Military/Police",
+        "teacher": "Teacher/Lecturer",
+        "privateEmployee": "Private Employee",
+        "entrepreneur": "Entrepreneur",
+        "farmer": "Farmer",
+        "fisherman": "Fisherman",
+        "trader": "Trader",
+        "laborer": "Laborer",
+        "driver": "Driver",
+        "craftsman": "Craftsman",
+        "retired": "Retired",
+        "unemployed": "Unemployed",
+        "housewife": "Homemaker",
+        "other": "Other"
+      }
+    },
+    "messages": {
+      "validationRequired": "Please complete all required fields!",
+      "alertModalMissing": "Error: Modal not found!",
+      "copySuccess": "Copied!",
+      "copyFailed": "Failed to copy: {{error}}",
+      "loadProvinceError": "Failed to load province data",
+      "loadCityError": "Failed to load city data",
+      "loadDistrictError": "Failed to load district data",
+      "loadVillageError": "Failed to load village data",
+      "submitErrorTitle": "Registration Failed",
+      "submitErrorGeneric": "An error occurred",
+      "submitErrorNisn": "Failed to retrieve NISN from the server. Make sure the NISN is filled in correctly.",
+      "submitErrorTimeout": "Request timed out. Please check your internet connection and try again.",
+      "submitErrorNetwork": "Connection failed. Ensure your internet is stable and the server is reachable.",
+      "uploadAlert": "⚠️ ERROR DETAILS:\n\n{{message}}\n\nPlease:\n1. Ensure the file is under 2MB\n2. Check the file format (JPEG/PNG/PDF)\n3. Check your internet connection\n4. Try again",
+      "repairMode": "Revision Mode: Your previous registration data has been loaded. Please fix the required fields and submit again."
+    },
+    "progress": {
+      "sending": "Submitting...",
+      "saving": "Saving data...",
+      "finalizing": "Finalising...",
+      "upload": {
+        "ijazah": "Uploading diploma...",
+        "akta": "Uploading birth certificate...",
+        "foto": "Uploading photo...",
+        "bpjs": "Uploading BPJS..."
+      }
+    },
+    "errors": {
+      "fileInvalid": "{{type}} file is invalid",
+      "fileEmpty": "{{type}} file is empty or corrupted",
+      "fileTooLarge": "{{type}} file is too large ({{size}} MB). Maximum 2 MB.",
+      "uploadFailed": "Failed to upload {{type}}: {{message}}",
+      "uploadTimeout": "Uploading {{type}} timed out (> 60s). The file may be too large or the connection is slow.",
+      "compressionFailed": "Failed to compress {{type}}.",
+      "base64Failed": "Failed to convert {{type}} to base64.",
+      "serverInvalidJson": "Server response is invalid (not JSON): {{snippet}}",
+      "nisnMissing": "The server did not return an NISN."
+    }
+  },
+  "cekStatus": {
+    "meta": {
+      "title": "Registration Status Lookup - PPDSB Pondok Pesantren Al Ikhsan Beji",
+      "description": "Check your registration status at Pondok Pesantren Al Ikhsan Beji by entering your NISN. View verification updates, admin notes, and payment status."
+    },
+    "hero": {
+      "title": "Check Your Registration Status",
+      "subtitle": "Enter your NISN to view the latest status from Pondok Pesantren Al Ikhsan Beji."
+    },
+    "form": {
+      "title": "Check Your Status",
+      "label": "NISN (National Student Identification Number)",
+      "input": {
+        "placeholder": "Enter NISN (10 digits)",
+        "title": "NISN must be 10 digits."
+      },
+      "helper": "Enter your NISN consisting of <strong>10 numeric digits</strong> (example: <code>1234567890</code>).",
+      "button": "Check Status",
+      "checking": "Checking..."
+    },
+    "modal": {
+      "title": "Registration Status Result",
+      "loading": "Retrieving your status...",
+      "sections": {
+        "info": "Registrant Information",
+        "status": "Status & Notes"
+      },
+      "fields": {
+        "nisn": "NISN",
+        "name": "Full Name",
+        "birthPlace": "Place of Birth",
+        "birthDate": "Date of Birth",
+        "submittedAt": "Submitted At",
+        "verificationStatus": "Verification Status",
+        "adminNote": "Admin Note"
+      },
+      "noNotes": "No notes from the admin.",
+      "error": {
+        "title": "Attention!",
+        "generic": "An error occurred."
+      },
+      "close": "Close"
+    },
+    "status": {
+      "labels": {
+        "pending": "Awaiting Verification",
+        "processing": "In Review",
+        "revision": "Revision Required",
+        "accepted": "Approved / Verified",
+        "rejected": "Rejected"
+      },
+      "verifiedInfo": "Verified by: <strong>{{admin}}</strong> on {{datetime}}"
+    },
+    "payment": {
+      "common": {
+        "adminNoteLabel": "📝 Admin Note:",
+        "amountLabel": "Amount: <strong>{{amount}}</strong>"
+      },
+      "success": {
+        "title": "🎉 Payment Verified!",
+        "registrationLine": "<strong>✅ Registration:</strong> Verified",
+        "paymentLine": "<strong>💳 Payment:</strong> Marked as Paid & Valid",
+        "infoTitle": "Congratulations! You are officially accepted as a prospective santri of Pondok Pesantren Al Ikhsan Beji.",
+        "infoBody": "All administrative steps are complete. Please watch for official announcements regarding arrival schedule, student orientation, and required items.",
+        "verifiedAt": "Payment verified on {{datetime}}",
+        "nextStepsTitle": "Next Steps",
+        "nextStepsBody": "<strong>Jazakumullahu khairan</strong> (May Allah reward you). Please wait for further updates from Pondok Pesantren Al Ikhsan Beji via your registered contact.",
+        "footer": "Thank you for trusting us. Barakallahu fiikum."
+      },
+      "rejected": {
+        "title": "Payment Rejected",
+        "registrationLine": "<strong>⚠️ Registration:</strong> Verified ✅",
+        "paymentLine": "<strong>❌ Payment:</strong> Rejected by admin",
+        "instruction": "Please review your payment proof and upload it again."
+      },
+      "pending": {
+        "title": "Payment Awaiting Verification",
+        "registrationLine": "<strong>✅ Registration Status:</strong> Verified",
+        "paymentLine": "<strong>⏳ Payment Status:</strong> Awaiting Admin Verification",
+        "infoTitle": "Information",
+        "infoBody": "We have received your payment proof and it is currently being reviewed by the admin. Please wait for further confirmation.",
+        "uploadedAt": "Uploaded: {{datetime}}"
+      },
+      "instruction": {
+        "title": "🎉 Congratulations! Your Registration Has Been Verified",
+        "summary": "<strong>✅ Status:</strong> Your documents have been approved.<br><strong>📌 Final Step:</strong> Please proceed with payment to complete your registration."
+      }
+    },
+    "revision": {
+      "title": "Registration Requires Revision",
+      "summary": "<strong>⚠️ Status:</strong> The admin has requested a revision to your documents.",
+      "details": "Review the admin note above, make the necessary corrections, and resubmit for verification."
+    },
+    "rejection": {
+      "title": "Registration Rejected",
+      "summary": "<strong>❌ Status:</strong> Your registration was rejected by the admin.",
+      "details": "Check the admin note for the reason. Contact the admin if you have any questions."
+    },
+    "waiting": {
+      "title": "⏳ Awaiting Verification",
+      "description": "Your registration is being reviewed by the admin. Please wait for the next notification."
+    },
+    "buttons": {
+      "reuploadProof": "Re-upload Payment Proof",
+      "viewPayment": "View Payment Details",
+      "goToPayment": "Continue to Payment",
+      "fixRegistration": "Update Registration Data"
+    },
+    "toasts": {
+      "invalidNisn": "NISN must be 10 digits.",
+      "notFound": "NISN not found.",
+      "genericError": "An error occurred."
+    }
+  }
+}

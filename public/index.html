@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <meta name="csrf-token" content="{{CSRF_TOKEN}}" />
-  <meta name="description" content="PPDSB Pondok Pesantren Al Ikhsan Beji. Penerimaan Peserta Didik dan Santri Baru tahun ajaran 2026/2027. Pendidikan islami terpadu dengan akhlak dan prestasi." />
+  <meta name="description" content="PPDSB Pondok Pesantren Al Ikhsan Beji. Penerimaan Peserta Didik dan Santri Baru tahun ajaran 2026/2027. Pendidikan islami terpadu dengan akhlak dan prestasi." data-i18n="meta.description.home" data-i18n-attr="content" data-i18n-skip-text />
   <meta name="keywords" content="PPDSB, Penerimaan Santri Baru, Pondok Pesantren Al Ikhsan Beji, pendaftaran santri, pesantren, Beji" />
 
   <link rel="preconnect" href="https://fonts.gstatic.com" />
@@ -14,7 +14,7 @@
   <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
 
-  <title>Beranda - PPDSB Pondok Pesantren Al Ikhsan Beji</title>
+  <title data-i18n="meta.title.home">Beranda - PPDSB Pondok Pesantren Al Ikhsan Beji</title>
 
   <!-- Tailwind CSS (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -41,6 +41,8 @@
       }
     }
   </script>
+
+  <script src="/i18n.js" defer></script>
 
   <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
@@ -256,29 +258,34 @@
         <!-- Desktop Navigation -->
         <div class="hidden md:block">
           <div class="flex items-baseline space-x-4">
-            <a href="/" class="text-brand-700 px-3 py-2 rounded-md text-sm font-medium">Beranda</a>
+            <a href="/" class="text-brand-700 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.home">Beranda</a>
 
             <!-- Dropdown Informasi -->
             <div class="relative">
               <button @click="profileDropdownOpen=!profileDropdownOpen" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                Informasi
+                <span data-i18n="nav.info">Informasi</span>
                 <i class="bi bi-caret-down-fill ml-1 text-xs" :class="{'rotate-180': profileDropdownOpen}"></i>
               </button>
               <div x-cloak x-show="profileDropdownOpen" @click.outside="profileDropdownOpen=false" x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100">
-                <a href="/alur-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Alur Pendaftaran</a>
-                <a href="/syarat-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Syarat Pendaftaran</a>
-                <a href="/biaya.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Biaya</a>
+                <a href="/alur-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-i18n="nav.flow">Alur Pendaftaran</a>
+                <a href="/syarat-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-i18n="nav.requirements">Syarat Pendaftaran</a>
+                <a href="/biaya.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-i18n="nav.fees">Biaya</a>
               </div>
             </div>
 
-            <a href="/brosur.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Brosur</a>
-            <a href="/kontak.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Kontak</a>
+            <a href="/brosur.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.brochure">Brosur</a>
+            <a href="/kontak.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.contact">Kontak</a>
+
+            <div class="flex items-center space-x-1 ml-2">
+              <button type="button" data-setlang="id" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.language.id">ID</button>
+              <button type="button" data-setlang="en" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.language.en">EN</button>
+            </div>
           </div>
         </div>
 
         <!-- CTA Button Desktop -->
         <div class="hidden md:block">
-          <a href="/login" class="bg-brand-700 hover:bg-brand-800 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg">Admin</a>
+          <a href="/login" class="bg-brand-700 hover:bg-brand-800 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg" data-i18n="nav.admin">Admin</a>
         </div>
 
         <!-- Mobile menu button -->
@@ -303,22 +310,27 @@
       </div>
 
       <div class="px-2 pt-4 pb-3 space-y-1">
-        <a href="/" class="bg-brand-100 text-brand-700 block px-3 py-2 rounded-md text-base font-medium">Beranda</a>
+        <a href="/" class="bg-brand-100 text-brand-700 block px-3 py-2 rounded-md text-base font-medium" data-i18n="nav.home">Beranda</a>
 
         <details class="px-1">
-          <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium">Informasi</summary>
+          <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium" data-i18n="nav.info">Informasi</summary>
           <div class="pl-6 space-y-1 mt-2">
-            <a href="/alur-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Alur Pendaftaran</a>
-            <a href="/syarat-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Syarat Pendaftaran</a>
-            <a href="/biaya.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Biaya</a>
+            <a href="/alur-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50" data-i18n="nav.flow">Alur Pendaftaran</a>
+            <a href="/syarat-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50" data-i18n="nav.requirements">Syarat Pendaftaran</a>
+            <a href="/biaya.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50" data-i18n="nav.fees">Biaya</a>
           </div>
         </details>
 
-        <a href="/brosur.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50">Brosur</a>
-        <a href="/kontak.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50">Kontak</a>
+        <a href="/brosur.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50" data-i18n="nav.brochure">Brosur</a>
+        <a href="/kontak.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50" data-i18n="nav.contact">Kontak</a>
+
+        <div class="px-2 pt-4 flex items-center gap-2">
+          <button type="button" data-setlang="id" class="flex-1 text-gray-700 hover:text-brand-700 px-3 py-2 rounded-md text-base font-medium border border-gray-200" data-i18n="nav.language.id">ID</button>
+          <button type="button" data-setlang="en" class="flex-1 text-gray-700 hover:text-brand-700 px-3 py-2 rounded-md text-base font-medium border border-gray-200" data-i18n="nav.language.en">EN</button>
+        </div>
 
         <div class="pt-4 pb-2 px-2">
-          <a href="/login.html" class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center">Admin</a>
+          <a href="/login.html" class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center" data-i18n="nav.admin">Admin</a>
         </div>
       </div>
     </div>
@@ -333,23 +345,23 @@
         <div class="container mx-auto px-4 py-8 md:py-10">
           <div class="w-full flex flex-col items-center justify-center text-center">
             <div class="inline-flex items-center bg-white text-brand-700 mb-4 px-4 py-1.5 rounded-lg font-medium shadow-lg text-sm">
-              <i class="bi bi-calendar-event mr-2"></i> Tahun Ajaran 2026/2027
+              <i class="bi bi-calendar-event mr-2"></i> <span data-i18n="hero.badge">Tahun Ajaran 2026/2027</span>
             </div>
-            <h1 class="text-3xl lg:text-5xl font-bold text-white mb-4 leading-tight max-w-5xl" style="text-shadow: 2px 4px 8px rgba(0,0,0,0.4);">
+            <h1 class="text-3xl lg:text-5xl font-bold text-white mb-4 leading-tight max-w-5xl" style="text-shadow: 2px 4px 8px rgba(0,0,0,0.4);" data-i18n-html="section.hero.title">
               <span class="text-yellow-400" style="text-shadow: 2px 4px 8px rgba(0,0,0,0.5);">Penerimaan Peserta Didik dan Santri Baru</span><br/>
-              (PPDSB) PONDOK PESANTREN AL IKHSAN BEJI
+              <span>(PPDSB) PONDOK PESANTREN AL IKHSAN BEJI</span>
             </h1>
             <div class="max-w-3xl mx-auto mb-6">
-              <p class="text-base lg:text-lg text-white leading-relaxed" style="text-shadow: 1px 2px 6px rgba(0,0,0,0.4);">
-                Bergabunglah menjadi santri Pondok Pesantren Al Ikhsan Beji. Pendidikan islami terpadu dengan pembinaan akhlak, tahfidz Al-Qur'an, dan ilmu pengetahuan yang membentuk generasi Qur'ani dan berprestasi.
-              </p>
+              <div class="text-base lg:text-lg text-white leading-relaxed" style="text-shadow: 1px 2px 6px rgba(0,0,0,0.4);" data-i18n-html="section.hero.body">
+                <p>Bergabunglah menjadi santri Pondok Pesantren Al Ikhsan Beji. Pendidikan islami terpadu dengan pembinaan akhlak, tahfidz Al-Qur'an, dan ilmu pengetahuan yang membentuk generasi Qur'ani dan berprestasi.</p>
+              </div>
             </div>
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
               <a href="/daftar.html" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-brand-900 font-bold px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition transform hover:scale-105 text-sm lg:text-base">
-                <i class="bi bi-pencil-square mr-2"></i> Daftar Sekarang
+                <i class="bi bi-pencil-square mr-2"></i> <span data-i18n="hero.ctaApply">Daftar Sekarang</span>
               </a>
               <a href="/cek-status.html" class="inline-block bg-white/20 hover:bg-white/30 backdrop-blur-sm border-2 border-white text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition text-sm lg:text-base">
-                <i class="bi bi-search mr-2"></i> Cek Status
+                <i class="bi bi-search mr-2"></i> <span data-i18n="hero.ctaStatus">Cek Status</span>
               </a>
             </div>
           </div>
@@ -387,11 +399,11 @@
 
     <!-- GELOMBANG PENDAFTARAN -->
     <section class="py-12 bg-gray-50">
-      <div class="container mx-auto px-4">
-        <div class="flex justify-center mb-12">
-          <div class="w-full lg:w-2/3 text-center">
-            <h2 class="text-3xl lg:text-4xl font-bold mb-3 text-gray-800">Gelombang Pendaftaran</h2>
-            <p class="text-lg text-gray-600">Pilih gelombang sesuai jadwal keluarga Anda</p>
+        <div class="container mx-auto px-4">
+          <div class="flex justify-center mb-12">
+            <div class="w-full lg:w-2/3 text-center">
+            <h2 class="text-3xl lg:text-4xl font-bold mb-3 text-gray-800" data-i18n="sections.gelombang.title">Gelombang Pendaftaran</h2>
+            <p class="text-lg text-gray-600" data-i18n="sections.gelombang.subtitle">Pilih gelombang sesuai jadwal keluarga Anda</p>
           </div>
         </div>
 
@@ -400,9 +412,9 @@
           <!-- Loading skeleton -->
           <div class="text-center py-12 col-span-full">
             <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Memuat data gelombang...</span>
+              <span class="visually-hidden" data-i18n="sections.gelombang.loadingAlt">Memuat data gelombang...</span>
             </div>
-            <p class="text-gray-500 mt-3">Memuat data gelombang...</p>
+            <p class="text-gray-500 mt-3" data-i18n="sections.gelombang.loading">Memuat data gelombang...</p>
           </div>
         </div>
       </div>
@@ -412,7 +424,7 @@
   <!-- FOOTER -->
   <footer class="bg-white text-gray-600 py-6 shadow-2xl border-t border-gray-200 mt-auto">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <p class="text-sm">&copy; 2025 Pondok Pesantren Al Ikhsan Beji. All rights reserved. <span class="hidden sm:inline">Development by Tim IT Pesantren</span></p>
+      <p class="text-sm"><span data-i18n="footer.copyright">© 2025 Pondok Pesantren Al Ikhsan Beji. All rights reserved.</span> <span class="hidden sm:inline" data-i18n="footer.credit">Development by Tim IT Pesantren</span></p>
     </div>
   </footer>
 
@@ -429,8 +441,8 @@
         </svg>
       </div>
       <div class="flex flex-col hidden sm:flex">
-        <span class="text-sm font-semibold">Butuh Bantuan?</span>
-        <span class="text-xs">Chat Admin PPDSB</span>
+        <span class="text-sm font-semibold" data-i18n="whatsapp.headline">Butuh Bantuan?</span>
+        <span class="text-xs" data-i18n="whatsapp.subtitle">Chat Admin PPDSB</span>
       </div>
     </a>
   </div>
@@ -454,45 +466,63 @@
 
   <!-- Gelombang Data Loader (Business Logic: Active-based Status) -->
   <script>
-    /* ===== UI MAPPING ===== */
-    const UI = {
-      label: {
-        ACTIVE: "Pendaftaran Dibuka",
-        UPCOMING: "Segera Dibuka",
-        CLOSED: "Ditutup",
-        NOT_ACTIVE: "Belum Aktif",
+    const STATE_COLOR = {
+      ACTIVE: "green",
+      UPCOMING: "blue",
+      CLOSED: "gray",
+      NOT_ACTIVE: "gray"
+    };
+
+    const COLOR_MAP = {
+      green: {
+        border: "border-green-200",
+        badge: "bg-green-500",
+        icon: "bg-gradient-to-br from-green-500 to-green-600",
+        iconText: "text-green-500"
       },
-      color: {
-        ACTIVE: "green",
-        UPCOMING: "blue",
-        CLOSED: "gray",
-        NOT_ACTIVE: "gray",
+      blue: {
+        border: "border-blue-200",
+        badge: "bg-blue-500",
+        icon: "bg-gradient-to-br from-blue-500 to-blue-600",
+        iconText: "text-blue-500"
+      },
+      gray: {
+        border: "border-gray-200",
+        badge: "bg-gray-500",
+        icon: "bg-gradient-to-br from-gray-500 to-gray-600",
+        iconText: "text-gray-500"
       }
     };
 
-    /**
-     * Decorate gelombang dengan status berdasarkan activeId
-     * KONDISI BISNIS:
-     * - Jika Gelombang 1 AKTIF → Gelombang 2 & 3 = "Segera Dibuka"
-     * - Jika Gelombang 2 AKTIF → Gelombang 1 = "Ditutup", Gelombang 3 = "Segera Dibuka"
-     * - Jika Gelombang 3 AKTIF → Gelombang 1 & 2 = "Ditutup"
-     * - TIDAK pakai logika tanggal untuk label
-     */
+    const STATUS_KEY_MAP = {
+      ACTIVE: "active",
+      UPCOMING: "upcoming",
+      CLOSED: "closed",
+      NOT_ACTIVE: "notActive"
+    };
+
+    const translateText = (key, replacements) =>
+      typeof window.__ === "function" ? window.__(key, replacements) : key;
+
+    const getStatusKey = (stateKey) => STATUS_KEY_MAP[stateKey] || STATUS_KEY_MAP.NOT_ACTIVE;
+    const getStatusLabel = (stateKey) => translateText(`sections.gelombang.status.${getStatusKey(stateKey)}`);
+    const getStatusBadgeText = (stateKey) => translateText(`sections.gelombang.statusBadge.${getStatusKey(stateKey)}`);
+    const getButtonLabel = (stateKey) => translateText(`sections.gelombang.button.${getStatusKey(stateKey)}`);
+    const getYearText = (year) => `${translateText("sections.gelombang.yearPrefix")} ${year}`;
+
     function decorateGelombang(waves, activeId) {
-      const byId = Object.fromEntries(waves.map(w => [w.id, w]));
+      const byId = Object.fromEntries(waves.map((w) => [w.id, w]));
 
-      function setState(id, stateKey) {
-        const w = byId[id]; 
-        if (!w) return;
-        w._state = stateKey;
-        w._label = UI.label[stateKey];
-        w._color = UI.color[stateKey];
-      }
+      const setState = (id, stateKey) => {
+        const record = byId[id];
+        if (!record) return;
+        record._state = stateKey;
+        record._color = STATE_COLOR[stateKey] || "gray";
+        record._label = getStatusLabel(stateKey);
+      };
 
-      // Default semua "NOT_ACTIVE"
-      waves.forEach(w => setState(w.id, "NOT_ACTIVE"));
+      waves.forEach((wave) => setState(wave.id, "NOT_ACTIVE"));
 
-      // Aturan bisnis
       if (activeId === 1) {
         setState(1, "ACTIVE");
         setState(2, "UPCOMING");
@@ -509,249 +539,150 @@
 
       return waves;
     }
-    
-    /**
-     * Fetch and render ALL 3 gelombang dengan status berdasarkan active gelombang
-     */
-    async function loadGelombangAktif() {
+
+    const renderEmptyState = (container) => {
+      container.innerHTML = `
+        <div class="text-center py-12 col-span-full">
+          <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="bi bi-calendar-x text-gray-400 text-3xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-700 mb-2">${translateText("sections.gelombang.emptyTitle")}</h3>
+          <p class="text-gray-500">${translateText("sections.gelombang.emptyDescription")}</p>
+        </div>
+      `;
+    };
+
+    const renderErrorState = (container) => {
+      container.innerHTML = `
+        <div class="text-center py-12 col-span-full">
+          <i class="bi bi-exclamation-triangle text-red-500 text-4xl mb-3"></i>
+          <p class="text-gray-600">${translateText("sections.gelombang.error")}</p>
+        </div>
+      `;
+    };
+
+    function formatDate(dateString) {
       try {
-        const container = document.getElementById('gelombangContainer');
-        
-        // 1) Fetch all gelombang (3 waves)
-        const cacheBuster = new Date().getTime();
+        const options = { day: "numeric", month: "long", year: "numeric" };
+        const docLang = document.documentElement.getAttribute("lang") || "id";
+        const locale = docLang.startsWith("en") ? "en-US" : "id-ID";
+        return new Date(dateString).toLocaleDateString(locale, options);
+      } catch (error) {
+        return dateString;
+      }
+    }
+
+    async function loadGelombangAktif() {
+      const container = document.getElementById("gelombangContainer");
+      if (!container) return;
+
+      try {
+        const cacheBuster = Date.now();
         const listResponse = await fetch(`/api/get_gelombang_list?_t=${cacheBuster}`);
         const listResult = await listResponse.json();
-        
-        console.log('[GELOMBANG_LIST] API Response:', listResult);
-        
-        if (!listResult.ok || !listResult.data || listResult.data.length === 0) {
-          console.log('[GELOMBANG_LIST] No gelombang data found');
-          container.innerHTML = `
-            <div class="text-center py-12 col-span-full">
-              <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="bi bi-calendar-x text-gray-400 text-3xl"></i>
-              </div>
-              <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Data Gelombang</h3>
-              <p class="text-gray-500">Silakan tunggu informasi lebih lanjut.</p>
-            </div>
-          `;
+
+        if (!listResult.ok || !Array.isArray(listResult.data) || listResult.data.length === 0) {
+          renderEmptyState(container);
           return;
         }
-        
-        // 2) Fetch active gelombang ID
+
         let activeId = null;
         try {
           const activeResponse = await fetch(`/api/gelombang_active?_t=${cacheBuster}`);
           const activeResult = await activeResponse.json();
           if (activeResult.ok && activeResult.data && typeof activeResult.data.id === "number") {
             activeId = activeResult.data.id;
-            console.log('[GELOMBANG_ACTIVE] Active ID:', activeId);
           }
-        } catch (e) {
-          console.warn('[GELOMBANG_ACTIVE] Failed to fetch active gelombang:', e);
+        } catch (error) {
+          console.warn("[GELOMBANG_ACTIVE] Failed to fetch active gelombang:", error);
         }
-        
-        // 3) Decorate gelombang with business logic
+
         const gelombangList = decorateGelombang(listResult.data, activeId);
-        
-        console.log('[GELOMBANG_LIST] Rendering', gelombangList.length, 'gelombang with activeId:', activeId);
-        
-        // Map colors to CSS classes
-        const colorMap = {
-          green: {
-            border: 'border-green-200',
-            badge: 'bg-green-500',
-            icon: 'bg-gradient-to-br from-green-500 to-green-600',
-            iconText: 'text-green-500'
-          },
-          blue: {
-            border: 'border-blue-200',
-            badge: 'bg-blue-500',
-            icon: 'bg-gradient-to-br from-blue-500 to-blue-600',
-            iconText: 'text-blue-500'
-          },
-          gray: {
-            border: 'border-gray-200',
-            badge: 'bg-gray-500',
-            icon: 'bg-gradient-to-br from-gray-500 to-gray-600',
-            iconText: 'text-gray-500'
-          }
-        };
-        
-        // 4) Generate HTML for all gelombang cards
-        let cardsHTML = '';
-        
-        gelombangList.forEach(gelombang => {
-          const colors = colorMap[gelombang._color] || colorMap.gray;
-          
-          console.log('[GELOMBANG_LIST] Rendering:', gelombang.nama, '| state:', gelombang._state, '| label:', gelombang._label);
-          
-          // Determine button state based on _state
-          let buttonHTML = '';
-          let statusHTML = '';
-          
-          if (gelombang._state === 'ACTIVE') {
-            buttonHTML = `<a href="/daftar.html" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg inline-block text-center transition shadow-md hover:shadow-lg">
-              <i class="bi bi-pencil-square mr-2"></i>Daftar Sekarang
-            </a>`;
-            statusHTML = `<div class="bg-green-50 rounded-lg p-3 mb-4"><p class="text-sm text-green-700 font-medium">✓ Pendaftaran Dibuka</p></div>`;
-          } else if (gelombang._state === 'UPCOMING') {
-            buttonHTML = `<button class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg cursor-default" disabled>
-              <i class="bi bi-clock mr-2"></i>Segera Dibuka
-            </button>`;
-            statusHTML = `<div class="bg-blue-50 rounded-lg p-3 mb-4"><p class="text-sm text-blue-700 font-medium">📅 Segera Dibuka</p></div>`;
-          } else if (gelombang._state === 'CLOSED') {
-            buttonHTML = `<button class="w-full bg-gray-300 text-gray-600 cursor-not-allowed font-semibold py-3 px-6 rounded-lg" disabled>
-              <i class="bi bi-x-circle mr-2"></i>Ditutup
-            </button>`;
-            statusHTML = `<div class="bg-gray-50 rounded-lg p-3 mb-4"><p class="text-sm text-gray-500 font-medium">⏱ Pendaftaran Ditutup</p></div>`;
-          } else { // NOT_ACTIVE
-            buttonHTML = `<button class="w-full bg-gray-300 text-gray-600 cursor-not-allowed font-semibold py-3 px-6 rounded-lg" disabled>
-              <i class="bi bi-info-circle mr-2"></i>Belum Aktif
-            </button>`;
-            statusHTML = `<div class="bg-gray-50 rounded-lg p-3 mb-4"><p class="text-sm text-gray-500 font-medium">ℹ️ Belum Aktif</p></div>`;
-          }
-          
-          // Format dates
-          const startFormatted = formatDate(gelombang.start_date);
-          const endFormatted = formatDate(gelombang.end_date);
-          
-          // Build card HTML
-          cardsHTML += `
-            <div class="bg-white rounded-2xl p-6 shadow-xl border-2 ${colors.border} relative overflow-hidden hover:shadow-2xl transition">
-              <div class="absolute top-0 right-0 ${colors.badge} text-white px-4 py-2 rounded-bl-lg text-sm font-semibold">${gelombang._label}</div>
-              <div class="text-center mt-4">
-                <div class="w-16 h-16 ${colors.icon} rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <i class="bi bi-calendar-check text-white text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-2 text-gray-800">${gelombang.nama}</h3>
-                <div class="space-y-2 mb-4">
-                  <div class="flex items-center justify-center text-gray-600">
-                    <i class="bi bi-calendar-event mr-2 ${colors.iconText}"></i>
-                    <span class="text-sm">${startFormatted} - ${endFormatted}</span>
+        const cardsHTML = gelombangList
+          .map((gelombang) => {
+            const stateKey = gelombang._state || "NOT_ACTIVE";
+            const colors = COLOR_MAP[gelombang._color] || COLOR_MAP.gray;
+            const badgeText = getStatusBadgeText(stateKey);
+            const buttonLabel = getButtonLabel(stateKey);
+
+            let buttonHTML = "";
+            let statusHTML = "";
+
+            if (stateKey === "ACTIVE") {
+              buttonHTML = `<a href="/daftar.html" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg inline-block text-center transition shadow-md hover:shadow-lg">
+                <i class="bi bi-pencil-square mr-2"></i>${buttonLabel}
+              </a>`;
+              statusHTML = `<div class="bg-green-50 rounded-lg p-3 mb-4"><p class="text-sm text-green-700 font-medium">${badgeText}</p></div>`;
+            } else if (stateKey === "UPCOMING") {
+              buttonHTML = `<button class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg cursor-default" disabled>
+                <i class="bi bi-clock mr-2"></i>${buttonLabel}
+              </button>`;
+              statusHTML = `<div class="bg-blue-50 rounded-lg p-3 mb-4"><p class="text-sm text-blue-700 font-medium">${badgeText}</p></div>`;
+            } else if (stateKey === "CLOSED") {
+              buttonHTML = `<button class="w-full bg-gray-300 text-gray-600 cursor-not-allowed font-semibold py-3 px-6 rounded-lg" disabled>
+                <i class="bi bi-x-circle mr-2"></i>${buttonLabel}
+              </button>`;
+              statusHTML = `<div class="bg-gray-50 rounded-lg p-3 mb-4"><p class="text-sm text-gray-500 font-medium">${badgeText}</p></div>`;
+            } else {
+              buttonHTML = `<button class="w-full bg-gray-300 text-gray-600 cursor-not-allowed font-semibold py-3 px-6 rounded-lg" disabled>
+                <i class="bi bi-info-circle mr-2"></i>${buttonLabel}
+              </button>`;
+              statusHTML = `<div class="bg-gray-50 rounded-lg p-3 mb-4"><p class="text-sm text-gray-500 font-medium">${badgeText}</p></div>`;
+            }
+
+            return `
+              <div class="bg-white rounded-2xl p-6 shadow-xl border-2 ${colors.border} relative overflow-hidden hover:shadow-2xl transition">
+                <div class="absolute top-0 right-0 ${colors.badge} text-white px-4 py-2 rounded-bl-lg text-sm font-semibold">${gelombang._label}</div>
+                <div class="text-center mt-4">
+                  <div class="w-16 h-16 ${colors.icon} rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <i class="bi bi-calendar-check text-white text-2xl"></i>
                   </div>
-                  <div class="flex items-center justify-center text-gray-600">
-                    <i class="bi bi-mortarboard mr-2 ${colors.iconText}"></i>
-                    <span class="text-sm font-semibold">Tahun Ajaran ${gelombang.tahun_ajaran}</span>
+                  <h3 class="text-xl font-bold mb-2 text-gray-800">${gelombang.nama}</h3>
+                  <div class="space-y-2 mb-4">
+                    <div class="flex items-center justify-center text-gray-600">
+                      <i class="bi bi-calendar-event mr-2 ${colors.iconText}"></i>
+                      <span class="text-sm">${formatDate(gelombang.start_date)} - ${formatDate(gelombang.end_date)}</span>
+                    </div>
+                    <div class="flex items-center justify-center text-gray-600">
+                      <i class="bi bi-mortarboard mr-2 ${colors.iconText}"></i>
+                      <span class="text-sm font-semibold">${getYearText(gelombang.tahun_ajaran)}</span>
+                    </div>
                   </div>
+                  ${statusHTML}
+                  ${buttonHTML}
                 </div>
-                ${statusHTML}
-                ${buttonHTML}
               </div>
-            </div>
-          `;
-        });
-        
-        // Render all cards in grid
+            `;
+          })
+          .join("");
+
         container.innerHTML = cardsHTML;
-        
       } catch (error) {
-        console.error('[GELOMBANG_LIST] Error:', error);
-        document.getElementById('gelombangContainer').innerHTML = `
-          <div class="text-center py-12 col-span-full">
-            <i class="bi bi-exclamation-triangle text-red-500 text-4xl mb-3"></i>
-            <p class="text-gray-600">Gagal memuat data gelombang. Silakan refresh halaman.</p>
-          </div>
-        `;
+        console.error("[GELOMBANG_LIST] Error:", error);
+        renderErrorState(container);
       }
     }
 
-    function formatDate(dateString) {
-      const options = { day: 'numeric', month: 'long', year: 'numeric' };
-      const date = new Date(dateString);
-      return date.toLocaleDateString('id-ID', options);
-    }
-
-    // Load active gelombang when page loads
-    document.addEventListener('DOMContentLoaded', loadGelombangAktif);
-    
-    // Load Why Section content
     async function loadWhySection() {
       try {
-        console.log('[WHY_SECTION] Loading Why Section content...');
-        
-        const response = await fetch('/api/why_section_list');
-        
-        if (!response.ok) {
-          console.error('[WHY_SECTION] HTTP Error:', response.status, response.statusText);
-          // Show default content on error
-          showDefaultWhyContent();
-          return;
-        }
-        
+        const response = await fetch("/api/why_section_list");
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const result = await response.json();
-        
+
         if (!result.ok || !result.data) {
-          console.error('[WHY_SECTION] Failed to load content:', result.error);
-          // Show default content
           showDefaultWhyContent();
           return;
         }
-        
-        // Show warning if table doesn't exist
-        if (result.warning) {
-          console.warn('[WHY_SECTION] ⚠️', result.warning);
-        }
-        
-        const container = document.getElementById('whySectionContent');
+
+        const container = document.getElementById("whySectionContent");
         if (!container) return;
-        
+
         const data = result.data;
-        
-        // Modern 2-column layout: Title left, Card right
         container.innerHTML = `
           <!-- Left Column: Title -->
           <div class="flex flex-col justify-center">
             <h2 class="text-4xl lg:text-5xl xl:text-6xl font-bold text-brand-800 leading-tight mb-4 lg:mb-0">
-              ${data.title || 'Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?'}
-            </h2>
-          </div>
-          
-          <!-- Right Column: Card with Subtitle + Content -->
-          <div class="relative">
-            <div class="bg-gradient-to-br from-brand-50 to-white border-l-4 border-brand-600 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 lg:p-10">
-              ${data.subtitle ? `
-                <div class="flex items-start mb-6">
-                  <div class="flex-shrink-0 w-12 h-12 bg-brand-600 rounded-lg flex items-center justify-center mr-4">
-                    <i class="bi bi-star-fill text-white text-xl"></i>
-                  </div>
-                  <div class="flex-1">
-                    <h3 class="text-xl lg:text-2xl font-semibold text-brand-900 mb-2">
-                      ${data.subtitle}
-                    </h3>
-                  </div>
-                </div>
-              ` : ''}
-              
-              <div class="prose prose-lg max-w-none">
-                <p class="text-gray-700 leading-relaxed whitespace-pre-line text-justify">
-                  ${data.content || ''}
-                </p>
-              </div>
-              
-              <!-- Decorative element -->
-              <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-brand-100 rounded-full opacity-20 blur-2xl"></div>
-            </div>
-          </div>
-        `;
-        
-        console.log('[WHY_SECTION] ✅ Content loaded successfully');
-        
-      } catch (error) {
-        console.error('[WHY_SECTION] Error:', error);
-        showDefaultWhyContent();
-      }
-    }
-    
-    // Helper function to show default content
-    function showDefaultWhyContent() {
-      const container = document.getElementById('whySectionContent');
-      if (container) {
-        container.innerHTML = `
-          <!-- Left Column: Title -->
-          <div class="flex flex-col justify-center">
-            <h2 class="text-4xl lg:text-5xl xl:text-6xl font-bold text-brand-800 leading-tight mb-4 lg:mb-0">
-              Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?
+              ${data.title || translateText("sections.why.title")}
             </h2>
           </div>
           
@@ -759,65 +690,83 @@
           <div class="relative">
             <div class="bg-gradient-to-br from-brand-50 to-white border-l-4 border-brand-600 rounded-2xl shadow-lg p-8 lg:p-10">
               <h3 class="text-xl lg:text-2xl font-semibold text-brand-900 mb-4">
-                Pendidikan islami terpadu: tahfidz Al-Qur'an, akhlak mulia, dan ilmu pengetahuan
+                ${data.subtitle || translateText("sections.why.subtitle")}
               </h3>
               <p class="text-gray-700 leading-relaxed">
-                Bergabunglah dengan Pondok Pesantren Al Ikhsan Beji untuk mendapatkan pendidikan islami terpadu yang membentuk karakter santri yang berakhlak mulia.
+                ${data.content || translateText("sections.why.description")}
               </p>
             </div>
           </div>
         `;
+      } catch (error) {
+        console.error("[WHY_SECTION] Error:", error);
+        showDefaultWhyContent();
       }
     }
-    
-    // Load Why Section on page load
-    document.addEventListener('DOMContentLoaded', loadWhySection);
-    
-    // ===== REAL-TIME SYNC WITH ADMIN =====
-    
-    // Method 1: Listen for changes from admin panel via localStorage (cross-tab)
-    window.addEventListener('storage', function(e) {
-      if (e.key === 'gelombang_update') {
+
+    function showDefaultWhyContent() {
+      const container = document.getElementById("whySectionContent");
+      if (!container) return;
+
+      container.innerHTML = `
+        <!-- Left Column: Title -->
+        <div class="flex flex-col justify-center">
+          <h2 class="text-4xl lg:text-5xl xl:text-6xl font-bold text-brand-800 leading-tight mb-4 lg:mb-0">
+            ${translateText("sections.why.title")}
+          </h2>
+        </div>
+        
+        <!-- Right Column: Card -->
+        <div class="relative">
+          <div class="bg-gradient-to-br from-brand-50 to-white border-l-4 border-brand-600 rounded-2xl shadow-lg p-8 lg:p-10">
+            <h3 class="text-xl lg:text-2xl font-semibold text-brand-900 mb-4">
+              ${translateText("sections.why.subtitle")}
+            </h3>
+            <p class="text-gray-700 leading-relaxed">
+              ${translateText("sections.why.description")}
+            </p>
+          </div>
+        </div>
+      `;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadGelombangAktif();
+      loadWhySection();
+    });
+
+    document.addEventListener("i18n:lang-changed", () => {
+      loadGelombangAktif();
+      loadWhySection();
+    });
+
+    window.addEventListener("storage", (event) => {
+      if (event.key === "gelombang_update") {
         try {
-          const update = JSON.parse(e.newValue);
-          console.log('[GELOMBANG] 📡 Received update from admin (storage event):', update);
-          console.log('[GELOMBANG] 🔄 Reloading gelombang display...');
-          
-          // Show toast notification to user
-          if (typeof toastr !== 'undefined' && toastr.info) {
-            toastr.info('Data gelombang diperbarui!');
-          }
-          
-          // Reload with slight delay to ensure DB is updated
-          setTimeout(() => {
-            loadGelombangAktif();
-          }, 500);
-        } catch (err) {
+          JSON.parse(event.newValue);
+          console.log('[GELOMBANG] 📡 Received update from admin (storage event)');
+        } catch (error) {
           console.log('[GELOMBANG] Admin updated gelombang (legacy format), reloading...');
-          setTimeout(() => {
-            loadGelombangAktif();
-          }, 500);
+        }
+        setTimeout(() => {
+          loadGelombangAktif();
+        }, 500);
+        if (typeof toastr !== "undefined" && toastr.info) {
+          toastr.info(translateText("sections.gelombang.toast.updated"));
         }
       }
     });
-    
-    // Method 2: Listen for custom event (same-window sync - if admin in iframe)
-    window.addEventListener('gelombangUpdated', function(e) {
-      console.log('[GELOMBANG] 📡 Received update (custom event):', e.detail);
-      console.log('[GELOMBANG] 🔄 Reloading gelombang display...');
-      
+
+    window.addEventListener("gelombangUpdated", () => {
       setTimeout(() => {
         loadGelombangAktif();
       }, 500);
     });
-    
-    // Method 3: Periodic polling as fallback (every 60 seconds)
+
     setInterval(() => {
-      console.log('[GELOMBANG] 🔄 Periodic refresh (fallback)...');
       loadGelombangAktif();
-    }, 60000); // 60 seconds
+    }, 60000);
   </script>
-  
   <!-- Supabase Real-Time Sync (Optional - for cross-tab/cross-device sync) -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
@@ -843,7 +792,10 @@
         
         // Show notification to user
         if (typeof toastr !== 'undefined' && toastr.info) {
-          toastr.info('📊 Data gelombang diperbarui dari server');
+          const message = typeof window.__ === 'function'
+            ? window.__('sections.gelombang.toast.server')
+            : '📊 Data gelombang diperbarui dari server';
+          toastr.info(message);
         }
         
         // Reload immediately (database already consistent)
