@@ -169,6 +169,10 @@
         width:280px!important;
         transition:left .3s ease;
         box-shadow:4px 0 30px rgba(0,0,0,.3);
+        height:100vh;
+        max-height:100vh;
+        overflow-y:auto;
+        -webkit-overflow-scrolling:touch;
       }
       .sidebar.show{left:0;}
       .sidebar-overlay.show{display:block;}
@@ -434,6 +438,11 @@
       /* Hide More Columns on Extra Small Screens */
       .table th:nth-child(2),
       .table td:nth-child(2){display:none;}
+
+      .detail-payment-table th:nth-child(2),
+      .detail-payment-table td:nth-child(2){
+        display:table-cell!important;
+      }
       
       /* Navigation Tabs: Minimal */
       .nav-tabs{padding:6px;}
@@ -1699,7 +1708,7 @@
         <div class="modal-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <table class="table table-borderless">
+              <table class="table table-borderless detail-payment-table">
                 <tr><th width="40%">NISN:</th><td id="detail-nisn"></td></tr>
                 <tr><th>Nama Lengkap:</th><td id="detail-nama-lengkap"></td></tr>
                 <tr><th>Jumlah:</th><td id="detail-jumlah"></td></tr>

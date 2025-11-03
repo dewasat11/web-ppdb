@@ -103,7 +103,7 @@
 </head>
 <body class="min-h-screen flex flex-col bg-white text-gray-800">
   <!-- NAVBAR -->
-  <nav class="bg-white shadow-lg sticky top-0 z-50" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
+  <nav class="bg-white shadow-lg fixed top-0 left-0 right-0 z-50" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo -->
@@ -186,7 +186,7 @@
   </nav>
 
   <!-- MAIN -->
-  <main class="flex-1 container mx-auto px-4 py-8">
+  <main class="flex-1 container mx-auto px-4 pt-24 pb-12 md:pt-28">
     <h1 class="text-3xl font-bold text-gray-900 mb-6">Biaya Pendaftaran</h1>
     <div class="prose max-w-none">
       <p>Berikut adalah rincian biaya pendaftaran dan pendidikan di Pondok Pesantren Al Ikhsan Beji:</p>
