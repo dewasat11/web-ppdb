@@ -45,6 +45,7 @@
 
   const CACHE_DURATION = 30_000; // (opsi, saat ingin cache) 30s
   const AUTO_REFRESH_INTERVAL = 30_000; // auto refresh pembayaran tiap 30s
+  const MOBILE_BREAKPOINT = 992; // breakpoint untuk mode mobile/tablet
 
   const PAGE_TITLES = {
     pendaftar: "Data Pendaftar",
@@ -206,7 +207,7 @@
      ========================= */
   // guard login (jalan seawal mungkin)
   if (localStorage.getItem("isAdminLoggedIn") !== "true") {
-    window.location.href = "/login";
+    window.location.href = "/login.html";
   }
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -216,26 +217,79 @@
 
     const logoutBtn = $("#logoutBtn");
     if (logoutBtn) {
-      logoutBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (confirm("Yakin ingin logout?")) {
-          localStorage.removeItem("isAdminLoggedIn");
-          localStorage.removeItem("adminEmail");
-          window.location.href = "/login";
-        }
+      logoutBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        localStorage.removeItem("isAdminLoggedIn");
+        localStorage.removeItem("adminEmail");
+        localStorage.removeItem("loginTimestamp");
+        alert(
+          "✅ Anda telah logout.\n\nSilakan login kembali untuk mengakses admin panel."
+        );
+        window.location.href = "/login.html";
       });
     }
+
+    const navLinks = $$(".sidebar .nav-link");
+    navLinks.forEach((link) => {
+      link.addEventListener("click", () => {
+        if (isMobileViewport()) {
+          closeSidebar();
+        }
+      });
+    });
+
+    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (!isMobileViewport()) {
+          closeSidebar();
+        }
+      }, 200);
+    });
   });
 
   /* =========================
      2) SIDEBAR & TABS
      ========================= */
-  function toggleSidebar() {
+  function isMobileViewport() {
+    return window.innerWidth < MOBILE_BREAKPOINT;
+  }
+
+  function setSidebarState(shouldShow) {
     const sidebar = $("#sidebar");
     const overlay = $(".sidebar-overlay");
     if (!sidebar || !overlay) return;
-    sidebar.classList.toggle("show");
-    overlay.classList.toggle("show");
+
+    if (shouldShow) {
+      sidebar.classList.add("show");
+      overlay.classList.add("show");
+      document.body.style.overflow = "hidden";
+    } else {
+      sidebar.classList.remove("show");
+      overlay.classList.remove("show");
+      document.body.style.overflow = "";
+    }
+  }
+
+  function toggleSidebar(force) {
+    const sidebar = $("#sidebar");
+    if (!sidebar) return;
+
+    const shouldShow =
+      typeof force === "boolean"
+        ? force
+        : !sidebar.classList.contains("show");
+
+    setSidebarState(shouldShow);
+  }
+
+  function closeSidebar() {
+    setSidebarState(false);
+  }
+
+  function openSidebar() {
+    setSidebarState(true);
   }
 
   function switchTab(tab) {
@@ -308,7 +362,9 @@
     }
 
     // Tutup sidebar di mobile
-    if (window.innerWidth <= 768) toggleSidebar();
+    if (isMobileViewport()) {
+      closeSidebar();
+    }
   }
 
   // expose agar bisa dipakai dari HTML

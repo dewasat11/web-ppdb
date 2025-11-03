@@ -714,7 +714,7 @@
            onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.borderColor='rgba(255,255,255,0.3)'">
           <i class="bi bi-house-fill"></i> Website
         </a>
-        <button class="btn btn-danger w-100 d-flex align-items-center justify-content-center gap-2" onclick="logout()" 
+        <button id="logoutBtn" type="button" class="btn btn-danger w-100 d-flex align-items-center justify-content-center gap-2"
                 style="background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%); border: none; color: #fff; padding: 10px 15px; border-radius: 10px; font-weight: 500; transition: all 0.3s; box-shadow: 0 4px 15px rgba(245,87,108,0.4);"
                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(245,87,108,0.6)'"
                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(245,87,108,0.4)'">
@@ -1866,104 +1866,6 @@
   </script>
   
   <!-- Client-side ZIP generation removed - now using server-side download -->
-  
-  <!-- AUTH GUARD - Must be logged in to access admin panel -->
-  <script>
-      // ===== SIMPLE AUTHENTICATION CHECK WITH localStorage =====
-      // Check if user is logged in using localStorage (persists across refresh)
-      const isLoggedIn = localStorage.getItem("isAdminLoggedIn");
-      
-      if (isLoggedIn !== "true") {
-        console.log("[ADMIN] ❌ Not authenticated - redirecting to login");
-        window.location.href = "/login.html";
-      } else {
-        const adminEmail = localStorage.getItem("adminEmail");
-        const loginTimestamp = localStorage.getItem("loginTimestamp");
-        console.log("[ADMIN] ✅ User authenticated:", adminEmail);
-        console.log("[ADMIN] ✅ Login time:", loginTimestamp ? new Date(parseInt(loginTimestamp)).toLocaleString() : 'N/A');
-      }
-    
-    /**
-     * Logout Function
-     * Clears localStorage and redirects to login
-     */
-    function logout() {
-      console.log("[ADMIN] Logging out...");
-      
-      // Clear all login data from localStorage
-      localStorage.removeItem("isAdminLoggedIn");
-      localStorage.removeItem("adminEmail");
-      localStorage.removeItem("loginTimestamp");
-      
-      alert("✅ Anda telah logout.\n\nSilakan login kembali untuk mengakses admin panel.");
-      
-      // Redirect to login page
-      window.location.href = "/login.html";
-    }
-  </script>
-  
-  <!-- Responsive Mobile Menu Toggle Script -->
-  <script>
-    /**
-     * Toggle Sidebar on Mobile
-     * Shows/hides sidebar menu with overlay
-     */
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.querySelector('.sidebar-overlay');
-      
-      if (sidebar && overlay) {
-        const isVisible = sidebar.classList.contains('show');
-        
-        if (isVisible) {
-          // Hide sidebar
-          sidebar.classList.remove('show');
-          overlay.classList.remove('show');
-          document.body.style.overflow = ''; // Enable body scroll
-        } else {
-          // Show sidebar
-          sidebar.classList.add('show');
-          overlay.classList.add('show');
-          document.body.style.overflow = 'hidden'; // Prevent body scroll
-        }
-      }
-    }
-    
-    /**
-     * Close sidebar when clicking nav links on mobile
-     */
-    document.addEventListener('DOMContentLoaded', function() {
-      const navLinks = document.querySelectorAll('.sidebar .nav-link');
-      
-      navLinks.forEach(link => {
-        link.addEventListener('click', function() {
-          // Close sidebar on mobile after clicking nav link
-          if (window.innerWidth < 992) {
-            setTimeout(() => {
-              toggleSidebar();
-            }, 200); // Small delay for smooth transition
-          }
-        });
-      });
-      
-      // Handle window resize - close sidebar if resized to desktop
-      let resizeTimer;
-      window.addEventListener('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(function() {
-          if (window.innerWidth >= 992) {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.querySelector('.sidebar-overlay');
-            if (sidebar && overlay) {
-              sidebar.classList.remove('show');
-              overlay.classList.remove('show');
-              document.body.style.overflow = '';
-            }
-          }
-        }, 250);
-      });
-    });
-  </script>
   
   <!-- Page Loading Overlay -->
   <div id="pageLoadingOverlay" style="position:fixed;inset:0;background:rgba(255,255,255,0.95);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column">
