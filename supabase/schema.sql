@@ -20,8 +20,10 @@ alter table sections enable row level security;
 alter table section_translations enable row level security;
 
 -- Baca publik (opsional; akses utama via server)
-create policy if not exists "read_sections_public" on sections
+drop policy if exists "read_sections_public" on sections;
+create policy "read_sections_public" on sections
 for select using (true);
 
-create policy if not exists "read_section_translations_public" on section_translations
+drop policy if exists "read_section_translations_public" on section_translations;
+create policy "read_section_translations_public" on section_translations
 for select using (true);

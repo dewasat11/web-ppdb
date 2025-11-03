@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cek Status Pendaftaran - PPDSB Pondok Pesantren Al Ikhsan Beji</title>
+    <meta name="description" content="Cek status pendaftaran santri Pondok Pesantren Al Ikhsan Beji dengan memasukkan NISN. Lihat informasi verifikasi, catatan admin, dan status pembayaran terbaru." data-i18n="cekStatus.meta.description" data-i18n-attr="content" data-i18n-skip-text />
+    <title data-i18n="cekStatus.meta.title">Cek Status Pendaftaran - PPDSB Pondok Pesantren Al Ikhsan Beji</title>
 
     <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -30,6 +31,7 @@
         }
       }
     </script>
+    <script src="/i18n.js" defer></script>
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
@@ -92,29 +94,34 @@
           <!-- Desktop Navigation -->
           <div class="hidden md:block">
             <div class="flex items-baseline space-x-4">
-              <a href="/" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Beranda</a>
+              <a href="/" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.home">Beranda</a>
 
               <!-- Dropdown Informasi -->
               <div class="relative">
                 <button @click="profileDropdownOpen=!profileDropdownOpen" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                  Informasi
+                  <span data-i18n="nav.info">Informasi</span>
                   <i class="bi bi-caret-down-fill ml-1 text-xs" :class="{'rotate-180': profileDropdownOpen}"></i>
                 </button>
                 <div x-cloak x-show="profileDropdownOpen" @click.outside="profileDropdownOpen=false" x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100">
-                  <a href="/alur-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Alur Pendaftaran</a>
-                  <a href="/syarat-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Syarat Pendaftaran</a>
-                  <a href="/biaya.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Biaya</a>
+                  <a href="/alur-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-i18n="nav.flow">Alur Pendaftaran</a>
+                  <a href="/syarat-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-i18n="nav.requirements">Syarat Pendaftaran</a>
+                  <a href="/biaya.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-i18n="nav.fees">Biaya</a>
                 </div>
               </div>
 
-              <a href="/brosur.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Brosur</a>
-              <a href="/kontak.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium">Kontak</a>
+              <a href="/brosur.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.brochure">Brosur</a>
+              <a href="/kontak.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.contact">Kontak</a>
+
+              <div class="flex items-center space-x-1 ml-2">
+                <button type="button" data-setlang="id" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.language.id">ID</button>
+                <button type="button" data-setlang="en" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.language.en">EN</button>
+              </div>
             </div>
           </div>
 
           <!-- CTA Button Desktop -->
           <div class="hidden md:block">
-            <a href="/login" class="bg-brand-700 hover:bg-brand-800 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg">Admin</a>
+            <a href="/login" class="bg-brand-700 hover:bg-brand-800 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg" data-i18n="nav.admin">Admin</a>
           </div>
 
           <!-- Mobile menu button -->
@@ -139,22 +146,27 @@
         </div>
 
         <div class="px-2 pt-4 pb-3 space-y-1">
-          <a href="/" class="bg-brand-100 text-brand-700 block px-3 py-2 rounded-md text-base font-medium">Beranda</a>
+          <a href="/" class="bg-brand-100 text-brand-700 block px-3 py-2 rounded-md text-base font-medium" data-i18n="nav.home">Beranda</a>
 
           <details class="px-1">
-            <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium">Informasi</summary>
+            <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium" data-i18n="nav.info">Informasi</summary>
             <div class="pl-6 space-y-1 mt-2">
-              <a href="/alur-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Alur Pendaftaran</a>
-              <a href="/syarat-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Syarat Pendaftaran</a>
-              <a href="/biaya.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50">Biaya</a>
+              <a href="/alur-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50" data-i18n="nav.flow">Alur Pendaftaran</a>
+              <a href="/syarat-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50" data-i18n="nav.requirements">Syarat Pendaftaran</a>
+              <a href="/biaya.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50" data-i18n="nav.fees">Biaya</a>
             </div>
           </details>
 
-          <a href="/brosur.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50">Brosur</a>
-          <a href="/kontak.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50">Kontak</a>
+          <a href="/brosur.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50" data-i18n="nav.brochure">Brosur</a>
+          <a href="/kontak.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50" data-i18n="nav.contact">Kontak</a>
+
+          <div class="px-2 pt-4 flex items-center gap-2">
+            <button type="button" data-setlang="id" class="flex-1 text-gray-700 hover:text-brand-700 px-3 py-2 rounded-md text-base font-medium border border-gray-200" data-i18n="nav.language.id">ID</button>
+            <button type="button" data-setlang="en" class="flex-1 text-gray-700 hover:text-brand-700 px-3 py-2 rounded-md text-base font-medium border border-gray-200" data-i18n="nav.language.en">EN</button>
+          </div>
 
           <div class="pt-4 pb-2 px-2">
-            <a href="/login.html" class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center">Admin</a>
+            <a href="/login.html" class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center" data-i18n="nav.admin">Admin</a>
           </div>
         </div>
       </div>
@@ -172,11 +184,11 @@
         <div class="flex justify-center">
           <div class="w-full lg:w-5/6 text-center">
             <h1 class="text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
-          <i class="bi bi-search"></i> Cek Status Pendaftaran Santri
-        </h1>
-            <p class="text-lg lg:text-xl text-gray-200 mb-4">
-          Masukkan NISN Anda untuk melihat status pendaftaran Pondok Pesantren Al Ikhsan Beji
-        </p>
+              <i class="bi bi-search"></i> <span data-i18n="cekStatus.hero.title">Cek Status Pendaftaran Santri</span>
+            </h1>
+            <p class="text-lg lg:text-xl text-gray-200 mb-4" data-i18n="cekStatus.hero.subtitle">
+              Masukkan NISN Anda untuk melihat status pendaftaran Pondok Pesantren Al Ikhsan Beji
+            </p>
           </div>
         </div>
       </div>
@@ -190,12 +202,12 @@
           <div class="p-6">
             <h2 class="text-xl font-semibold mb-4 text-gray-800 flex items-center gap-2">
               <i class="bi bi-card-text text-brand-600"></i>
-              Cek Status Anda
+              <span data-i18n="cekStatus.form.title">Cek Status Anda</span>
             </h2>
 
             <form id="cekStatusForm" class="space-y-4">
               <div>
-                <label for="nisnInput" class="block text-sm font-medium text-gray-700 mb-1">NISN (Nomor Induk Siswa Nasional)</label>
+                <label for="nisnInput" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="cekStatus.form.label">NISN (Nomor Induk Siswa Nasional)</label>
                   <input
                     type="text"
                     id="nisnInput"
@@ -204,16 +216,18 @@
                     pattern="^\d{10}$"
                     title="NISN harus 10 digit angka"
                     maxlength="10"
+                  data-i18n="cekStatus.form.input"
+                  data-i18n-attr="placeholder,title"
                   class="block w-full rounded-lg border border-gray-300 focus:border-brand-500 focus:ring-brand-500 px-4 py-3 text-gray-900 placeholder-gray-400"
                   />
-                <p class="mt-2 text-sm text-gray-500">
+                <p class="mt-2 text-sm text-gray-500" data-i18n="cekStatus.form.helper">
                     Masukkan NISN Anda yang terdiri dari <strong>10 digit angka</strong> (contoh: <code>1234567890</code>).
                 </p>
                 </div>
 
               <button type="button" id="btnCekStatus" class="w-full inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2">
                 <i class="bi bi-search"></i>
-                Cek Status
+                <span data-i18n="cekStatus.form.button">Cek Status</span>
                 </button>
               </form>
           </div>
@@ -226,14 +240,14 @@
       <div class="absolute inset-0 bg-black/50" onclick="document.getElementById('modalCekStatus').classList.remove('modal-visible'); document.getElementById('modalCekStatus').classList.add('modal-hidden');"></div>
       <div class="relative bg-white rounded-2xl shadow-2xl max-w-3xl w-[92vw] max-h-[85vh] overflow-y-auto">
         <div class="px-6 py-4 bg-gradient-to-br from-brand-700 to-brand-800 text-white rounded-t-2xl flex items-center justify-between">
-          <h5 class="font-semibold"><i class="bi bi-clipboard-check"></i> Hasil Cek Status Pendaftaran</h5>
+          <h5 class="font-semibold"><i class="bi bi-clipboard-check"></i> <span data-i18n="cekStatus.modal.title">Hasil Cek Status Pendaftaran</span></h5>
           <button class="text-white/90 hover:text-white" onclick="document.getElementById('modalCekStatus').classList.remove('modal-visible'); document.getElementById('modalCekStatus').classList.add('modal-hidden');"><i class="bi bi-x-lg"></i></button>
         </div>
         <div class="p-6">
           <!-- Loading state -->
           <div id="statusLoading" class="text-center py-6">
             <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-brand-500 border-t-transparent"></div>
-            <p class="mt-4 text-gray-600 font-semibold">Mengambil data status Anda...</p>
+            <p class="mt-4 text-gray-600 font-semibold" data-i18n="cekStatus.modal.loading">Mengambil data status Anda...</p>
           </div>
 
           <!-- Hasil sukses -->
@@ -245,24 +259,24 @@
               <span id="statusBadge" class="px-4 py-2 rounded-full bg-yellow-500 text-white">-</span>
               </div>
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-3">
-              <div class="px-4 py-3 border-b border-gray-100 font-semibold"><i class="bi bi-person-badge"></i> Informasi Pendaftar</div>
+              <div class="px-4 py-3 border-b border-gray-100 font-semibold"><i class="bi bi-person-badge"></i> <span data-i18n="cekStatus.modal.sections.info">Informasi Pendaftar</span></div>
               <div class="divide-y divide-gray-100">
-                <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500">NISN</span><strong id="f_nisn">-</strong></div>
-                <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500">Nama Lengkap</span><strong id="f_nama">-</strong></div>
-                <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500">Tempat Lahir</span><span id="f_tempat_lahir">-</span></div>
-                <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500">Tanggal Lahir</span><span id="f_tanggal_lahir">-</span></div>
-                <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500">Tanggal Daftar</span><span id="f_tanggal_daftar">-</span></div>
+                <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500" data-i18n="cekStatus.modal.fields.nisn">NISN</span><strong id="f_nisn">-</strong></div>
+                <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500" data-i18n="cekStatus.modal.fields.name">Nama Lengkap</span><strong id="f_nama">-</strong></div>
+                <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500" data-i18n="cekStatus.modal.fields.birthPlace">Tempat Lahir</span><span id="f_tempat_lahir">-</span></div>
+                <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500" data-i18n="cekStatus.modal.fields.birthDate">Tanggal Lahir</span><span id="f_tanggal_lahir">-</span></div>
+                <div class="px-4 py-3 flex justify-between text-sm"><span class="text-gray-500" data-i18n="cekStatus.modal.fields.submittedAt">Tanggal Daftar</span><span id="f_tanggal_daftar">-</span></div>
               </div>
                 </div>
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm" id="statusCatatanSection">
-              <div class="px-4 py-3 border-b border-gray-100 font-semibold"><i class="bi bi-clipboard-data"></i> Status & Catatan</div>
+              <div class="px-4 py-3 border-b border-gray-100 font-semibold"><i class="bi bi-clipboard-data"></i> <span data-i18n="cekStatus.modal.sections.status">Status & Catatan</span></div>
               <div class="px-4 py-3 space-y-3">
                 <div>
-                  <span class="text-gray-500 block mb-1 text-sm">Status Verifikasi</span>
+                  <span class="text-gray-500 block mb-1 text-sm" data-i18n="cekStatus.modal.fields.verificationStatus">Status Verifikasi</span>
                   <span id="f_status_text" class="inline-block px-3 py-1 rounded bg-yellow-500 text-white text-sm">-</span>
                 </div>
                 <div id="catatanContainer">
-                  <span class="text-gray-500 block mb-1 text-sm">Catatan Admin</span>
+                  <span class="text-gray-500 block mb-1 text-sm" data-i18n="cekStatus.modal.fields.adminNote">Catatan Admin</span>
                   <p id="f_catatan" class="mb-0 text-gray-800">-</p>
                 </div>
               </div>
@@ -274,15 +288,15 @@
             <div class="flex items-start gap-2">
               <i class="bi bi-exclamation-triangle"></i>
               <div>
-              <strong>Perhatian!</strong>
-                <p class="mb-0 mt-1" id="statusErrorMsg">Terjadi kesalahan.</p>
+              <strong data-i18n="cekStatus.modal.error.title">Perhatian!</strong>
+                <p class="mb-0 mt-1" id="statusErrorMsg" data-i18n="cekStatus.modal.error.generic">Terjadi kesalahan.</p>
               </div>
             </div>
           </div>
         </div>
         <div class="px-6 py-4 border-t border-gray-100 rounded-b-2xl flex justify-end">
           <button type="button" class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-3 rounded-lg" onclick="document.getElementById('modalCekStatus').classList.remove('modal-visible'); document.getElementById('modalCekStatus').classList.add('modal-hidden');">
-              <i class="bi bi-x-circle"></i> Tutup
+              <i class="bi bi-x-circle"></i> <span data-i18n="cekStatus.modal.close">Tutup</span>
             </button>
         </div>
       </div>
@@ -302,8 +316,7 @@
         });
         console.log('[ALPINE] Store initialized:', Alpine.store('cek'));
       });
-      document.addEventListener('DOMContentLoaded', () => {
-        // Toastify shim for toastr compatibility
+            document.addEventListener('DOMContentLoaded', () => {
         (function(){
           const s = document.createElement('script');
           s.src = 'https://cdn.jsdelivr.net/npm/toastify-js';
@@ -320,567 +333,516 @@
 
         const btn = document.getElementById('btnCekStatus');
         const input = document.getElementById('nisnInput');
+        const modalEl = document.getElementById('modalCekStatus');
+        const statusLoadingEl = document.getElementById('statusLoading');
+        const statusResultEl = document.getElementById('statusResult');
+        const statusErrorEl = document.getElementById('statusError');
+        const statusErrorMsgEl = document.getElementById('statusErrorMsg');
+        const statusResultContainer = document.getElementById('statusResult');
+        const statusCatatanSection = document.getElementById('statusCatatanSection');
+        const catatanContainer = document.getElementById('catatanContainer');
+        const catatanEl = document.getElementById('f_catatan');
+        const statusIconEl = document.getElementById('statusIcon');
+        const statusBadgeEl = document.getElementById('statusBadge');
+        const statusTextEl = document.getElementById('f_status_text');
+        const fieldNisnEl = document.getElementById('f_nisn');
+        const fieldNamaEl = document.getElementById('f_nama');
+        const fieldTempatLahirEl = document.getElementById('f_tempat_lahir');
+        const fieldTanggalLahirEl = document.getElementById('f_tanggal_lahir');
+        const fieldTanggalDaftarEl = document.getElementById('f_tanggal_daftar');
 
-        // Safe toast helper with alert fallback
-        function toast(type, msg){
+        const T = (key, replacements) => (typeof window.__ === 'function' ? window.__(key, replacements) : key);
+        const applyTranslations = (root) => {
+          if (typeof window.__applyTranslations === 'function') {
+            window.__applyTranslations(root || document);
+          }
+        };
+        const getLocale = () => {
+          const lang = typeof window.__lang === 'function' ? window.__lang() : (document.documentElement.getAttribute('lang') || 'id');
+          return lang.toLowerCase().startsWith('en') ? 'en-US' : 'id-ID';
+        };
+        const formatDate = (value) => {
+          if (!value) return '-';
           try {
-            if (window.toastr && typeof window.toastr[type] === 'function') return window.toastr[type](msg);
-          } catch {}
-          alert(msg);
-        }
-
-        const formatRupiah = (value) => {
-          if (value === null || value === undefined) return '0';
+            return new Intl.DateTimeFormat(getLocale(), { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(value));
+          } catch {
+            return value;
+          }
+        };
+        const formatDateTime = (value) => {
+          if (!value) return '-';
+          try {
+            return new Intl.DateTimeFormat(getLocale(), { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value));
+          } catch {
+            return value;
+          }
+        };
+        const formatCurrency = (value) => {
+          if (value === null || value === undefined || value === '') return '-';
           const numeric = Number(value);
-          if (Number.isFinite(numeric)) {
-            return numeric.toLocaleString('id-ID');
+          const amount = Number.isFinite(numeric) ? numeric : Number(String(value).replace(/[^\d]/g, ''));
+          if (!Number.isFinite(amount)) return String(value);
+          try {
+            return new Intl.NumberFormat(getLocale(), { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(amount);
+          } catch (error) {
+            return 'Rp ' + amount.toLocaleString('id-ID');
           }
-          const digitsOnlyStr = String(value).replace(/[^\d]/g, '');
-          if (digitsOnlyStr.length > 0) {
-            const digitsOnly = Number(digitsOnlyStr);
-            if (Number.isFinite(digitsOnly)) {
-              return digitsOnly.toLocaleString('id-ID');
-            }
-          }
-          return String(value);
         };
 
-        // Enter key triggers
+        const getStatusConfig = () => ({
+          PENDING: {
+            label: T('cekStatus.status.labels.pending'),
+            icon: 'bi-hourglass-split',
+            badgeClass: 'bg-yellow-500',
+            textClass: 'text-yellow-500'
+          },
+          DIPROSES: {
+            label: T('cekStatus.status.labels.processing'),
+            icon: 'bi-clock-fill',
+            badgeClass: 'bg-blue-600',
+            textClass: 'text-blue-600'
+          },
+          PROCESSING: {
+            label: T('cekStatus.status.labels.processing'),
+            icon: 'bi-clock-fill',
+            badgeClass: 'bg-blue-600',
+            textClass: 'text-blue-600'
+          },
+          REVISI: {
+            label: T('cekStatus.status.labels.revision'),
+            icon: 'bi-exclamation-triangle-fill',
+            badgeClass: 'bg-orange-600',
+            textClass: 'text-orange-600'
+          },
+          DITERIMA: {
+            label: T('cekStatus.status.labels.accepted'),
+            icon: 'bi-check-circle-fill',
+            badgeClass: 'bg-green-600',
+            textClass: 'text-green-600'
+          },
+          TERVERIFIKASI: {
+            label: T('cekStatus.status.labels.accepted'),
+            icon: 'bi-check-circle-fill',
+            badgeClass: 'bg-green-600',
+            textClass: 'text-green-600'
+          },
+          VERIFIED: {
+            label: T('cekStatus.status.labels.accepted'),
+            icon: 'bi-check-circle-fill',
+            badgeClass: 'bg-green-600',
+            textClass: 'text-green-600'
+          },
+          DITOLAK: {
+            label: T('cekStatus.status.labels.rejected'),
+            icon: 'bi-x-circle-fill',
+            badgeClass: 'bg-red-600',
+            textClass: 'text-red-600'
+          },
+          REJECTED: {
+            label: T('cekStatus.status.labels.rejected'),
+            icon: 'bi-x-circle-fill',
+            badgeClass: 'bg-red-600',
+            textClass: 'text-red-600'
+          }
+        });
+
+        const toast = (type, message) => {
+          try {
+            if (window.toastr && typeof window.toastr[type] === 'function') {
+              window.toastr[type](message);
+              return;
+            }
+          } catch {}
+          alert(message);
+        };
+
+        const removeDynamicElements = () => {
+          modalEl?.querySelectorAll('[data-dynamic="true"]').forEach((el) => el.remove());
+        };
+
+        const insertBeforeInfoCard = (html) => {
+          if (!html || !statusResultContainer) return;
+          const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
+          if (firstCard) {
+            firstCard.insertAdjacentHTML('beforebegin', html);
+          } else {
+            statusResultContainer.insertAdjacentHTML('afterbegin', html);
+          }
+        };
+
+        const insertAfterStatusSection = (html) => {
+          if (!html || !statusCatatanSection) return;
+          statusCatatanSection.insertAdjacentHTML('afterend', html);
+        };
+
+        let lastRender = null;
+
+        const buildPaymentSuccess = (data, payment) => `
+          <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-emerald-100 via-white to-emerald-50 border-3 border-emerald-300 rounded-xl p-6 shadow-xl" data-dynamic="true">
+            <div class="flex flex-col md:flex-row items-start gap-4">
+              <div class="flex-shrink-0">
+                <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center shadow-lg">
+                  <i class="bi bi-check2-circle text-white text-2xl"></i>
+                </div>
+              </div>
+              <div class="flex-1">
+                <h5 class="font-bold text-green-800 mb-2 text-xl">
+                  <i class="bi bi-award-fill"></i> ${T('cekStatus.payment.success.title')}
+                </h5>
+                <p class="text-green-700 mb-3 text-base">
+                  ${T('cekStatus.payment.success.registrationLine')}<br>
+                  ${T('cekStatus.payment.success.paymentLine')}
+                </p>
+                <div class="bg-green-100 border-l-4 border-green-500 p-4 rounded shadow-sm">
+                  <p class="text-green-800 font-semibold mb-1">
+                    ${T('cekStatus.payment.success.infoTitle')}
+                  </p>
+                  <p class="text-green-900 text-sm mb-0">
+                    ${T('cekStatus.payment.success.infoBody')}
+                  </p>
+                  <p class="text-green-700 text-xs mt-2">
+                    <i class="bi bi-calendar-check"></i> ${T('cekStatus.payment.verifiedAt', { datetime: formatDateTime(payment?.verified_at) })}
+                  </p>
+                </div>
+                <div class="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl p-5">
+                  <div class="text-center">
+                    <i class="bi bi-info-circle-fill text-blue-600 text-xl mb-2"></i>
+                    <p class="text-blue-800 font-semibold mb-2">
+                      ${T('cekStatus.payment.success.nextStepsTitle')}
+                    </p>
+                    <p class="text-blue-700 text-sm leading-relaxed">
+                      ${T('cekStatus.payment.success.nextStepsBody')}
+                    </p>
+                  </div>
+                </div>
+                <div class="mt-4 text-center">
+                  <p class="text-green-700 text-sm italic">
+                    ${T('cekStatus.payment.success.footer')}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const buildPaymentRejected = (data, payment) => `
+          <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-orange-50 to-red-50 border-3 border-orange-400 rounded-xl p-6 shadow-xl" data-dynamic="true">
+            <div class="flex flex-col md:flex-row items-start gap-4">
+              <div class="flex-shrink-0">
+                <div class="w-16 h-16 bg-orange-600 rounded-full flex items-center justify-center shadow-lg">
+                  <i class="bi bi-exclamation-triangle-fill text-white text-2xl"></i>
+                </div>
+              </div>
+              <div class="flex-1">
+                <h5 class="font-bold text-orange-800 mb-2 text-xl">
+                  <i class="bi bi-x-circle-fill"></i> ${T('cekStatus.payment.rejected.title')}
+                </h5>
+                <p class="text-orange-700 mb-2 text-base">
+                  ${T('cekStatus.payment.rejected.registrationLine')}<br>
+                  ${T('cekStatus.payment.rejected.paymentLine')}
+                </p>
+                ${payment?.catatan_admin ? `
+                  <div class="bg-orange-100 border-l-4 border-orange-500 p-3 mb-4 rounded">
+                    <p class="text-orange-800 font-semibold text-sm">${T('cekStatus.payment.common.adminNoteLabel')}</p>
+                    <p class="text-orange-900">${payment.catatan_admin}</p>
+                  </div>
+                ` : ''}
+                <p class="text-orange-700 mb-4 text-sm">
+                  ${T('cekStatus.payment.rejected.instruction')}
+                </p>
+                <a href="/pembayaran.html?nisn=${data.nisn}&nama=${encodeURIComponent(data.nama || '')}"
+                   class="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-bold px-8 py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 text-lg">
+                  <i class="bi bi-upload text-xl"></i>
+                  ${T('cekStatus.buttons.reuploadProof')}
+                  <i class="bi bi-arrow-right-circle text-xl"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const buildPaymentPending = (data, payment) => `
+          <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-yellow-50 to-amber-50 border-3 border-yellow-400 rounded-xl p-6 shadow-xl" data-dynamic="true">
+            <div class="flex flex-col md:flex-row items-start gap-4">
+              <div class="flex-shrink-0">
+                <div class="w-16 h-16 bg-yellow-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                  <i class="bi bi-hourglass-split text-white text-2xl"></i>
+                </div>
+              </div>
+              <div class="flex-1">
+                <h5 class="font-bold text-yellow-800 mb-2 text-xl">
+                  <i class="bi bi-clock-history"></i> ${T('cekStatus.payment.pending.title')}
+                </h5>
+                <p class="text-yellow-700 mb-2 text-base">
+                  ${T('cekStatus.payment.pending.registrationLine')}<br>
+                  ${T('cekStatus.payment.pending.paymentLine')}
+                </p>
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 p-3 mb-4 rounded">
+                  <p class="text-yellow-800 font-semibold text-sm mb-1">
+                    <i class="bi bi-info-circle-fill"></i> ${T('cekStatus.payment.pending.infoTitle')}
+                  </p>
+                  <p class="text-yellow-900 text-sm">
+                    ${T('cekStatus.payment.pending.infoBody')}
+                  </p>
+                  ${payment?.jumlah ? `<p class="text-yellow-700 text-xs mt-2"><i class="bi bi-cash-coin"></i> ${T('cekStatus.payment.common.amountLabel', { amount: formatCurrency(payment.jumlah) })}</p>` : ''}
+                  ${payment?.created_at ? `<p class="text-yellow-700 text-xs mt-1"><i class="bi bi-calendar-plus"></i> ${T('cekStatus.payment.pending.uploadedAt', { datetime: formatDateTime(payment.created_at) })}</p>` : ''}
+                </div>
+                <a href="/pembayaran.html?nisn=${data.nisn}&nama=${encodeURIComponent(data.nama || '')}"
+                   class="inline-flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white font-bold px-8 py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 text-lg">
+                  <i class="bi bi-eye text-xl"></i>
+                  ${T('cekStatus.buttons.viewPayment')}
+                  <i class="bi bi-arrow-right-circle text-xl"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const buildPaymentInstruction = (data) => `
+          <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-green-50 to-emerald-50 border-3 border-green-400 rounded-xl p-6 shadow-xl" data-dynamic="true">
+            <div class="flex flex-col md:flex-row items-start gap-4">
+              <div class="flex-shrink-0">
+                <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center shadow-lg">
+                  <i class="bi bi-credit-card-2-front text-white text-2xl"></i>
+                </div>
+              </div>
+              <div class="flex-1">
+                <h5 class="font-bold text-green-800 mb-2 text-xl">
+                  <i class="bi bi-check-circle-fill"></i> ${T('cekStatus.payment.instruction.title')}
+                </h5>
+                <p class="text-green-700 mb-4 text-base">
+                  ${T('cekStatus.payment.instruction.summary')}
+                </p>
+                <a href="/pembayaran.html?nisn=${data.nisn}&nama=${encodeURIComponent(data.nama || '')}"
+                   class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 text-lg">
+                  <i class="bi bi-credit-card text-xl"></i>
+                  ${T('cekStatus.buttons.goToPayment')}
+                  <i class="bi bi-arrow-right-circle text-xl"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const buildRevision = (data) => `
+          <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-orange-50 to-amber-50 border-3 border-orange-400 rounded-xl p-6 shadow-xl" data-dynamic="true">
+            <div class="flex flex-col md:flex-row items-start gap-4">
+              <div class="flex-shrink-0">
+                <div class="w-16 h-16 bg-orange-600 rounded-full flex items-center justify-center shadow-lg">
+                  <i class="bi bi-exclamation-triangle-fill text-white text-2xl"></i>
+                </div>
+              </div>
+              <div class="flex-1">
+                <h5 class="font-bold text-orange-800 mb-2 text-xl">
+                  <i class="bi bi-pencil-square"></i> ${T('cekStatus.revision.title')}
+                </h5>
+                <p class="text-orange-700 mb-2 text-base">
+                  ${T('cekStatus.revision.summary')}
+                </p>
+                <p class="text-orange-700 mb-4 text-sm">
+                  ${T('cekStatus.revision.details')}
+                </p>
+                <a href="/daftar.html?nisn=${data.nisn}&revisi=true"
+                   class="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-bold px-8 py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 text-lg">
+                  <i class="bi bi-pencil-square text-xl"></i>
+                  ${T('cekStatus.buttons.fixRegistration')}
+                  <i class="bi bi-arrow-right-circle text-xl"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const buildRejection = () => `
+          <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-red-50 to-rose-50 border-3 border-red-400 rounded-xl p-6 shadow-xl" data-dynamic="true">
+            <div class="flex flex-col md:flex-row items-start gap-4">
+              <div class="flex-shrink-0">
+                <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
+                  <i class="bi bi-x-circle-fill text-white text-2xl"></i>
+                </div>
+              </div>
+              <div class="flex-1">
+                <h5 class="font-bold text-red-800 mb-2 text-xl">
+                  <i class="bi bi-x-circle-fill"></i> ${T('cekStatus.rejection.title')}
+                </h5>
+                <p class="text-red-700 mb-2 text-base">
+                  ${T('cekStatus.rejection.summary')}
+                </p>
+                <p class="text-red-700 mb-4 text-sm">
+                  ${T('cekStatus.rejection.details')}
+                </p>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const buildWaiting = () => `
+          <div class="mt-3 bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4 status-extra" data-dynamic="true">
+            <div class="flex items-start gap-3">
+              <i class="bi bi-hourglass-split text-yellow-600 text-2xl"></i>
+              <div>
+                <h6 class="font-bold text-yellow-800 mb-1">${T('cekStatus.waiting.title')}</h6>
+                <p class="text-yellow-700 text-sm">
+                  ${T('cekStatus.waiting.description')}
+                </p>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const showModal = () => {
+          if (!modalEl) return false;
+          modalEl.classList.remove('modal-hidden');
+          modalEl.classList.add('modal-visible');
+          if (window.Alpine && Alpine.store && Alpine.store('cek')) {
+            Alpine.store('cek').open = true;
+          }
+          return true;
+        };
+
+        const renderStatus = (data, query, options = {}) => {
+          const { openModal = true } = options;
+          lastRender = { data, query };
+          removeDynamicElements();
+
+          statusErrorEl?.classList.add('hidden');
+          statusLoadingEl?.classList.add('hidden');
+          statusResultEl?.classList.remove('hidden');
+
+          const fallback = '-';
+
+          if (fieldNisnEl) fieldNisnEl.textContent = data.nisn || query || fallback;
+          if (fieldNamaEl) fieldNamaEl.textContent = data.nama || fallback;
+          if (fieldTempatLahirEl) fieldTempatLahirEl.textContent = data.tempatLahir || fallback;
+          if (fieldTanggalLahirEl) fieldTanggalLahirEl.textContent = formatDate(data.tanggalLahir);
+          if (fieldTanggalDaftarEl) fieldTanggalDaftarEl.textContent = formatDateTime(data.created_at || data.createdat);
+
+          const statusKey = String(data.status || 'PENDING').toUpperCase();
+          const statusConfig = getStatusConfig();
+          const config = statusConfig[statusKey] || statusConfig.PENDING;
+
+          statusIconEl.className = `bi ${config.icon} ${config.textClass}`;
+          statusBadgeEl.className = `px-4 py-2 rounded-full ${config.badgeClass} text-white`;
+          statusBadgeEl.textContent = config.label;
+          statusTextEl.className = `inline-block px-3 py-1 rounded ${config.badgeClass} text-white text-sm`;
+          statusTextEl.textContent = config.label;
+
+          catatanContainer?.querySelectorAll('.verified-info[data-dynamic="true"]').forEach((el) => el.remove());
+          if (catatanEl) {
+            const note = data.alasan && data.alasan.trim().length > 0 ? data.alasan : T('cekStatus.modal.noNotes');
+            catatanEl.textContent = note;
+            if (data.verified_by && data.verified_at) {
+              const verifiedInfo = document.createElement('div');
+              verifiedInfo.className = 'verified-info status-extra mt-2 text-sm text-gray-600';
+              verifiedInfo.setAttribute('data-dynamic', 'true');
+              verifiedInfo.innerHTML = `<i class="bi bi-person-check"></i> ${T('cekStatus.status.verifiedInfo', { admin: data.verified_by, datetime: formatDateTime(data.verified_at) })}`;
+              catatanEl.insertAdjacentElement('afterend', verifiedInfo);
+            }
+          }
+
+          const payment = data.pembayaran || null;
+          const paymentStatusRaw = payment?.status_pembayaran ? payment.status_pembayaran.toString().trim().toUpperCase() : '';
+          const isStatusAccepted = ['DITERIMA', 'TERVERIFIKASI', 'VERIFIED'].includes(statusKey);
+          const isPaymentVerified = ['VERIFIED', 'APPROVED', 'SUCCESS', 'PAID', 'LUNAS', 'COMPLETED', 'TERVERIFIKASI'].includes(paymentStatusRaw);
+          const isPaymentRejected = ['REJECTED', 'DITOLAK'].includes(paymentStatusRaw);
+          const isPaymentPending = ['PENDING', 'MENUNGGU', 'WAITING', 'IN_REVIEW', 'PROCESSING'].includes(paymentStatusRaw);
+          const hasPaymentRecord = Boolean(payment);
+
+          if (isStatusAccepted && isPaymentVerified) {
+            insertBeforeInfoCard(buildPaymentSuccess(data, payment));
+          } else if (isStatusAccepted && isPaymentRejected) {
+            insertBeforeInfoCard(buildPaymentRejected(data, payment));
+          } else if (isStatusAccepted && hasPaymentRecord && isPaymentPending) {
+            insertBeforeInfoCard(buildPaymentPending(data, payment));
+          } else if (isStatusAccepted && !hasPaymentRecord) {
+            insertBeforeInfoCard(buildPaymentInstruction(data));
+          } else if (statusKey === 'REVISI') {
+            insertBeforeInfoCard(buildRevision(data));
+          } else if (statusKey === 'DITOLAK' || statusKey === 'REJECTED') {
+            insertBeforeInfoCard(buildRejection());
+          } else {
+            insertAfterStatusSection(buildWaiting());
+          }
+
+          if (openModal && !showModal()) {
+            toast('error', T('form.messages.alertModalMissing'));
+          }
+
+          applyTranslations(modalEl);
+        };
+
         input?.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') { e.preventDefault(); btn?.click(); }
+          if (e.key == 'Enter') {
+            e.preventDefault();
+            btn?.click();
+          }
         });
 
         btn?.addEventListener('click', async () => {
-          const v = input.value?.trim();
-          console.log('[CEK_STATUS] Button clicked with NISN:', v);
-          
-          if (!/^\d{10}$/.test(v)) { 
-            console.warn('[CEK_STATUS] Invalid NISN format');
-            toast('error', 'NISN harus 10 digit angka'); 
-            return; 
+          const nisnValue = input.value?.trim();
+
+          if (!/^\d{10}$/.test(nisnValue)) {
+            toast('error', T('cekStatus.toasts.invalidNisn'));
+            return;
           }
-          
-          // Button loading state
+
           const originalHTML = btn.innerHTML;
           btn.disabled = true;
-          btn.innerHTML = '<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>Memeriksa...';
+          btn.innerHTML = `<span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></span>${T('cekStatus.form.checking')}`;
+
+          statusErrorEl?.classList.add('hidden');
+          statusResultEl?.classList.add('hidden');
+          statusLoadingEl?.classList.remove('hidden');
 
           try {
-            const cacheBuster = new Date().getTime();
+            const cacheBuster = Date.now();
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 12000);
-            const apiUrl = `/api/pendaftar_cek_status?nisn=${encodeURIComponent(v)}&_t=${cacheBuster}`;
-            console.log('[CEK_STATUS] Fetching:', apiUrl);
-            
-            const res = await fetch(apiUrl, { signal: controller.signal });
+            const response = await fetch(`/api/pendaftar_cek_status?nisn=${encodeURIComponent(nisnValue)}&_t=${cacheBuster}`, { signal: controller.signal });
             clearTimeout(timeout);
-            console.log('[CEK_STATUS] Response status:', res.status);
-            
-            const json = await res.json();
-            console.log('[CEK_STATUS] Response data:', json);
-            
-            if (!res.ok || !json?.ok) throw new Error(json?.error || `HTTP ${res.status}`);
 
-            // If not found
+            const json = await response.json();
+            if (!response.ok || !json?.ok) {
+              throw new Error(json?.error || `HTTP ${response.status}`);
+            }
+
             if (!json.data) {
-              console.warn('[CEK_STATUS] Data not found for NISN:', v);
-              document.getElementById('statusLoading').classList.add('hidden');
-              try { toast('warning', 'NISN tidak ditemukan.'); } catch {}
+              statusLoadingEl?.classList.add('hidden');
+              toast('warning', T('cekStatus.toasts.notFound'));
               return;
             }
-            
-            console.log('[CEK_STATUS] Data found, processing...');
 
-            // Map data from database
-            const data = json.data || {};
-            const statusResultContainer = document.getElementById('statusResult');
-            const statusCatatanSection = document.getElementById('statusCatatanSection');
-
-            if (statusResultContainer) {
-              statusResultContainer
-                .querySelectorAll('[data-dynamic]')
-                .forEach((el) => el.remove());
-
-              statusResultContainer
-                .querySelectorAll('.verified-info')
-                .forEach((el) => el.remove());
+            renderStatus(json.data, nisnValue, { openModal: true });
+          } catch (error) {
+            console.error('[CEK_STATUS] Error:', error);
+            statusLoadingEl?.classList.add('hidden');
+            statusResultEl?.classList.add('hidden');
+            if (statusErrorMsgEl) {
+              statusErrorMsgEl.textContent = error?.message || T('cekStatus.modal.error.generic');
             }
-            document.getElementById('f_nisn').textContent = data.nisn || v;
-            document.getElementById('f_nama').textContent = data.nama || '-';
-            document.getElementById('f_tempat_lahir').textContent = data.tempatLahir || '-';
-            
-            // Format tanggal lahir
-            const tglLahir = data.tanggalLahir || '-';
-            document.getElementById('f_tanggal_lahir').textContent = tglLahir !== '-' ? new Date(tglLahir).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-';
-            
-            // Format tanggal daftar
-            const tglDaftar = data.created_at || data.createdat || '-';
-            document.getElementById('f_tanggal_daftar').textContent = tglDaftar !== '-' ? new Date(tglDaftar).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
-
-            // Status badge/icon mapping (sesuai database: PENDING, REVISI, DITERIMA, DITOLAK, DIPROSES)
-            const status = (data.status || 'PENDING').toUpperCase();
-            const iconEl = document.getElementById('statusIcon');
-            const badgeEl = document.getElementById('statusBadge');
-            const statusTextEl = document.getElementById('f_status_text');
-
-            let color = 'yellow';
-            let bgColor = 'bg-yellow-500';
-            let textColor = 'text-yellow-500';
-            let label = 'Menunggu Verifikasi';
-            let icon = 'bi-hourglass-split';
-            
-            if (status === 'DITERIMA' || status === 'TERVERIFIKASI' || status === 'VERIFIED') { 
-              color = 'green'; 
-              bgColor = 'bg-green-600'; 
-              textColor = 'text-green-600';
-              label = 'Diterima / Terverifikasi';
-              icon = 'bi-check-circle-fill';
-            }
-            else if (status === 'REVISI') { 
-              color = 'orange'; 
-              bgColor = 'bg-orange-600'; 
-              textColor = 'text-orange-600';
-              label = 'Perlu Revisi';
-              icon = 'bi-exclamation-triangle-fill';
-            }
-            else if (status === 'DITOLAK' || status === 'REJECTED') { 
-              color = 'red'; 
-              bgColor = 'bg-red-600'; 
-              textColor = 'text-red-600';
-              label = 'Ditolak';
-              icon = 'bi-x-circle-fill';
-            }
-            else if (status === 'DIPROSES' || status === 'PROCESSING') { 
-              color = 'blue'; 
-              bgColor = 'bg-blue-600'; 
-              textColor = 'text-blue-600';
-              label = 'Sedang Diproses';
-              icon = 'bi-clock-fill';
-            }
-
-            iconEl.className = `bi ${icon} ${textColor}`;
-            badgeEl.className = `px-4 py-2 rounded-full ${bgColor} text-white`;
-            badgeEl.textContent = label;
-            statusTextEl.className = `inline-block px-3 py-1 rounded ${bgColor} text-white text-sm`;
-            statusTextEl.textContent = label;
-
-            // Catatan admin (alasan)
-            const catatanAdmin = data.alasan || '-';
-            const catatanEl = document.getElementById('f_catatan');
-            if (catatanEl) {
-              catatanEl.textContent = catatanAdmin;
-            }
-
-            // Verified info (jika ada)
-            if (data.verified_by && data.verified_at) {
-              const verifiedDate = new Date(data.verified_at).toLocaleDateString('id-ID', { 
-                day: 'numeric', 
-                month: 'long', 
-                year: 'numeric', 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              });
-              const verifiedInfo = `<div class="verified-info status-extra mt-2 text-sm text-gray-600" data-dynamic="true"><i class="bi bi-person-check"></i> Diverifikasi oleh: <strong>${data.verified_by}</strong> pada ${verifiedDate}</div>`;
-              catatanEl?.insertAdjacentHTML('afterend', verifiedInfo);
-            }
-            
-            // Cek data pembayaran
-            const pembayaran = data.pembayaran || null;
-            const statusPembayaranRaw = pembayaran?.status_pembayaran
-              ? pembayaran.status_pembayaran.toString().trim().toUpperCase()
-              : '';
-            const isStatusDiterima = ['DITERIMA', 'TERVERIFIKASI', 'VERIFIED'].includes(status);
-            const isPaymentVerified = ['VERIFIED', 'APPROVED', 'SUCCESS', 'PAID', 'LUNAS', 'COMPLETED', 'TERVERIFIKASI'].includes(statusPembayaranRaw);
-            const isPaymentRejected = ['REJECTED', 'DITOLAK'].includes(statusPembayaranRaw);
-            const isPaymentPending = ['PENDING', 'MENUNGGU', 'WAITING', 'IN_REVIEW', 'PROCESSING'].includes(statusPembayaranRaw);
-            const hasPaymentRecord = Boolean(pembayaran);
-            
-            console.log('[CEK_STATUS] Pembayaran data:', pembayaran);
-            console.log('[CEK_STATUS] Status pembayaran:', statusPembayaranRaw || 'N/A');
-
-            if (isStatusDiterima) {
-              if (isPaymentVerified) {
-                if (iconEl) iconEl.className = 'bi bi-check-circle-fill text-green-600';
-                if (badgeEl) {
-                  badgeEl.className = 'px-4 py-2 rounded-full bg-green-600 text-white';
-                  badgeEl.textContent = 'Berhasil Sempurna';
-                }
-                if (statusTextEl) {
-                  statusTextEl.className = 'inline-block px-3 py-1 rounded bg-green-600 text-white text-sm font-semibold';
-                  statusTextEl.textContent = 'Berhasil Sempurna';
-                }
-              } else if (isPaymentRejected) {
-                if (iconEl) iconEl.className = 'bi bi-x-circle-fill text-red-600';
-                if (badgeEl) {
-                  badgeEl.className = 'px-4 py-2 rounded-full bg-red-600 text-white';
-                  badgeEl.textContent = 'Pembayaran Ditolak';
-                }
-                if (statusTextEl) {
-                  statusTextEl.className = 'inline-block px-3 py-1 rounded bg-red-600 text-white text-sm font-semibold';
-                  statusTextEl.textContent = 'Pembayaran Ditolak';
-                }
-              } else {
-                const pendingLabel = hasPaymentRecord
-                  ? 'Menunggu Verifikasi Pembayaran'
-                  : 'Menunggu Pembayaran';
-                if (iconEl) iconEl.className = 'bi bi-hourglass-split text-yellow-600';
-                if (badgeEl) {
-                  badgeEl.className = 'px-4 py-2 rounded-full bg-yellow-500 text-white';
-                  badgeEl.textContent = pendingLabel;
-                }
-                if (statusTextEl) {
-                  statusTextEl.className = 'inline-block px-3 py-1 rounded bg-yellow-500 text-white text-sm';
-                  statusTextEl.textContent = pendingLabel;
-                }
-              }
-            }
-
-            // Show notification based on status - PALING ATAS!
-            // KONDISI 1: Pendaftaran DITERIMA + Pembayaran VERIFIED = SUKSES LENGKAP! 🎉
-            if (isStatusDiterima && isPaymentVerified) {
-              if (badgeEl) {
-                badgeEl.textContent = 'Berhasil Sempurna';
-              }
-              if (statusTextEl) {
-                statusTextEl.textContent = 'Berhasil Sempurna';
-                statusTextEl.classList.add('font-semibold');
-              }
-              const successHTML = `
-                <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-green-100 via-emerald-100 to-green-100 border-4 border-green-500 rounded-2xl p-8 shadow-2xl" data-dynamic="true">
-                  <div class="text-center mb-6">
-                    <div class="inline-block w-24 h-24 bg-green-600 rounded-full flex items-center justify-center shadow-2xl mb-4 animate-bounce">
-                      <i class="bi bi-check-circle-fill text-white text-5xl"></i>
-                    </div>
-                    <h3 class="font-black text-green-900 text-3xl mb-3" style="font-family: 'Inter', sans-serif;">
-                      الحمد لله<br/>
-                      <span class="text-2xl">Alhamdulillah</span>
-                    </h3>
-                    <div class="inline-block bg-green-600 text-white px-6 py-3 rounded-full text-xl font-bold shadow-lg mb-3">
-                      ✅ Berhasil Sempurna
-                    </div>
-                    <p class="text-green-800 text-lg font-semibold mt-2">
-                      🎉 Selamat! Semuanya Sudah Sukses! 🎉
-                    </p>
-                  </div>
-                  <div class="bg-white/80 rounded-xl p-6 space-y-4">
-                    <div class="text-center mb-4">
-                      <p class="text-green-800 text-base leading-relaxed">
-                        <strong>Barakallahu fiikum</strong> (Semoga Allah memberkahi kalian).<br/>
-                        Proses pendaftaran dan pembayaran Anda telah lengkap dan terverifikasi oleh admin Pondok Pesantren Al Ikhsan Beji.
-                      </p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <i class="bi bi-check-circle-fill text-green-600 text-2xl mt-1"></i>
-                      <div>
-                        <h6 class="font-bold text-green-900 text-lg">Pendaftaran Diverifikasi</h6>
-                        <p class="text-green-700 text-sm">Berkas pendaftaran Anda telah diterima dan diverifikasi dengan lengkap</p>
-                      </div>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <i class="bi bi-credit-card-fill text-green-600 text-2xl mt-1"></i>
-                      <div>
-                        <h6 class="font-bold text-green-900 text-lg">Pembayaran Terverifikasi</h6>
-                        <p class="text-green-700 text-sm">Pembayaran Anda sebesar <strong>Rp ${formatRupiah(pembayaran?.jumlah)}</strong> telah dikonfirmasi dan diterima</p>
-                        ${pembayaran?.tanggal_verifikasi ? `<p class="text-green-600 text-xs mt-1"><i class="bi bi-calendar-check"></i> Diverifikasi: ${new Date(pembayaran.tanggal_verifikasi).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>` : ''}
-                      </div>
-                    </div>
-                  </div>
-                  <div class="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl p-5">
-                    <div class="text-center">
-                      <i class="bi bi-info-circle-fill text-blue-600 text-xl mb-2"></i>
-                      <p class="text-blue-800 font-semibold mb-2">
-                        Informasi Selanjutnya
-                      </p>
-                      <p class="text-blue-700 text-sm leading-relaxed">
-                        <strong>Jazakumullahu khairan</strong> (Semoga Allah membalas kebaikan kalian).<br/>
-                        Silakan tunggu informasi lebih lanjut dari Pondok Pesantren Al Ikhsan Beji melalui kontak yang telah Anda daftarkan. Kami akan menghubungi Anda segera.
-                      </p>
-                    </div>
-                  </div>
-                  <div class="mt-4 text-center">
-                    <p class="text-green-700 text-sm italic">
-                      Terima kasih atas kepercayaan Anda kepada kami. Barakallahu fiikum.
-                    </p>
-                  </div>
-                </div>
-              `;
-              if (statusResultContainer) {
-                const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
-                if (firstCard) {
-                  firstCard.insertAdjacentHTML('beforebegin', successHTML);
-                } else {
-                  statusResultContainer.insertAdjacentHTML('afterbegin', successHTML);
-                }
-              }
-            }
-            
-            // KONDISI 2: Pendaftaran DITERIMA + Pembayaran REJECTED = Pembayaran Ditolak
-            else if (isStatusDiterima && isPaymentRejected) {
-              const rejectedPaymentHTML = `
-                <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-orange-50 to-red-50 border-3 border-orange-400 rounded-xl p-6 shadow-xl" data-dynamic="true">
-                  <div class="flex flex-col md:flex-row items-start gap-4">
-                    <div class="flex-shrink-0">
-                      <div class="w-16 h-16 bg-orange-600 rounded-full flex items-center justify-center shadow-lg">
-                        <i class="bi bi-exclamation-triangle-fill text-white text-2xl"></i>
-                      </div>
-                    </div>
-                    <div class="flex-1">
-                      <h5 class="font-bold text-orange-800 mb-2 text-xl">
-                        <i class="bi bi-x-circle-fill"></i> Pembayaran Ditolak
-                      </h5>
-                      <p class="text-orange-700 mb-2 text-base">
-                        <strong>⚠️ Pendaftaran:</strong> Terverifikasi ✅<br>
-                        <strong>❌ Pembayaran:</strong> Ditolak oleh admin
-                      </p>
-                      ${pembayaran?.catatan_admin ? `
-                      <div class="bg-orange-100 border-l-4 border-orange-500 p-3 mb-4 rounded">
-                        <p class="text-orange-800 font-semibold text-sm">📝 Catatan Admin:</p>
-                        <p class="text-orange-900">${pembayaran.catatan_admin}</p>
-                      </div>
-                      ` : ''}
-                      <p class="text-orange-700 mb-4 text-sm">
-                        Silakan periksa kembali bukti pembayaran dan upload ulang.
-                      </p>
-                      <a href="/pembayaran.html?nisn=${data.nisn}&nama=${encodeURIComponent(data.nama || '')}" 
-                         class="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-bold px-8 py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 text-lg">
-                        <i class="bi bi-upload text-xl"></i>
-                        Upload Ulang Bukti Pembayaran
-                        <i class="bi bi-arrow-right-circle text-xl"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              `;
-              if (statusResultContainer) {
-                const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
-                if (firstCard) {
-                  firstCard.insertAdjacentHTML('beforebegin', rejectedPaymentHTML);
-                } else {
-                  statusResultContainer.insertAdjacentHTML('afterbegin', rejectedPaymentHTML);
-                }
-              }
-            }
-            
-            // KONDISI 3A: Pendaftaran DITERIMA + Pembayaran sudah upload (PENDING) = Menunggu Verifikasi
-            else if (isStatusDiterima && hasPaymentRecord && isPaymentPending) {
-              const paymentPendingHTML = `
-                <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-yellow-50 to-amber-50 border-3 border-yellow-400 rounded-xl p-6 shadow-xl" data-dynamic="true">
-                  <div class="flex flex-col md:flex-row items-start gap-4">
-                    <div class="flex-shrink-0">
-                      <div class="w-16 h-16 bg-yellow-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                        <i class="bi bi-hourglass-split text-white text-2xl"></i>
-                      </div>
-                    </div>
-                    <div class="flex-1">
-                      <h5 class="font-bold text-yellow-800 mb-2 text-xl">
-                        <i class="bi bi-clock-history"></i> Pembayaran Menunggu Verifikasi
-                      </h5>
-                      <p class="text-yellow-700 mb-2 text-base">
-                        <strong>✅ Status Pendaftaran:</strong> Telah Diverifikasi<br>
-                        <strong>⏳ Status Pembayaran:</strong> Menunggu Verifikasi Admin
-                      </p>
-                      <div class="bg-yellow-100 border-l-4 border-yellow-500 p-3 mb-4 rounded">
-                        <p class="text-yellow-800 font-semibold text-sm mb-1">
-                          <i class="bi bi-info-circle-fill"></i> Informasi:
-                        </p>
-                        <p class="text-yellow-900 text-sm">
-                          Bukti pembayaran Anda telah kami terima dan sedang dalam proses verifikasi oleh admin. Mohon tunggu konfirmasi lebih lanjut.
-                        </p>
-                        ${pembayaran?.jumlah ? `<p class="text-yellow-700 text-xs mt-2"><i class="bi bi-cash-coin"></i> Jumlah: <strong>Rp ${formatRupiah(pembayaran.jumlah)}</strong></p>` : ''}
-                        ${pembayaran?.created_at ? `<p class="text-yellow-700 text-xs mt-1"><i class="bi bi-calendar-plus"></i> Upload: ${new Date(pembayaran.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>` : ''}
-                      </div>
-                      <a href="/pembayaran.html?nisn=${data.nisn}&nama=${encodeURIComponent(data.nama || '')}" 
-                         class="inline-flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white font-bold px-8 py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 text-lg">
-                        <i class="bi bi-eye text-xl"></i>
-                        Lihat Detail Pembayaran
-                        <i class="bi bi-arrow-right-circle text-xl"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              `;
-              if (statusResultContainer) {
-                const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
-                if (firstCard) {
-                  firstCard.insertAdjacentHTML('beforebegin', paymentPendingHTML);
-                } else {
-                  statusResultContainer.insertAdjacentHTML('afterbegin', paymentPendingHTML);
-                }
-              }
-            }
-            
-            // KONDISI 3B: Pendaftaran DITERIMA + Belum ada pembayaran = Lanjutkan Pembayaran
-            else if (isStatusDiterima && !hasPaymentRecord) {
-              const paymentInstructionHTML = `
-                <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-green-50 to-emerald-50 border-3 border-green-400 rounded-xl p-6 shadow-xl" data-dynamic="true">
-                  <div class="flex flex-col md:flex-row items-start gap-4">
-                    <div class="flex-shrink-0">
-                      <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center shadow-lg">
-                        <i class="bi bi-credit-card-2-front text-white text-2xl"></i>
-                      </div>
-                    </div>
-                    <div class="flex-1">
-                      <h5 class="font-bold text-green-800 mb-2 text-xl">
-                        <i class="bi bi-check-circle-fill"></i> 🎉 Selamat! Pendaftaran Anda Telah Diverifikasi
-                      </h5>
-                      <p class="text-green-700 mb-4 text-base">
-                        <strong>✅ Status:</strong> Berkas Anda telah diverifikasi oleh admin.<br>
-                        <strong>📌 Langkah Terakhir:</strong> Silakan lakukan pembayaran untuk menyelesaikan proses pendaftaran.
-                      </p>
-                      <a href="/pembayaran.html?nisn=${data.nisn}&nama=${encodeURIComponent(data.nama || '')}" 
-                         class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 text-lg">
-                        <i class="bi bi-credit-card text-xl"></i>
-                        Lanjutkan ke Pembayaran
-                        <i class="bi bi-arrow-right-circle text-xl"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              `;
-              // Insert di PALING ATAS hasil status (setelah icon/badge, sebelum info pendaftar)
-              if (statusResultContainer) {
-                const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
-                if (firstCard) {
-                  firstCard.insertAdjacentHTML('beforebegin', paymentInstructionHTML);
-                } else {
-                  statusResultContainer.insertAdjacentHTML('afterbegin', paymentInstructionHTML);
-                }
-              }
-            }
-            
-            // Show revision message if revisi
-            else if (status === 'REVISI') {
-              const revisiHTML = `
-                <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-orange-50 to-amber-50 border-3 border-orange-400 rounded-xl p-6 shadow-xl" data-dynamic="true">
-                  <div class="flex flex-col md:flex-row items-start gap-4">
-                    <div class="flex-shrink-0">
-                      <div class="w-16 h-16 bg-orange-600 rounded-full flex items-center justify-center shadow-lg">
-                        <i class="bi bi-exclamation-triangle-fill text-white text-2xl"></i>
-                      </div>
-                    </div>
-                    <div class="flex-1">
-                      <h5 class="font-bold text-orange-800 mb-2 text-xl">
-                        <i class="bi bi-pencil-square"></i> Pendaftaran Perlu Revisi
-                      </h5>
-                      <p class="text-orange-700 mb-2 text-base">
-                        <strong>⚠️ Status:</strong> Admin meminta Anda untuk melakukan revisi pada berkas pendaftaran.
-                      </p>
-                      <p class="text-orange-700 mb-4 text-sm">
-                        Silakan periksa catatan admin di atas dan perbaiki data yang diminta. Setelah direvisi, kirim ulang untuk verifikasi kembali.
-                      </p>
-                      <a href="/daftar.html?nisn=${data.nisn}&revisi=true" 
-                         class="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-bold px-8 py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 text-lg">
-                        <i class="bi bi-pencil-square text-xl"></i>
-                        Perbaiki Data Pendaftaran
-                        <i class="bi bi-arrow-right-circle text-xl"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              `;
-              if (statusResultContainer) {
-                const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
-                if (firstCard) {
-                  firstCard.insertAdjacentHTML('beforebegin', revisiHTML);
-                } else {
-                  statusResultContainer.insertAdjacentHTML('afterbegin', revisiHTML);
-                }
-              }
-            }
-            
-            // Show rejection message if ditolak
-            else if (status === 'DITOLAK' || status === 'REJECTED') {
-              const rejectionHTML = `
-                <div class="payment-notification status-extra mb-4 bg-gradient-to-r from-red-50 to-rose-50 border-3 border-red-400 rounded-xl p-6 shadow-xl" data-dynamic="true">
-                  <div class="flex flex-col md:flex-row items-start gap-4">
-                    <div class="flex-shrink-0">
-                      <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
-                        <i class="bi bi-x-circle-fill text-white text-2xl"></i>
-                      </div>
-                    </div>
-                    <div class="flex-1">
-                      <h5 class="font-bold text-red-800 mb-2 text-xl">
-                        <i class="bi bi-x-circle-fill"></i> Pendaftaran Ditolak
-                      </h5>
-                      <p class="text-red-700 mb-2 text-base">
-                        <strong>❌ Status:</strong> Pendaftaran Anda telah ditolak oleh admin.
-                      </p>
-                      <p class="text-red-700 mb-4 text-sm">
-                        Silakan periksa catatan admin di atas untuk mengetahui alasan penolakan. Jika ada pertanyaan, silakan hubungi admin kami.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              `;
-              if (statusResultContainer) {
-                const firstCard = statusResultContainer.querySelector('.bg-white.rounded-xl');
-                if (firstCard) {
-                  firstCard.insertAdjacentHTML('beforebegin', rejectionHTML);
-                } else {
-                  statusResultContainer.insertAdjacentHTML('afterbegin', rejectionHTML);
-                }
-              }
-            }
-            
-            // Show waiting message if pending/diproses
-            else {
-              const waitingHTML = `
-                <div class="mt-3 bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4 status-extra" data-dynamic="true">
-                  <div class="flex items-start gap-3">
-                    <i class="bi bi-hourglass-split text-yellow-600 text-2xl"></i>
-                    <div>
-                      <h6 class="font-bold text-yellow-800 mb-1">⏳ Menunggu Verifikasi</h6>
-                      <p class="text-yellow-700 text-sm">
-                        Pendaftaran Anda sedang dalam proses verifikasi oleh admin. Mohon tunggu notifikasi lebih lanjut.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              `;
-              statusCatatanSection?.insertAdjacentHTML('afterend', waitingHTML);
-            }
-
-            // Prepare modal sections for success
-            document.getElementById('statusError').classList.add('hidden');
-            document.getElementById('statusLoading').classList.add('hidden');
-            document.getElementById('statusResult').classList.remove('hidden');
-            
-            // Open modal only on success
-            console.log('[CEK_STATUS] Opening modal with data:', data);
-            
-            // PURE CSS CLASS APPROACH - NO ALPINE DEPENDENCY
-            const modalEl = document.getElementById('modalCekStatus');
-            
-            if (modalEl) {
-              // Remove hidden class, add visible class
-              modalEl.classList.remove('modal-hidden');
-              modalEl.classList.add('modal-visible');
-              console.log('[CEK_STATUS] ✓✓ Modal shown via CSS class (PURE DOM)');
-              
-              // Also set Alpine store if available (for compatibility)
-              if (window.Alpine && Alpine.store && Alpine.store('cek')) {
-                Alpine.store('cek').open = true;
-                console.log('[CEK_STATUS] ✓ Alpine store also set');
-              }
-            } else {
-              console.error('[CEK_STATUS] ❌ Modal element #modalCekStatus not found!');
-              alert('Error: Modal tidak ditemukan!');
-            }
-          } catch (e) {
-            console.error('[CEK_STATUS] Error:', e);
-            // Show error toast, do not open modal
-            try { toast('error', e?.message || 'Terjadi kesalahan.'); } catch {}
+            statusErrorEl?.classList.remove('hidden');
+            toast('error', error?.message || T('cekStatus.toasts.genericError'));
           } finally {
             btn.disabled = false;
             btn.innerHTML = originalHTML;
+            applyTranslations(btn);
+          }
+        });
+
+        document.addEventListener('i18n:lang-changed', () => {
+          applyTranslations(document.body);
+          if (lastRender) {
+            const isModalVisible = modalEl?.classList.contains('modal-visible');
+            renderStatus(lastRender.data, lastRender.query, { openModal: isModalVisible });
           }
         });
       });
+
     </script>
     <!-- FOOTER -->
     <footer class="bg-white text-gray-600 py-6 shadow-2xl border-t border-gray-200 mt-auto">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <p class="text-sm">&copy; 2025 Pondok Pesantren Al Ikhsan Beji. All rights reserved. <span class="hidden sm:inline">Development by Tim IT Pesantren</span></p>
+        <p class="text-sm"><span data-i18n="footer.copyright">© 2025 Pondok Pesantren Al Ikhsan Beji. All rights reserved.</span> <span class="hidden sm:inline" data-i18n="footer.credit">Development by Tim IT Pesantren</span></p>
       </div>
     </footer>
   </body>
