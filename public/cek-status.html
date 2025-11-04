@@ -432,6 +432,24 @@
             badgeClass: 'bg-green-600',
             textClass: 'text-green-600'
           },
+          PAYMENT_PENDING: {
+            label: T('cekStatus.status.labels.paymentPending'),
+            icon: 'bi-cash-coin',
+            badgeClass: 'bg-amber-500',
+            textClass: 'text-amber-600'
+          },
+          AWAITING_PAYMENT: {
+            label: T('cekStatus.status.labels.awaitingPayment'),
+            icon: 'bi-cash-stack',
+            badgeClass: 'bg-amber-500',
+            textClass: 'text-amber-600'
+          },
+          PAYMENT_REJECTED: {
+            label: T('cekStatus.status.labels.paymentRejected'),
+            icon: 'bi-x-octagon-fill',
+            badgeClass: 'bg-red-600',
+            textClass: 'text-red-600'
+          },
           DITOLAK: {
             label: T('cekStatus.status.labels.rejected'),
             icon: 'bi-x-circle-fill',
@@ -718,14 +736,6 @@
           if (fieldTanggalDaftarEl) fieldTanggalDaftarEl.textContent = formatDateTime(data.created_at || data.createdat);
 
           const statusKey = String(data.status || 'PENDING').toUpperCase();
-          const statusConfig = getStatusConfig();
-          const config = statusConfig[statusKey] || statusConfig.PENDING;
-
-          statusIconEl.className = `bi ${config.icon} ${config.textClass}`;
-          statusBadgeEl.className = `px-4 py-2 rounded-full ${config.badgeClass} text-white`;
-          statusBadgeEl.textContent = config.label;
-          statusTextEl.className = `inline-block px-3 py-1 rounded ${config.badgeClass} text-white text-sm`;
-          statusTextEl.textContent = config.label;
 
           catatanContainer?.querySelectorAll('.verified-info[data-dynamic="true"]').forEach((el) => el.remove());
           if (catatanEl) {
@@ -747,6 +757,33 @@
           const isPaymentRejected = ['REJECTED', 'DITOLAK'].includes(paymentStatusRaw);
           const isPaymentPending = ['PENDING', 'MENUNGGU', 'WAITING', 'IN_REVIEW', 'PROCESSING'].includes(paymentStatusRaw);
           const hasPaymentRecord = Boolean(payment);
+
+          const statusConfig = getStatusConfig();
+          let effectiveStatusKey = statusKey;
+
+          if (isStatusAccepted) {
+            if (isPaymentVerified) {
+              effectiveStatusKey = 'VERIFIED';
+            } else if (hasPaymentRecord && isPaymentRejected) {
+              effectiveStatusKey = 'PAYMENT_REJECTED';
+            } else if (hasPaymentRecord && isPaymentPending) {
+              effectiveStatusKey = 'PAYMENT_PENDING';
+            } else if (!hasPaymentRecord) {
+              effectiveStatusKey = 'AWAITING_PAYMENT';
+            } else if (!isPaymentVerified) {
+              effectiveStatusKey = 'PAYMENT_PENDING';
+            }
+          } else if (statusKey === 'REJECTED' || statusKey === 'DITOLAK') {
+            effectiveStatusKey = 'REJECTED';
+          }
+
+          const config = statusConfig[effectiveStatusKey] || statusConfig[statusKey] || statusConfig.PENDING;
+
+          statusIconEl.className = `bi ${config.icon} ${config.textClass}`;
+          statusBadgeEl.className = `px-4 py-2 rounded-full ${config.badgeClass} text-white`;
+          statusBadgeEl.textContent = config.label;
+          statusTextEl.className = `inline-block px-3 py-1 rounded ${config.badgeClass} text-white text-sm`;
+          statusTextEl.textContent = config.label;
 
           if (isStatusAccepted && isPaymentVerified) {
             insertBeforeInfoCard(buildPaymentSuccess(data, payment));

@@ -454,6 +454,9 @@
         "processing": "Sedang Diproses",
         "revision": "Perlu Revisi",
         "accepted": "Diterima / Terverifikasi",
+        "paymentPending": "Menunggu Verifikasi Pembayaran",
+        "awaitingPayment": "Menunggu Pembayaran",
+        "paymentRejected": "Pembayaran Ditolak",
         "rejected": "Ditolak"
       },
       "verifiedInfo": "Diverifikasi berkas oleh: <strong>{{admin}}</strong> pada {{datetime}}"

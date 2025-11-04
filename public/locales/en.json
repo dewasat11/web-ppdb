@@ -21,7 +21,7 @@
   },
   "section": {
     "hero": {
-      "title": "<span class='text-yellow-400' style='text-shadow:2px 4px 8px rgba(0,0,0,0.5);'>New Student and Santri Admissions</span><br/><span>Al Ikhsan Islamic Boarding School (PPDSB)</span>",
+      "title": "<span class='text-yellow-400' style='text-shadow:2px 4px 8px rgba(0,0,0,0.5);'>New Student and Santri Admissions</span><br/><span>Al Ikhsan Islamic Boarding School</span>",
       "body": "<p>Join Al Ikhsan Islamic Boarding School. Integrated Islamic education with character development, Quran memorization (tahfidz), and sciences to shape a Qur’anic, high-achieving generation.</p>"
     }
   },
@@ -42,7 +42,7 @@
   "hero": {
     "badge": "Academic Year 2026/2027",
     "titleHighlight": "New Student and Santri Admissions",
-    "titleMain": "<span class='text-yellow-400' style='text-shadow:2px 4px 8px rgba(0,0,0,0.5);'>Al Ikhsan Islamic Boarding School (PPDSB)</span>",
+    "titleMain": "<span class='text-yellow-400' style='text-shadow:2px 4px 8px rgba(0,0,0,0.5);'>Al Ikhsan Islamic Boarding School</span>",
     "subtitle": "Become a santri at Al Ikhsan Islamic Boarding School. Integrated Islamic education with character building, Qur'an memorisation, and knowledge to shape a Qur'anic and high-achieving generation.",
     "ctaApply": "Apply Now",
     "ctaStatus": "Check Status"
@@ -454,6 +454,9 @@
         "processing": "In Review",
         "revision": "Revision Required",
         "accepted": "Approved / Verified",
+        "paymentPending": "Awaiting Payment Verification",
+        "awaitingPayment": "Awaiting Payment",
+        "paymentRejected": "Payment Rejected",
         "rejected": "Rejected"
       },
       "verifiedInfo": "Verified by: <strong>{{admin}}</strong> on {{datetime}}"

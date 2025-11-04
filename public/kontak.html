@@ -177,10 +177,10 @@
 
 <!-- HEADER -->
   <header class="relative z-50">
-    <div id="superHeader" class="relative h-24 md:h-28 overflow-hidden">
+    <div id="superHeader" class="relative h-16 md:h-20 overflow-hidden">
       <div
         id="yellowBlob"
-        class="absolute inset-x-0 -top-10 h-[150%] bg-yellow-400/90 opacity-95 blur-2xl rounded-b-[4rem] pointer-events-none transform-gpu"
+        class="absolute inset-x-0 -top-6 h-[120%] bg-yellow-400/90 opacity-95 blur-xl rounded-b-[3rem] pointer-events-none transform-gpu"
         aria-hidden="true"
       ></div>
       <div class="relative flex h-full items-end">
@@ -572,7 +572,7 @@
       const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
       const applyParallax = () => {
-        const offset = clamp(-latestY * k, -160, 0);
+        const offset = clamp(-latestY * k, -80, 0);
         blob.style.transform = `translate3d(0, ${offset}px, 0)`;
         ticking = false;
       };
