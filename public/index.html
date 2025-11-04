@@ -243,8 +243,24 @@
 </head>
 
 <body class="min-h-screen flex flex-col bg-white text-gray-800">
-  <!-- NAVBAR -->
-  <nav class="bg-white shadow-lg sticky top-0 z-50" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
+  <!-- HEADER -->
+  <header class="sticky top-0 z-50">
+    <div class="bg-yellow-400 text-gray-900">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-end gap-2 py-2 text-xs sm:text-sm font-semibold uppercase tracking-wide">
+          <div class="flex items-center gap-2">
+            <button type="button" data-setlang="id" class="inline-flex items-center gap-1 rounded-full border border-yellow-500 bg-yellow-300 px-3 py-1.5 text-yellow-900 shadow-sm transition hover:bg-yellow-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-700" data-i18n="nav.language.id">
+              ID
+            </button>
+            <button type="button" data-setlang="en" class="inline-flex items-center gap-1 rounded-full border border-yellow-500 bg-yellow-300 px-3 py-1.5 text-yellow-900 shadow-sm transition hover:bg-yellow-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-700" data-i18n="nav.language.en">
+              EN
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- NAVBAR -->
+    <nav class="bg-white shadow-lg" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo -->
@@ -276,10 +292,6 @@
             <a href="/brosur.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.brochure">Brosur</a>
             <a href="/kontak.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.contact">Kontak</a>
 
-            <div class="flex items-center space-x-1 ml-2">
-              <button type="button" data-setlang="id" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.language.id">ID</button>
-              <button type="button" data-setlang="en" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.language.en">EN</button>
-            </div>
           </div>
         </div>
 
@@ -324,17 +336,13 @@
         <a href="/brosur.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50" data-i18n="nav.brochure">Brosur</a>
         <a href="/kontak.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50" data-i18n="nav.contact">Kontak</a>
 
-        <div class="px-2 pt-4 flex items-center gap-2">
-          <button type="button" data-setlang="id" class="flex-1 text-gray-700 hover:text-brand-700 px-3 py-2 rounded-md text-base font-medium border border-gray-200" data-i18n="nav.language.id">ID</button>
-          <button type="button" data-setlang="en" class="flex-1 text-gray-700 hover:text-brand-700 px-3 py-2 rounded-md text-base font-medium border border-gray-200" data-i18n="nav.language.en">EN</button>
-        </div>
-
         <div class="pt-4 pb-2 px-2">
           <a href="/login.html" class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center" data-i18n="nav.admin">Admin</a>
         </div>
       </div>
     </div>
   </nav>
+  </header>
 
   <!-- MAIN -->
   <main class="flex-1">

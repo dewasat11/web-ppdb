@@ -1,13 +1,20 @@
 {
-    "meta.title.home": "Home - PPDSB Pondok Pesantren Al Ikhsan Beji",
-    "meta.title.register": "Registration Form - PPDSB Pondok Pesantren Al Ikhsan Beji",
-    "meta.description.home": "PPDSB Pondok Pesantren Al Ikhsan Beji. New Student and Santri Admissions for the 2026/2027 academic year. Integrated Islamic education that builds character and achievements.",
-    "meta.description.register": "New santri registration form for Pondok Pesantren Al Ikhsan Beji. Fill in personal data, education, parents, and upload registration documents.",
-  
-    "section.hero.title": "New Students Admission 2026/2027",
-    "section.hero.body": "<p>Integrated Islamic education with character and achievement.</p>"
-  ,
-  
+  "meta": {
+    "title": {
+      "home": "Home – PPDSB Pondok Pesantren Al Ikhsan Beji",
+      "register": "Registration Form – PPDSB Pondok Pesantren Al Ikhsan Beji"
+    },
+    "description": {
+      "home": "PPDSB Pondok Pesantren Al Ikhsan Beji. New Student and Santri Admissions for the 2026/2027 academic year. Integrated Islamic education that builds character and achievements.",
+      "register": "New santri registration form for Pondok Pesantren Al Ikhsan Beji. Fill in personal data, education, parents, and upload registration documents."
+    }
+  },
+  "section": {
+    "hero": {
+      "title": "<span class='text-yellow-400' style='text-shadow:2px 4px 8px rgba(0,0,0,0.5);'>New Student and Santri Admissions</span><br/><span>Pondok Pesantren Al Ikhsan Beji (PPDSB)</span>",
+      "body": "<p>Join Pondok Pesantren Al Ikhsan Beji. Integrated Islamic education with character development, Quran memorization (tahfidz), and sciences to shape a Qur’anic, high-achieving generation.</p>"
+    }
+  },
   "nav": {
     "home": "Home",
     "info": "Information",
@@ -25,7 +32,7 @@
   "hero": {
     "badge": "Academic Year 2026/2027",
     "titleHighlight": "New Student and Santri Admissions",
-    "titleMain": "(PPDSB) PONDOK PESANTREN AL IKHSAN BEJI",
+    "titleMain": "<span class='text-yellow-400' style='text-shadow:2px 4px 8px rgba(0,0,0,0.5);'>Pondok Pesantren Al Ikhsan Beji (PPDSB)</span>",
     "subtitle": "Become a santri at Pondok Pesantren Al Ikhsan Beji. Integrated Islamic education with character building, Qur'an memorisation, and knowledge to shape a Qur'anic and high-achieving generation.",
     "ctaApply": "Apply Now",
     "ctaStatus": "Check Status"

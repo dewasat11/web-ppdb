@@ -1,62 +1,149 @@
 (() => {
-  const SUPPORTED = ["id","en"]; const FALLBACK = "id";
+  const SUPPORTED = ["id", "en"];
+  const FALLBACK = "id";
+  const PLACEHOLDER_RE = /\{\{\s*([^{}\s]+)\s*\}\}/g;
 
-  function norm(l){ return (l||"").toLowerCase().slice(0,2); }
-  function initialLang(){
-    const q = new URLSearchParams(location.search).get("lang");
-    const cand = [norm(q), norm(localStorage.getItem("lang")), norm(navigator.language), FALLBACK]
-      .find(x => SUPPORTED.includes(x));
-    return cand || FALLBACK;
-  }
+  let activeLang = FALLBACK;
+  let flatDict = {};
 
-  async function loadDict(lang){
-    const res = await fetch(`/locales/${lang}.json?v=${Date.now()}`, { cache: "no-store" });
-    if(!res.ok) throw new Error("i18n load failed: "+lang);
-    return res.json();
-  }
+  const norm = (lang) => (lang || "").toLowerCase().slice(0, 2);
 
-  function applyDict(dict){
-    // text nodes
-    document.querySelectorAll("[data-i18n]").forEach(el => {
-      const k = el.dataset.i18n;
-      if (k in dict) {
-        if (el.tagName.toLowerCase()==="title") document.title = dict[k];
-        else el.textContent = dict[k];
+  const initialLang = () => {
+    const queryLang = new URLSearchParams(location.search).get("lang");
+    const candidates = [
+      norm(queryLang),
+      norm(localStorage.getItem("lang")),
+      norm(navigator.language),
+      FALLBACK
+    ];
+    const matched = candidates.find((code) => SUPPORTED.includes(code));
+    return matched || FALLBACK;
+  };
+
+  const flattenDict = (value, prefix = "", target = {}) => {
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      Object.entries(value).forEach(([key, child]) => {
+        const nextKey = prefix ? `${prefix}.${key}` : key;
+        flattenDict(child, nextKey, target);
+      });
+    } else if (prefix) {
+      target[prefix] = value;
+    }
+    return target;
+  };
+
+  const interpolate = (template, replacements = {}) => {
+    if (typeof template !== "string" || !replacements) return template;
+    return template.replace(PLACEHOLDER_RE, (match, token) => {
+      const placeholder = token.trim();
+      return Object.prototype.hasOwnProperty.call(replacements, placeholder)
+        ? String(replacements[placeholder])
+        : match;
+    });
+  };
+
+  const translate = (key, replacements) => {
+    if (!flatDict || typeof flatDict !== "object") return key;
+    const value = flatDict[key];
+    if (value === undefined || value === null) return key;
+    if (typeof value === "string") return interpolate(value, replacements);
+    if (Array.isArray(value)) {
+      return value
+        .map((item) =>
+          typeof item === "string" ? interpolate(item, replacements) : item
+        )
+        .join("");
+    }
+    return value;
+  };
+
+  const applyTranslations = (root = document) => {
+    if (!root || !flatDict) return;
+    const scope = root.nodeType === Node.DOCUMENT_NODE ? root : root;
+
+    scope.querySelectorAll?.("[data-i18n]").forEach((el) => {
+      const key = el.dataset.i18n;
+      if (!key) return;
+
+      const translated = translate(key);
+      if (
+        typeof translated === "string" &&
+        translated !== key &&
+        el.dataset.i18nSkipText === undefined
+      ) {
+        if (el.tagName.toLowerCase() === "title") {
+          document.title = translated;
+        } else {
+          el.textContent = translated;
+        }
       }
-      const attrs = (el.dataset.i18nAttr||"").split(",").map(s=>s.trim()).filter(Boolean);
-      for (const a of attrs) {
-        const ak = `${k}.${a}`;
-        if (ak in dict) el.setAttribute(a, dict[ak]);
-      }
+
+      const attrTokens = (el.dataset.i18nAttr || "")
+        .split(",")
+        .map((token) => token.trim())
+        .filter(Boolean);
+
+      attrTokens.forEach((attr) => {
+        const attrKey = `${key}.${attr}`;
+        const attrValue = translate(attrKey);
+        if (typeof attrValue === "string" && attrValue !== attrKey) {
+          el.setAttribute(attr, attrValue);
+        } else if (typeof translated === "string" && translated !== key) {
+          el.setAttribute(attr, translated);
+        }
+      });
     });
 
-    // rich HTML
-    document.querySelectorAll("[data-i18n-html]").forEach(el => {
-      const k = el.dataset.i18nHtml;
-      if (k in dict) el.innerHTML = dict[k];
+    scope.querySelectorAll?.("[data-i18n-html]").forEach((el) => {
+      const key = el.dataset.i18nHtml;
+      if (!key) return;
+      const html = translate(key);
+      if (typeof html === "string" && html !== key) {
+        el.innerHTML = html;
+      }
     });
-  }
+  };
 
-  async function setLang(lang){
-    const L = SUPPORTED.includes(lang) ? lang : FALLBACK;
-    document.documentElement.lang = L;
-    localStorage.setItem("lang", L);
-    const dict = await loadDict(L);
-    applyDict(dict);
-  }
+  const loadDict = async (lang) => {
+    const response = await fetch(`/locales/${lang}.json?v=${Date.now()}`, {
+      cache: "no-store"
+    });
+    if (!response.ok) throw new Error(`i18n load failed: ${lang}`);
+    return response.json();
+  };
 
-  document.addEventListener("click", e => {
-    const btn = e.target.closest("[data-setlang]");
-    if (!btn) return;
-    e.preventDefault();
-    const L = btn.dataset.setlang;
+  const setLang = async (lang) => {
+    const nextLang = SUPPORTED.includes(lang) ? lang : FALLBACK;
+    activeLang = nextLang;
+    document.documentElement.lang = nextLang;
+    localStorage.setItem("lang", nextLang);
+
+    try {
+      const dict = await loadDict(nextLang);
+      flatDict = flattenDict(dict);
+      applyTranslations(document);
+    } catch (error) {
+      console.error(error);
+      if (nextLang !== FALLBACK) {
+        setLang(FALLBACK);
+      }
+    }
+  };
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-setlang]");
+    if (!button) return;
+    event.preventDefault();
+    const nextLang = button.dataset.setlang;
     const url = new URL(location.href);
-    url.searchParams.set("lang", L);
+    url.searchParams.set("lang", nextLang);
     history.replaceState({}, "", url);
-    setLang(L);
+    setLang(nextLang);
   });
 
-  // expose untuk tes console
+  window.__ = (key, replacements) => translate(key, replacements);
+  window.__lang = () => activeLang;
+  window.__applyTranslations = applyTranslations;
   window.i18nSetLang = setLang;
 
   setLang(initialLang());
