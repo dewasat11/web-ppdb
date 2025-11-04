@@ -539,30 +539,64 @@
     const getYearText = (year) => `${translateText("sections.gelombang.yearPrefix")} ${year}`;
 
     function decorateGelombang(waves, activeId) {
-      const byId = Object.fromEntries(waves.map((w) => [w.id, w]));
+      if (!Array.isArray(waves)) return [];
 
-      const setState = (id, stateKey) => {
-        const record = byId[id];
+      const setState = (record, stateKey = "NOT_ACTIVE") => {
         if (!record) return;
-        record._state = stateKey;
-        record._color = STATE_COLOR[stateKey] || "gray";
-        record._label = getStatusLabel(stateKey);
+        const normalized = (stateKey || "NOT_ACTIVE").toUpperCase();
+        record._state = normalized;
+        const colorKey = STATE_COLOR[normalized] || "gray";
+        record._color = colorKey;
+        record._label = getStatusLabel(normalized);
       };
 
-      waves.forEach((wave) => setState(wave.id, "NOT_ACTIVE"));
+      const normalizeId = (value) => (value !== null && value !== undefined ? Number(value) : null);
+      const activeIdNum = normalizeId(activeId);
+      const activeWave = waves.find((wave) => normalizeId(wave.id) === activeIdNum) || waves.find((wave) => wave.is_active);
 
-      if (activeId === 1) {
-        setState(1, "ACTIVE");
-        setState(2, "UPCOMING");
-        setState(3, "UPCOMING");
-      } else if (activeId === 2) {
-        setState(2, "ACTIVE");
-        setState(1, "CLOSED");
-        setState(3, "UPCOMING");
-      } else if (activeId === 3) {
-        setState(3, "ACTIVE");
-        setState(1, "CLOSED");
-        setState(2, "CLOSED");
+      const getOrder = (wave, index) => {
+        const order = Number(wave?.urutan);
+        return Number.isFinite(order) ? order : index;
+      };
+
+      const now = new Date();
+
+      waves.forEach((wave, index) => {
+        if (!wave) return;
+
+        if (activeWave && Number(wave.id) === Number(activeWave.id)) {
+          setState(wave, "ACTIVE");
+          return;
+        }
+
+        if (activeWave) {
+          const waveOrder = getOrder(wave, index);
+          const activeOrder = getOrder(activeWave, waves.indexOf(activeWave));
+
+          if (Number.isFinite(waveOrder) && Number.isFinite(activeOrder)) {
+            if (waveOrder > activeOrder) {
+              setState(wave, "UPCOMING");
+            } else {
+              setState(wave, "CLOSED");
+            }
+            return;
+          }
+        }
+
+        const startDate = wave.start_date ? new Date(wave.start_date) : null;
+        const endDate = wave.end_date ? new Date(wave.end_date) : null;
+
+        if (startDate && startDate > now) {
+          setState(wave, "UPCOMING");
+        } else if (endDate && endDate < now) {
+          setState(wave, "CLOSED");
+        } else {
+          setState(wave, "NOT_ACTIVE");
+        }
+      });
+
+      if (activeWave && !waves.some((wave) => wave._state === "ACTIVE")) {
+        setState(activeWave, "ACTIVE");
       }
 
       return waves;
