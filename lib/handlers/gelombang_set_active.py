@@ -79,34 +79,44 @@ class handler(BaseHTTPRequestHandler):
             print(f"[SET_GELOMBANG_ACTIVE] Using RPC function 'set_gelombang_status' with p_id={gelombang_id}")
             
             # Call RPC function (atomic database operation)
+            rpc_success = False
+
             try:
                 rpc_result = supa.rpc('set_gelombang_status', {'p_id': int(gelombang_id)}).execute()
                 print(f"[SET_GELOMBANG_ACTIVE] RPC result: {rpc_result.data}")
                 print(f"[SET_GELOMBANG_ACTIVE] RPC result type: {type(rpc_result.data)}")
+                rpc_success = True
             except Exception as rpc_error:
                 # If RPC call itself fails, log and re-raise
                 print(f"[SET_GELOMBANG_ACTIVE] ❌ RPC call failed: {rpc_error}")
                 print(f"[SET_GELOMBANG_ACTIVE] ❌ RPC error type: {type(rpc_error)}")
-                raise
+                rpc_success = False
             
-            # Check if RPC function returned error
-            if isinstance(rpc_result.data, dict):
+            if rpc_success and isinstance(rpc_result.data, dict):
                 if not rpc_result.data.get('ok', True):
                     error_msg = rpc_result.data.get('message', 'Unknown error from RPC')
                     print(f"[SET_GELOMBANG_ACTIVE] ERROR from RPC: {error_msg}")
-                    self.send_response(400)
-                    self.send_header("Content-Type", "application/json")
-                    self.send_header("Access-Control-Allow-Origin", "*")
-                    self.end_headers()
-                    self.wfile.write(
-                        json.dumps({
-                            "ok": False,
-                            "error": error_msg
-                        }).encode('utf-8')
-                    )
-                    return
-            
-            print(f"[SET_GELOMBANG_ACTIVE] ✓ RPC SUCCESS: Gelombang ID {gelombang_id} activated")
+                    rpc_success = False
+
+            if not rpc_success:
+                print("[SET_GELOMBANG_ACTIVE] ⚠️ Falling back to manual update logic")
+                # Step 1: set all other gelombang to inactive
+                try:
+                    supa.table("gelombang").update({"is_active": False}).neq("id", gelombang_id).execute()
+                    print("[SET_GELOMBANG_ACTIVE]   → All other gelombang set to inactive (fallback)")
+                except Exception as fallback_error:
+                    print(f"[SET_GELOMBANG_ACTIVE] ❌ Failed to set others inactive: {fallback_error}")
+                    raise
+
+                # Step 2: set target gelombang to active
+                try:
+                    supa.table("gelombang").update({"is_active": True}).eq("id", gelombang_id).execute()
+                    print("[SET_GELOMBANG_ACTIVE]   → Target gelombang set to active (fallback)")
+                except Exception as set_active_error:
+                    print(f"[SET_GELOMBANG_ACTIVE] ❌ Failed to activate target gelombang: {set_active_error}")
+                    raise
+            else:
+                print(f"[SET_GELOMBANG_ACTIVE] ✓ RPC SUCCESS: Gelombang ID {gelombang_id} activated")
             
             # Fetch updated gelombang to return in response
             activated_result = supa.table("gelombang").select("*").eq("id", gelombang_id).execute()
@@ -204,4 +214,3 @@ class handler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type, x-admin-token')
         self.end_headers()
-
