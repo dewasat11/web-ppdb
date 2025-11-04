@@ -146,6 +146,28 @@
         width: 85vw;
       }
     }
+
+    #yellowBlob {
+      will-change: transform;
+      transition: transform 0.2s ease-out;
+    }
+
+    @supports (animation-timeline: scroll()) {
+      #yellowBlob[data-css-parallax="true"] {
+        animation: yellowBlobParallax linear both;
+        animation-timeline: scroll();
+        animation-range: 0 40vh;
+      }
+
+      @keyframes yellowBlobParallax {
+        from {
+          transform: translate3d(0, 0, 0);
+        }
+        to {
+          transform: translate3d(0, -120px, 0);
+        }
+      }
+    }
   </style>
 
   <!-- Alpine.js -->
@@ -154,16 +176,21 @@
 <body class="min-h-screen flex flex-col bg-white text-gray-800">
 
 <!-- HEADER -->
-  <header class="sticky top-0 z-50">
-    <div class="bg-yellow-400/95 backdrop-blur supports-backdrop-blur:bg-yellow-400/80 text-gray-900 border-b border-yellow-500/40">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-end gap-4 py-1 text-xs font-semibold tracking-wide text-yellow-900">
-          <div class="flex items-center gap-1">
-            <span>Bahasa:</span>
+  <header class="relative z-50">
+    <div id="superHeader" class="relative h-24 md:h-28 overflow-hidden">
+      <div
+        id="yellowBlob"
+        class="absolute inset-x-0 -top-16 h-[200%] bg-yellow-400/90 opacity-95 blur-3xl rounded-b-[5rem] pointer-events-none transform-gpu"
+        aria-hidden="true"
+      ></div>
+      <div class="relative flex h-full items-end">
+        <div class="max-w-7xl mx-auto flex w-full items-end justify-end gap-6 px-4 pb-3 sm:px-6 lg:px-8 text-xs font-semibold tracking-wide text-yellow-950">
+          <div class="flex items-center gap-2">
+            <span class="uppercase">Bahasa:</span>
             <button
               type="button"
               data-setlang="id"
-              class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-yellow-500 bg-yellow-300 text-base shadow-sm transition hover:bg-yellow-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-700"
+              class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-yellow-500 bg-yellow-200 text-base shadow-sm transition hover:bg-yellow-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-700"
               aria-label="Bahasa Indonesia"
               data-i18n="nav.language.id"
               data-i18n-attr="aria-label"
@@ -172,12 +199,12 @@
               <span aria-hidden="true">🇮🇩</span>
             </button>
           </div>
-          <div class="flex items-center gap-1">
-            <span>Language:</span>
+          <div class="flex items-center gap-2">
+            <span class="uppercase">Language:</span>
             <button
               type="button"
               data-setlang="en"
-              class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-yellow-500 bg-yellow-300 text-base shadow-sm transition hover:bg-yellow-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-700"
+              class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-yellow-500 bg-yellow-200 text-base shadow-sm transition hover:bg-yellow-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-700"
               aria-label="English"
               data-i18n="nav.language.en"
               data-i18n-attr="aria-label"
@@ -192,7 +219,7 @@
   </header>
 
   <!-- NAVBAR -->
-  <nav class="sticky top-[32px] z-40 bg-white/95 backdrop-blur supports-backdrop-blur:bg-white/85 shadow-lg" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
+  <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur supports-backdrop-blur:bg-white/85 shadow-lg" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo -->
@@ -513,6 +540,71 @@
   </script>
 
   
+
+  <!-- AOS JS -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 800, once: true });
+  </script>
+  <script>
+    (function() {
+      const blob = document.getElementById("yellowBlob");
+      if (!blob) return;
+
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const supportsScrollTimeline =
+        typeof CSS !== "undefined" && typeof CSS.supports === "function" && CSS.supports("animation-timeline: scroll()");
+
+      if (supportsScrollTimeline) {
+        blob.dataset.cssParallax = "true";
+        return;
+      }
+
+      if (prefersReducedMotion.matches) {
+        blob.style.transform = "translate3d(0, 0, 0)";
+        return;
+      }
+
+      const k = 0.6;
+      let latestY = window.scrollY || 0;
+      let ticking = false;
+
+      const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+      const applyParallax = () => {
+        const offset = clamp(-latestY * k, -160, 0);
+        blob.style.transform = `translate3d(0, ${offset}px, 0)`;
+        ticking = false;
+      };
+
+      const onScroll = () => {
+        latestY = window.scrollY || 0;
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(applyParallax);
+        }
+      };
+
+      window.addEventListener("scroll", onScroll, { passive: true });
+      applyParallax();
+
+      const handleMotionChange = (event) => {
+        if (event.matches) {
+          window.removeEventListener("scroll", onScroll);
+          blob.style.transform = "translate3d(0, 0, 0)";
+        } else {
+          window.addEventListener("scroll", onScroll, { passive: true });
+          applyParallax();
+        }
+      };
+
+      if (typeof prefersReducedMotion.addEventListener === "function") {
+        prefersReducedMotion.addEventListener("change", handleMotionChange);
+      } else if (typeof prefersReducedMotion.addListener === "function") {
+        prefersReducedMotion.addListener(handleMotionChange);
+      }
+    })();
+  </script>
 
   <!-- AOS JS -->
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
