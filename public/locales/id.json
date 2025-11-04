@@ -2,11 +2,21 @@
   "meta": {
     "title": {
       "home": "Beranda – PPDSB Pondok Pesantren Al Ikhsan Beji",
-      "register": "Formulir Pendaftaran – PPDSB Pondok Pesantren Al Ikhsan Beji"
+      "register": "Formulir Pendaftaran – PPDSB Pondok Pesantren Al Ikhsan Beji",
+      "flow": "Alur Pendaftaran – PPDSB Pondok Pesantren Al Ikhsan Beji",
+      "requirements": "Syarat Pendaftaran – PPDSB Pondok Pesantren Al Ikhsan Beji",
+      "fees": "Biaya Pendaftaran – PPDSB Pondok Pesantren Al Ikhsan Beji",
+      "brochure": "Brosur – PPDSB Pondok Pesantren Al Ikhsan Beji",
+      "contact": "Kontak – PPDSB Pondok Pesantren Al Ikhsan Beji"
     },
     "description": {
       "home": "PPDSB Pondok Pesantren Al Ikhsan Beji. Penerimaan Peserta Didik dan Santri Baru tahun ajaran 2026/2027. Pendidikan islami terpadu dengan akhlak dan prestasi.",
-      "register": "Formulir pendaftaran santri baru Pondok Pesantren Al Ikhsan Beji. Isi data diri, pendidikan, orang tua, dan unggah dokumen pendaftaran."
+      "register": "Formulir pendaftaran santri baru Pondok Pesantren Al Ikhsan Beji. Isi data diri, pendidikan, orang tua, dan unggah dokumen pendaftaran.",
+      "flow": "Alur pendaftaran santri baru Pondok Pesantren Al Ikhsan Beji. Panduan langkah demi langkah pendaftaran online, pembayaran, hingga daftar ulang.",
+      "requirements": "Syarat dan ketentuan pendaftaran santri baru Pondok Pesantren Al Ikhsan Beji. Panduan lengkap dokumen dan ketentuan unggahan.",
+      "fees": "Rincian biaya pendaftaran dan pendidikan Pondok Pesantren Al Ikhsan Beji. Transparansi biaya untuk calon santri dan wali.",
+      "brochure": "Brosur resmi Pondok Pesantren Al Ikhsan Beji. Unduh informasi program, fasilitas, biaya, dan alur pendaftaran.",
+      "contact": "Kontak resmi Pondok Pesantren Al Ikhsan Beji. Hubungi kami untuk informasi pendaftaran, biaya, atau kehidupan santri."
     }
   },
   "section": {
@@ -74,6 +84,57 @@
       "title": "Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?",
       "subtitle": "Pendidikan islami terpadu: tahfidz Al-Qur'an, akhlak mulia, dan ilmu pengetahuan",
       "description": "Bergabunglah dengan Pondok Pesantren Al Ikhsan Beji untuk mendapatkan pendidikan islami terpadu yang membentuk karakter santri yang berakhlak mulia."
+    }
+  },
+  "pages": {
+    "flow": {
+      "heading": "Alur Pendaftaran",
+      "intro": "Berikut adalah langkah-langkah alur pendaftaran Pondok Pesantren Al Ikhsan Beji:",
+      "loading": "Memuat data alur pendaftaran...",
+      "empty": "Belum ada data alur. Silakan hubungi admin.",
+      "error": "Gagal memuat alur pendaftaran. Silakan coba beberapa saat lagi.",
+      "lastUpdated": "Terakhir diperbarui:"
+    },
+    "requirements": {
+      "heading": "Syarat Pendaftaran",
+      "intro": "Untuk mendaftar di Pondok Pesantren Al Ikhsan Beji, calon santri harus memenuhi persyaratan berikut:",
+      "loading": "Memuat daftar syarat...",
+      "empty": "Belum ada syarat yang terdaftar.",
+      "error": "Gagal memuat persyaratan pendaftaran.",
+      "lastUpdated": "Terakhir diperbarui:"
+    },
+    "fees": {
+      "heading": "Biaya Pendaftaran",
+      "intro": "Berikut adalah rincian biaya pendaftaran dan pendidikan di Pondok Pesantren Al Ikhsan Beji:",
+      "loading": "Memuat data biaya...",
+      "empty": "Belum ada data biaya.",
+      "note": "Catatan: Biaya dapat berubah sewaktu-waktu. Untuk informasi lebih lanjut, silakan hubungi bagian administrasi.",
+      "error": "Gagal memuat data biaya. Silakan coba lagi.",
+      "table": {
+        "label": "Keterangan",
+        "amount": "Biaya"
+      }
+    },
+    "brochure": {
+      "heading": "Brosur Pendaftaran",
+      "intro": "Unduh brosur resmi program, fasilitas, dan informasi PPDSB.",
+      "loading": "Memuat daftar brosur...",
+      "empty": "Belum ada brosur yang tersedia saat ini.",
+      "error": "Gagal memuat brosur. Silakan coba beberapa saat lagi.",
+      "defaultButton": "Unduh PDF"
+    },
+    "contact": {
+      "heading": "Kontak",
+      "intro": "Hubungi kami untuk informasi pendaftaran, biaya, atau kehidupan santri.",
+      "loading": "Memuat data kontak...",
+      "empty": "Kontak belum tersedia.",
+      "error": "Gagal memuat kontak.",
+      "locationHeading": "Lokasi Kami",
+      "map": {
+        "loading": "Memuat peta lokasi...",
+        "empty": "Lokasi belum tersedia.",
+        "error": "Gagal memuat peta lokasi."
+      }
     }
   },
   "footer": {

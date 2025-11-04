@@ -2,11 +2,21 @@
   "meta": {
     "title": {
       "home": "Home – Al Ikhsan Islamic Boarding School",
-      "register": "Registration Form – Al Ikhsan Islamic Boarding School"
+      "register": "Registration Form – Al Ikhsan Islamic Boarding School",
+      "flow": "Registration Flow – Al Ikhsan Islamic Boarding School",
+      "requirements": "Registration Requirements – Al Ikhsan Islamic Boarding School",
+      "fees": "Fees – Al Ikhsan Islamic Boarding School",
+      "brochure": "Brochure – Al Ikhsan Islamic Boarding School",
+      "contact": "Contact – Al Ikhsan Islamic Boarding School"
     },
     "description": {
       "home": "Al Ikhsan Islamic Boarding School. New Student and Santri Admissions for the 2026/2027 academic year. Integrated Islamic education that builds character and achievements.",
-      "register": "New santri registration form for Al Ikhsan Islamic Boarding School. Fill in personal data, education, parents, and upload registration documents."
+      "register": "New santri registration form for Al Ikhsan Islamic Boarding School. Fill in personal data, education, parents, and upload registration documents.",
+      "flow": "Registration flow for new students of Al Ikhsan Islamic Boarding School. A step-by-step guide from online registration to payment and re-enrolment.",
+      "requirements": "Registration requirements for Al Ikhsan Islamic Boarding School. Complete guide to documents and upload rules.",
+      "fees": "Fee breakdown for Al Ikhsan Islamic Boarding School. Transparent costs for prospective students and parents.",
+      "brochure": "Official brochure of Al Ikhsan Islamic Boarding School. Download information on programmes, facilities, fees, and registration flow.",
+      "contact": "Official contacts of Al Ikhsan Islamic Boarding School. Reach us for registration, fees, or boarding life information."
     }
   },
   "section": {
@@ -74,6 +84,57 @@
       "title": "Why Choose Al Ikhsan Islamic Boarding School?",
       "subtitle": "Integrated Islamic education: Qur'an memorisation, noble character, and knowledge",
       "description": "Join Al Ikhsan Islamic Boarding School to receive integrated Islamic education that shapes santri with noble character."
+    }
+  },
+  "pages": {
+    "flow": {
+      "heading": "Registration Flow",
+      "intro": "Here are the steps for the registration process at Al Ikhsan Islamic Boarding School:",
+      "loading": "Loading registration flow...",
+      "empty": "The registration flow is not available yet. Please contact the admin.",
+      "error": "Failed to load the registration flow. Please try again later.",
+      "lastUpdated": "Last updated:"
+    },
+    "requirements": {
+      "heading": "Registration Requirements",
+      "intro": "To register at Al Ikhsan Islamic Boarding School, prospective students must meet the following requirements:",
+      "loading": "Loading requirements...",
+      "empty": "No registration requirements have been published yet.",
+      "error": "Failed to load the registration requirements.",
+      "lastUpdated": "Last updated:"
+    },
+    "fees": {
+      "heading": "Fees",
+      "intro": "Here is the breakdown of registration and tuition fees at Al Ikhsan Islamic Boarding School:",
+      "loading": "Loading fee information...",
+      "empty": "No fee information is available yet.",
+      "note": "Note: Fees are subject to change. For more details, please contact the administration office.",
+      "error": "Failed to load fee information. Please try again.",
+      "table": {
+        "label": "Item",
+        "amount": "Amount"
+      }
+    },
+    "brochure": {
+      "heading": "Brochure",
+      "intro": "Download the official brochure for programmes, facilities, and key information.",
+      "loading": "Loading brochures...",
+      "empty": "No brochures are available at the moment.",
+      "error": "Failed to load brochures. Please try again later.",
+      "defaultButton": "Download PDF"
+    },
+    "contact": {
+      "heading": "Contact",
+      "intro": "Reach out to us for information about registration, fees, or boarding life.",
+      "loading": "Loading contact information...",
+      "empty": "Contact information is not available yet.",
+      "error": "Failed to load contact information.",
+      "locationHeading": "Our Location",
+      "map": {
+        "loading": "Loading map...",
+        "empty": "Location is not available yet.",
+        "error": "Failed to load the location map."
+      }
     }
   },
   "footer": {

@@ -550,9 +550,10 @@
         record._label = getStatusLabel(normalized);
       };
 
-      const normalizeId = (value) => (value !== null && value !== undefined ? Number(value) : null);
-      const activeIdNum = normalizeId(activeId);
-      const activeWave = waves.find((wave) => normalizeId(wave.id) === activeIdNum) || waves.find((wave) => wave.is_active);
+      const activeIdNum = parseNumericId(activeId);
+      let activeWave =
+        waves.find((wave) => parseNumericId(wave.id) === activeIdNum) ||
+        waves.find((wave) => isTrueish(wave.is_active));
 
       const getOrder = (wave, index) => {
         const order = Number(wave?.urutan);
@@ -564,7 +565,9 @@
       waves.forEach((wave, index) => {
         if (!wave) return;
 
-        if (activeWave && Number(wave.id) === Number(activeWave.id)) {
+        const waveId = parseNumericId(wave.id);
+
+        if (activeWave && waveId === parseNumericId(activeWave.id)) {
           setState(wave, "ACTIVE");
           return;
         }
@@ -590,10 +593,17 @@
           setState(wave, "UPCOMING");
         } else if (endDate && endDate < now) {
           setState(wave, "CLOSED");
+        } else if (isTrueish(wave.is_active)) {
+          setState(wave, "ACTIVE");
+          activeWave = wave;
         } else {
           setState(wave, "NOT_ACTIVE");
         }
       });
+
+      if (!activeWave && waves.length > 0) {
+        activeWave = waves.find((wave) => isTrueish(wave.is_active)) || waves[0];
+      }
 
       if (activeWave && !waves.some((wave) => wave._state === "ACTIVE")) {
         setState(activeWave, "ACTIVE");
@@ -652,8 +662,11 @@
         try {
           const activeResponse = await fetch(`/api/gelombang_active?_t=${cacheBuster}`);
           const activeResult = await activeResponse.json();
-          if (activeResult.ok && activeResult.data && typeof activeResult.data.id === "number") {
-            activeId = activeResult.data.id;
+          if (activeResult.ok && activeResult.data && activeResult.data.id !== undefined) {
+            const parsedId = Number(activeResult.data.id);
+            if (Number.isFinite(parsedId)) {
+              activeId = parsedId;
+            }
           }
         } catch (error) {
           console.warn("[GELOMBANG_ACTIVE] Failed to fetch active gelombang:", error);
