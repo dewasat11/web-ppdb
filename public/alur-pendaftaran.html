@@ -275,7 +275,100 @@
           .replace(/"/g, "&quot;")
           .replace(/'/g, "&#039;");
 
-      async function loadAlurContent() {
+      const getActiveLanguage = () => {
+        if (typeof window.__lang === "function") {
+          return window.__lang();
+        }
+        const stored = (localStorage.getItem("lang") || "id").toLowerCase();
+        return stored.startsWith("en") ? "en" : "id";
+      };
+
+      const selectAlurField = (step = {}, field, lang) => {
+        const normalizedLang = lang === "en" ? "en" : "id";
+        if (normalizedLang === "en") {
+          const english = step[`${field}_en`];
+          if (typeof english === "string" && english.trim()) {
+            return english.trim();
+          }
+        }
+        const base = step[field];
+        if (typeof base === "string" && base.trim()) {
+          return base.trim();
+        }
+        if (normalizedLang === "id") {
+          const fallback = step[`${field}_en`];
+          if (typeof fallback === "string" && fallback.trim()) {
+            return fallback.trim();
+          }
+        } else {
+          const fallback = step[field];
+          if (typeof fallback === "string" && fallback.trim()) {
+            return fallback.trim();
+          }
+        }
+        return "";
+      };
+
+      const normalizeStep = (step = {}) => ({
+        ...step,
+        title: selectAlurField(step, "title", "id"),
+        description: selectAlurField(step, "description", "id"),
+        title_en: selectAlurField(step, "title", "en"),
+        description_en: selectAlurField(step, "description", "en"),
+      });
+
+      const formatTimestamp = (value, lang) => {
+        if (!value) return "";
+        const parsed = Date.parse(value);
+        if (Number.isNaN(parsed)) return "";
+        const locale = lang === "en" ? "en-US" : "id-ID";
+        return new Date(parsed).toLocaleString(locale);
+      };
+
+      let cachedAlurSteps = null;
+
+      function renderAlurContent(steps) {
+        const listEl = document.getElementById("alurStepsList");
+        const infoEl = document.getElementById("alurLastUpdate");
+        if (!listEl) return;
+
+        if (!steps || !steps.length) {
+          listEl.innerHTML = `<li class="text-gray-500">Belum ada data alur. Silakan hubungi admin.</li>`;
+          if (infoEl) infoEl.textContent = "";
+          return;
+        }
+
+        const lang = getActiveLanguage();
+        listEl.innerHTML = steps
+          .map((step) => {
+            const title = escapeHtml(selectAlurField(step, "title", lang));
+            const description = escapeHtml(
+              selectAlurField(step, "description", lang)
+            );
+            return `<li><strong>${title}</strong>${
+              description ? `: ${description}` : ""
+            }</li>`;
+          })
+          .join("");
+
+        if (infoEl) {
+          const latestTimestamp = steps.reduce((max, step) => {
+            const ts = step?.updated_at ? Date.parse(step.updated_at) : 0;
+            return Number.isNaN(ts) ? max : Math.max(max, ts);
+          }, 0);
+
+          infoEl.textContent = latestTimestamp
+            ? `${lang === "en" ? "Last updated:" : "Terakhir diperbarui:"} ${formatTimestamp(latestTimestamp, lang)}`
+            : "";
+        }
+      }
+
+      async function loadAlurContent({ force = false } = {}) {
+        if (!force && cachedAlurSteps) {
+          renderAlurContent(cachedAlurSteps);
+          return;
+        }
+
         const listEl = document.getElementById("alurStepsList");
         const infoEl = document.getElementById("alurLastUpdate");
         if (!listEl) return;
@@ -291,40 +384,45 @@
           }
 
           const steps = Array.isArray(result.data) ? result.data : [];
-          steps.sort(
-            (a, b) =>
-              (a?.order_index || 0) - (b?.order_index || 0)
-          );
+          const normalized = steps
+            .map((step) => normalizeStep(step))
+            .sort(
+              (a, b) =>
+                (a?.order_index || 0) - (b?.order_index || 0)
+            );
 
-          if (!steps.length) {
+          cachedAlurSteps = normalized;
+
+          if (!normalized.length) {
             listEl.innerHTML = `<li class="text-gray-500">Belum ada data alur. Silakan hubungi admin.</li>`;
             return;
           }
 
-          listEl.innerHTML = steps
-            .map((step) => {
-              const title = escapeHtml(step.title || "");
-              const description = escapeHtml(step.description || "");
-              return `<li><strong>${title}</strong>${description ? `: ${description}` : ""}</li>`;
-            })
-            .join("");
-
-          if (infoEl) {
-            const latestTimestamp = steps.reduce((max, step) => {
-              const ts = step?.updated_at ? Date.parse(step.updated_at) : 0;
-              return Number.isNaN(ts) ? max : Math.max(max, ts);
-            }, 0);
-            infoEl.textContent = latestTimestamp
-              ? `Terakhir diperbarui: ${new Date(latestTimestamp).toLocaleString("id-ID")}`
-              : "";
-          }
+          renderAlurContent(normalized);
         } catch (error) {
           console.error("[ALUR_PAGE] Error memuat alur:", error);
           listEl.innerHTML = `<li class="text-red-500">Gagal memuat alur pendaftaran. Silakan coba beberapa saat lagi.</li>`;
         }
       }
 
-      document.addEventListener("DOMContentLoaded", loadAlurContent);
+      document.addEventListener("DOMContentLoaded", () => {
+        loadAlurContent({ force: true });
+      });
+
+      window.addEventListener("i18n:languageChanged", () => {
+        if (cachedAlurSteps) {
+          renderAlurContent(cachedAlurSteps);
+        } else {
+          loadAlurContent({ force: true });
+        }
+      });
+
+      window.addEventListener("storage", (event) => {
+        if (event.key === "alur_steps_update") {
+          cachedAlurSteps = null;
+          loadAlurContent({ force: true });
+        }
+      });
     })();
   </script>
 

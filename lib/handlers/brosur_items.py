@@ -49,12 +49,22 @@ class handler(BaseHTTPRequestHandler):
             title = (payload.get("title") or "").strip()
             description = (payload.get("description") or "").strip()
             button_label = (payload.get("button_label") or "Unduh PDF").strip()
+            title_en = (payload.get("title_en") or "").strip()
+            description_en = (payload.get("description_en") or "").strip()
+            button_label_en = (payload.get("button_label_en") or "Download PDF").strip()
             button_url = (payload.get("button_url") or "").strip()
             icon_class = (payload.get("icon_class") or "bi bi-file-earmark-arrow-down").strip()
             order_index = payload.get(ORDER_FIELD)
 
-            if not title or not description or not button_url:
-                raise ValueError("Judul, deskripsi, dan tautan unduhan wajib diisi")
+            if (
+                not title
+                or not description
+                or not button_url
+                or not title_en
+                or not description_en
+                or not button_label_en
+            ):
+                raise ValueError("Isi judul, deskripsi, label tombol, dan URL di kedua bahasa")
 
             admin = _admin()
             if order_index is None:
@@ -74,6 +84,9 @@ class handler(BaseHTTPRequestHandler):
                 "title": title,
                 "description": description,
                 "button_label": button_label or "Unduh PDF",
+                "title_en": title_en,
+                "description_en": description_en,
+                "button_label_en": button_label_en or "Download PDF",
                 "button_url": button_url,
                 "icon_class": icon_class or "bi bi-file-earmark-arrow-down",
                 ORDER_FIELD: order_index,
@@ -136,6 +149,12 @@ class handler(BaseHTTPRequestHandler):
                 update_fields["description"] = payload["description"].strip()
             if "button_label" in payload and payload["button_label"] is not None:
                 update_fields["button_label"] = payload["button_label"].strip() or "Unduh PDF"
+            if "title_en" in payload and payload["title_en"]:
+                update_fields["title_en"] = payload["title_en"].strip()
+            if "description_en" in payload and payload["description_en"]:
+                update_fields["description_en"] = payload["description_en"].strip()
+            if "button_label_en" in payload and payload["button_label_en"] is not None:
+                update_fields["button_label_en"] = payload["button_label_en"].strip() or "Download PDF"
             if "button_url" in payload and payload["button_url"]:
                 update_fields["button_url"] = payload["button_url"].strip()
             if "icon_class" in payload and payload["icon_class"]:

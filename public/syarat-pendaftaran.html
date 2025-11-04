@@ -275,7 +275,75 @@
           .replace(/"/g, "&quot;")
           .replace(/'/g, "&#039;");
 
-      async function loadSyaratContent() {
+      const getActiveLanguage = () => {
+        if (typeof window.__lang === "function") {
+          return window.__lang();
+        }
+        const stored = (localStorage.getItem("lang") || "id").toLowerCase();
+        return stored.startsWith("en") ? "en" : "id";
+      };
+
+      const selectSyaratName = (item = {}, lang) => {
+        const normalized = lang === "en" ? "en" : "id";
+        if (normalized === "en") {
+          const enVal = item.name_en;
+          if (typeof enVal === "string" && enVal.trim()) return enVal.trim();
+        }
+        const base = item.name;
+        if (typeof base === "string" && base.trim()) return base.trim();
+        if (normalized === "id") {
+          const fallback = item.name_en;
+          if (typeof fallback === "string" && fallback.trim()) return fallback.trim();
+        } else {
+          const fallback = item.name;
+          if (typeof fallback === "string" && fallback.trim()) return fallback.trim();
+        }
+        return "";
+      };
+
+      const formatTimestamp = (value, lang) => {
+        if (!value) return "";
+        const parsed = Date.parse(value);
+        if (Number.isNaN(parsed)) return "";
+        const locale = lang === "en" ? "en-US" : "id-ID";
+        return new Date(parsed).toLocaleString(locale);
+      };
+
+      let cachedSyaratItems = null;
+
+      function renderSyaratContent(items) {
+        const listEl = document.getElementById("syaratList");
+        const infoEl = document.getElementById("syaratLastUpdate");
+        if (!listEl) return;
+
+        if (!items || !items.length) {
+          listEl.innerHTML = `<li class="text-gray-500">Belum ada syarat yang terdaftar.</li>`;
+          if (infoEl) infoEl.textContent = "";
+          return;
+        }
+
+        const lang = getActiveLanguage();
+        listEl.innerHTML = items
+          .map((item) => `<li>${escapeHtml(selectSyaratName(item, lang))}</li>`)
+          .join("");
+
+        if (infoEl) {
+          const latestTimestamp = items.reduce((max, item) => {
+            const ts = item?.updated_at ? Date.parse(item.updated_at) : 0;
+            return Number.isNaN(ts) ? max : Math.max(max, ts);
+          }, 0);
+          infoEl.textContent = latestTimestamp
+            ? `${lang === "en" ? "Last updated:" : "Terakhir diperbarui:"} ${formatTimestamp(latestTimestamp, lang)}`
+            : "";
+        }
+      }
+
+      async function loadSyaratContent({ force = false } = {}) {
+        if (!force && cachedSyaratItems) {
+          renderSyaratContent(cachedSyaratItems);
+          return;
+        }
+
         const listEl = document.getElementById("syaratList");
         const infoEl = document.getElementById("syaratLastUpdate");
         if (!listEl) return;
@@ -291,36 +359,49 @@
           }
 
           const items = Array.isArray(result.data) ? result.data : [];
-          items.sort(
-            (a, b) =>
-              (a?.order_index || 0) - (b?.order_index || 0)
-          );
+          const normalized = items
+            .map((item) => ({
+              ...item,
+              name: selectSyaratName(item, "id"),
+              name_en: selectSyaratName(item, "en"),
+            }))
+            .sort(
+              (a, b) =>
+                (a?.order_index || 0) - (b?.order_index || 0)
+            );
 
-          if (!items.length) {
+          cachedSyaratItems = normalized;
+
+          if (!normalized.length) {
             listEl.innerHTML = `<li class="text-gray-500">Belum ada syarat yang terdaftar.</li>`;
             return;
           }
 
-          listEl.innerHTML = items
-            .map((item) => `<li>${escapeHtml(item.name || "")}</li>`)
-            .join("");
-
-          if (infoEl) {
-            const latestTimestamp = items.reduce((max, item) => {
-              const ts = item?.updated_at ? Date.parse(item.updated_at) : 0;
-              return Number.isNaN(ts) ? max : Math.max(max, ts);
-            }, 0);
-            infoEl.textContent = latestTimestamp
-              ? `Terakhir diperbarui: ${new Date(latestTimestamp).toLocaleString("id-ID")}`
-              : "";
-          }
+          renderSyaratContent(normalized);
         } catch (error) {
           console.error("[SYARAT_PAGE] Error memuat syarat:", error);
           listEl.innerHTML = `<li class="text-red-500">Gagal memuat persyaratan pendaftaran.</li>`;
         }
       }
 
-      document.addEventListener("DOMContentLoaded", loadSyaratContent);
+      document.addEventListener("DOMContentLoaded", () => {
+        loadSyaratContent({ force: true });
+      });
+
+      window.addEventListener("i18n:languageChanged", () => {
+        if (cachedSyaratItems) {
+          renderSyaratContent(cachedSyaratItems);
+        } else {
+          loadSyaratContent({ force: true });
+        }
+      });
+
+      window.addEventListener("storage", (event) => {
+        if (event.key === "syarat_items_update") {
+          cachedSyaratItems = null;
+          loadSyaratContent({ force: true });
+        }
+      });
     })();
   </script>
 

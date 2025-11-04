@@ -22,6 +22,8 @@
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
+  const capitalize = (value = "") =>
+    value ? value.charAt(0).toUpperCase() + value.slice(1) : "";
   const toInteger = (value, fallback = 0) => {
     const parsed = Number.parseInt(value, 10);
     return Number.isNaN(parsed) ? fallback : parsed;
@@ -37,6 +39,36 @@
   let brosurItemsData = [];
   let kontakItemsData = [];
   let kontakSettingsData = null;
+  const ALUR_LANGS = ["id", "en"];
+  const ALUR_LABEL = {
+    id: { name: "Bahasa Indonesia", flag: "🇮🇩" },
+    en: { name: "English", flag: "🇬🇧" },
+  };
+  let alurActiveLang = "id";
+  const SYARAT_LANGS = ["id", "en"];
+  const SYARAT_LABEL = {
+    id: { name: "Bahasa Indonesia", flag: "🇮🇩" },
+    en: { name: "English", flag: "🇬🇧" },
+  };
+  let syaratActiveLang = "id";
+  const BIAYA_LANGS = ["id", "en"];
+  const BIAYA_LABEL = {
+    id: { name: "Bahasa Indonesia", flag: "🇮🇩" },
+    en: { name: "English", flag: "🇬🇧" },
+  };
+  let biayaActiveLang = "id";
+  const BROSUR_LANGS = ["id", "en"];
+  const BROSUR_LABEL = {
+    id: { name: "Bahasa Indonesia", flag: "🇮🇩" },
+    en: { name: "English", flag: "🇬🇧" },
+  };
+  let brosurActiveLang = "id";
+  const KONTAK_LANGS = ["id", "en"];
+  const KONTAK_LABEL = {
+    id: { name: "Bahasa Indonesia", flag: "🇮🇩" },
+    en: { name: "English", flag: "🇬🇧" },
+  };
+  let kontakActiveLang = "id";
 
   // Pagination state untuk pendaftar
   let currentPage = 1;
@@ -3103,6 +3135,23 @@ Jazakumullahu khairan,
       if (successMessage) {
         safeToastr.success(successMessage);
       }
+      const storageMap = {
+        alur: "alur_steps_update",
+        syarat: "syarat_items_update",
+        biaya: "biaya_items_update",
+        brosur: "brosur_items_update",
+        kontak: "kontak_items_update",
+      };
+      const storageKey = storageMap[endpointKey];
+      if (storageKey) {
+        localStorage.setItem(
+          storageKey,
+          JSON.stringify({
+            timestamp: Date.now(),
+            action: "reordered",
+          })
+        );
+      }
     } catch (error) {
       console.error(`[${endpointKey.toUpperCase()}][ORDER] Error:`, error);
       safeToastr.error(error.message || "Gagal memperbarui urutan");
@@ -3114,26 +3163,122 @@ Jazakumullahu khairan,
   }
 
   /* ---------- Alur Pendaftaran ---------- */
+  const getAlurInput = (field, lang) =>
+    document.getElementById(`alur${capitalize(field)}_${lang}`);
+
+  const resolveAlurField = (record = {}, field, lang) => {
+    const normalizedLang = lang === "en" ? "en" : "id";
+    const translations =
+      (record.translations && record.translations[field]) || null;
+
+    if (normalizedLang === "id") {
+      const direct = record[field];
+      if (typeof direct === "string" && direct.trim()) return direct.trim();
+    } else {
+      const explicit = record[`${field}_${normalizedLang}`];
+      if (typeof explicit === "string" && explicit.trim()) {
+        return explicit.trim();
+      }
+    }
+
+    if (translations && typeof translations === "object") {
+      const candidate = translations[normalizedLang];
+      if (typeof candidate === "string" && candidate.trim()) {
+        return candidate.trim();
+      }
+    }
+
+    if (normalizedLang === "en") {
+      const fallback = record[field];
+      if (typeof fallback === "string" && fallback.trim()) {
+        return fallback.trim();
+      }
+    } else {
+      const fallback = record[`${field}_en`];
+      if (typeof fallback === "string" && fallback.trim()) {
+        return fallback.trim();
+      }
+    }
+
+    return "";
+  };
+
+  const normalizeAlurRecord = (record = {}) => ({
+    ...record,
+    title: resolveAlurField(record, "title", "id"),
+    description: resolveAlurField(record, "description", "id"),
+    title_en: resolveAlurField(record, "title", "en"),
+    description_en: resolveAlurField(record, "description", "en"),
+  });
+
+  const collectAlurFormValues = () =>
+    ALUR_LANGS.reduce((acc, lang) => {
+      acc[lang] = {
+        title: (getAlurInput("title", lang)?.value || "").trim(),
+        description: (getAlurInput("description", lang)?.value || "").trim(),
+      };
+      return acc;
+    }, {});
+
+  function setAlurActiveLang(lang) {
+    if (!ALUR_LANGS.includes(lang)) return;
+    alurActiveLang = lang;
+
+    document
+      .querySelectorAll("[data-alur-lang-button]")
+      .forEach((button) => {
+        const isActive = button.dataset.alurLangButton === lang;
+        button.classList.toggle("active", isActive);
+        button.classList.toggle("btn-success", isActive);
+        button.classList.toggle("btn-outline-success", !isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+
+    document
+      .querySelectorAll("[data-alur-lang-pane]")
+      .forEach((pane) => {
+        pane.classList.toggle(
+          "d-none",
+          pane.dataset.alurLangPane !== lang
+        );
+      });
+  }
+
   function resetAlurForm() {
     const form = $("#alurForm");
     if (form) form.reset();
     const idField = $("#alurId");
     if (idField) idField.value = "";
+    ALUR_LANGS.forEach((lang) => {
+      const titleInput = getAlurInput("title", lang);
+      if (titleInput) titleInput.value = "";
+      const descInput = getAlurInput("description", lang);
+      if (descInput) descInput.value = "";
+    });
     const btn = $("#btnSaveAlur");
     if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Simpan Langkah';
+    setAlurActiveLang("id");
   }
 
   function populateAlurForm(item) {
     if (!item) return;
     const idField = $("#alurId");
     if (idField) idField.value = item.id;
-    const titleField = $("#alurTitle");
-    if (titleField) titleField.value = item.title || "";
-    const descField = $("#alurDescription");
-    if (descField) descField.value = item.description || "";
+    const normalized = normalizeAlurRecord(item);
+    ALUR_LANGS.forEach((lang) => {
+      const titleField = getAlurInput("title", lang);
+      if (titleField)
+        titleField.value =
+          normalized[lang === "en" ? "title_en" : "title"] || "";
+      const descField = getAlurInput("description", lang);
+      if (descField)
+        descField.value =
+          normalized[lang === "en" ? "description_en" : "description"] || "";
+    });
     const btn = $("#btnSaveAlur");
     if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Update Langkah';
-    if (titleField) titleField.focus();
+    const activeInput = getAlurInput("title", alurActiveLang);
+    (activeInput || getAlurInput("title", "id"))?.focus();
   }
 
   async function loadAlurSteps(showToast = false) {
@@ -3142,7 +3287,9 @@ Jazakumullahu khairan,
 
     try {
       const result = await jsonRequest(INFORMASI_ENDPOINTS.alur);
-      alurStepsData = sortByOrderIndex(result.data || []);
+      alurStepsData = sortByOrderIndex(
+        (result.data || []).map((item) => normalizeAlurRecord(item))
+      );
       renderAlurSteps();
       if (showToast) {
         safeToastr.success("Data alur pendaftaran dimuat");
@@ -3189,8 +3336,23 @@ Jazakumullahu khairan,
                 </button>
               </div>
             </td>
-            <td><strong>${escapeHtml(item.title || "")}</strong></td>
-            <td>${escapeHtml(item.description || "")}</td>
+            <td>
+              <strong>${escapeHtml(item.title || "")}</strong>
+              ${
+                item.title_en && item.title_en !== item.title
+                  ? `<div class="text-muted small"><span aria-hidden="true">🇬🇧</span> ${escapeHtml(item.title_en)}</div>`
+                  : ""
+              }
+            </td>
+            <td>
+              ${escapeHtml(item.description || "")}
+              ${
+                item.description_en &&
+                item.description_en !== item.description
+                  ? `<div class="text-muted small mt-1"><span aria-hidden="true">🇬🇧</span> ${escapeHtml(item.description_en)}</div>`
+                  : ""
+              }
+            </td>
             <td>
               <div class="btn-group btn-group-sm">
                 <button type="button" class="btn btn-warning" onclick="editAlurStep(${item.id})">
@@ -3214,11 +3376,19 @@ Jazakumullahu khairan,
 
     const idValue = $("#alurId")?.value;
     const id = parseId(idValue);
-    const title = ($("#alurTitle")?.value || "").trim();
-    const description = ($("#alurDescription")?.value || "").trim();
+    const values = collectAlurFormValues();
 
-    if (!title || !description) {
-      safeToastr.warning("Judul dan deskripsi wajib diisi");
+    const missing = ALUR_LANGS.filter(
+      (lang) => !values[lang].title || !values[lang].description
+    );
+
+    if (missing.length) {
+      const label = missing
+        .map((lang) => ALUR_LABEL[lang]?.name || lang.toUpperCase())
+        .join(", ");
+      safeToastr.warning(
+        `Judul dan deskripsi wajib diisi untuk bahasa: ${label}`
+      );
       return;
     }
 
@@ -3226,7 +3396,12 @@ Jazakumullahu khairan,
     setButtonLoading(btn, true, id ? "Mengupdate..." : "Menyimpan...");
 
     try {
-      const payload = { title, description };
+      const payload = {
+        title: values.id.title,
+        description: values.id.description,
+        title_en: values.en.title,
+        description_en: values.en.description,
+      };
       let message = "Langkah alur ditambahkan";
       if (id) {
         payload.id = id;
@@ -3243,6 +3418,14 @@ Jazakumullahu khairan,
       }
 
       safeToastr.success(message);
+      localStorage.setItem(
+        "alur_steps_update",
+        JSON.stringify({
+          timestamp: Date.now(),
+          action: id ? "updated" : "created",
+          id: id || null,
+        })
+      );
       resetAlurForm();
       await loadAlurSteps(false);
     } catch (error) {
@@ -3284,6 +3467,14 @@ Jazakumullahu khairan,
         body: { id: item.id },
       });
       safeToastr.success("Langkah alur dihapus");
+      localStorage.setItem(
+        "alur_steps_update",
+        JSON.stringify({
+          timestamp: Date.now(),
+          action: "deleted",
+          id: item.id,
+        })
+      );
       resetAlurForm();
       await loadAlurSteps(false);
     } catch (error) {
@@ -3322,23 +3513,99 @@ Jazakumullahu khairan,
   }
 
   /* ---------- Syarat Pendaftaran ---------- */
+  const getSyaratInput = (lang) =>
+    document.getElementById(`syaratName_${lang}`);
+
+  const resolveSyaratName = (record = {}, lang) => {
+    const normalizedLang = lang === "en" ? "en" : "id";
+    if (normalizedLang === "en") {
+      const enVal = record.name_en;
+      if (typeof enVal === "string" && enVal.trim()) {
+        return enVal.trim();
+      }
+    }
+    const base = record.name;
+    if (typeof base === "string" && base.trim()) {
+      return base.trim();
+    }
+    if (normalizedLang === "id") {
+      const fallback = record.name_en;
+      if (typeof fallback === "string" && fallback.trim()) {
+        return fallback.trim();
+      }
+    } else {
+      const fallback = record.name;
+      if (typeof fallback === "string" && fallback.trim()) {
+        return fallback.trim();
+      }
+    }
+    return "";
+  };
+
+  const normalizeSyaratRecord = (record = {}) => ({
+    ...record,
+    name: resolveSyaratName(record, "id"),
+    name_en: resolveSyaratName(record, "en"),
+  });
+
+  const collectSyaratValues = () =>
+    SYARAT_LANGS.reduce((acc, lang) => {
+      acc[lang] = {
+        name: (getSyaratInput(lang)?.value || "").trim(),
+      };
+      return acc;
+    }, {});
+
+  function setSyaratActiveLang(lang) {
+    if (!SYARAT_LANGS.includes(lang)) return;
+    syaratActiveLang = lang;
+    document
+      .querySelectorAll("[data-syarat-lang-button]")
+      .forEach((button) => {
+        const isActive = button.dataset.syaratLangButton === lang;
+        button.classList.toggle("active", isActive);
+        button.classList.toggle("btn-success", isActive);
+        button.classList.toggle("btn-outline-success", !isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+    document
+      .querySelectorAll("[data-syarat-lang-pane]")
+      .forEach((pane) => {
+        pane.classList.toggle(
+          "d-none",
+          pane.dataset.syaratLangPane !== lang
+        );
+      });
+  }
+
   function resetSyaratForm() {
     const form = $("#syaratForm");
     if (form) form.reset();
     const idField = $("#syaratId");
     if (idField) idField.value = "";
+    SYARAT_LANGS.forEach((lang) => {
+      const input = getSyaratInput(lang);
+      if (input) input.value = "";
+    });
     const btn = $("#btnSaveSyarat");
     if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Simpan Syarat';
+    setSyaratActiveLang("id");
   }
 
   function populateSyaratForm(item) {
+    const normalized = normalizeSyaratRecord(item);
     const idField = $("#syaratId");
     if (idField) idField.value = item.id;
-    const nameField = $("#syaratName");
-    if (nameField) nameField.value = item.name || "";
+    SYARAT_LANGS.forEach((lang) => {
+      const input = getSyaratInput(lang);
+      if (input)
+        input.value =
+          normalized[lang === "en" ? "name_en" : "name"] || "";
+    });
     const btn = $("#btnSaveSyarat");
     if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Update Syarat';
-    if (nameField) nameField.focus();
+    setSyaratActiveLang("id");
+    getSyaratInput("id")?.focus();
   }
 
   async function loadSyaratItems(showToast = false) {
@@ -3347,7 +3614,9 @@ Jazakumullahu khairan,
 
     try {
       const result = await jsonRequest(INFORMASI_ENDPOINTS.syarat);
-      syaratItemsData = sortByOrderIndex(result.data || []);
+      syaratItemsData = sortByOrderIndex(
+        (result.data || []).map((item) => normalizeSyaratRecord(item))
+      );
       renderSyaratItems();
       if (showToast) {
         safeToastr.success("Data syarat dimuat");
@@ -3391,7 +3660,14 @@ Jazakumullahu khairan,
                 </button>
               </div>
             </td>
-            <td>${escapeHtml(item.name || "")}</td>
+            <td>
+              <strong>${escapeHtml(item.name || "")}</strong>
+              ${
+                item.name_en && item.name_en !== item.name
+                  ? `<div class="text-muted small"><span aria-hidden="true">🇬🇧</span> ${escapeHtml(item.name_en)}</div>`
+                  : ""
+              }
+            </td>
             <td>
               <div class="btn-group btn-group-sm">
                 <button type="button" class="btn btn-warning" onclick="editSyaratItem(${item.id})">
@@ -3414,10 +3690,16 @@ Jazakumullahu khairan,
     event.preventDefault();
 
     const id = parseId($("#syaratId")?.value);
-    const name = ($("#syaratName")?.value || "").trim();
+    const values = collectSyaratValues();
+    const missing = SYARAT_LANGS.filter((lang) => !values[lang].name);
 
-    if (!name) {
-      safeToastr.warning("Nama syarat wajib diisi");
+    if (missing.length) {
+      const label = missing
+        .map((lang) => SYARAT_LABEL[lang]?.name || lang.toUpperCase())
+        .join(", ");
+      safeToastr.warning(
+        `Nama syarat wajib diisi untuk bahasa: ${label}`
+      );
       return;
     }
 
@@ -3425,7 +3707,10 @@ Jazakumullahu khairan,
     setButtonLoading(btn, true, id ? "Mengupdate..." : "Menyimpan...");
 
     try {
-      const payload = { name };
+      const payload = {
+        name: values.id.name,
+        name_en: values.en.name,
+      };
       let message = "Syarat ditambahkan";
       if (id) {
         payload.id = id;
@@ -3441,6 +3726,14 @@ Jazakumullahu khairan,
         });
       }
       safeToastr.success(message);
+      localStorage.setItem(
+        "syarat_items_update",
+        JSON.stringify({
+          timestamp: Date.now(),
+          action: id ? "updated" : "created",
+          id: id || null,
+        })
+      );
       resetSyaratForm();
       await loadSyaratItems(false);
     } catch (error) {
@@ -3482,6 +3775,14 @@ Jazakumullahu khairan,
         body: { id: item.id },
       });
       safeToastr.success("Syarat dihapus");
+      localStorage.setItem(
+        "syarat_items_update",
+        JSON.stringify({
+          timestamp: Date.now(),
+          action: "deleted",
+          id: item.id,
+        })
+      );
       resetSyaratForm();
       await loadSyaratItems(false);
     } catch (error) {
@@ -3517,25 +3818,101 @@ Jazakumullahu khairan,
   }
 
   /* ---------- Biaya ---------- */
+  const getBiayaInput = (field, lang) =>
+    document.getElementById(`biaya${capitalize(field)}_${lang}`);
+
+  const resolveBiayaField = (record = {}, field, lang) => {
+    const normalizedLang = lang === "en" ? "en" : "id";
+    const key = field === "label" ? "label" : "amount";
+    if (normalizedLang === "en") {
+      const value = record[`${key}_en`];
+      if (typeof value === "string" && value.trim()) return value.trim();
+    }
+    const fallback = record[key];
+    if (typeof fallback === "string" && fallback.trim()) return fallback.trim();
+    if (normalizedLang === "id") {
+      const alt = record[`${key}_en`];
+      if (typeof alt === "string" && alt.trim()) return alt.trim();
+    } else {
+      const alt = record[key];
+      if (typeof alt === "string" && alt.trim()) return alt.trim();
+    }
+    return "";
+  };
+
+  const normalizeBiayaRecord = (record = {}) => ({
+    ...record,
+    label: resolveBiayaField(record, "label", "id"),
+    amount: resolveBiayaField(record, "amount", "id"),
+    label_en: resolveBiayaField(record, "label", "en"),
+    amount_en: resolveBiayaField(record, "amount", "en"),
+  });
+
+  const collectBiayaValues = () =>
+    BIAYA_LANGS.reduce((acc, lang) => {
+      acc[lang] = {
+        label: (getBiayaInput("label", lang)?.value || "").trim(),
+        amount: (getBiayaInput("amount", lang)?.value || "").trim(),
+      };
+      return acc;
+    }, {});
+
+  function setBiayaActiveLang(lang) {
+    if (!BIAYA_LANGS.includes(lang)) return;
+    biayaActiveLang = lang;
+    document
+      .querySelectorAll("[data-biaya-lang-button]")
+      .forEach((button) => {
+        const isActive = button.dataset.biayaLangButton === lang;
+        button.classList.toggle("active", isActive);
+        button.classList.toggle("btn-success", isActive);
+        button.classList.toggle("btn-outline-success", !isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+    document
+      .querySelectorAll("[data-biaya-lang-pane]")
+      .forEach((pane) => {
+        pane.classList.toggle(
+          "d-none",
+          pane.dataset.biayaLangPane !== lang
+        );
+      });
+  }
+
   function resetBiayaForm() {
     const form = $("#biayaForm");
     if (form) form.reset();
     const idField = $("#biayaId");
     if (idField) idField.value = "";
+    BIAYA_LANGS.forEach((lang) => {
+      const labelField = getBiayaInput("label", lang);
+      if (labelField) labelField.value = "";
+      const amountField = getBiayaInput("amount", lang);
+      if (amountField) amountField.value = "";
+    });
     const btn = $("#btnSaveBiaya");
     if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Simpan Biaya';
+    setBiayaActiveLang("id");
   }
 
   function populateBiayaForm(item) {
+    const normalized = normalizeBiayaRecord(item);
     const idField = $("#biayaId");
     if (idField) idField.value = item.id;
-    const labelField = $("#biayaLabel");
-    if (labelField) labelField.value = item.label || "";
-    const amountField = $("#biayaAmount");
-    if (amountField) amountField.value = item.amount || "";
+    BIAYA_LANGS.forEach((lang) => {
+      const labelField = getBiayaInput("label", lang);
+      if (labelField)
+        labelField.value =
+          normalized[lang === "en" ? "label_en" : "label"] || "";
+      const amountField = getBiayaInput("amount", lang);
+      if (amountField)
+        amountField.value =
+          normalized[lang === "en" ? "amount_en" : "amount"] || "";
+    });
     const btn = $("#btnSaveBiaya");
     if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Update Biaya';
-    if (labelField) labelField.focus();
+    setBiayaActiveLang("id");
+    getBiayaInput("label", "id")?.focus();
   }
 
   async function loadBiayaItems(showToast = false) {
@@ -3544,7 +3921,9 @@ Jazakumullahu khairan,
 
     try {
       const result = await jsonRequest(INFORMASI_ENDPOINTS.biaya);
-      biayaItemsData = sortByOrderIndex(result.data || []);
+      biayaItemsData = sortByOrderIndex(
+        (result.data || []).map((item) => normalizeBiayaRecord(item))
+      );
       renderBiayaItems();
       if (showToast) {
         safeToastr.success("Data biaya dimuat");
@@ -3588,8 +3967,22 @@ Jazakumullahu khairan,
                 </button>
               </div>
             </td>
-            <td>${escapeHtml(item.label || "")}</td>
-            <td>${escapeHtml(item.amount || "")}</td>
+            <td>
+              <div class="fw-semibold">${escapeHtml(item.label || "")}</div>
+              ${
+                item.label_en && item.label_en !== item.label
+                  ? `<div class="text-muted small"><span aria-hidden="true">🇬🇧</span> ${escapeHtml(item.label_en)}</div>`
+                  : ""
+              }
+            </td>
+            <td>
+              <div>${escapeHtml(item.amount || "")}</div>
+              ${
+                item.amount_en && item.amount_en !== item.amount
+                  ? `<div class="text-muted small"><span aria-hidden="true">🇬🇧</span> ${escapeHtml(item.amount_en)}</div>`
+                  : ""
+              }
+            </td>
             <td>
               <div class="btn-group btn-group-sm">
                 <button type="button" class="btn btn-warning" onclick="editBiayaItem(${item.id})">
@@ -3612,11 +4005,18 @@ Jazakumullahu khairan,
     event.preventDefault();
 
     const id = parseId($("#biayaId")?.value);
-    const label = ($("#biayaLabel")?.value || "").trim();
-    const amount = ($("#biayaAmount")?.value || "").trim();
+    const values = collectBiayaValues();
+    const missing = BIAYA_LANGS.filter(
+      (lang) => !values[lang].label || !values[lang].amount
+    );
 
-    if (!label || !amount) {
-      safeToastr.warning("Keterangan dan nominal wajib diisi");
+    if (missing.length) {
+      const label = missing
+        .map((lang) => BIAYA_LABEL[lang]?.name || lang.toUpperCase())
+        .join(", ");
+      safeToastr.warning(
+        `Keterangan dan nominal wajib diisi untuk bahasa: ${label}`
+      );
       return;
     }
 
@@ -3624,7 +4024,12 @@ Jazakumullahu khairan,
     setButtonLoading(btn, true, id ? "Mengupdate..." : "Menyimpan...");
 
     try {
-      const payload = { label, amount };
+      const payload = {
+        label: values.id.label,
+        amount: values.id.amount,
+        label_en: values.en.label,
+        amount_en: values.en.amount,
+      };
       let message = "Biaya ditambahkan";
       if (id) {
         payload.id = id;
@@ -3640,6 +4045,14 @@ Jazakumullahu khairan,
         });
       }
       safeToastr.success(message);
+      localStorage.setItem(
+        "biaya_items_update",
+        JSON.stringify({
+          timestamp: Date.now(),
+          action: id ? "updated" : "created",
+          id: id || null,
+        })
+      );
       resetBiayaForm();
       await loadBiayaItems(false);
     } catch (error) {
@@ -3681,6 +4094,14 @@ Jazakumullahu khairan,
         body: { id: item.id },
       });
       safeToastr.success("Data biaya dihapus");
+      localStorage.setItem(
+        "biaya_items_update",
+        JSON.stringify({
+          timestamp: Date.now(),
+          action: "deleted",
+          id: item.id,
+        })
+      );
       resetBiayaForm();
       await loadBiayaItems(false);
     } catch (error) {
@@ -3716,39 +4137,121 @@ Jazakumullahu khairan,
   }
 
   /* ---------- Brosur ---------- */
+  const getBrosurInput = (field, lang) =>
+    document.getElementById(`brosur${capitalize(field)}_${lang}`);
+
+  const resolveBrosurField = (record = {}, field, lang) => {
+    const normalizedLang = lang === "en" ? "en" : "id";
+    if (normalizedLang === "en") {
+      const value = record[`${field}_en`];
+      if (typeof value === "string" && value.trim()) return value.trim();
+    }
+    const base = record[field];
+    if (typeof base === "string" && base.trim()) return base.trim();
+    if (normalizedLang === "id") {
+      const fallback = record[`${field}_en`];
+      if (typeof fallback === "string" && fallback.trim()) return fallback.trim();
+    } else {
+      const fallback = record[field];
+      if (typeof fallback === "string" && fallback.trim()) return fallback.trim();
+    }
+    return "";
+  };
+
+  const normalizeBrosurRecord = (record = {}) => ({
+    ...record,
+    title: resolveBrosurField(record, "title", "id"),
+    description: resolveBrosurField(record, "description", "id"),
+    button_label: resolveBrosurField(record, "button_label", "id"),
+    title_en: resolveBrosurField(record, "title", "en"),
+    description_en: resolveBrosurField(record, "description", "en"),
+    button_label_en: resolveBrosurField(record, "button_label", "en"),
+  });
+
+  const collectBrosurValues = () =>
+    BROSUR_LANGS.reduce((acc, lang) => {
+      acc[lang] = {
+        title: (getBrosurInput("title", lang)?.value || "").trim(),
+        description: (getBrosurInput("description", lang)?.value || "").trim(),
+        button_label: (getBrosurInput("buttonLabel", lang)?.value || "").trim(),
+      };
+      return acc;
+    }, {});
+
+  function setBrosurActiveLang(lang) {
+    if (!BROSUR_LANGS.includes(lang)) return;
+    brosurActiveLang = lang;
+    document
+      .querySelectorAll("[data-brosur-lang-button]")
+      .forEach((button) => {
+        const isActive = button.dataset.brosurLangButton === lang;
+        button.classList.toggle("active", isActive);
+        button.classList.toggle("btn-success", isActive);
+        button.classList.toggle("btn-outline-success", !isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+    document
+      .querySelectorAll("[data-brosur-lang-pane]")
+      .forEach((pane) => {
+        pane.classList.toggle(
+          "d-none",
+          pane.dataset.brosurLangPane !== lang
+        );
+      });
+  }
+
   function resetBrosurForm() {
     const form = $("#brosurForm");
     if (form) form.reset();
     const idField = $("#brosurId");
     if (idField) idField.value = "";
+    BROSUR_LANGS.forEach((lang) => {
+      const titleField = getBrosurInput("title", lang);
+      if (titleField) titleField.value = "";
+      const descField = getBrosurInput("description", lang);
+      if (descField) descField.value = "";
+      const buttonField = getBrosurInput("buttonLabel", lang);
+      if (buttonField) {
+        buttonField.value =
+          lang === "en" ? "Download PDF" : "Unduh PDF";
+      }
+    });
+    const iconField = $("#brosurIconClass");
+    if (iconField) iconField.value = "bi bi-file-earmark-arrow-down";
+    const urlField = $("#brosurButtonUrl");
+    if (urlField) urlField.value = "";
     const btn = $("#btnSaveBrosur");
     if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Simpan Brosur';
-    const labelField = $("#brosurButtonLabel");
-    if (labelField && !labelField.value) {
-      labelField.value = "Unduh PDF";
-    }
-    const iconField = $("#brosurIconClass");
-    if (iconField && !iconField.value) {
-      iconField.value = "bi bi-file-earmark-arrow-down";
-    }
+    setBrosurActiveLang("id");
   }
 
   function populateBrosurForm(item) {
+    const normalized = normalizeBrosurRecord(item);
     const idField = $("#brosurId");
     if (idField) idField.value = item.id;
-    const titleField = $("#brosurTitle");
-    if (titleField) titleField.value = item.title || "";
-    const descField = $("#brosurDescription");
-    if (descField) descField.value = item.description || "";
-    const labelField = $("#brosurButtonLabel");
-    if (labelField) labelField.value = item.button_label || "";
+    BROSUR_LANGS.forEach((lang) => {
+      const titleField = getBrosurInput("title", lang);
+      if (titleField)
+        titleField.value =
+          normalized[lang === "en" ? "title_en" : "title"] || "";
+      const descField = getBrosurInput("description", lang);
+      if (descField)
+        descField.value =
+          normalized[lang === "en" ? "description_en" : "description"] || "";
+      const buttonField = getBrosurInput("buttonLabel", lang);
+      if (buttonField)
+        buttonField.value =
+          normalized[lang === "en" ? "button_label_en" : "button_label"] ||
+          (lang === "en" ? "Download PDF" : "Unduh PDF");
+    });
     const urlField = $("#brosurButtonUrl");
     if (urlField) urlField.value = item.button_url || "";
     const iconField = $("#brosurIconClass");
-    if (iconField) iconField.value = item.icon_class || "";
+    if (iconField) iconField.value = item.icon_class || "bi bi-file-earmark-arrow-down";
     const btn = $("#btnSaveBrosur");
     if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Update Brosur';
-    if (titleField) titleField.focus();
+    setBrosurActiveLang("id");
+    getBrosurInput("title", "id")?.focus();
   }
 
   async function loadBrosurItems(showToast = false) {
@@ -3757,7 +4260,9 @@ Jazakumullahu khairan,
 
     try {
       const result = await jsonRequest(INFORMASI_ENDPOINTS.brosur);
-      brosurItemsData = sortByOrderIndex(result.data || []);
+      brosurItemsData = sortByOrderIndex(
+        (result.data || []).map((item) => normalizeBrosurRecord(item))
+      );
       renderBrosurItems();
       if (showToast) {
         safeToastr.success("Data brosur dimuat");
@@ -3804,7 +4309,20 @@ Jazakumullahu khairan,
             </td>
             <td>
               <div class="fw-semibold">${escapeHtml(item.title || "")}</div>
-              <div class="text-muted small">${escapeHtml(item.description || "")}</div>
+              ${
+                item.title_en && item.title_en !== item.title
+                  ? `<div class="text-muted small"><span aria-hidden="true">🇬🇧</span> ${escapeHtml(item.title_en)}</div>`
+                  : ""
+              }
+              <div class="text-muted small mt-1">
+                ${escapeHtml(item.description || "")}
+                ${
+                  item.description_en &&
+                  item.description_en !== item.description
+                    ? `<div><span aria-hidden="true">🇬🇧</span> ${escapeHtml(item.description_en)}</div>`
+                    : ""
+                }
+              </div>
             </td>
             <td>
               <span class="d-block text-truncate" style="max-width: 220px;" title="${url}">${url}</span>
@@ -3831,14 +4349,28 @@ Jazakumullahu khairan,
     event.preventDefault();
 
     const id = parseId($("#brosurId")?.value);
-    const title = ($("#brosurTitle")?.value || "").trim();
-    const description = ($("#brosurDescription")?.value || "").trim();
-    const buttonLabel = ($("#brosurButtonLabel")?.value || "Unduh PDF").trim();
+    const values = collectBrosurValues();
     const buttonUrl = ($("#brosurButtonUrl")?.value || "").trim();
     const iconClass = ($("#brosurIconClass")?.value || "").trim();
 
-    if (!title || !description || !buttonUrl) {
-      safeToastr.warning("Judul, deskripsi, dan URL wajib diisi");
+    const missing = BROSUR_LANGS.filter(
+      (lang) =>
+        !values[lang].title ||
+        !values[lang].description ||
+        !values[lang].button_label
+    );
+
+    if (missing.length || !buttonUrl) {
+      if (!buttonUrl) {
+        safeToastr.warning("URL unduhan wajib diisi");
+      } else {
+        const label = missing
+          .map((lang) => BROSUR_LABEL[lang]?.name || lang.toUpperCase())
+          .join(", ");
+        safeToastr.warning(
+          `Judul, deskripsi, dan label tombol wajib diisi untuk bahasa: ${label}`
+        );
+      }
       return;
     }
 
@@ -3847,9 +4379,12 @@ Jazakumullahu khairan,
 
     try {
       const payload = {
-        title,
-        description,
-        button_label: buttonLabel || "Unduh PDF",
+        title: values.id.title,
+        description: values.id.description,
+        button_label: values.id.button_label || "Unduh PDF",
+        title_en: values.en.title,
+        description_en: values.en.description,
+        button_label_en: values.en.button_label || "Download PDF",
         button_url: buttonUrl,
         icon_class: iconClass || "bi bi-file-earmark-arrow-down",
       };
@@ -3868,6 +4403,14 @@ Jazakumullahu khairan,
         });
       }
       safeToastr.success(message);
+      localStorage.setItem(
+        "brosur_items_update",
+        JSON.stringify({
+          timestamp: Date.now(),
+          action: id ? "updated" : "created",
+          id: id || null,
+        })
+      );
       resetBrosurForm();
       await loadBrosurItems(false);
     } catch (error) {
@@ -3909,6 +4452,14 @@ Jazakumullahu khairan,
         body: { id: item.id },
       });
       safeToastr.success("Brosur dihapus");
+      localStorage.setItem(
+        "brosur_items_update",
+        JSON.stringify({
+          timestamp: Date.now(),
+          action: "deleted",
+          id: item.id,
+        })
+      );
       resetBrosurForm();
       await loadBrosurItems(false);
     } catch (error) {
@@ -3944,33 +4495,112 @@ Jazakumullahu khairan,
   }
 
   /* ---------- Kontak ---------- */
+  const getKontakInput = (field, lang) =>
+    document.getElementById(`kontak${capitalize(field)}_${lang}`);
+
+  const resolveKontakField = (record = {}, field, lang) => {
+    const normalizedLang = lang === "en" ? "en" : "id";
+    if (normalizedLang === "en") {
+      const value = record[`${field}_en`];
+      if (typeof value === "string" && value.trim()) return value.trim();
+    }
+    const base = record[field];
+    if (typeof base === "string" && base.trim()) return base.trim();
+    if (normalizedLang === "id") {
+      const fallback = record[`${field}_en`];
+      if (typeof fallback === "string" && fallback.trim()) return fallback.trim();
+    } else {
+      const fallback = record[field];
+      if (typeof fallback === "string" && fallback.trim()) return fallback.trim();
+    }
+    return "";
+  };
+
+  const normalizeKontakRecord = (record = {}) => ({
+    ...record,
+    title: resolveKontakField(record, "title", "id"),
+    value: resolveKontakField(record, "value", "id"),
+    title_en: resolveKontakField(record, "title", "en"),
+    value_en: resolveKontakField(record, "value", "en"),
+  });
+
+  const collectKontakValues = () =>
+    KONTAK_LANGS.reduce((acc, lang) => {
+      acc[lang] = {
+        title: (getKontakInput("title", lang)?.value || "").trim(),
+        value: (getKontakInput("value", lang)?.value || "").trim(),
+      };
+      return acc;
+    }, {});
+
+  function setKontakActiveLang(lang) {
+    if (!KONTAK_LANGS.includes(lang)) return;
+    kontakActiveLang = lang;
+    document
+      .querySelectorAll("[data-kontak-lang-button]")
+      .forEach((button) => {
+        const isActive = button.dataset.kontakLangButton === lang;
+        button.classList.toggle("active", isActive);
+        button.classList.toggle("btn-success", isActive);
+        button.classList.toggle("btn-outline-success", !isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+    document
+      .querySelectorAll("[data-kontak-lang-pane]")
+      .forEach((pane) => {
+        pane.classList.toggle(
+          "d-none",
+          pane.dataset.kontakLangPane !== lang
+        );
+      });
+  }
+
   function resetKontakForm() {
     const form = $("#kontakForm");
     if (form) form.reset();
     const idField = $("#kontakId");
     if (idField) idField.value = "";
-    const btn = $("#btnSaveKontak");
-    if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Simpan Kontak';
+    KONTAK_LANGS.forEach((lang) => {
+      const titleField = getKontakInput("title", lang);
+      if (titleField) titleField.value = "";
+      const valueField = getKontakInput("value", lang);
+      if (valueField) valueField.value = "";
+    });
     const typeSelect = $("#kontakType");
     if (typeSelect) typeSelect.value = "info";
+    const linkField = $("#kontakLinkUrl");
+    if (linkField) linkField.value = "";
+    const iconField = $("#kontakIconClass");
+    if (iconField) iconField.value = "bi bi-info-circle";
+    const btn = $("#btnSaveKontak");
+    if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Simpan Kontak';
+    setKontakActiveLang("id");
   }
 
   function populateKontakForm(item) {
+    const normalized = normalizeKontakRecord(item);
     const idField = $("#kontakId");
     if (idField) idField.value = item.id;
-    const titleField = $("#kontakTitle");
-    if (titleField) titleField.value = item.title || "";
-    const valueField = $("#kontakValue");
-    if (valueField) valueField.value = item.value || "";
+    KONTAK_LANGS.forEach((lang) => {
+      const titleField = getKontakInput("title", lang);
+      if (titleField)
+        titleField.value =
+          normalized[lang === "en" ? "title_en" : "title"] || "";
+      const valueField = getKontakInput("value", lang);
+      if (valueField)
+        valueField.value =
+          normalized[lang === "en" ? "value_en" : "value"] || "";
+    });
     const typeField = $("#kontakType");
     if (typeField) typeField.value = item.item_type || "info";
     const linkField = $("#kontakLinkUrl");
     if (linkField) linkField.value = item.link_url || "";
     const iconField = $("#kontakIconClass");
-    if (iconField) iconField.value = item.icon_class || "";
+    if (iconField) iconField.value = item.icon_class || "bi bi-info-circle";
     const btn = $("#btnSaveKontak");
     if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Update Kontak';
-    if (titleField) titleField.focus();
+    setKontakActiveLang("id");
+    getKontakInput("title", "id")?.focus();
   }
 
   async function loadKontakItems(showToast = false) {
@@ -3979,7 +4609,9 @@ Jazakumullahu khairan,
 
     try {
       const result = await jsonRequest(INFORMASI_ENDPOINTS.kontak);
-      kontakItemsData = sortByOrderIndex(result.data || []);
+      kontakItemsData = sortByOrderIndex(
+        (result.data || []).map((item) => normalizeKontakRecord(item))
+      );
       renderKontakItems();
       if (showToast) {
         safeToastr.success("Data kontak dimuat");
@@ -4025,10 +4657,20 @@ Jazakumullahu khairan,
             </td>
             <td>
               <div class="fw-semibold">${escapeHtml(item.title || "")}</div>
+              ${
+                item.title_en && item.title_en !== item.title
+                  ? `<div class="text-muted small"><span aria-hidden="true">🇬🇧</span> ${escapeHtml(item.title_en)}</div>`
+                  : ""
+              }
               <div class="text-muted small">${escapeHtml(item.item_type || "info")}</div>
             </td>
             <td>
               <div>${escapeHtml(item.value || "")}</div>
+              ${
+                item.value_en && item.value_en !== item.value
+                  ? `<div class="text-muted small"><span aria-hidden="true">🇬🇧</span> ${escapeHtml(item.value_en)}</div>`
+                  : ""
+              }
               ${
                 item.link_url
                   ? `<div class="small text-muted text-truncate" style="max-width:220px;" title="${escapeHtml(item.link_url)}">${escapeHtml(item.link_url)}</div>`
@@ -4057,14 +4699,22 @@ Jazakumullahu khairan,
     event.preventDefault();
 
     const id = parseId($("#kontakId")?.value);
-    const title = ($("#kontakTitle")?.value || "").trim();
-    const value = ($("#kontakValue")?.value || "").trim();
+    const values = collectKontakValues();
     const itemType = ($("#kontakType")?.value || "info").trim() || "info";
     const linkUrl = ($("#kontakLinkUrl")?.value || "").trim();
     const iconClass = ($("#kontakIconClass")?.value || "").trim();
 
-    if (!title || !value) {
-      safeToastr.warning("Judul dan nilai kontak wajib diisi");
+    const missing = KONTAK_LANGS.filter(
+      (lang) => !values[lang].title || !values[lang].value
+    );
+
+    if (missing.length) {
+      const label = missing
+        .map((lang) => KONTAK_LABEL[lang]?.name || lang.toUpperCase())
+        .join(", ");
+      safeToastr.warning(
+        `Judul dan nilai kontak wajib diisi untuk bahasa: ${label}`
+      );
       return;
     }
 
@@ -4073,8 +4723,10 @@ Jazakumullahu khairan,
 
     try {
       const payload = {
-        title,
-        value,
+        title: values.id.title,
+        value: values.id.value,
+        title_en: values.en.title,
+        value_en: values.en.value,
         item_type: itemType,
         link_url: linkUrl || null,
         icon_class: iconClass || "bi bi-info-circle",
@@ -4094,6 +4746,14 @@ Jazakumullahu khairan,
         });
       }
       safeToastr.success(message);
+      localStorage.setItem(
+        "kontak_items_update",
+        JSON.stringify({
+          timestamp: Date.now(),
+          action: id ? "updated" : "created",
+          id: id || null,
+        })
+      );
       resetKontakForm();
       await loadKontakItems(false);
     } catch (error) {
@@ -4135,6 +4795,14 @@ Jazakumullahu khairan,
         body: { id: item.id },
       });
       safeToastr.success("Kontak dihapus");
+      localStorage.setItem(
+        "kontak_items_update",
+        JSON.stringify({
+          timestamp: Date.now(),
+          action: "deleted",
+          id: item.id,
+        })
+      );
       resetKontakForm();
       await loadKontakItems(false);
     } catch (error) {
@@ -4214,18 +4882,58 @@ Jazakumullahu khairan,
   document.addEventListener("DOMContentLoaded", () => {
     $("#alurForm")?.addEventListener("submit", handleAlurSubmit);
     $("#btnResetAlur")?.addEventListener("click", resetAlurForm);
+    document
+      .querySelectorAll("[data-alur-lang-button]")
+      .forEach((button) => {
+        button.addEventListener("click", () =>
+          setAlurActiveLang(button.dataset.alurLangButton)
+        );
+      });
+    setAlurActiveLang("id");
 
     $("#syaratForm")?.addEventListener("submit", handleSyaratSubmit);
     $("#btnResetSyarat")?.addEventListener("click", resetSyaratForm);
+    document
+      .querySelectorAll("[data-syarat-lang-button]")
+      .forEach((button) => {
+        button.addEventListener("click", () =>
+          setSyaratActiveLang(button.dataset.syaratLangButton)
+        );
+      });
+    setSyaratActiveLang("id");
 
     $("#biayaForm")?.addEventListener("submit", handleBiayaSubmit);
     $("#btnResetBiaya")?.addEventListener("click", resetBiayaForm);
+    document
+      .querySelectorAll("[data-biaya-lang-button]")
+      .forEach((button) => {
+        button.addEventListener("click", () =>
+          setBiayaActiveLang(button.dataset.biayaLangButton)
+        );
+      });
+    setBiayaActiveLang("id");
 
     $("#brosurForm")?.addEventListener("submit", handleBrosurSubmit);
     $("#btnResetBrosur")?.addEventListener("click", resetBrosurForm);
+    document
+      .querySelectorAll("[data-brosur-lang-button]")
+      .forEach((button) => {
+        button.addEventListener("click", () =>
+          setBrosurActiveLang(button.dataset.brosurLangButton)
+        );
+      });
+    setBrosurActiveLang("id");
 
     $("#kontakForm")?.addEventListener("submit", handleKontakSubmit);
     $("#btnResetKontak")?.addEventListener("click", resetKontakForm);
+    document
+      .querySelectorAll("[data-kontak-lang-button]")
+      .forEach((button) => {
+        button.addEventListener("click", () =>
+          setKontakActiveLang(button.dataset.kontakLangButton)
+        );
+      });
+    setKontakActiveLang("id");
 
     $("#kontakSettingsForm")?.addEventListener("submit", handleKontakSettingsSubmit);
   });

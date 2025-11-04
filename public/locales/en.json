@@ -39,13 +39,13 @@
   },
   "sections": {
     "gelombang": {
-      "title": "Registration Waves",
-      "subtitle": "Choose the wave that fits your family's schedule",
-      "loading": "Loading registration waves...",
-      "loadingAlt": "Loading registration waves...",
-      "emptyTitle": "No Registration Waves Yet",
+      "title": "Admission Periods",
+      "subtitle": "Choose the period that fits your family's schedule",
+      "loading": "Loading Admission Periods...",
+      "loadingAlt": "Loading Admission Periods...",
+      "emptyTitle": "No Admission Periods Yet",
       "emptyDescription": "Please wait for further information.",
-      "error": "Failed to load registration waves. Please refresh the page.",
+      "error": "Failed to load Admission Periods. Please refresh the page.",
       "status": {
         "active": "Registration Open",
         "upcoming": "Opening Soon",
@@ -66,8 +66,8 @@
       },
       "yearPrefix": "Academic Year",
       "toast": {
-        "updated": "Registration waves updated!",
-        "server": "📊 Registration waves were refreshed from the server"
+        "updated": "Admission Periods updated!",
+        "server": "📊 Admission Periods were refreshed from the server"
       }
     },
     "why": {

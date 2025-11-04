@@ -282,16 +282,57 @@
           .replace(/'/g, "&#039;");
       const escapeAttribute = escapeHtml;
 
-      function buildKontakCard(item, index) {
+      const getActiveLanguage = () => {
+        if (typeof window.__lang === "function") {
+          return window.__lang();
+        }
+        const stored = (localStorage.getItem("lang") || "id").toLowerCase();
+        return stored.startsWith("en") ? "en" : "id";
+      };
+
+      const selectKontakField = (item = {}, field, lang) => {
+        const normalized = lang === "en" ? "en" : "id";
+        if (normalized === "en") {
+          const value = item[`${field}_en`];
+          if (typeof value === "string" && value.trim()) return value.trim();
+        }
+        const base = item[field];
+        if (typeof base === "string" && base.trim()) return base.trim();
+        if (normalized === "id") {
+          const fallback = item[`${field}_en`];
+          if (typeof fallback === "string" && fallback.trim()) return fallback.trim();
+        } else {
+          const fallback = item[field];
+          if (typeof fallback === "string" && fallback.trim()) return fallback.trim();
+        }
+        return "";
+      };
+
+      const typeLabelMap = {
+        info: { id: "Info lainnya", en: "Information" },
+        whatsapp: { id: "WhatsApp", en: "WhatsApp" },
+        email: { id: "Email", en: "Email" },
+        address: { id: "Alamat", en: "Address" },
+        phone: { id: "Telepon", en: "Phone" },
+        website: { id: "Website", en: "Website" },
+      };
+
+      let cachedKontakItems = null;
+
+      function buildKontakCard(item, index, lang) {
         const iconClass =
           item.icon_class && item.icon_class.trim()
             ? item.icon_class.trim()
             : "bi bi-info-circle";
-        const title = escapeHtml(item.title || "");
-        const value = escapeHtml(item.value || "");
+        const title = escapeHtml(selectKontakField(item, "title", lang));
+        const value = escapeHtml(selectKontakField(item, "value", lang));
         const link = item.link_url ? item.link_url.trim() : "";
         const delay = 150 + index * 100;
-        const typeLabel = item.item_type ? escapeHtml(item.item_type) : "";
+        const typeKey = item.item_type || "info";
+        const typeConfig = typeLabelMap[typeKey];
+        const typeLabel = typeConfig
+          ? escapeHtml(typeConfig[lang.startsWith("en") ? "en" : "id"]) 
+          : escapeHtml(typeKey);
 
         const valueMarkup = link
           ? `<a href="${escapeAttribute(link)}" target="_blank" rel="noopener" class="text-brand-600 hover:underline">${value}</a>`
@@ -307,7 +348,27 @@
         `;
       }
 
-      async function loadKontakCards() {
+      function renderKontakCards(items) {
+        const container = document.getElementById("kontakCards");
+        if (!container) return;
+
+        if (!items || !items.length) {
+          container.innerHTML = `<div class="bg-brand-50 p-6 rounded-lg shadow-md text-center text-gray-500">Kontak belum tersedia.</div>`;
+          return;
+        }
+
+        const lang = getActiveLanguage();
+        container.innerHTML = items
+          .map((item, index) => buildKontakCard(item, index, lang))
+          .join("");
+      }
+
+      async function loadKontakCards({ force = false } = {}) {
+        if (!force && cachedKontakItems) {
+          renderKontakCards(cachedKontakItems);
+          return;
+        }
+
         const container = document.getElementById("kontakCards");
         if (!container) return;
 
@@ -321,19 +382,25 @@
           }
 
           const items = Array.isArray(result.data) ? result.data : [];
-          items.sort(
-            (a, b) =>
-              (a?.order_index || 0) - (b?.order_index || 0)
-          );
+          cachedKontakItems = items
+            .map((item) => ({
+              ...item,
+              title: selectKontakField(item, "title", "id"),
+              title_en: selectKontakField(item, "title", "en"),
+              value: selectKontakField(item, "value", "id"),
+              value_en: selectKontakField(item, "value", "en"),
+            }))
+            .sort(
+              (a, b) =>
+                (a?.order_index || 0) - (b?.order_index || 0)
+            );
 
-          if (!items.length) {
+          if (!cachedKontakItems.length) {
             container.innerHTML = `<div class="bg-brand-50 p-6 rounded-lg shadow-md text-center text-gray-500">Kontak belum tersedia.</div>`;
             return;
           }
 
-          container.innerHTML = items
-            .map((item, index) => buildKontakCard(item, index))
-            .join("");
+          renderKontakCards(cachedKontakItems);
         } catch (error) {
           console.error("[KONTAK_PAGE] Error memuat kontak:", error);
           container.innerHTML = `<div class="bg-red-50 p-6 rounded-lg shadow-md text-center text-red-600">Gagal memuat kontak.</div>`;
@@ -370,8 +437,23 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
-        loadKontakCards();
+        loadKontakCards({ force: true });
         loadKontakMap();
+      });
+
+      window.addEventListener("i18n:languageChanged", () => {
+        if (cachedKontakItems) {
+          renderKontakCards(cachedKontakItems);
+        } else {
+          loadKontakCards({ force: true });
+        }
+      });
+
+      window.addEventListener("storage", (event) => {
+        if (event.key === "kontak_items_update") {
+          cachedKontakItems = null;
+          loadKontakCards({ force: true });
+        }
       });
     })();
   </script>

@@ -276,15 +276,45 @@
 
       const escapeAttribute = escapeHtml;
 
-      function buildBrosurCard(item, index) {
+      const getActiveLanguage = () => {
+        if (typeof window.__lang === "function") {
+          return window.__lang();
+        }
+        const stored = (localStorage.getItem("lang") || "id").toLowerCase();
+        return stored.startsWith("en") ? "en" : "id";
+      };
+
+      const selectBrosurField = (item = {}, field, lang) => {
+        const normalized = lang === "en" ? "en" : "id";
+        if (normalized === "en") {
+          const value = item[`${field}_en`];
+          if (typeof value === "string" && value.trim()) return value.trim();
+        }
+        const base = item[field];
+        if (typeof base === "string" && base.trim()) return base.trim();
+        if (normalized === "id") {
+          const fallback = item[`${field}_en`];
+          if (typeof fallback === "string" && fallback.trim()) return fallback.trim();
+        } else {
+          const fallback = item[field];
+          if (typeof fallback === "string" && fallback.trim()) return fallback.trim();
+        }
+        return "";
+      };
+
+      let cachedBrosurItems = null;
+
+      function buildBrosurCard(item, index, lang) {
         const delay = 150 + index * 100;
         const iconClass =
           item.icon_class && item.icon_class.trim()
             ? item.icon_class.trim()
             : "bi bi-file-earmark-arrow-down";
-        const title = escapeHtml(item.title || "");
-        const description = escapeHtml(item.description || "");
-        const buttonLabel = escapeHtml(item.button_label || "Unduh PDF");
+        const title = escapeHtml(selectBrosurField(item, "title", lang));
+        const description = escapeHtml(selectBrosurField(item, "description", lang));
+        const buttonLabel = escapeHtml(
+          selectBrosurField(item, "button_label", lang) || (lang === "en" ? "Download PDF" : "Unduh PDF")
+        );
         const url = escapeAttribute(item.button_url || "#");
 
         return `
@@ -299,7 +329,27 @@
         `;
       }
 
-      async function loadBrosurContent() {
+      function renderBrosurContent(items) {
+        const container = document.getElementById("brosurContainer");
+        if (!container) return;
+
+        if (!items || !items.length) {
+          container.innerHTML = `<div class="text-gray-500">Belum ada brosur yang tersedia saat ini.</div>`;
+          return;
+        }
+
+        const lang = getActiveLanguage();
+        container.innerHTML = items
+          .map((item, index) => buildBrosurCard(item, index, lang))
+          .join("");
+      }
+
+      async function loadBrosurContent({ force = false } = {}) {
+        if (!force && cachedBrosurItems) {
+          renderBrosurContent(cachedBrosurItems);
+          return;
+        }
+
         const container = document.getElementById("brosurContainer");
         if (!container) return;
 
@@ -313,19 +363,27 @@
           }
 
           const items = Array.isArray(result.data) ? result.data : [];
-          items.sort(
-            (a, b) =>
-              (a?.order_index || 0) - (b?.order_index || 0)
-          );
+          cachedBrosurItems = items
+            .map((item) => ({
+              ...item,
+              title: selectBrosurField(item, "title", "id"),
+              title_en: selectBrosurField(item, "title", "en"),
+              description: selectBrosurField(item, "description", "id"),
+              description_en: selectBrosurField(item, "description", "en"),
+              button_label: selectBrosurField(item, "button_label", "id"),
+              button_label_en: selectBrosurField(item, "button_label", "en") || "Download PDF",
+            }))
+            .sort(
+              (a, b) =>
+                (a?.order_index || 0) - (b?.order_index || 0)
+            );
 
-          if (!items.length) {
+          if (!cachedBrosurItems.length) {
             container.innerHTML = `<div class="text-gray-500">Belum ada brosur yang tersedia saat ini.</div>`;
             return;
           }
 
-          container.innerHTML = items
-            .map((item, index) => buildBrosurCard(item, index))
-            .join("");
+          renderBrosurContent(cachedBrosurItems);
         } catch (error) {
           console.error("[BROSUR_PAGE] Error memuat brosur:", error);
           container.innerHTML = `<div class="text-red-500">Gagal memuat brosur. Silakan coba beberapa saat lagi.</div>`;
@@ -333,7 +391,22 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
-        loadBrosurContent();
+        loadBrosurContent({ force: true });
+      });
+
+      window.addEventListener("i18n:languageChanged", () => {
+        if (cachedBrosurItems) {
+          renderBrosurContent(cachedBrosurItems);
+        } else {
+          loadBrosurContent({ force: true });
+        }
+      });
+
+      window.addEventListener("storage", (event) => {
+        if (event.key === "brosur_items_update") {
+          cachedBrosurItems = null;
+          loadBrosurContent({ force: true });
+        }
       });
     })();
   </script>

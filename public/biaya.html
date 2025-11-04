@@ -238,7 +238,68 @@
           .replace(/"/g, "&quot;")
           .replace(/'/g, "&#039;");
 
-      async function loadBiayaContent() {
+      const getActiveLanguage = () => {
+        if (typeof window.__lang === "function") {
+          return window.__lang();
+        }
+        const stored = (localStorage.getItem("lang") || "id").toLowerCase();
+        return stored.startsWith("en") ? "en" : "id";
+      };
+
+      const selectBiayaField = (item = {}, field, lang) => {
+        const normalized = lang === "en" ? "en" : "id";
+        if (normalized === "en") {
+          const enVal = item[`${field}_en`];
+          if (typeof enVal === "string" && enVal.trim()) return enVal.trim();
+        }
+        const base = item[field];
+        if (typeof base === "string" && base.trim()) return base.trim();
+        if (normalized === "id") {
+          const fallback = item[`${field}_en`];
+          if (typeof fallback === "string" && fallback.trim()) return fallback.trim();
+        } else {
+          const fallback = item[field];
+          if (typeof fallback === "string" && fallback.trim()) return fallback.trim();
+        }
+        return "";
+      };
+
+      let cachedBiayaItems = null;
+
+      function renderBiayaContent(items) {
+        const tbody = document.getElementById("biayaTableBody");
+        if (!tbody) return;
+
+        if (!items || !items.length) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="2" class="px-6 py-4 text-center text-gray-500">Belum ada data biaya.</td>
+            </tr>
+          `;
+          return;
+        }
+
+        const lang = getActiveLanguage();
+        tbody.innerHTML = items
+          .map((item) => {
+            const label = escapeHtml(selectBiayaField(item, "label", lang));
+            const amount = escapeHtml(selectBiayaField(item, "amount", lang));
+            return `
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">${label}</td>
+                <td class="px-6 py-4 whitespace-nowrap">${amount}</td>
+              </tr>
+            `;
+          })
+          .join("");
+      }
+
+      async function loadBiayaContent({ force = false } = {}) {
+        if (!force && cachedBiayaItems) {
+          renderBiayaContent(cachedBiayaItems);
+          return;
+        }
+
         const tbody = document.getElementById("biayaTableBody");
         if (!tbody) return;
 
@@ -256,12 +317,20 @@
           }
 
           const items = Array.isArray(result.data) ? result.data : [];
-          items.sort(
-            (a, b) =>
-              (a?.order_index || 0) - (b?.order_index || 0)
-          );
+          cachedBiayaItems = items
+            .map((item) => ({
+              ...item,
+              label: selectBiayaField(item, "label", "id"),
+              label_en: selectBiayaField(item, "label", "en"),
+              amount: selectBiayaField(item, "amount", "id"),
+              amount_en: selectBiayaField(item, "amount", "en"),
+            }))
+            .sort(
+              (a, b) =>
+                (a?.order_index || 0) - (b?.order_index || 0)
+            );
 
-          if (!items.length) {
+          if (!cachedBiayaItems.length) {
             tbody.innerHTML = `
               <tr>
                 <td colspan="2" class="px-6 py-4 text-center text-gray-500">Belum ada data biaya.</td>
@@ -270,16 +339,7 @@
             return;
           }
 
-          tbody.innerHTML = items
-            .map(
-              (item) => `
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap">${escapeHtml(item.label || "")}</td>
-                  <td class="px-6 py-4 whitespace-nowrap">${escapeHtml(item.amount || "")}</td>
-                </tr>
-              `
-            )
-            .join("");
+          renderBiayaContent(cachedBiayaItems);
         } catch (error) {
           console.error("[BIAYA_PAGE] Error memuat biaya:", error);
           tbody.innerHTML = `
@@ -290,7 +350,24 @@
         }
       }
 
-      document.addEventListener("DOMContentLoaded", loadBiayaContent);
+      document.addEventListener("DOMContentLoaded", () => {
+        loadBiayaContent({ force: true });
+      });
+
+      window.addEventListener("i18n:languageChanged", () => {
+        if (cachedBiayaItems) {
+          renderBiayaContent(cachedBiayaItems);
+        } else {
+          loadBiayaContent({ force: true });
+        }
+      });
+
+      window.addEventListener("storage", (event) => {
+        if (event.key === "biaya_items_update") {
+          cachedBiayaItems = null;
+          loadBiayaContent({ force: true });
+        }
+      });
     })();
   </script>
 

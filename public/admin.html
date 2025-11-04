@@ -1301,12 +1301,58 @@
                   <form id="alurForm">
                     <input type="hidden" id="alurId">
                     <div class="mb-3">
-                      <label for="alurTitle" class="form-label">Judul Langkah</label>
-                      <input type="text" class="form-control" id="alurTitle" placeholder="Contoh: Pendaftaran Online" required>
+                      <label class="form-label d-flex align-items-center gap-2">
+                        <i class="bi bi-translate"></i>
+                        Bahasa Konten
+                      </label>
+                      <div class="btn-group btn-group-sm" id="alurLangSwitch" role="group" aria-label="Pilih bahasa langkah alur">
+                        <button type="button" class="btn btn-success active" data-alur-lang-button="id">
+                          <span class="me-1" aria-hidden="true">🇮🇩</span>
+                          Indonesia
+                        </button>
+                        <button type="button" class="btn btn-outline-success" data-alur-lang-button="en">
+                          <span class="me-1" aria-hidden="true">🇬🇧</span>
+                          English
+                        </button>
+                      </div>
+                      <small class="text-muted d-block mt-2">
+                        Isi judul dan deskripsi dalam Bahasa Indonesia dan Bahasa Inggris. Gunakan tombol di atas untuk beralih.
+                      </small>
                     </div>
+
+                    <div class="alur-lang-pane" data-alur-lang-pane="id">
+                      <div class="mb-3">
+                        <label for="alurTitle_id" class="form-label">Judul Langkah (Bahasa Indonesia)</label>
+                        <input type="text" class="form-control" id="alurTitle_id" placeholder="Contoh: Pendaftaran Online">
+                      </div>
+                      <div class="mb-3">
+                        <label for="alurDescription_id" class="form-label">Deskripsi (Bahasa Indonesia)</label>
+                        <textarea class="form-control" id="alurDescription_id" rows="4" placeholder="Deskripsi singkat langkah dalam Bahasa Indonesia"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="alur-lang-pane d-none" data-alur-lang-pane="en">
+                      <div class="mb-3">
+                        <label for="alurTitle_en" class="form-label">Step Title (English)</label>
+                        <input type="text" class="form-control" id="alurTitle_en" placeholder="Example: Online Registration">
+                      </div>
+                      <div class="mb-3">
+                        <label for="alurDescription_en" class="form-label">Description (English)</label>
+                        <textarea class="form-control" id="alurDescription_en" rows="4" placeholder="Write the step description in English"></textarea>
+                      </div>
+                    </div>
+
                     <div class="mb-3">
-                      <label for="alurDescription" class="form-label">Deskripsi</label>
-                      <textarea class="form-control" id="alurDescription" rows="4" placeholder="Deskripsi singkat langkah" required></textarea>
+                      <label class="form-label d-flex align-items-center gap-2">
+                        <i class="bi bi-info-circle"></i>
+                        Catatan
+                      </label>
+                      <div class="alert alert-light border">
+                        <ul class="mb-0 small text-muted">
+                          <li>Bahasa Indonesia ditampilkan sebagai default di admin dan publik.</li>
+                          <li>Bahasa Inggris digunakan otomatis saat pengunjung memilih English.</li>
+                        </ul>
+                      </div>
                     </div>
                     <div class="d-flex gap-2">
                       <button type="submit" class="btn btn-primary flex-grow-1" id="btnSaveAlur">
@@ -1372,9 +1418,39 @@
                   <form id="syaratForm">
                     <input type="hidden" id="syaratId">
                     <div class="mb-3">
-                      <label for="syaratName" class="form-label">Nama Syarat</label>
-                      <input type="text" class="form-control" id="syaratName" placeholder="Contoh: Fotokopi Akta Kelahiran" required>
+                      <label class="form-label d-flex align-items-center gap-2">
+                        <i class="bi bi-translate"></i>
+                        Bahasa Konten
+                      </label>
+                      <div class="btn-group btn-group-sm" role="group" id="syaratLangSwitch" aria-label="Pilih bahasa syarat">
+                        <button type="button" class="btn btn-success active" data-syarat-lang-button="id">
+                          <span class="me-1" aria-hidden="true">🇮🇩</span>
+                          Indonesia
+                        </button>
+                        <button type="button" class="btn btn-outline-success" data-syarat-lang-button="en">
+                          <span class="me-1" aria-hidden="true">🇬🇧</span>
+                          English
+                        </button>
+                      </div>
+                      <small class="text-muted d-block mt-2">
+                        Isi nama persyaratan dalam Bahasa Indonesia dan Bahasa Inggris. Pilih tab bahasa di atas untuk beralih.
+                      </small>
                     </div>
+
+                    <div class="syarat-lang-pane" data-syarat-lang-pane="id">
+                      <div class="mb-3">
+                        <label for="syaratName_id" class="form-label">Nama Syarat (Bahasa Indonesia)</label>
+                        <input type="text" class="form-control" id="syaratName_id" placeholder="Contoh: Fotokopi Akta Kelahiran">
+                      </div>
+                    </div>
+
+                    <div class="syarat-lang-pane d-none" data-syarat-lang-pane="en">
+                      <div class="mb-3">
+                        <label for="syaratName_en" class="form-label">Requirement Name (English)</label>
+                        <input type="text" class="form-control" id="syaratName_en" placeholder="Example: Birth Certificate Copy">
+                      </div>
+                    </div>
+
                     <div class="d-flex gap-2">
                       <button type="submit" class="btn btn-primary flex-grow-1" id="btnSaveSyarat">
                         <i class="bi bi-save"></i> Simpan Syarat
@@ -1438,13 +1514,47 @@
                   <form id="biayaForm">
                     <input type="hidden" id="biayaId">
                     <div class="mb-3">
-                      <label for="biayaLabel" class="form-label">Keterangan</label>
-                      <input type="text" class="form-control" id="biayaLabel" placeholder="Contoh: Biaya Pendaftaran" required>
+                      <label class="form-label d-flex align-items-center gap-2">
+                        <i class="bi bi-translate"></i>
+                        Bahasa Konten
+                      </label>
+                      <div class="btn-group btn-group-sm" role="group" id="biayaLangSwitch" aria-label="Pilih bahasa biaya">
+                        <button type="button" class="btn btn-success active" data-biaya-lang-button="id">
+                          <span class="me-1" aria-hidden="true">🇮🇩</span>
+                          Indonesia
+                        </button>
+                        <button type="button" class="btn btn-outline-success" data-biaya-lang-button="en">
+                          <span class="me-1" aria-hidden="true">🇬🇧</span>
+                          English
+                        </button>
+                      </div>
+                      <small class="text-muted d-block mt-2">
+                        Lengkapi keterangan dan nominal dalam dua bahasa. Nominal dapat disesuaikan (misal format IDR).
+                      </small>
                     </div>
-                    <div class="mb-3">
-                      <label for="biayaAmount" class="form-label">Nominal</label>
-                      <input type="text" class="form-control" id="biayaAmount" placeholder="Contoh: Rp 300.000,-" required>
+
+                    <div class="biaya-lang-pane" data-biaya-lang-pane="id">
+                      <div class="mb-3">
+                        <label for="biayaLabel_id" class="form-label">Keterangan (Bahasa Indonesia)</label>
+                        <input type="text" class="form-control" id="biayaLabel_id" placeholder="Contoh: Biaya Pendaftaran">
+                      </div>
+                      <div class="mb-3">
+                        <label for="biayaAmount_id" class="form-label">Nominal (Bahasa Indonesia)</label>
+                        <input type="text" class="form-control" id="biayaAmount_id" placeholder="Contoh: Rp 300.000,-">
+                      </div>
                     </div>
+
+                    <div class="biaya-lang-pane d-none" data-biaya-lang-pane="en">
+                      <div class="mb-3">
+                        <label for="biayaLabel_en" class="form-label">Label (English)</label>
+                        <input type="text" class="form-control" id="biayaLabel_en" placeholder="Example: Registration Fee">
+                      </div>
+                      <div class="mb-3">
+                        <label for="biayaAmount_en" class="form-label">Amount (English)</label>
+                        <input type="text" class="form-control" id="biayaAmount_en" placeholder="Example: IDR 300,000">
+                      </div>
+                    </div>
+
                     <div class="d-flex gap-2">
                       <button type="submit" class="btn btn-primary flex-grow-1" id="btnSaveBiaya">
                         <i class="bi bi-save"></i> Simpan Biaya
@@ -1509,20 +1619,58 @@
                   <form id="brosurForm">
                     <input type="hidden" id="brosurId">
                     <div class="mb-3">
-                      <label for="brosurTitle" class="form-label">Judul</label>
-                      <input type="text" class="form-control" id="brosurTitle" placeholder="Contoh: Brosur Umum PPDSB" required>
+                      <label class="form-label d-flex align-items-center gap-2">
+                        <i class="bi bi-translate"></i>
+                        Bahasa Konten
+                      </label>
+                      <div class="btn-group btn-group-sm" role="group" id="brosurLangSwitch" aria-label="Pilih bahasa brosur">
+                        <button type="button" class="btn btn-success active" data-brosur-lang-button="id">
+                          <span class="me-1" aria-hidden="true">🇮🇩</span>
+                          Indonesia
+                        </button>
+                        <button type="button" class="btn btn-outline-success" data-brosur-lang-button="en">
+                          <span class="me-1" aria-hidden="true">🇬🇧</span>
+                          English
+                        </button>
+                      </div>
+                      <small class="text-muted d-block mt-2">
+                        Isi judul, deskripsi, dan label tombol dalam dua bahasa. URL dan ikon berlaku sama untuk semua bahasa.
+                      </small>
                     </div>
-                    <div class="mb-3">
-                      <label for="brosurDescription" class="form-label">Deskripsi</label>
-                      <textarea class="form-control" id="brosurDescription" rows="3" placeholder="Deskripsi singkat brosur" required></textarea>
+
+                    <div class="brosur-lang-pane" data-brosur-lang-pane="id">
+                      <div class="mb-3">
+                        <label for="brosurTitle_id" class="form-label">Judul (Bahasa Indonesia)</label>
+                        <input type="text" class="form-control" id="brosurTitle_id" placeholder="Contoh: Brosur Umum PPDSB">
+                      </div>
+                      <div class="mb-3">
+                        <label for="brosurDescription_id" class="form-label">Deskripsi (Bahasa Indonesia)</label>
+                        <textarea class="form-control" id="brosurDescription_id" rows="3" placeholder="Deskripsi singkat brosur"></textarea>
+                      </div>
+                      <div class="mb-3">
+                        <label for="brosurButtonLabel_id" class="form-label">Label Tombol (Bahasa Indonesia)</label>
+                        <input type="text" class="form-control" id="brosurButtonLabel_id" placeholder="Contoh: Unduh PDF" value="Unduh PDF">
+                      </div>
                     </div>
-                    <div class="mb-3">
-                      <label for="brosurButtonLabel" class="form-label">Label Tombol</label>
-                      <input type="text" class="form-control" id="brosurButtonLabel" placeholder="Contoh: Unduh PDF" value="Unduh PDF">
+
+                    <div class="brosur-lang-pane d-none" data-brosur-lang-pane="en">
+                      <div class="mb-3">
+                        <label for="brosurTitle_en" class="form-label">Title (English)</label>
+                        <input type="text" class="form-control" id="brosurTitle_en" placeholder="Example: General Prospectus">
+                      </div>
+                      <div class="mb-3">
+                        <label for="brosurDescription_en" class="form-label">Description (English)</label>
+                        <textarea class="form-control" id="brosurDescription_en" rows="3" placeholder="Short description of the brochure"></textarea>
+                      </div>
+                      <div class="mb-3">
+                        <label for="brosurButtonLabel_en" class="form-label">Button Label (English)</label>
+                        <input type="text" class="form-control" id="brosurButtonLabel_en" placeholder="Example: Download PDF" value="Download PDF">
+                      </div>
                     </div>
+
                     <div class="mb-3">
                       <label for="brosurButtonUrl" class="form-label">URL Unduhan</label>
-                      <input type="url" class="form-control" id="brosurButtonUrl" placeholder="https://...pdf" required>
+                      <input type="url" class="form-control" id="brosurButtonUrl" placeholder="https://...pdf">
                     </div>
                     <div class="mb-3">
                       <label for="brosurIconClass" class="form-label">Kelas Ikon</label>
@@ -1593,13 +1741,47 @@
                   <form id="kontakForm">
                     <input type="hidden" id="kontakId">
                     <div class="mb-3">
-                      <label for="kontakTitle" class="form-label">Judul</label>
-                      <input type="text" class="form-control" id="kontakTitle" placeholder="Contoh: WhatsApp" required>
+                      <label class="form-label d-flex align-items-center gap-2">
+                        <i class="bi bi-translate"></i>
+                        Bahasa Konten
+                      </label>
+                      <div class="btn-group btn-group-sm" role="group" id="kontakLangSwitch" aria-label="Pilih bahasa kontak">
+                        <button type="button" class="btn btn-success active" data-kontak-lang-button="id">
+                          <span class="me-1" aria-hidden="true">🇮🇩</span>
+                          Indonesia
+                        </button>
+                        <button type="button" class="btn btn-outline-success" data-kontak-lang-button="en">
+                          <span class="me-1" aria-hidden="true">🇬🇧</span>
+                          English
+                        </button>
+                      </div>
+                      <small class="text-muted d-block mt-2">
+                        Isi judul dan nilai kontak (misal alamat atau pesan) dalam kedua bahasa. Untuk nomor telepon, boleh sama.
+                      </small>
                     </div>
-                    <div class="mb-3">
-                      <label for="kontakValue" class="form-label">Nilai</label>
-                      <input type="text" class="form-control" id="kontakValue" placeholder="Contoh: +62 812-3456-7890" required>
+
+                    <div class="kontak-lang-pane" data-kontak-lang-pane="id">
+                      <div class="mb-3">
+                        <label for="kontakTitle_id" class="form-label">Judul (Bahasa Indonesia)</label>
+                        <input type="text" class="form-control" id="kontakTitle_id" placeholder="Contoh: WhatsApp">
+                      </div>
+                      <div class="mb-3">
+                        <label for="kontakValue_id" class="form-label">Nilai (Bahasa Indonesia)</label>
+                        <input type="text" class="form-control" id="kontakValue_id" placeholder="Contoh: +62 812-3456-7890">
+                      </div>
                     </div>
+
+                    <div class="kontak-lang-pane d-none" data-kontak-lang-pane="en">
+                      <div class="mb-3">
+                        <label for="kontakTitle_en" class="form-label">Title (English)</label>
+                        <input type="text" class="form-control" id="kontakTitle_en" placeholder="Example: WhatsApp">
+                      </div>
+                      <div class="mb-3">
+                        <label for="kontakValue_en" class="form-label">Value (English)</label>
+                        <input type="text" class="form-control" id="kontakValue_en" placeholder="Example: +62 812-3456-7890">
+                      </div>
+                    </div>
+
                     <div class="mb-3">
                       <label for="kontakType" class="form-label">Jenis</label>
                       <select class="form-select" id="kontakType">

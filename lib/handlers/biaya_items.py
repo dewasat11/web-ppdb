@@ -48,10 +48,12 @@ class handler(BaseHTTPRequestHandler):
             payload = read_json_body(request_handler)
             label = (payload.get("label") or "").strip()
             amount = (payload.get("amount") or "").strip()
+            label_en = (payload.get("label_en") or "").strip()
+            amount_en = (payload.get("amount_en") or "").strip()
             order_index = payload.get(ORDER_FIELD)
 
-            if not label or not amount:
-                raise ValueError("Label dan nilai biaya wajib diisi")
+            if not label or not amount or not label_en or not amount_en:
+                raise ValueError("Label dan nominal (ID & EN) wajib diisi")
 
             admin = _admin()
             if order_index is None:
@@ -70,6 +72,8 @@ class handler(BaseHTTPRequestHandler):
             insert_payload = {
                 "label": label,
                 "amount": amount,
+                "label_en": label_en,
+                "amount_en": amount_en,
                 ORDER_FIELD: order_index,
             }
             result = admin.table(TABLE_NAME).insert(insert_payload).execute()
@@ -128,6 +132,10 @@ class handler(BaseHTTPRequestHandler):
                 update_fields["label"] = payload["label"].strip()
             if "amount" in payload and payload["amount"]:
                 update_fields["amount"] = payload["amount"].strip()
+            if "label_en" in payload and payload["label_en"]:
+                update_fields["label_en"] = payload["label_en"].strip()
+            if "amount_en" in payload and payload["amount_en"]:
+                update_fields["amount_en"] = payload["amount_en"].strip()
             if ORDER_FIELD in payload and payload[ORDER_FIELD] is not None:
                 update_fields[ORDER_FIELD] = int(payload[ORDER_FIELD])
 

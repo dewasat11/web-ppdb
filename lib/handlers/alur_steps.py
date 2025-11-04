@@ -52,10 +52,14 @@ class handler(BaseHTTPRequestHandler):
             payload = read_json_body(request_handler)
             title = (payload.get("title") or "").strip()
             description = (payload.get("description") or "").strip()
+            title_en = (payload.get("title_en") or "").strip()
+            description_en = (payload.get("description_en") or "").strip()
             order_index = payload.get("order_index")
 
             if not title or not description:
                 raise ValueError("Judul dan deskripsi wajib diisi")
+            if not title_en or not description_en:
+                raise ValueError("Title EN dan description EN wajib diisi")
 
             admin_client = _get_admin_client()
 
@@ -76,6 +80,8 @@ class handler(BaseHTTPRequestHandler):
             insert_payload = {
                 "title": title,
                 "description": description,
+                "title_en": title_en,
+                "description_en": description_en,
                 ORDER_FIELD: order_index,
             }
 
@@ -144,6 +150,10 @@ class handler(BaseHTTPRequestHandler):
                 update_fields["title"] = payload["title"].strip()
             if "description" in payload and payload["description"]:
                 update_fields["description"] = payload["description"].strip()
+            if "title_en" in payload and payload["title_en"]:
+                update_fields["title_en"] = payload["title_en"].strip()
+            if "description_en" in payload and payload["description_en"]:
+                update_fields["description_en"] = payload["description_en"].strip()
             if ORDER_FIELD in payload and payload[ORDER_FIELD] is not None:
                 update_fields[ORDER_FIELD] = int(payload[ORDER_FIELD])
 

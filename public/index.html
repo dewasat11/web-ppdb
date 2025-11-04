@@ -245,10 +245,11 @@
 <body class="min-h-screen flex flex-col bg-white text-gray-800">
   <!-- HEADER -->
   <header class="sticky top-0 z-50">
-    <div class="bg-yellow-400 text-gray-900">
+    <div class="bg-yellow-400/95 backdrop-blur supports-backdrop-blur:bg-yellow-400/80 text-gray-900 border-b border-yellow-500/40">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-end gap-2 py-1 text-xs font-semibold tracking-wide">
-          <div class="flex items-center gap-2">
+        <div class="flex items-center justify-end gap-4 py-1 text-xs font-semibold tracking-wide text-yellow-900">
+          <div class="flex items-center gap-1">
+            <span class="text-yellow-900">Bahasa:</span>
             <button
               type="button"
               data-setlang="id"
@@ -260,6 +261,9 @@
             >
               <span aria-hidden="true">🇮🇩</span>
             </button>
+          </div>
+          <div class="flex items-center gap-1">
+            <span class="text-yellow-900">Language:</span>
             <button
               type="button"
               data-setlang="en"
@@ -275,8 +279,9 @@
         </div>
       </div>
     </div>
+</header>
     <!-- NAVBAR -->
-    <nav class="bg-white shadow-lg" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
+    <nav class="sticky top-[32px] z-40 bg-white/95 backdrop-blur supports-backdrop-blur:bg-white/85 shadow-lg" x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo -->
@@ -358,7 +363,6 @@
       </div>
     </div>
   </nav>
-  </header>
 
   <!-- MAIN -->
   <main class="flex-1">
@@ -621,6 +625,7 @@
           console.warn("[GELOMBANG_ACTIVE] Failed to fetch active gelombang:", error);
         }
 
+        const lang = getContentLanguage();
         const gelombangList = decorateGelombang(listResult.data, activeId);
         const cardsHTML = gelombangList
           .map((gelombang) => {
@@ -628,6 +633,7 @@
             const colors = COLOR_MAP[gelombang._color] || COLOR_MAP.gray;
             const badgeText = getStatusBadgeText(stateKey);
             const buttonLabel = getButtonLabel(stateKey);
+            const displayName = translateWaveName(gelombang.nama, lang);
 
             let buttonHTML = "";
             let statusHTML = "";
@@ -661,7 +667,7 @@
                   <div class="w-16 h-16 ${colors.icon} rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <i class="bi bi-calendar-check text-white text-2xl"></i>
                   </div>
-                  <h3 class="text-xl font-bold mb-2 text-gray-800">${gelombang.nama}</h3>
+                  <h3 class="text-xl font-bold mb-2 text-gray-800">${escapeHtml(displayName)}</h3>
                   <div class="space-y-2 mb-4">
                     <div class="flex items-center justify-center text-gray-600">
                       <i class="bi bi-calendar-event mr-2 ${colors.iconText}"></i>
@@ -693,8 +699,8 @@
       return (code || "id").toLowerCase().startsWith("en") ? "en" : "id";
     };
 
-    const escapeHtml = (value = "") =>
-      String(value).replace(/[&<>"']/g, (char) => {
+    function escapeHtml(value = "") {
+      return String(value).replace(/[&<>"']/g, (char) => {
         switch (char) {
           case "&":
             return "&amp;";
@@ -710,6 +716,17 @@
             return char;
         }
       });
+    }
+
+    const translateWaveName = (name = "", lang = "id") => {
+      if (!name) return "";
+      if (lang !== "en") return name;
+      return name.replace(/gelombang/gi, (match) => {
+        if (match === match.toUpperCase()) return "PERIOD";
+        if (match[0] === match[0].toUpperCase()) return "Period";
+        return "period";
+      });
+    };
 
     const formatWhyContent = (text) =>
       text ? escapeHtml(text).replace(/\r?\n/g, "<br />") : "";
@@ -862,6 +879,7 @@
     });
 
     window.addEventListener("i18n:languageChanged", () => {
+      loadGelombangAktif();
       if (whySectionDataCache) {
         renderWhySection(whySectionDataCache);
       } else {
@@ -874,11 +892,6 @@
         whySectionDataCache = null;
         loadWhySection({ forceReload: true });
       }
-    });
-
-    document.addEventListener("i18n:lang-changed", () => {
-      loadGelombangAktif();
-      loadWhySection();
     });
 
     window.addEventListener("storage", (event) => {

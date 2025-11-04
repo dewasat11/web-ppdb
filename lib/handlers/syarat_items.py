@@ -49,10 +49,11 @@ class handler(BaseHTTPRequestHandler):
         try:
             payload = read_json_body(request_handler)
             name = (payload.get("name") or "").strip()
+            name_en = (payload.get("name_en") or "").strip()
             order_index = payload.get(ORDER_FIELD)
 
-            if not name:
-                raise ValueError("Nama syarat wajib diisi")
+            if not name or not name_en:
+                raise ValueError("Nama syarat (ID & EN) wajib diisi")
 
             admin = _admin()
             if order_index is None:
@@ -68,7 +69,11 @@ class handler(BaseHTTPRequestHandler):
                 else:
                     order_index = 1
 
-            insert_payload = {"name": name, ORDER_FIELD: order_index}
+            insert_payload = {
+                "name": name,
+                "name_en": name_en,
+                ORDER_FIELD: order_index,
+            }
             result = admin.table(TABLE_NAME).insert(insert_payload).execute()
             created = result.data[0] if result.data else insert_payload
 
@@ -123,6 +128,8 @@ class handler(BaseHTTPRequestHandler):
             update_fields = {}
             if "name" in payload and payload["name"]:
                 update_fields["name"] = payload["name"].strip()
+            if "name_en" in payload and payload["name_en"]:
+                update_fields["name_en"] = payload["name_en"].strip()
             if ORDER_FIELD in payload and payload[ORDER_FIELD] is not None:
                 update_fields[ORDER_FIELD] = int(payload[ORDER_FIELD])
 

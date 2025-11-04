@@ -48,13 +48,15 @@ class handler(BaseHTTPRequestHandler):
             payload = read_json_body(request_handler)
             title = (payload.get("title") or "").strip()
             value = (payload.get("value") or "").strip()
+            title_en = (payload.get("title_en") or "").strip()
+            value_en = (payload.get("value_en") or "").strip()
             item_type = (payload.get("item_type") or "info").strip() or "info"
             link_url = (payload.get("link_url") or "").strip() or None
             icon_class = (payload.get("icon_class") or "bi bi-info-circle").strip()
             order_index = payload.get(ORDER_FIELD)
 
-            if not title or not value:
-                raise ValueError("Judul dan nilai kontak wajib diisi")
+            if not title or not value or not title_en or not value_en:
+                raise ValueError("Judul dan nilai kontak (ID & EN) wajib diisi")
 
             admin = _admin()
             if order_index is None:
@@ -73,6 +75,8 @@ class handler(BaseHTTPRequestHandler):
             insert_payload = {
                 "title": title,
                 "value": value,
+                "title_en": title_en,
+                "value_en": value_en,
                 "item_type": item_type,
                 "link_url": link_url,
                 "icon_class": icon_class or "bi bi-info-circle",
@@ -134,6 +138,10 @@ class handler(BaseHTTPRequestHandler):
                 update_fields["title"] = payload["title"].strip()
             if "value" in payload and payload["value"]:
                 update_fields["value"] = payload["value"].strip()
+            if "title_en" in payload and payload["title_en"]:
+                update_fields["title_en"] = payload["title_en"].strip()
+            if "value_en" in payload and payload["value_en"]:
+                update_fields["value_en"] = payload["value_en"].strip()
             if "item_type" in payload and payload["item_type"]:
                 update_fields["item_type"] = payload["item_type"].strip() or "info"
             if "link_url" in payload:
