@@ -752,10 +752,11 @@
 
           const payment = data.pembayaran || null;
           const paymentStatusRaw = payment?.status_pembayaran ? payment.status_pembayaran.toString().trim().toUpperCase() : '';
-          const isStatusAccepted = ['DITERIMA', 'TERVERIFIKASI', 'VERIFIED'].includes(statusKey);
-          const isPaymentVerified = ['VERIFIED', 'APPROVED', 'SUCCESS', 'PAID', 'LUNAS', 'COMPLETED', 'TERVERIFIKASI'].includes(paymentStatusRaw);
-          const isPaymentRejected = ['REJECTED', 'DITOLAK'].includes(paymentStatusRaw);
-          const isPaymentPending = ['PENDING', 'MENUNGGU', 'WAITING', 'IN_REVIEW', 'PROCESSING'].includes(paymentStatusRaw);
+          const normalizedStatusKey = statusKey.replace(/[^A-Z]/g, '');
+          const isStatusAccepted = /(DITERIMA|TERVERIFIKASI|VERIFIED)/.test(normalizedStatusKey);
+          const isPaymentVerified = ['VERIFIED', 'APPROVED', 'SUCCESS', 'PAID', 'LUNAS', 'COMPLETED', 'TERVERIFIKASI', 'PAYMENT_VERIFIED', 'VERIFIKASI'].includes(paymentStatusRaw);
+          const isPaymentRejected = ['REJECTED', 'DITOLAK', 'PAYMENT_REJECTED'].includes(paymentStatusRaw);
+          const isPaymentPending = ['PENDING', 'MENUNGGU', 'WAITING', 'IN_REVIEW', 'PROCESSING', 'PROSES', 'MENUNGGU VERIFIKASI'].includes(paymentStatusRaw);
           const hasPaymentRecord = Boolean(payment);
 
           const statusConfig = getStatusConfig();
