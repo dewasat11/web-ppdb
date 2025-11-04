@@ -21,13 +21,18 @@ class handler(BaseHTTPRequestHandler):
             supa = supabase_client(service_role=True)
             
             # Extract fields
-            title = data.get("title", "").strip()
-            subtitle = data.get("subtitle", "").strip()
-            content = data.get("content", "").strip()
+            title = (data.get("title") or "").strip()
+            subtitle = (data.get("subtitle") or "").strip()
+            content = (data.get("content") or "").strip()
+            title_en = (data.get("title_en") or "").strip()
+            subtitle_en = (data.get("subtitle_en") or "").strip()
+            content_en = (data.get("content_en") or "").strip()
             
             # Validate
             if not title or not content:
                 raise ValueError("Title dan content harus diisi")
+            if not title_en or not content_en:
+                raise ValueError("Title EN dan content EN harus diisi")
             
             # Check if record exists
             existing = supa.table("why_section").select("*").limit(1).execute()
@@ -35,7 +40,10 @@ class handler(BaseHTTPRequestHandler):
             update_data = {
                 "title": title,
                 "subtitle": subtitle if subtitle else None,
-                "content": content
+                "content": content,
+                "title_en": title_en,
+                "subtitle_en": subtitle_en if subtitle_en else None,
+                "content_en": content_en
             }
             
             if existing.data and len(existing.data) > 0:
@@ -84,4 +92,3 @@ class handler(BaseHTTPRequestHandler):
         request_handler.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
         request_handler.send_header("Access-Control-Allow-Headers", "Content-Type")
         request_handler.end_headers()
-

@@ -1,18 +1,18 @@
 {
   "meta": {
     "title": {
-      "home": "Home – PPDSB Pondok Pesantren Al Ikhsan Beji",
-      "register": "Registration Form – PPDSB Pondok Pesantren Al Ikhsan Beji"
+      "home": "Home – Al Ikhsan Islamic Boarding School",
+      "register": "Registration Form – Al Ikhsan Islamic Boarding School"
     },
     "description": {
-      "home": "PPDSB Pondok Pesantren Al Ikhsan Beji. New Student and Santri Admissions for the 2026/2027 academic year. Integrated Islamic education that builds character and achievements.",
-      "register": "New santri registration form for Pondok Pesantren Al Ikhsan Beji. Fill in personal data, education, parents, and upload registration documents."
+      "home": "Al Ikhsan Islamic Boarding School. New Student and Santri Admissions for the 2026/2027 academic year. Integrated Islamic education that builds character and achievements.",
+      "register": "New santri registration form for Al Ikhsan Islamic Boarding School. Fill in personal data, education, parents, and upload registration documents."
     }
   },
   "section": {
     "hero": {
-      "title": "<span class='text-yellow-400' style='text-shadow:2px 4px 8px rgba(0,0,0,0.5);'>New Student and Santri Admissions</span><br/><span>Pondok Pesantren Al Ikhsan Beji (PPDSB)</span>",
-      "body": "<p>Join Pondok Pesantren Al Ikhsan Beji. Integrated Islamic education with character development, Quran memorization (tahfidz), and sciences to shape a Qur’anic, high-achieving generation.</p>"
+      "title": "<span class='text-yellow-400' style='text-shadow:2px 4px 8px rgba(0,0,0,0.5);'>New Student and Santri Admissions</span><br/><span>Al Ikhsan Islamic Boarding School (PPDSB)</span>",
+      "body": "<p>Join Al Ikhsan Islamic Boarding School. Integrated Islamic education with character development, Quran memorization (tahfidz), and sciences to shape a Qur’anic, high-achieving generation.</p>"
     }
   },
   "nav": {
@@ -32,8 +32,8 @@
   "hero": {
     "badge": "Academic Year 2026/2027",
     "titleHighlight": "New Student and Santri Admissions",
-    "titleMain": "<span class='text-yellow-400' style='text-shadow:2px 4px 8px rgba(0,0,0,0.5);'>Pondok Pesantren Al Ikhsan Beji (PPDSB)</span>",
-    "subtitle": "Become a santri at Pondok Pesantren Al Ikhsan Beji. Integrated Islamic education with character building, Qur'an memorisation, and knowledge to shape a Qur'anic and high-achieving generation.",
+    "titleMain": "<span class='text-yellow-400' style='text-shadow:2px 4px 8px rgba(0,0,0,0.5);'>Al Ikhsan Islamic Boarding School (PPDSB)</span>",
+    "subtitle": "Become a santri at Al Ikhsan Islamic Boarding School. Integrated Islamic education with character building, Qur'an memorisation, and knowledge to shape a Qur'anic and high-achieving generation.",
     "ctaApply": "Apply Now",
     "ctaStatus": "Check Status"
   },
@@ -71,18 +71,18 @@
       }
     },
     "why": {
-      "title": "Why Choose Pondok Pesantren Al Ikhsan Beji?",
+      "title": "Why Choose Al Ikhsan Islamic Boarding School?",
       "subtitle": "Integrated Islamic education: Qur'an memorisation, noble character, and knowledge",
-      "description": "Join Pondok Pesantren Al Ikhsan Beji to receive integrated Islamic education that shapes santri with noble character."
+      "description": "Join Al Ikhsan Islamic Boarding School to receive integrated Islamic education that shapes santri with noble character."
     }
   },
   "footer": {
-    "copyright": "© 2025 Pondok Pesantren Al Ikhsan Beji. All rights reserved.",
+    "copyright": "© 2025 Al Ikhsan Islamic Boarding School. All rights reserved.",
     "credit": "Development by the Pesantren IT Team"
   },
   "whatsapp": {
     "headline": "Need Help?",
-    "subtitle": "Chat with PPDSB Admin"
+    "subtitle": "Chat with Admin"
   },
   "form": {
     "heading": "Registration Form",
@@ -346,12 +346,12 @@
   },
   "cekStatus": {
     "meta": {
-      "title": "Registration Status Lookup - PPDSB Pondok Pesantren Al Ikhsan Beji",
-      "description": "Check your registration status at Pondok Pesantren Al Ikhsan Beji by entering your NISN. View verification updates, admin notes, and payment status."
+      "title": "Registration Status Lookup - Al Ikhsan Islamic Boarding School",
+      "description": "Check your registration status at Al Ikhsan Islamic Boarding School by entering your NISN. View verification updates, admin notes, and payment status."
     },
     "hero": {
       "title": "Check Your Registration Status",
-      "subtitle": "Enter your NISN to view the latest status from Pondok Pesantren Al Ikhsan Beji."
+      "subtitle": "Enter your NISN to view the latest status from Al Ikhsan Islamic Boarding School."
     },
     "form": {
       "title": "Check Your Status",
@@ -406,11 +406,11 @@
         "title": "🎉 Payment Verified!",
         "registrationLine": "<strong>✅ Registration:</strong> Verified",
         "paymentLine": "<strong>💳 Payment:</strong> Marked as Paid & Valid",
-        "infoTitle": "Congratulations! You are officially accepted as a prospective santri of Pondok Pesantren Al Ikhsan Beji.",
+        "infoTitle": "Congratulations! You are officially accepted as a prospective santri of Al Ikhsan Islamic Boarding School.",
         "infoBody": "All administrative steps are complete. Please watch for official announcements regarding arrival schedule, student orientation, and required items.",
         "verifiedAt": "Payment verified on {{datetime}}",
         "nextStepsTitle": "Next Steps",
-        "nextStepsBody": "<strong>Jazakumullahu khairan</strong> (May Allah reward you). Please wait for further updates from Pondok Pesantren Al Ikhsan Beji via your registered contact.",
+        "nextStepsBody": "<strong>Jazakumullahu khairan</strong> (May Allah reward you). Please wait for further updates from Al Ikhsan Islamic Boarding School via your registered contact.",
         "footer": "Thank you for trusting us. Barakallahu fiikum."
       },
       "rejected": {

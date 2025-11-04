@@ -247,13 +247,29 @@
   <header class="sticky top-0 z-50">
     <div class="bg-yellow-400 text-gray-900">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-end gap-2 py-2 text-xs sm:text-sm font-semibold uppercase tracking-wide">
+        <div class="flex items-center justify-end gap-2 py-1 text-xs font-semibold tracking-wide">
           <div class="flex items-center gap-2">
-            <button type="button" data-setlang="id" class="inline-flex items-center gap-1 rounded-full border border-yellow-500 bg-yellow-300 px-3 py-1.5 text-yellow-900 shadow-sm transition hover:bg-yellow-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-700" data-i18n="nav.language.id">
-              ID
+            <button
+              type="button"
+              data-setlang="id"
+              class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-yellow-500 bg-yellow-300 text-base shadow-sm transition hover:bg-yellow-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-700"
+              aria-label="Bahasa Indonesia"
+              data-i18n="nav.language.id"
+              data-i18n-attr="aria-label"
+              data-i18n-skip-text
+            >
+              <span aria-hidden="true">🇮🇩</span>
             </button>
-            <button type="button" data-setlang="en" class="inline-flex items-center gap-1 rounded-full border border-yellow-500 bg-yellow-300 px-3 py-1.5 text-yellow-900 shadow-sm transition hover:bg-yellow-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-700" data-i18n="nav.language.en">
-              EN
+            <button
+              type="button"
+              data-setlang="en"
+              class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-yellow-500 bg-yellow-300 text-base shadow-sm transition hover:bg-yellow-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-700"
+              aria-label="English"
+              data-i18n="nav.language.en"
+              data-i18n-attr="aria-label"
+              data-i18n-skip-text
+            >
+              <span aria-hidden="true">🇬🇧</span>
             </button>
           </div>
         </div>
@@ -671,43 +687,145 @@
       }
     }
 
-    async function loadWhySection() {
+    const getContentLanguage = () => {
+      const code =
+        typeof window.__lang === "function" ? window.__lang() : "id";
+      return (code || "id").toLowerCase().startsWith("en") ? "en" : "id";
+    };
+
+    const escapeHtml = (value = "") =>
+      String(value).replace(/[&<>"']/g, (char) => {
+        switch (char) {
+          case "&":
+            return "&amp;";
+          case "<":
+            return "&lt;";
+          case ">":
+            return "&gt;";
+          case '"':
+            return "&quot;";
+          case "'":
+            return "&#39;";
+          default:
+            return char;
+        }
+      });
+
+    const formatWhyContent = (text) =>
+      text ? escapeHtml(text).replace(/\r?\n/g, "<br />") : "";
+
+    const selectLocalizedField = (data, key, lang) => {
+      if (!data || !key) return "";
+      const normalizedLang = lang === "en" ? "en" : "id";
+      const fallbackLang = normalizedLang === "id" ? "en" : "id";
+      const value = data[key];
+
+      if (value && typeof value === "object") {
+        const candidate = value[normalizedLang];
+        if (typeof candidate === "string" && candidate.trim()) {
+          return candidate.trim();
+        }
+        const fallbackValue = value[fallbackLang];
+        if (typeof fallbackValue === "string" && fallbackValue.trim()) {
+          return fallbackValue.trim();
+        }
+      }
+
+      const directKey = `${key}_${normalizedLang}`;
+      if (
+        typeof data[directKey] === "string" &&
+        data[directKey].trim()
+      ) {
+        return data[directKey].trim();
+      }
+
+      if (typeof value === "string" && value.trim()) {
+        if (normalizedLang === "id") return value.trim();
+      }
+
+      const fallbackKey = `${key}_${fallbackLang}`;
+      if (
+        typeof data[fallbackKey] === "string" &&
+        data[fallbackKey].trim()
+      ) {
+        return data[fallbackKey].trim();
+      }
+
+      return "";
+    };
+
+    let whySectionDataCache = null;
+
+    function renderWhySection(data) {
+      const container = document.getElementById("whySectionContent");
+      if (!container) return;
+
+      if (!data) {
+        showDefaultWhyContent();
+        return;
+      }
+
+      const lang = getContentLanguage();
+      const title = selectLocalizedField(data, "title", lang);
+      const subtitle = selectLocalizedField(data, "subtitle", lang);
+      const content = selectLocalizedField(data, "content", lang);
+
+      const fallbackTitle = translateText("sections.why.title");
+      const fallbackSubtitle = translateText("sections.why.subtitle");
+      const fallbackContent = translateText("sections.why.description");
+
+      const titleHtml = escapeHtml(title || fallbackTitle);
+      const subtitleHtmlText = escapeHtml(subtitle || fallbackSubtitle);
+      const contentHtml = content
+        ? formatWhyContent(content)
+        : escapeHtml(fallbackContent);
+
+      const subtitleHtml = subtitleHtmlText
+        ? `<h3 class="text-xl lg:text-2xl font-semibold text-brand-900 mb-4">${subtitleHtmlText}</h3>`
+        : "";
+
+      container.innerHTML = `
+        <!-- Left Column: Title -->
+        <div class="flex flex-col justify-center">
+          <h2 class="text-4xl lg:text-5xl xl:text-6xl font-bold text-brand-800 leading-tight mb-4 lg:mb-0">
+            ${title ? escapeHtml(title) : resolvedTitle}
+          </h2>
+        </div>
+        
+        <!-- Right Column: Card -->
+        <div class="relative">
+          <div class="bg-gradient-to-br from-brand-50 to-white border-l-4 border-brand-600 rounded-2xl shadow-lg p-8 lg:p-10">
+            ${subtitleHtml}
+            <p class="text-gray-700 leading-relaxed">
+              ${contentHtml}
+            </p>
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadWhySection({ forceReload = false } = {}) {
+      if (!forceReload && whySectionDataCache) {
+        renderWhySection(whySectionDataCache);
+        return;
+      }
+
       try {
         const response = await fetch("/api/why_section_list");
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const result = await response.json();
 
         if (!result.ok || !result.data) {
+          whySectionDataCache = null;
           showDefaultWhyContent();
           return;
         }
 
-        const container = document.getElementById("whySectionContent");
-        if (!container) return;
-
-        const data = result.data;
-        container.innerHTML = `
-          <!-- Left Column: Title -->
-          <div class="flex flex-col justify-center">
-            <h2 class="text-4xl lg:text-5xl xl:text-6xl font-bold text-brand-800 leading-tight mb-4 lg:mb-0">
-              ${data.title || translateText("sections.why.title")}
-            </h2>
-          </div>
-          
-          <!-- Right Column: Card -->
-          <div class="relative">
-            <div class="bg-gradient-to-br from-brand-50 to-white border-l-4 border-brand-600 rounded-2xl shadow-lg p-8 lg:p-10">
-              <h3 class="text-xl lg:text-2xl font-semibold text-brand-900 mb-4">
-                ${data.subtitle || translateText("sections.why.subtitle")}
-              </h3>
-              <p class="text-gray-700 leading-relaxed">
-                ${data.content || translateText("sections.why.description")}
-              </p>
-            </div>
-          </div>
-        `;
+        whySectionDataCache = result.data;
+        renderWhySection(whySectionDataCache);
       } catch (error) {
         console.error("[WHY_SECTION] Error:", error);
+        whySectionDataCache = null;
         showDefaultWhyContent();
       }
     }
@@ -741,6 +859,21 @@
     document.addEventListener("DOMContentLoaded", () => {
       loadGelombangAktif();
       loadWhySection();
+    });
+
+    window.addEventListener("i18n:languageChanged", () => {
+      if (whySectionDataCache) {
+        renderWhySection(whySectionDataCache);
+      } else {
+        loadWhySection();
+      }
+    });
+
+    window.addEventListener("storage", (event) => {
+      if (event.key === "why_section_update") {
+        whySectionDataCache = null;
+        loadWhySection({ forceReload: true });
+      }
     });
 
     document.addEventListener("i18n:lang-changed", () => {

@@ -122,6 +122,11 @@
       const dict = await loadDict(nextLang);
       flatDict = flattenDict(dict);
       applyTranslations(document);
+      window.dispatchEvent(
+        new CustomEvent("i18n:languageChanged", {
+          detail: { lang: nextLang }
+        })
+      );
     } catch (error) {
       console.error(error);
       if (nextLang !== FALLBACK) {

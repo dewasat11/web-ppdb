@@ -2786,75 +2786,165 @@ Jazakumullahu khairan,
      10) WHY SECTION MANAGEMENT
      ========================= */
   
+  const WHY_SECTION_LANGS = ['id', 'en'];
+  const WHY_SECTION_LABEL = {
+    id: { name: 'Bahasa Indonesia', flag: '🇮🇩' },
+    en: { name: 'English', flag: '🇬🇧' }
+  };
+  let whySectionActiveLang = 'id';
+
+  const toLangFieldId = (field, lang) =>
+    `why${field.charAt(0).toUpperCase()}${field.slice(1)}_${lang}`;
+
+  const getWhyInput = (field, lang) =>
+    document.getElementById(toLangFieldId(field, lang));
+
+  const normalizeWhyField = (data, key) => {
+    const result = { id: '', en: '' };
+    const value = data?.[key];
+
+    if (value && typeof value === 'object') {
+      if (typeof value.id === 'string') result.id = value.id;
+      if (typeof value.en === 'string') result.en = value.en;
+    } else if (typeof value === 'string') {
+      result.id = value;
+    }
+
+    const idKeyCandidates = [`${key}_id`, `${key}Id`];
+    const enKeyCandidates = [`${key}_en`, `${key}En`];
+
+    idKeyCandidates.forEach((candidate) => {
+      if (typeof data?.[candidate] === 'string') {
+        result.id = data[candidate];
+      }
+    });
+
+    enKeyCandidates.forEach((candidate) => {
+      if (typeof data?.[candidate] === 'string') {
+        result.en = data[candidate];
+      }
+    });
+
+    return result;
+  };
+
+  const setWhySectionActiveLang = (lang) => {
+    if (!WHY_SECTION_LANGS.includes(lang)) return;
+    whySectionActiveLang = lang;
+
+    document
+      .querySelectorAll('[data-why-lang-button]')
+      .forEach((button) => {
+        const isActive = button.dataset.whyLangButton === lang;
+        button.classList.toggle('active', isActive);
+        button.classList.toggle('btn-warning', isActive);
+        button.classList.toggle('btn-outline-warning', !isActive);
+        button.setAttribute('aria-pressed', String(isActive));
+      });
+
+    document
+      .querySelectorAll('[data-why-lang-pane]')
+      .forEach((pane) => {
+        pane.classList.toggle(
+          'd-none',
+          pane.dataset.whyLangPane !== lang
+        );
+      });
+
+    updateWhyPreview();
+  };
+
+  const collectWhySectionValues = () =>
+    WHY_SECTION_LANGS.reduce((acc, lang) => {
+      acc[lang] = {
+        title: (getWhyInput('title', lang)?.value || '').trim(),
+        subtitle: (getWhyInput('subtitle', lang)?.value || '').trim(),
+        content: (getWhyInput('content', lang)?.value || '').trim()
+      };
+      return acc;
+    }, {});
+
   /**
    * Load Why Section data and populate form
    */
   async function loadWhySectionData() {
     try {
       console.log('[WHY_SECTION] Loading Why Section data...');
-      
+
       const response = await fetch('/api/why_section_list');
       const result = await response.json();
-      
+
       if (!result.ok || !result.data) {
         console.error('[WHY_SECTION] Failed to load data');
         safeToastr.error('Gagal memuat data Why Section');
         return;
       }
-      
-      const data = result.data;
-      
-      // Populate form
-      const titleInput = document.getElementById('whyTitle');
-      const subtitleInput = document.getElementById('whySubtitle');
-      const contentInput = document.getElementById('whyContent');
-      
-      if (titleInput) titleInput.value = data.title || '';
-      if (subtitleInput) subtitleInput.value = data.subtitle || '';
-      if (contentInput) contentInput.value = data.content || '';
-      
-      // Update preview
+
+      const data = result.data || {};
+
+      const titleData = normalizeWhyField(data, 'title');
+      const subtitleData = normalizeWhyField(data, 'subtitle');
+      const contentData = normalizeWhyField(data, 'content');
+
+      WHY_SECTION_LANGS.forEach((lang) => {
+        const titleInput = getWhyInput('title', lang);
+        const subtitleInput = getWhyInput('subtitle', lang);
+        const contentInput = getWhyInput('content', lang);
+
+        if (titleInput) titleInput.value = titleData[lang] || '';
+        if (subtitleInput) subtitleInput.value = subtitleData[lang] || '';
+        if (contentInput) contentInput.value = contentData[lang] || '';
+      });
+
+      // Always show Indonesian first
+      setWhySectionActiveLang('id');
       updateWhyPreview();
-      
+
       console.log('[WHY_SECTION] ✅ Data loaded successfully');
-      
     } catch (error) {
       console.error('[WHY_SECTION] Error loading data:', error);
       safeToastr.error('Error: ' + error.message);
     }
   }
-  
+
   /**
    * Update preview of Why Section
    */
   function updateWhyPreview() {
-    const titleInput = document.getElementById('whyTitle');
-    const subtitleInput = document.getElementById('whySubtitle');
-    const contentInput = document.getElementById('whyContent');
     const preview = document.getElementById('whyPreview');
-    
     if (!preview) return;
-    
-    const title = titleInput ? titleInput.value : '';
-    const subtitle = subtitleInput ? subtitleInput.value : '';
-    const content = contentInput ? contentInput.value : '';
-    
-    if (!title && !content) {
-      preview.innerHTML = '<p class="text-muted text-center mb-0">Preview akan muncul setelah mengisi form</p>';
+
+    const activeLang = whySectionActiveLang || 'id';
+    const inputs = collectWhySectionValues();
+    const data = inputs[activeLang] || { title: '', subtitle: '', content: '' };
+    const label = WHY_SECTION_LABEL[activeLang];
+
+    if (!data.title && !data.content) {
+      preview.innerHTML =
+        '<p class="text-muted text-center mb-0">Preview akan muncul setelah mengisi form</p>';
       return;
     }
-    
+
+    const subtitleHtml = data.subtitle
+      ? `<p class="text-muted mb-4">${data.subtitle}</p>`
+      : '';
+    const contentHtml = data.content
+      ? `<p class="text-muted mb-0" style="white-space: pre-line;">${data.content}</p>`
+      : '<p class="text-muted mb-0 fst-italic">Konten belum diisi.</p>';
+
     preview.innerHTML = `
-      <div class="text-center">
-        <h2 class="h3 mb-3">${title || 'Judul'}</h2>
-        ${subtitle ? `<p class="text-muted mb-4">${subtitle}</p>` : ''}
-        <div class="text-start">
-          <p class="text-muted mb-0" style="white-space: pre-line;">${content || 'Konten narasi...'}</p>
+      <div class="text-start">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <span class="fs-4">${label?.flag || ''}</span>
+          <span class="fw-semibold">${label?.name || ''}</span>
         </div>
+        <h2 class="h3 mb-3">${data.title || 'Judul'}</h2>
+        ${subtitleHtml}
+        ${contentHtml}
       </div>
     `;
   }
-  
+
   /**
    * Save Why Section data
    */
@@ -2862,104 +2952,124 @@ Jazakumullahu khairan,
     if (event) {
       event.preventDefault();
     }
-    
+
     try {
-      const titleInput = document.getElementById('whyTitle');
-      const subtitleInput = document.getElementById('whySubtitle');
-      const contentInput = document.getElementById('whyContent');
       const btnSave = document.getElementById('btnSaveWhy');
-      
-      if (!titleInput || !contentInput) {
-        throw new Error('Form fields not found');
-      }
-      
-      const title = titleInput.value.trim();
-      const subtitle = subtitleInput ? subtitleInput.value.trim() : '';
-      const content = contentInput.value.trim();
-      
-      if (!title || !content) {
-        safeToastr.warning('Judul dan konten harus diisi!');
+      const values = collectWhySectionValues();
+
+      const missingLangs = WHY_SECTION_LANGS.filter(
+        (lang) => !values[lang].title || !values[lang].content
+      );
+
+      if (missingLangs.length) {
+        const missingLabels = missingLangs
+          .map((lang) => WHY_SECTION_LABEL[lang]?.name || lang)
+          .join(', ');
+        safeToastr.warning(
+          `Judul dan konten wajib diisi untuk bahasa: ${missingLabels}`
+        );
         return;
       }
-      
-      // Show loading state
+
+      const payload = {
+        title: values.id.title,
+        subtitle: values.id.subtitle,
+        content: values.id.content,
+        title_en: values.en.title,
+        subtitle_en: values.en.subtitle,
+        content_en: values.en.content,
+        translations: {
+          title: {
+            id: values.id.title,
+            en: values.en.title
+          },
+          subtitle: {
+            id: values.id.subtitle,
+            en: values.en.subtitle
+          },
+          content: {
+            id: values.id.content,
+            en: values.en.content
+          }
+        }
+      };
+
       const originalText = btnSave ? btnSave.innerHTML : '';
       if (btnSave) {
         btnSave.disabled = true;
-        btnSave.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
+        btnSave.innerHTML =
+          '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
       }
-      
-      console.log('[WHY_SECTION] Saving data...', { title, subtitle, content });
-      
+
+      console.log('[WHY_SECTION] Saving data...', payload);
+
       const response = await fetch('/api/why_section_update', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          title: title,
-          subtitle: subtitle,
-          content: content
-        })
+        body: JSON.stringify(payload)
       });
-      
+
       const result = await response.json();
-      
+
       if (!result.ok) {
         throw new Error(result.error || 'Gagal menyimpan data');
       }
-      
+
       console.log('[WHY_SECTION] ✅ Data saved successfully');
-      
-      // Show success notification
+
       safeToastr.success('✅ Why Section berhasil disimpan!');
-      
-      // Update preview
+
       updateWhyPreview();
-      
-      // Broadcast update to other tabs/windows
-      localStorage.setItem('why_section_update', JSON.stringify({
-        timestamp: Date.now(),
-        action: 'updated'
-      }));
-      
-      // Restore button
+
+      localStorage.setItem(
+        'why_section_update',
+        JSON.stringify({
+          timestamp: Date.now(),
+          action: 'updated'
+        })
+      );
+
       if (btnSave) {
         btnSave.disabled = false;
         btnSave.innerHTML = originalText;
       }
-      
     } catch (error) {
       console.error('[WHY_SECTION] Error saving:', error);
-      
+
       safeToastr.error('❌ Error: ' + error.message);
-      
+
       const btnSave = document.getElementById('btnSaveWhy');
       if (btnSave) {
         btnSave.disabled = false;
-        btnSave.innerHTML = '<i class="bi bi-save"></i> Simpan Perubahan';
+        btnSave.innerHTML =
+          '<i class="bi bi-save"></i> Simpan Perubahan';
       }
     }
   }
-  
-  // Update preview on input change
+
   document.addEventListener('DOMContentLoaded', () => {
-    const titleInput = document.getElementById('whyTitle');
-    const subtitleInput = document.getElementById('whySubtitle');
-    const contentInput = document.getElementById('whyContent');
-    
-    if (titleInput) {
-      titleInput.addEventListener('input', updateWhyPreview);
-    }
-    if (subtitleInput) {
-      subtitleInput.addEventListener('input', updateWhyPreview);
-    }
-    if (contentInput) {
-      contentInput.addEventListener('input', updateWhyPreview);
-    }
+    WHY_SECTION_LANGS.forEach((lang) => {
+      ['title', 'subtitle', 'content'].forEach((field) => {
+        const input = getWhyInput(field, lang);
+        if (input) {
+          input.addEventListener('input', updateWhyPreview);
+        }
+      });
+    });
+
+    document
+      .querySelectorAll('[data-why-lang-button]')
+      .forEach((button) => {
+        button.addEventListener('click', () => {
+          setWhySectionActiveLang(button.dataset.whyLangButton);
+        });
+      });
+
+    setWhySectionActiveLang('id');
   });
-  
-  // Expose functions
+
   window.loadWhySectionData = loadWhySectionData;
   window.saveWhySection = saveWhySection;
   window.updateWhyPreview = updateWhyPreview;

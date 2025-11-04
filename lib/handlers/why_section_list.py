@@ -19,7 +19,10 @@ class handler(BaseHTTPRequestHandler):
             default_data = {
                 "title": "Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?",
                 "subtitle": "Pendidikan islami terpadu: tahfidz Al-Qur'an, akhlak mulia, dan ilmu pengetahuan",
-                "content": "Bergabunglah dengan Pondok Pesantren Al Ikhsan Beji untuk mendapatkan pendidikan islami terpadu yang membentuk karakter santri yang berakhlak mulia. Program tahfidz Al-Qur'an dengan metode terbukti akan membimbing santri menghafal Al-Qur'an dengan tartil dan pemahaman makna. Dengan pendampingan 24 jam, kami membentuk karakter santri yang ta'at beribadah dan santun dalam pergaulan. Fasilitas asrama yang nyaman dilengkapi dengan masjid, ruang belajar, perpustakaan, dan fasilitas olahraga yang lengkap untuk mendukung proses belajar mengajar yang optimal."
+                "content": "Bergabunglah dengan Pondok Pesantren Al Ikhsan Beji untuk mendapatkan pendidikan islami terpadu yang membentuk karakter santri yang berakhlak mulia. Program tahfidz Al-Qur'an dengan metode terbukti akan membimbing santri menghafal Al-Qur'an dengan tartil dan pemahaman makna. Dengan pendampingan 24 jam, kami membentuk karakter santri yang ta'at beribadah dan santun dalam pergaulan. Fasilitas asrama yang nyaman dilengkapi dengan masjid, ruang belajar, perpustakaan, dan fasilitas olahraga yang lengkap untuk mendukung proses belajar mengajar yang optimal.",
+                "title_en": "Why Choose Al Ikhsan Islamic Boarding School?",
+                "subtitle_en": "Integrated Islamic education: tahfidz al-Qur'an, noble character, and knowledge",
+                "content_en": "Join Al Ikhsan Islamic Boarding School to experience an integrated Islamic education that shapes students with noble character. Our proven tahfidz programme guides santri to memorise the Qur'an with tartil while understanding its meaning. With round-the-clock mentoring we nurture disciplined, devout, and courteous students. Comfortable dormitories complete with a mosque, classrooms, library, and sports facilities support an optimal learning environment."
             }
             
             # Try to fetch from database
@@ -29,13 +32,18 @@ class handler(BaseHTTPRequestHandler):
                 
                 if result.data and len(result.data) > 0:
                     data = result.data[0]
+                    payload = {
+                        "title": data.get("title") or default_data["title"],
+                        "subtitle": data.get("subtitle") or default_data["subtitle"],
+                        "content": data.get("content") or default_data["content"],
+                        "title_en": data.get("title_en") or default_data["title_en"],
+                        "subtitle_en": data.get("subtitle_en") or default_data["subtitle_en"],
+                        "content_en": data.get("content_en") or default_data["content_en"]
+                    }
+
                     response = {
                         "ok": True,
-                        "data": {
-                            "title": data.get("title", default_data["title"]),
-                            "subtitle": data.get("subtitle", default_data["subtitle"]),
-                            "content": data.get("content", default_data["content"])
-                        }
+                        "data": payload
                     }
                 else:
                     # No data in table, return default
@@ -83,13 +91,18 @@ class handler(BaseHTTPRequestHandler):
             request_handler.end_headers()
             
             # Return default content even on error (graceful degradation)
+            fallback_payload = {
+                "title": default_data["title"],
+                "subtitle": default_data["subtitle"],
+                "content": default_data["content"],
+                "title_en": default_data["title_en"],
+                "subtitle_en": default_data["subtitle_en"],
+                "content_en": default_data["content_en"]
+            }
+
             request_handler.wfile.write(json.dumps({
-                "ok": True,  # Set to True so frontend doesn't break
-                "data": {
-                    "title": "Mengapa Memilih Pondok Pesantren Al Ikhsan Beji?",
-                    "subtitle": "Pendidikan islami terpadu: tahfidz Al-Qur'an, akhlak mulia, dan ilmu pengetahuan",
-                    "content": "Bergabunglah dengan Pondok Pesantren Al Ikhsan Beji untuk mendapatkan pendidikan islami terpadu yang membentuk karakter santri yang berakhlak mulia. Program tahfidz Al-Qur'an dengan metode terbukti akan membimbing santri menghafal Al-Qur'an dengan tartil dan pemahaman makna. Dengan pendampingan 24 jam, kami membentuk karakter santri yang ta'at beribadah dan santun dalam pergaulan. Fasilitas asrama yang nyaman dilengkapi dengan masjid, ruang belajar, perpustakaan, dan fasilitas olahraga yang lengkap untuk mendukung proses belajar mengajar yang optimal."
-                },
+                "ok": True,
+                "data": fallback_payload,
                 "error": str(e)  # Include error for debugging
             }).encode())
     
@@ -100,4 +113,3 @@ class handler(BaseHTTPRequestHandler):
         request_handler.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
         request_handler.send_header("Access-Control-Allow-Headers", "Content-Type")
         request_handler.end_headers()
-
