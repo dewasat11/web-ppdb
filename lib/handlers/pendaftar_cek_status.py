@@ -26,24 +26,29 @@ class handler(BaseHTTPRequestHandler):
         try:
             print(f"[CEK_STATUS] Request path: {request_handler.path}")
             
+            # Helper to normalize NISN (keep digits only)
+            def normalize_nisn(value: str) -> str:
+                return "".join(ch for ch in value if ch.isdigit())
+
             # Parse query parameters
             parsed = urlparse(request_handler.path)
             params = parse_qs(parsed.query)
-            nisn = (params.get("nisn", [""])[0] or "").strip()
+            raw_nisn = (params.get("nisn", [""])[0] or "").strip()
+            normalized_nisn = normalize_nisn(raw_nisn)
             
-            print(f"[CEK_STATUS] NISN: {nisn}")
+            print(f"[CEK_STATUS] NISN raw: {raw_nisn}, normalized: {normalized_nisn}")
 
             # Validasi: NISN wajib diisi
-            if not nisn:
+            if not raw_nisn:
                 print("[CEK_STATUS] Error: NISN kosong")
                 return send_json(400, {
                     "ok": False,
                     "error": "NISN harus diisi"
                 })
 
-            # Validasi: NISN harus 10 digit angka
-            if len(nisn) != 10 or not nisn.isdigit():
-                print(f"[CEK_STATUS] Error: NISN invalid format - {nisn}")
+            # Validasi: NISN harus 10 digit angka (setelah normalisasi)
+            if len(normalized_nisn) != 10:
+                print(f"[CEK_STATUS] Error: NISN invalid format - {raw_nisn}")
                 return send_json(400, {
                     "ok": False,
                     "error": "Format NISN tidak valid (10 digit)"
@@ -63,42 +68,61 @@ class handler(BaseHTTPRequestHandler):
                     "detail": str(e)
                 })
 
-            print(f"[CEK_STATUS] Querying pendaftar with nisn={nisn}")
-            
-            try:
-                result = supa.table("pendaftar").select(
-                    "nisn,namalengkap,tanggallahir,tempatlahir,statusberkas,alasan,verifiedby,verifiedat,createdat,updatedat"
-                ).eq("nisn", nisn).execute()
-                
-                print(f"[CEK_STATUS] Query result: {len(result.data) if result.data else 0} rows")
-            except Exception as e:
-                print(f"[CEK_STATUS] Error querying database: {e}")
-                traceback.print_exc()
-                return send_json(500, {
-                    "ok": False,
-                    "error": "Database query error",
-                    "detail": str(e)
-                })
+            nisn_candidates = []
+            if normalized_nisn:
+                nisn_candidates.append(normalized_nisn)
+            if raw_nisn and raw_nisn != normalized_nisn:
+                nisn_candidates.append(raw_nisn)
+            nisn_candidates = list(dict.fromkeys([candidate for candidate in nisn_candidates if candidate]))
 
-            # Jika tidak ditemukan, return 200 dengan data: null
-            if not result.data:
+            selected_nisn = None
+            row = None
+            
+            for candidate in nisn_candidates:
+                print(f"[CEK_STATUS] Querying pendaftar with nisn={candidate}")
+                try:
+                    result = supa.table("pendaftar").select(
+                        "nisn,namalengkap,tanggallahir,tempatlahir,statusberkas,alasan,verifiedby,verifiedat,createdat,updatedat"
+                    ).eq("nisn", candidate).limit(1).execute()
+                except Exception as e:
+                    print(f"[CEK_STATUS] Error querying database for candidate {candidate}: {e}")
+                    traceback.print_exc()
+                    continue
+
+                if result.data:
+                    row = result.data[0]
+                    selected_nisn = candidate
+                    print(f"[CEK_STATUS] Match found for candidate={candidate}")
+                    break
+
+            if row is None:
                 print("[CEK_STATUS] NISN tidak ditemukan")
                 return send_json(200, {
                     "ok": True,
                     "data": None
                 })
 
-            row: Dict[str, Any] = result.data[0]
             print(f"[CEK_STATUS] Found data for: {row.get('namalengkap')}")
             print(f"[CEK_STATUS] Catatan Admin (alasan): {row.get('alasan')}")
 
             # Query data pembayaran juga
             pembayaran_data = None
             try:
-                print(f"[CEK_STATUS] Querying pembayaran with nisn={nisn}")
-                pembayaran_result = supa.table("pembayaran").select(
+                payment_filters = []
+                for candidate in nisn_candidates:
+                    payment_filters.append(f"nisn.eq.{candidate}")
+                    payment_filters.append(f"nik.eq.{candidate}")
+                filter_string = ",".join(dict.fromkeys(payment_filters))
+
+                print(f"[CEK_STATUS] Querying pembayaran with filters={filter_string}")
+                pembayaran_query = supa.table("pembayaran").select(
                     "nisn,nik,nama,metode_pembayaran,jumlah,bukti_bayar_url,status_pembayaran,verified_by,catatan_admin,tanggal_verifikasi,created_at,updated_at"
-                ).eq("nisn", nisn).execute()
+                )
+
+                if filter_string:
+                    pembayaran_query = pembayaran_query.or_(filter_string)
+
+                pembayaran_result = pembayaran_query.order("updated_at", desc=True).limit(1).execute()
                 
                 if pembayaran_result.data and len(pembayaran_result.data) > 0:
                     pembayaran_row = pembayaran_result.data[0]
@@ -125,7 +149,7 @@ class handler(BaseHTTPRequestHandler):
 
             # Transform sesuai spec
             data = {
-                "nisn": row.get("nisn", ""),
+                "nisn": row.get("nisn", "") or selected_nisn or normalized_nisn,
                 "nama": row.get("namalengkap", ""),
                 "tanggalLahir": row.get("tanggallahir"),
                 "tempatLahir": row.get("tempatlahir"),

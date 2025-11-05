@@ -173,7 +173,7 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="relative bg-gradient-to-br from-brand-800 to-brand-900 min-h-[30vh] flex items-center overflow-hidden">
+    <section class="relative bg-gradient-to-br from-brand-800 to-brand-900 min-h-[22vh] py-8 flex items-center overflow-hidden">
       <!-- Background Pattern / Banner -->
       <div class="absolute inset-0 opacity-10 z-10">
         <div class="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800"></div>
@@ -182,11 +182,11 @@
       <!-- Content -->
       <div class="relative z-20 container mx-auto px-4">
         <div class="flex justify-center">
-          <div class="w-full lg:w-5/6 text-center">
-            <h1 class="text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
+          <div class="w-full lg:w-4/6 text-center">
+            <h1 class="text-3xl lg:text-4xl font-bold text-white mb-3 leading-tight">
               <i class="bi bi-search"></i> <span data-i18n="cekStatus.hero.title">Cek Status Pendaftaran Santri</span>
             </h1>
-            <p class="text-lg lg:text-xl text-gray-200 mb-4" data-i18n="cekStatus.hero.subtitle">
+            <p class="text-base lg:text-lg text-gray-200 mb-3" data-i18n="cekStatus.hero.subtitle">
               Masukkan NISN Anda untuk melihat status pendaftaran Pondok Pesantren Al Ikhsan Beji
             </p>
           </div>
@@ -386,6 +386,15 @@
             return new Intl.NumberFormat(getLocale(), { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(amount);
           } catch (error) {
             return 'Rp ' + amount.toLocaleString('id-ID');
+          }
+        };
+
+        const normalizeStatus = (value) => {
+          if (value === null || value === undefined) return '';
+          try {
+            return value.toString().trim().toUpperCase().replace(/[\s_-]+/g, '');
+          } catch {
+            return '';
           }
         };
 
@@ -735,7 +744,9 @@
           if (fieldTanggalLahirEl) fieldTanggalLahirEl.textContent = formatDate(data.tanggalLahir);
           if (fieldTanggalDaftarEl) fieldTanggalDaftarEl.textContent = formatDateTime(data.created_at || data.createdat);
 
-          const statusKey = String(data.status || 'PENDING').toUpperCase();
+          const statusRaw = data.status ?? 'PENDING';
+          const statusKey = String(statusRaw).trim().toUpperCase();
+          const normalizedStatusKey = normalizeStatus(statusRaw) || 'PENDING';
 
           catatanContainer?.querySelectorAll('.verified-info[data-dynamic="true"]').forEach((el) => el.remove());
           if (catatanEl) {
@@ -751,34 +762,77 @@
           }
 
           const payment = data.pembayaran || null;
-          const paymentStatusRaw = payment?.status_pembayaran ? payment.status_pembayaran.toString().trim().toUpperCase() : '';
-          const normalizedStatusKey = statusKey.replace(/[^A-Z]/g, '');
+          const paymentStatusRaw = payment?.status_pembayaran ? payment.status_pembayaran.toString().trim() : '';
+          const paymentStatusNormalized = normalizeStatus(paymentStatusRaw);
+
           const isStatusAccepted = /(DITERIMA|TERVERIFIKASI|VERIFIED)/.test(normalizedStatusKey);
-          const isPaymentVerified = ['VERIFIED', 'APPROVED', 'SUCCESS', 'PAID', 'LUNAS', 'COMPLETED', 'TERVERIFIKASI', 'PAYMENT_VERIFIED', 'VERIFIKASI'].includes(paymentStatusRaw);
-          const isPaymentRejected = ['REJECTED', 'DITOLAK', 'PAYMENT_REJECTED'].includes(paymentStatusRaw);
-          const isPaymentPending = ['PENDING', 'MENUNGGU', 'WAITING', 'IN_REVIEW', 'PROCESSING', 'PROSES', 'MENUNGGU VERIFIKASI'].includes(paymentStatusRaw);
+
+          const paymentVerifiedStatuses = new Set([
+            'VERIFIED',
+            'APPROVED',
+            'SUCCESS',
+            'PAID',
+            'LUNAS',
+            'COMPLETED',
+            'TERVERIFIKASI',
+            'PAYMENT_VERIFIED',
+            'VERIFIKASI',
+            'VERIFIED_BY_ADMIN',
+            'SUDAH_DIVERIFIKASI',
+            'SUDAH_VERIFIKASI',
+            'SUDAH_VERIFIKASI_ADMIN',
+            'PEMBAYARAN_TERVERIFIKASI',
+            'PEMBAYARAN_VERIFIED',
+            'DISETUJUI',
+            'ACC'
+          ].map(normalizeStatus));
+
+          const paymentRejectedStatuses = new Set([
+            'REJECTED',
+            'DITOLAK',
+            'PAYMENT_REJECTED',
+            'FAILED',
+            'GAGAL',
+            'DITOLAK_ADMIN',
+            'BATAL'
+          ].map(normalizeStatus));
+
+          const paymentPendingStatuses = new Set([
+            'PENDING',
+            'MENUNGGU',
+            'WAITING',
+            'IN_REVIEW',
+            'PROCESSING',
+            'PROSES',
+            'MENUNGGU_VERIFIKASI',
+            'ON_REVIEW',
+            'CHECKING',
+            'DIPROSES',
+            'DALAM_PROSES',
+            'MENUNGGU_KONFIRMASI'
+          ].map(normalizeStatus));
+
+          const isPaymentVerified = paymentVerifiedStatuses.has(paymentStatusNormalized);
+          const isPaymentRejected = paymentRejectedStatuses.has(paymentStatusNormalized);
+          const isPaymentPending = paymentPendingStatuses.has(paymentStatusNormalized);
           const hasPaymentRecord = Boolean(payment);
 
           const statusConfig = getStatusConfig();
           let effectiveStatusKey = statusKey;
 
-          if (isStatusAccepted) {
-            if (isPaymentVerified) {
-              effectiveStatusKey = 'VERIFIED';
-            } else if (hasPaymentRecord && isPaymentRejected) {
-              effectiveStatusKey = 'PAYMENT_REJECTED';
-            } else if (hasPaymentRecord && isPaymentPending) {
-              effectiveStatusKey = 'PAYMENT_PENDING';
-            } else if (!hasPaymentRecord) {
-              effectiveStatusKey = 'AWAITING_PAYMENT';
-            } else if (!isPaymentVerified) {
-              effectiveStatusKey = 'PAYMENT_PENDING';
-            }
-          } else if (statusKey === 'REJECTED' || statusKey === 'DITOLAK') {
+          if (isPaymentVerified) {
+            effectiveStatusKey = 'VERIFIED';
+          } else if (hasPaymentRecord && isPaymentRejected) {
+            effectiveStatusKey = 'PAYMENT_REJECTED';
+          } else if (hasPaymentRecord && isPaymentPending) {
+            effectiveStatusKey = 'PAYMENT_PENDING';
+          } else if (isStatusAccepted && !hasPaymentRecord) {
+            effectiveStatusKey = 'AWAITING_PAYMENT';
+          } else if (normalizedStatusKey === 'REJECTED' || normalizedStatusKey === 'DITOLAK') {
             effectiveStatusKey = 'REJECTED';
           }
 
-          const config = statusConfig[effectiveStatusKey] || statusConfig[statusKey] || statusConfig.PENDING;
+          const config = statusConfig[effectiveStatusKey] || statusConfig[statusKey] || statusConfig[normalizedStatusKey] || statusConfig.PENDING;
 
           statusIconEl.className = `bi ${config.icon} ${config.textClass}`;
           statusBadgeEl.className = `px-4 py-2 rounded-full ${config.badgeClass} text-white`;
@@ -786,17 +840,17 @@
           statusTextEl.className = `inline-block px-3 py-1 rounded ${config.badgeClass} text-white text-sm`;
           statusTextEl.textContent = config.label;
 
-          if (isStatusAccepted && isPaymentVerified) {
+          if (isPaymentVerified) {
             insertBeforeInfoCard(buildPaymentSuccess(data, payment));
-          } else if (isStatusAccepted && isPaymentRejected) {
+          } else if (hasPaymentRecord && isPaymentRejected) {
             insertBeforeInfoCard(buildPaymentRejected(data, payment));
-          } else if (isStatusAccepted && hasPaymentRecord && isPaymentPending) {
+          } else if (hasPaymentRecord && isPaymentPending) {
             insertBeforeInfoCard(buildPaymentPending(data, payment));
           } else if (isStatusAccepted && !hasPaymentRecord) {
             insertBeforeInfoCard(buildPaymentInstruction(data));
-          } else if (statusKey === 'REVISI') {
+          } else if (normalizedStatusKey === 'REVISI') {
             insertBeforeInfoCard(buildRevision(data));
-          } else if (statusKey === 'DITOLAK' || statusKey === 'REJECTED') {
+          } else if (normalizedStatusKey === 'DITOLAK' || normalizedStatusKey === 'REJECTED') {
             insertBeforeInfoCard(buildRejection());
           } else {
             insertAfterStatusSection(buildWaiting());
