@@ -75,35 +75,26 @@ class handler(BaseHTTPRequestHandler):
                 identifiers.append(raw_nisn)
             identifiers = list(dict.fromkeys([candidate for candidate in identifiers if candidate]))
 
-            pendaftar_filters = []
-            for candidate in identifiers:
-                for field in ("nisn", "nik", "nikcalon"):
-                    pendaftar_filters.append(f"{field}.eq.{candidate}")
-
             row = None
             selected_identifier = None
+            search_fields = ("nisn", "nik", "nikcalon")
+            print(f"[CEK_STATUS] Searching pendaftar using identifiers={identifiers}")
+            for field in search_fields:
+                for candidate in identifiers:
+                    try:
+                        result = supa.table("pendaftar").select("*").eq(field, candidate).order("updatedat", desc=True).limit(1).execute()
+                    except Exception as e:
+                        print(f"[CEK_STATUS] Error querying pendaftar field={field} candidate={candidate}: {e}")
+                        traceback.print_exc()
+                        continue
 
-            try:
-                print(f"[CEK_STATUS] Querying pendaftar with filters={pendaftar_filters}")
-                query = supa.table("pendaftar").select(
-                    "id,nisn,nik,nikcalon,namalengkap,tanggallahir,tempatlahir,statusberkas,alasan,verifiedby,verifiedat,createdat,updatedat"
-                )
-                if pendaftar_filters:
-                    query = query.or_(",".join(pendaftar_filters))
-                result = query.order("updatedat", desc=True).limit(1).execute()
-            except Exception as e:
-                print(f"[CEK_STATUS] Error querying database: {e}")
-                traceback.print_exc()
-                return send_json(500, {
-                    "ok": False,
-                    "error": "Database query error",
-                    "detail": str(e)
-                })
-
-            if result.data:
-                row = result.data[0]
-                selected_identifier = row.get("nisn") or row.get("nik") or row.get("nikcalon") or (identifiers[0] if identifiers else normalized_nisn)
-                print(f"[CEK_STATUS] Match found for identifier={selected_identifier}")
+                    if result.data:
+                        row = result.data[0]
+                        selected_identifier = candidate
+                        print(f"[CEK_STATUS] Match found using field={field}, candidate={candidate}")
+                        break
+                if row is not None:
+                    break
 
             if row is None:
                 print("[CEK_STATUS] NISN tidak ditemukan")
@@ -118,32 +109,39 @@ class handler(BaseHTTPRequestHandler):
             # Query data pembayaran juga
             pembayaran_data = None
             try:
-                payment_filters = []
-                for candidate in identifiers:
-                    payment_filters.append(f"nisn.eq.{candidate}")
-                    payment_filters.append(f"nik.eq.{candidate}")
-                payment_filters = list(dict.fromkeys(payment_filters))
-                filter_string = ",".join(payment_filters)
+                payment_identifiers = identifiers.copy()
+                for field in search_fields:
+                    value = row.get(field)
+                    if value:
+                        payment_identifiers.append(str(value).strip())
+                payment_identifiers = list(dict.fromkeys([val for val in payment_identifiers if val]))
 
-                print(f"[CEK_STATUS] Querying pembayaran with filters={filter_string}")
-                pembayaran_query = supa.table("pembayaran").select(
-                    "nisn,nik,nama,metode_pembayaran,jumlah,bukti_bayar_url,status_pembayaran,verified_by,catatan_admin,tanggal_verifikasi,created_at,updated_at"
-                )
+                print(f"[CEK_STATUS] Searching pembayaran using identifiers={payment_identifiers}")
+                pembayaran_row = None
+                for field in ("nisn", "nik"):
+                    for candidate in payment_identifiers:
+                        try:
+                            pembayaran_result = supa.table("pembayaran").select("*").eq(field, candidate).order("updated_at", desc=True).limit(1).execute()
+                        except Exception as e:
+                            print(f"[CEK_STATUS] Error querying pembayaran field={field} candidate={candidate}: {e}")
+                            traceback.print_exc()
+                            continue
 
-                if filter_string:
-                    pembayaran_query = pembayaran_query.or_(filter_string)
+                        if pembayaran_result.data:
+                            pembayaran_row = pembayaran_result.data[0]
+                            print(f"[CEK_STATUS] Pembayaran match using field={field}, candidate={candidate}")
+                            break
+                    if pembayaran_row is not None:
+                        break
 
-                pembayaran_result = pembayaran_query.order("updated_at", desc=True).limit(1).execute()
-                
-                if pembayaran_result.data and len(pembayaran_result.data) > 0:
-                    pembayaran_row = pembayaran_result.data[0]
+                if pembayaran_row:
                     pembayaran_data = {
                         "nisn": pembayaran_row.get("nisn", ""),
                         "nik": pembayaran_row.get("nik", ""),
-                        "nama": pembayaran_row.get("nama", ""),
+                        "nama": pembayaran_row.get("nama") or pembayaran_row.get("nama_lengkap", ""),
                         "metode_pembayaran": pembayaran_row.get("metode_pembayaran", ""),
                         "jumlah": pembayaran_row.get("jumlah", 0),
-                        "bukti_bayar_url": pembayaran_row.get("bukti_bayar_url", ""),
+                        "bukti_bayar_url": pembayaran_row.get("bukti_bayar_url") or pembayaran_row.get("bukti_pembayaran", ""),
                         "status_pembayaran": pembayaran_row.get("status_pembayaran", "PENDING"),
                         "verified_by": pembayaran_row.get("verified_by", ""),
                         "catatan_admin": pembayaran_row.get("catatan_admin", ""),
