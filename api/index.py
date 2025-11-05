@@ -211,6 +211,19 @@ class handler(BaseHTTPRequestHandler):
                     KontakSettingsHandler.do_POST(self)
                 else:
                     KontakSettingsHandler.do_OPTIONS(self)
+
+            elif action == 'berita_items':
+                from lib.handlers.berita_items import handler as BeritaItemsHandler
+                if self.command == 'GET':
+                    BeritaItemsHandler.do_GET(self)
+                elif self.command == 'POST':
+                    BeritaItemsHandler.do_POST(self)
+                elif self.command == 'PUT':
+                    BeritaItemsHandler.do_PUT(self)
+                elif self.command == 'DELETE':
+                    BeritaItemsHandler.do_DELETE(self)
+                else:
+                    BeritaItemsHandler.do_OPTIONS(self)
                     
             else:
                 # Default response for unknown actions

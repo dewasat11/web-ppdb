@@ -48,6 +48,14 @@
     "ctaStatus": "Check Status"
   },
   "sections": {
+    "berita": {
+      "title": "News & Articles",
+      "subtitle": "Latest news about Al Ikhsan Islamic Boarding School",
+      "loading": "Loading news...",
+      "empty": "No news available yet",
+      "readMore": "Read More",
+      "publishedDate": "Published"
+    },
     "gelombang": {
       "title": "Admission Periods",
       "subtitle": "Choose the period that fits your family's schedule",

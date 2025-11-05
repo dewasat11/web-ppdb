@@ -680,6 +680,11 @@
           </a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="berita" onclick="switchTab('berita')">
+            <i class="bi bi-newspaper"></i> Berita
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="#" data-tab="hero" onclick="switchTab('hero')">
             <i class="bi bi-images"></i> Hero Slider
           </a>
@@ -1095,6 +1100,127 @@
                 <span class="visually-hidden">Memuat...</span>
               </div>
               <p class="text-muted mt-3">Memuat data gelombang...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Berita -->
+        <div id="tab-berita" class="tab-content" style="display:none">
+          <div class="page-header">
+            <h2><i class="bi bi-newspaper"></i> Kelola Berita</h2>
+            <p>Kelola berita dan artikel untuk website (Bilingual: Indonesia & English)</p>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-lg-5">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Tambah / Edit Berita</h5>
+                </div>
+                <div class="card-body">
+                  <form id="beritaForm">
+                    <input type="hidden" id="beritaId">
+                    <div class="mb-3">
+                      <label class="form-label d-flex align-items-center gap-2">
+                        <i class="bi bi-translate"></i>
+                        Bahasa Konten
+                      </label>
+                      <div class="btn-group btn-group-sm" id="beritaLangSwitch" role="group" aria-label="Pilih bahasa berita">
+                        <button type="button" class="btn btn-success active" data-berita-lang-button="id">
+                          <span class="me-1" aria-hidden="true">🇮🇩</span>
+                          Indonesia
+                        </button>
+                        <button type="button" class="btn btn-outline-success" data-berita-lang-button="en">
+                          <span class="me-1" aria-hidden="true">🇬🇧</span>
+                          English
+                        </button>
+                      </div>
+                      <small class="text-muted d-block mt-2">
+                        Isi judul dan konten dalam dua bahasa. Gambar dan status publikasi berlaku untuk semua bahasa.
+                      </small>
+                    </div>
+
+                    <div class="berita-lang-pane" data-berita-lang-pane="id">
+                      <div class="mb-3">
+                        <label for="beritaTitle_id" class="form-label">Judul (Bahasa Indonesia)</label>
+                        <input type="text" class="form-control" id="beritaTitle_id" placeholder="Contoh: Selamat Datang Santri Baru 2026">
+                      </div>
+                      <div class="mb-3">
+                        <label for="beritaContent_id" class="form-label">Konten (Bahasa Indonesia)</label>
+                        <textarea class="form-control" id="beritaContent_id" rows="6" placeholder="Tulis konten berita dalam Bahasa Indonesia"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="berita-lang-pane d-none" data-berita-lang-pane="en">
+                      <div class="mb-3">
+                        <label for="beritaTitle_en" class="form-label">Title (English)</label>
+                        <input type="text" class="form-control" id="beritaTitle_en" placeholder="Example: Welcome New Students 2026">
+                      </div>
+                      <div class="mb-3">
+                        <label for="beritaContent_en" class="form-label">Content (English)</label>
+                        <textarea class="form-control" id="beritaContent_en" rows="6" placeholder="Write news content in English"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="beritaImageUrl" class="form-label">URL Gambar (Opsional)</label>
+                      <input type="url" class="form-control" id="beritaImageUrl" placeholder="https://...jpg">
+                      <small class="text-muted">Kosongkan jika tidak ada gambar</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="beritaIsPublished">
+                        <label class="form-check-label" for="beritaIsPublished">
+                          <i class="bi bi-check-circle"></i> Publikasikan berita
+                        </label>
+                      </div>
+                      <small class="text-muted">Jika dicentang, berita akan tampil di website publik</small>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                      <button type="submit" class="btn btn-primary flex-grow-1" id="btnSaveBerita">
+                        <i class="bi bi-save"></i> Simpan Berita
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary" id="btnResetBerita">
+                        <i class="bi bi-x-circle"></i> Reset
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-7">
+              <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0"><i class="bi bi-list-ul"></i> Daftar Berita</h5>
+                  <button type="button" class="btn btn-light btn-sm" onclick="loadBeritaItems()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                  </button>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                      <thead>
+                        <tr>
+                          <th style="width:80px">Urutan</th>
+                          <th>Judul</th>
+                          <th style="width:100px">Status</th>
+                          <th style="width:220px">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody id="beritaTableBody">
+                        <tr>
+                          <td colspan="4" class="text-center text-muted py-4">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Data belum dimuat
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <small class="text-muted">Gunakan tombol panah untuk mengatur urutan berita.</small>
+                </div>
+              </div>
             </div>
           </div>
         </div>

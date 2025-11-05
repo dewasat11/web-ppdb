@@ -48,6 +48,14 @@
     "ctaStatus": "Cek Status"
   },
   "sections": {
+    "berita": {
+      "title": "Berita & Artikel",
+      "subtitle": "Berita terbaru seputar Pondok Pesantren Al Ikhsan Beji",
+      "loading": "Memuat berita...",
+      "empty": "Belum ada berita yang tersedia",
+      "readMore": "Baca Selengkapnya",
+      "publishedDate": "Dipublikasikan"
+    },
     "gelombang": {
       "title": "Gelombang Pendaftaran",
       "subtitle": "Pilih gelombang sesuai jadwal keluarga Anda",

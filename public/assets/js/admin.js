@@ -391,6 +391,8 @@
     } else if (tab === "kontak") {
       loadKontakItems(true);
       loadKontakSettings();
+    } else if (tab === "berita") {
+      loadBeritaItems(true);
     }
 
     // Tutup sidebar di mobile
@@ -4936,6 +4938,10 @@ Jazakumullahu khairan,
     setKontakActiveLang("id");
 
     $("#kontakSettingsForm")?.addEventListener("submit", handleKontakSettingsSubmit);
+
+    // Berita form setup
+    setupBeritaLangSwitch();
+    setupBeritaFormHandlers();
   });
 
   // Expose functions for inline handlers
@@ -4964,6 +4970,375 @@ Jazakumullahu khairan,
   window.deleteKontakItem = deleteKontakItem;
   window.moveKontakItem = moveKontakItem;
   window.loadKontakSettings = loadKontakSettings;
+
+  /* =========================
+     8.5) BERITA MANAGEMENT
+     ========================= */
+  let beritaItemsData = [];
+  const BERITA_LANGS = ["id", "en"];
+  const BERITA_LABEL = {
+    id: { name: "Bahasa Indonesia", flag: "🇮🇩" },
+    en: { name: "English", flag: "🇬🇧" },
+  };
+  let beritaActiveLang = "id";
+
+  function getBeritaInput(field, lang) {
+    const id = `berita${capitalize(field)}_${lang}`;
+    return $(`#${id}`);
+  }
+
+  function getBeritaPaneEl(lang) {
+    return $(`.berita-lang-pane[data-berita-lang-pane="${lang}"]`);
+  }
+
+  function setBeritaActiveLang(lang) {
+    beritaActiveLang = lang;
+    BERITA_LANGS.forEach((l) => {
+      const pane = getBeritaPaneEl(l);
+      const btn = $(`[data-berita-lang-button="${l}"]`);
+      if (pane) {
+        pane.classList.toggle("d-none", l !== lang);
+      }
+      if (btn) {
+        btn.classList.toggle("active", l === lang);
+        btn.classList.toggle("btn-success", l === lang);
+        btn.classList.toggle("btn-outline-success", l !== lang);
+      }
+    });
+  }
+
+  function collectBeritaValues() {
+    const result = {};
+    BERITA_LANGS.forEach((lang) => {
+      const titleVal = (getBeritaInput("title", lang)?.value || "").trim();
+      const contentVal = (getBeritaInput("content", lang)?.value || "").trim();
+      result[lang] = { title: titleVal, content: contentVal };
+    });
+    return result;
+  }
+
+  function normalizeBeritaRecord(item) {
+    return {
+      id: item.id || null,
+      title: item.title_id || "",
+      title_en: item.title_en || "",
+      content: item.content_id || "",
+      content_en: item.content_en || "",
+      image_url: item.image_url || "",
+      is_published: Boolean(item.is_published),
+      order_index: item.order_index || 0,
+    };
+  }
+
+  function setupBeritaLangSwitch() {
+    $$("[data-berita-lang-button]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const lang = btn.dataset.beritaLangButton;
+        if (lang && BERITA_LANGS.includes(lang)) {
+          setBeritaActiveLang(lang);
+        }
+      });
+    });
+  }
+
+  function setupBeritaFormHandlers() {
+    const form = $("#beritaForm");
+    if (form) {
+      form.addEventListener("submit", handleBeritaSubmit);
+    }
+
+    const btnReset = $("#btnResetBerita");
+    if (btnReset) {
+      btnReset.addEventListener("click", () => {
+        resetBeritaForm();
+        safeToastr.info("Form direset");
+      });
+    }
+  }
+
+  function resetBeritaForm() {
+    const form = $("#beritaForm");
+    if (form) form.reset();
+    const id = $("#beritaId");
+    if (id) id.value = "";
+    BERITA_LANGS.forEach((lang) => {
+      const titleField = getBeritaInput("title", lang);
+      if (titleField) titleField.value = "";
+      const contentField = getBeritaInput("content", lang);
+      if (contentField) contentField.value = "";
+    });
+    const imgField = $("#beritaImageUrl");
+    if (imgField) imgField.value = "";
+    const pubField = $("#beritaIsPublished");
+    if (pubField) pubField.checked = false;
+    const btn = $("#btnSaveBerita");
+    if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Simpan Berita';
+    setBeritaActiveLang("id");
+  }
+
+  async function loadBeritaItems(showToast = false) {
+    const tbody = $("#beritaTableBody");
+    if (tbody) renderLoadingRow(tbody, 4, "Memuat data berita...");
+
+    try {
+      const result = await jsonRequest("/api/berita_items");
+      beritaItemsData = sortByOrderIndex(
+        (result.data || []).map((item) => normalizeBeritaRecord(item))
+      );
+      renderBeritaItems();
+      if (showToast) {
+        safeToastr.success("Data berita dimuat");
+      }
+    } catch (error) {
+      console.error("[BERITA] Load error:", error);
+      if (tbody) renderEmptyRow(tbody, 4, "Gagal memuat data berita");
+      safeToastr.error(error.message || "Gagal memuat data berita");
+    }
+  }
+
+  function renderBeritaItems() {
+    const tbody = $("#beritaTableBody");
+    if (!tbody) return;
+
+    if (!beritaItemsData.length) {
+      renderEmptyRow(
+        tbody,
+        4,
+        "Belum ada data berita. Tambahkan berita melalui form."
+      );
+      return;
+    }
+
+    const rows = beritaItemsData
+      .map((item, index) => {
+        const orderNumber = index + 1;
+        const disableUp = index === 0 ? "disabled" : "";
+        const disableDown =
+          index === beritaItemsData.length - 1 ? "disabled" : "";
+        const statusBadge = item.is_published
+          ? '<span class="badge bg-success">Published</span>'
+          : '<span class="badge bg-secondary">Draft</span>';
+        const titleDisplay = escapeHtml(item.title || item.title_en || "");
+        const titleEnDisplay =
+          item.title_en && item.title_en !== item.title
+            ? `<div class="text-muted small"><span aria-hidden="true">🇬🇧</span> ${escapeHtml(item.title_en)}</div>`
+            : "";
+        return `
+          <tr data-id="${item.id}">
+            <td>
+              <span class="badge bg-dark">${orderNumber}</span>
+              <div class="btn-group btn-group-sm ms-2">
+                <button type="button" class="btn btn-outline-secondary" onclick="moveBeritaItem(${item.id}, 'up')" ${disableUp}>
+                  <i class="bi bi-arrow-up"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="moveBeritaItem(${item.id}, 'down')" ${disableDown}>
+                  <i class="bi bi-arrow-down"></i>
+                </button>
+              </div>
+            </td>
+            <td>
+              <div class="fw-semibold">${titleDisplay}</div>
+              ${titleEnDisplay}
+              ${
+                item.image_url
+                  ? `<div class="small text-muted mt-1"><i class="bi bi-image"></i> Dengan gambar</div>`
+                  : ""
+              }
+            </td>
+            <td>${statusBadge}</td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-warning" onclick="editBeritaItem(${item.id})">
+                  <i class="bi bi-pencil"></i> Edit
+                </button>
+                <button type="button" class="btn btn-danger" onclick="deleteBeritaItem(${item.id})">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    tbody.innerHTML = rows;
+  }
+
+  async function handleBeritaSubmit(event) {
+    event.preventDefault();
+
+    const id = parseId($("#beritaId")?.value);
+    const values = collectBeritaValues();
+    const imageUrl = ($("#beritaImageUrl")?.value || "").trim();
+    const isPublished = $("#beritaIsPublished")?.checked || false;
+
+    const missing = BERITA_LANGS.filter(
+      (lang) => !values[lang].title || !values[lang].content
+    );
+
+    if (missing.length) {
+      const label = missing
+        .map((lang) => BERITA_LABEL[lang]?.name || lang.toUpperCase())
+        .join(", ");
+      safeToastr.warning(
+        `Judul dan konten berita wajib diisi untuk bahasa: ${label}`
+      );
+      return;
+    }
+
+    const btn = $("#btnSaveBerita");
+    setButtonLoading(btn, true, id ? "Mengupdate..." : "Menyimpan...");
+
+    try {
+      const payload = {
+        title_id: values.id.title,
+        content_id: values.id.content,
+        title_en: values.en.title,
+        content_en: values.en.content,
+        image_url: imageUrl || null,
+        is_published: isPublished,
+      };
+      let message = "Berita ditambahkan";
+      if (id) {
+        payload.id = id;
+        message = "Berita diperbarui";
+        await jsonRequest("/api/berita_items", {
+          method: "PUT",
+          body: payload,
+        });
+      } else {
+        await jsonRequest("/api/berita_items", {
+          method: "POST",
+          body: payload,
+        });
+      }
+      safeToastr.success(message);
+      localStorage.setItem(
+        "berita_items_update",
+        JSON.stringify({
+          timestamp: Date.now(),
+          action: id ? "updated" : "created",
+          id: id || null,
+        })
+      );
+      await loadBeritaItems();
+      resetBeritaForm();
+    } catch (error) {
+      console.error("[BERITA] Submit error:", error);
+      safeToastr.error(error.message || "Gagal menyimpan berita");
+    } finally {
+      setButtonLoading(btn, false);
+    }
+  }
+
+  function editBeritaItem(id) {
+    const item = beritaItemsData.find((x) => x.id === id);
+    if (!item) {
+      safeToastr.error("Berita tidak ditemukan");
+      return;
+    }
+    const idField = $("#beritaId");
+    if (idField) idField.value = item.id;
+    BERITA_LANGS.forEach((lang) => {
+      const normalized = normalizeBeritaRecord(item);
+      const titleField = getBeritaInput("title", lang);
+      if (titleField)
+        titleField.value =
+          normalized[lang === "en" ? "title_en" : "title"] || "";
+      const contentField = getBeritaInput("content", lang);
+      if (contentField)
+        contentField.value =
+          normalized[lang === "en" ? "content_en" : "content"] || "";
+    });
+    const imgField = $("#beritaImageUrl");
+    if (imgField) imgField.value = item.image_url || "";
+    const pubField = $("#beritaIsPublished");
+    if (pubField) pubField.checked = Boolean(item.is_published);
+    const btn = $("#btnSaveBerita");
+    if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Update Berita';
+    setBeritaActiveLang("id");
+    getBeritaInput("title", "id")?.focus();
+  }
+
+  async function deleteBeritaItem(id) {
+    const item = beritaItemsData.find((x) => x.id === id);
+    if (!item) {
+      safeToastr.error("Berita tidak ditemukan");
+      return;
+    }
+    if (
+      !confirm(
+        `Hapus berita "${item.title || item.title_en}"?\n\nTindakan ini tidak dapat dibatalkan.`
+      )
+    ) {
+      return;
+    }
+    try {
+      await jsonRequest("/api/berita_items", {
+        method: "DELETE",
+        body: { id },
+      });
+      safeToastr.success("Berita dihapus");
+      localStorage.setItem(
+        "berita_items_update",
+        JSON.stringify({
+          timestamp: Date.now(),
+          action: "deleted",
+          id: id,
+        })
+      );
+      await loadBeritaItems();
+      resetBeritaForm();
+    } catch (error) {
+      console.error("[BERITA] Delete error:", error);
+      safeToastr.error(error.message || "Gagal menghapus berita");
+    }
+  }
+
+  async function moveBeritaItem(id, direction) {
+    const index = beritaItemsData.findIndex((x) => x.id === id);
+    if (index === -1) {
+      safeToastr.error("Berita tidak ditemukan");
+      return;
+    }
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= beritaItemsData.length) {
+      return;
+    }
+    const temp = beritaItemsData[index];
+    beritaItemsData[index] = beritaItemsData[targetIndex];
+    beritaItemsData[targetIndex] = temp;
+    beritaItemsData.forEach((item, idx) => {
+      item.order_index = idx + 1;
+    });
+    const items = beritaItemsData.map((item) => ({
+      id: item.id,
+      order_index: item.order_index,
+    }));
+    try {
+      await jsonRequest("/api/berita_items", {
+        method: "PUT",
+        body: { items },
+      });
+      localStorage.setItem(
+        "berita_items_update",
+        JSON.stringify({
+          timestamp: Date.now(),
+          action: "reordered",
+        })
+      );
+      renderBeritaItems();
+    } catch (error) {
+      console.error("[BERITA] Move error:", error);
+      safeToastr.error("Gagal mengubah urutan berita");
+      await loadBeritaItems();
+    }
+  }
+
+  window.loadBeritaItems = loadBeritaItems;
+  window.editBeritaItem = editBeritaItem;
+  window.deleteBeritaItem = deleteBeritaItem;
+  window.moveBeritaItem = moveBeritaItem;
 
   /* =========================
      9) INIT
