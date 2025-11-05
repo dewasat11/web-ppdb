@@ -1189,6 +1189,14 @@
                       <small class="text-muted">Jika dicentang, berita akan tampil di website publik</small>
                     </div>
 
+                    <div class="mb-3">
+                      <label for="beritaPublishedDate" class="form-label">
+                        <i class="bi bi-calendar-event"></i> Tanggal Publikasi (Opsional)
+                      </label>
+                      <input type="date" class="form-control" id="beritaPublishedDate">
+                      <small class="text-muted">Kosongkan untuk menggunakan tanggal saat ini. Tanggal ini akan tampil di homepage.</small>
+                    </div>
+
                     <div class="d-flex gap-2">
                       <button type="submit" class="btn btn-primary flex-grow-1" id="btnSaveBerita">
                         <i class="bi bi-save"></i> Simpan Berita
@@ -1216,13 +1224,14 @@
                         <tr>
                           <th style="width:80px">Urutan</th>
                           <th>Judul</th>
+                          <th style="width:120px">Tanggal</th>
                           <th style="width:100px">Status</th>
                           <th style="width:220px">Aksi</th>
                         </tr>
                       </thead>
                       <tbody id="beritaTableBody">
                         <tr>
-                          <td colspan="4" class="text-center text-muted py-4">
+                          <td colspan="5" class="text-center text-muted py-4">
                             <i class="bi bi-arrow-clockwise me-2"></i>Data belum dimuat
                           </td>
                         </tr>

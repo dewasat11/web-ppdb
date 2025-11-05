@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS public.berita (
     
     -- Status & Display
     is_published BOOLEAN DEFAULT false,
+    published_date DATE, -- Tanggal publikasi (dapat diatur admin)
     order_index INTEGER DEFAULT 0,
     
     -- Timestamps

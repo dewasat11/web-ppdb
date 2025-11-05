@@ -72,6 +72,10 @@ CREATE TABLE berita (
   - Image preview before save
   - Delete/replace image option
 - Published status (checkbox)
+- **Tanggal Publikasi** (date picker) - NEW! ✨
+  - Opsional: kosongkan untuk gunakan tanggal saat ini
+  - Tanggal ini akan tampil di homepage
+  - Admin bisa set tanggal masa lalu/masa depan
 - Auto-generated order
 
 ### 5. JavaScript Handlers
@@ -116,15 +120,24 @@ CREATE TABLE berita (
 ## 🚀 Setup Instructions
 
 ### Step 1: Run Database Migration
+
+**A. Jika tabel berita belum ada:**
 ```bash
-# Connect to your Supabase database and run:
+# Via psql:
 psql -h <your-supabase-host> -U postgres -d postgres -f sql/create_table_berita.sql
 ```
 
-Or via Supabase Dashboard:
+**B. Jika tabel berita sudah ada (migration):**
+```bash
+# Via psql:
+psql -h <your-supabase-host> -U postgres -d postgres -f sql/add_published_date_to_berita.sql
+```
+
+**Via Supabase Dashboard:**
 1. Go to SQL Editor
-2. Copy contents of `sql/create_table_berita.sql`
-3. Run the query
+2. **Jika tabel belum ada**: Copy & paste `sql/create_table_berita.sql`
+3. **Jika tabel sudah ada**: Copy & paste `sql/add_published_date_to_berita.sql`
+4. Run the query
 
 ### Step 2: Setup Storage Bucket (UNTUK UPLOAD GAMBAR) ⚠️ IMPORTANT!
 

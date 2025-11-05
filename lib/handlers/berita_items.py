@@ -49,18 +49,29 @@ class handler(BaseHTTPRequestHandler):
                     supa.table(TABLE_NAME)
                     .select("*")
                     .eq("is_published", True)
-                    .order(ORDER_FIELD, desc=False)
+                    .order(ORDER_FIELD, desc=False)  # Sort by order_index first
                     .execute()
                 )
+                # Client-side sort by published_date (newest first)
+                if result.data:
+                    result.data.sort(key=lambda x: (
+                        x.get("published_date") or x.get("created_at") or "1970-01-01"
+                    ), reverse=True)
             else:
                 # Admin access: all berita
                 supa = _get_admin_client()
                 result = (
                     supa.table(TABLE_NAME)
                     .select("*")
-                    .order(ORDER_FIELD, desc=False)
+                    .order(ORDER_FIELD, desc=False)  # Sort by order_index
                     .execute()
                 )
+                # Client-side sort by published_date (newest first) for admin view
+                if result.data:
+                    result.data.sort(key=lambda x: (
+                        x.get("published_date") or x.get("created_at") or "1970-01-01",
+                        x.get(ORDER_FIELD) or 0
+                    ), reverse=True)
 
             data = result.data or []
             send_json(request_handler, 200, {"ok": True, "data": data})
@@ -128,6 +139,13 @@ class handler(BaseHTTPRequestHandler):
             else:
                 image_url = None
                 
+            # Handle published_date
+            published_date = payload.get("published_date")
+            if published_date and isinstance(published_date, str):
+                published_date = published_date.strip() or None
+            else:
+                published_date = None
+            
             insert_payload = {
                 "title_id": title_id,
                 "title_en": title_en,
@@ -135,6 +153,7 @@ class handler(BaseHTTPRequestHandler):
                 "content_en": content_en,
                 "image_url": image_url,
                 "is_published": payload.get("is_published", False),
+                "published_date": published_date,
                 ORDER_FIELD: order_index,
             }
 
@@ -254,6 +273,13 @@ class handler(BaseHTTPRequestHandler):
                 
             if "is_published" in payload:
                 update_fields["is_published"] = bool(payload["is_published"])
+                
+            if "published_date" in payload:
+                pub_date = payload["published_date"]
+                if pub_date and isinstance(pub_date, str):
+                    update_fields["published_date"] = pub_date.strip() or None
+                else:
+                    update_fields["published_date"] = None
                 
             if ORDER_FIELD in payload and payload[ORDER_FIELD] is not None:
                 update_fields[ORDER_FIELD] = int(payload[ORDER_FIELD])

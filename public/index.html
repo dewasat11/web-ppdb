@@ -1019,7 +1019,14 @@
         }
 
         const lang = getContentLanguage();
-        const beritaHTML = result.data
+        // Sort by published_date atau created_at (newest first)
+        const sortedBerita = [...result.data].sort((a, b) => {
+          const dateA = a.published_date || a.created_at;
+          const dateB = b.published_date || b.created_at;
+          return new Date(dateB) - new Date(dateA);
+        });
+        
+        const beritaHTML = sortedBerita
           .slice(0, 6) // Show max 6 latest news
           .map((berita) => {
             const title = lang === "en" && berita.title_en ? berita.title_en : (berita.title_id || berita.title_en || "");
@@ -1053,7 +1060,7 @@
                   <div class="flex items-center justify-between">
                     <span class="text-sm text-gray-500">
                       <i class="bi bi-calendar3 mr-1"></i>
-                      ${formatDate(berita.created_at)}
+                      ${formatDate(berita.published_date || berita.created_at)}
                     </span>
                     <span class="text-brand-600 font-semibold text-sm group-hover:text-brand-700">
                       ${translateText("sections.berita.readMore")} 

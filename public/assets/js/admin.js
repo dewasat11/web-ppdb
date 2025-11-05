@@ -5027,6 +5027,7 @@ Jazakumullahu khairan,
       content_en: item.content_en || "",
       image_url: item.image_url || "",
       is_published: Boolean(item.is_published),
+      published_date: item.published_date || null,
       order_index: item.order_index || 0,
     };
   }
@@ -5139,6 +5140,8 @@ Jazakumullahu khairan,
     if (previewDiv) previewDiv.style.display = "none";
     const pubField = $("#beritaIsPublished");
     if (pubField) pubField.checked = false;
+    const dateField = $("#beritaPublishedDate");
+    if (dateField) dateField.value = "";
     const btn = $("#btnSaveBerita");
     if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Simpan Berita';
     setBeritaActiveLang("id");
@@ -5146,7 +5149,7 @@ Jazakumullahu khairan,
 
   async function loadBeritaItems(showToast = false) {
     const tbody = $("#beritaTableBody");
-    if (tbody) renderLoadingRow(tbody, 4, "Memuat data berita...");
+    if (tbody) renderLoadingRow(tbody, 5, "Memuat data berita...");
 
     try {
       const result = await jsonRequest(INFORMASI_ENDPOINTS.berita);
@@ -5159,7 +5162,7 @@ Jazakumullahu khairan,
       }
     } catch (error) {
       console.error("[BERITA] Load error:", error);
-      if (tbody) renderEmptyRow(tbody, 4, "Gagal memuat data berita");
+      if (tbody) renderEmptyRow(tbody, 5, "Gagal memuat data berita");
       safeToastr.error(error.message || "Gagal memuat data berita");
     }
   }
@@ -5171,63 +5174,83 @@ Jazakumullahu khairan,
     if (!beritaItemsData.length) {
       renderEmptyRow(
         tbody,
-        4,
+        5,
         "Belum ada data berita. Tambahkan berita melalui form."
       );
       return;
     }
 
-    const rows = beritaItemsData
-      .map((item, index) => {
-        const orderNumber = index + 1;
-        const disableUp = index === 0 ? "disabled" : "";
-        const disableDown =
-          index === beritaItemsData.length - 1 ? "disabled" : "";
-        const statusBadge = item.is_published
-          ? '<span class="badge bg-success">Published</span>'
-          : '<span class="badge bg-secondary">Draft</span>';
-        const titleDisplay = escapeHtml(item.title || item.title_en || "");
-        const titleEnDisplay =
-          item.title_en && item.title_en !== item.title
-            ? `<div class="text-muted small"><span aria-hidden="true">🇬🇧</span> ${escapeHtml(item.title_en)}</div>`
-            : "";
-        return `
-          <tr data-id="${item.id}">
-            <td>
-              <span class="badge bg-dark">${orderNumber}</span>
-              <div class="btn-group btn-group-sm ms-2">
-                <button type="button" class="btn btn-outline-secondary" onclick="moveBeritaItem(${item.id}, 'up')" ${disableUp}>
-                  <i class="bi bi-arrow-up"></i>
-                </button>
-                <button type="button" class="btn btn-outline-secondary" onclick="moveBeritaItem(${item.id}, 'down')" ${disableDown}>
-                  <i class="bi bi-arrow-down"></i>
-                </button>
-              </div>
-            </td>
-            <td>
-              <div class="fw-semibold">${titleDisplay}</div>
-              ${titleEnDisplay}
-              ${
-                item.image_url
-                  ? `<div class="small text-muted mt-1"><i class="bi bi-image"></i> Dengan gambar</div>`
-                  : ""
-              }
-            </td>
-            <td>${statusBadge}</td>
-            <td>
-              <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-warning" onclick="editBeritaItem(${item.id})">
-                  <i class="bi bi-pencil"></i> Edit
-                </button>
-                <button type="button" class="btn btn-danger" onclick="deleteBeritaItem(${item.id})">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
-      })
-      .join("");
+        const formatDateForTable = (dateStr) => {
+          if (!dateStr) return '<span class="text-muted">-</span>';
+          try {
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return '<span class="text-muted">-</span>';
+            return date.toLocaleDateString('id-ID', { 
+              day: 'numeric', 
+              month: 'short', 
+              year: 'numeric' 
+            });
+          } catch {
+            return '<span class="text-muted">-</span>';
+          }
+        };
+
+        const rows = beritaItemsData
+          .map((item, index) => {
+            const orderNumber = index + 1;
+            const disableUp = index === 0 ? "disabled" : "";
+            const disableDown =
+              index === beritaItemsData.length - 1 ? "disabled" : "";
+            const statusBadge = item.is_published
+              ? '<span class="badge bg-success">Published</span>'
+              : '<span class="badge bg-secondary">Draft</span>';
+            const titleDisplay = escapeHtml(item.title || item.title_en || "");
+            const titleEnDisplay =
+              item.title_en && item.title_en !== item.title
+                ? `<div class="text-muted small"><span aria-hidden="true">🇬🇧</span> ${escapeHtml(item.title_en)}</div>`
+                : "";
+            const publishedDate = formatDateForTable(item.published_date);
+            return `
+              <tr data-id="${item.id}">
+                <td>
+                  <span class="badge bg-dark">${orderNumber}</span>
+                  <div class="btn-group btn-group-sm ms-2">
+                    <button type="button" class="btn btn-outline-secondary" onclick="moveBeritaItem(${item.id}, 'up')" ${disableUp}>
+                      <i class="bi bi-arrow-up"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="moveBeritaItem(${item.id}, 'down')" ${disableDown}>
+                      <i class="bi bi-arrow-down"></i>
+                    </button>
+                  </div>
+                </td>
+                <td>
+                  <div class="fw-semibold">${titleDisplay}</div>
+                  ${titleEnDisplay}
+                  ${
+                    item.image_url
+                      ? `<div class="small text-muted mt-1"><i class="bi bi-image"></i> Dengan gambar</div>`
+                      : ""
+                  }
+                </td>
+                <td>
+                  <div class="small">${publishedDate}</div>
+                  ${item.published_date ? '' : '<div class="text-muted small">(auto)</div>'}
+                </td>
+                <td>${statusBadge}</td>
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-warning" onclick="editBeritaItem(${item.id})">
+                      <i class="bi bi-pencil"></i> Edit
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="deleteBeritaItem(${item.id})">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          })
+          .join("");
 
     tbody.innerHTML = rows;
   }
@@ -5305,6 +5328,7 @@ Jazakumullahu khairan,
     const id = parseId($("#beritaId")?.value);
     const values = collectBeritaValues();
     const isPublished = $("#beritaIsPublished")?.checked || false;
+    const publishedDate = ($("#beritaPublishedDate")?.value || "").trim() || null;
 
     const missing = BERITA_LANGS.filter(
       (lang) => !values[lang].title || !values[lang].content
@@ -5370,6 +5394,7 @@ Jazakumullahu khairan,
         content_en: values.en.content,
         image_url: imageUrl,
         is_published: isPublished,
+        published_date: publishedDate,
       };
       
       let message = "Berita ditambahkan";
@@ -5452,6 +5477,20 @@ Jazakumullahu khairan,
     
     const pubField = $("#beritaIsPublished");
     if (pubField) pubField.checked = Boolean(item.is_published);
+    const dateField = $("#beritaPublishedDate");
+    if (dateField) {
+      // Format date untuk input[type="date"] (YYYY-MM-DD)
+      if (item.published_date) {
+        const date = new Date(item.published_date);
+        if (!isNaN(date.getTime())) {
+          dateField.value = date.toISOString().split('T')[0];
+        } else {
+          dateField.value = "";
+        }
+      } else {
+        dateField.value = "";
+      }
+    }
     const btn = $("#btnSaveBerita");
     if (btn) btn.innerHTML = '<i class="bi bi-save"></i> Update Berita';
     setBeritaActiveLang("id");
