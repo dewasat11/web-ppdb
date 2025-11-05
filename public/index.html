@@ -268,39 +268,33 @@
   <!-- HEADER -->
   <header class="relative z-50">
     <div id="superHeader" class="bg-yellow-300 text-gray-900 text-xs tracking-wide">
-      <div class="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-1">
-        <div class="flex items-center gap-2 sm:gap-3">
-          <span class="font-semibold uppercase">PPDSB Pondok Pesantren Al Ikhsan Beji</span>
-          <span class="text-gray-600">|</span>
-          <span class="uppercase">Penerimaan 2026/2027</span>
-        </div>
-        <div class="flex items-center gap-2 sm:gap-3">
-          <span class="hidden sm:inline font-semibold uppercase">Bahasa</span>
-          <span class="hidden sm:inline text-gray-600">|</span>
-          <div class="flex items-center gap-2">
-            <button
-              type="button"
-              data-setlang="id"
-              class="inline-flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full border border-gray-800 bg-white text-[11px] font-semibold shadow-sm transition hover:bg-yellow-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
-              aria-label="Bahasa Indonesia"
-              data-i18n="nav.language.id"
-              data-i18n-attr="aria-label"
-              data-i18n-skip-text
-            >
-              <span aria-hidden="true">🇮🇩</span>
-            </button>
-            <button
-              type="button"
-              data-setlang="en"
-              class="inline-flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full border border-gray-800 bg-white text-[11px] font-semibold shadow-sm transition hover:bg-yellow-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
-              aria-label="English"
-              data-i18n="nav.language.en"
-              data-i18n-attr="aria-label"
-              data-i18n-skip-text
-            >
-              <span aria-hidden="true">🇬🇧</span>
-            </button>
-          </div>
+      <div class="max-w-7xl mx-auto flex items-center justify-end px-4 sm:px-6 lg:px-8 py-1">
+        <div class="flex items-center gap-2 sm:gap-3 text-[11px] sm:text-xs font-semibold uppercase">
+          <button
+            type="button"
+            data-setlang="id"
+            class="inline-flex items-center gap-1 text-gray-900 hover:text-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 transition"
+            aria-label="Bahasa Indonesia"
+            data-i18n="nav.language.id"
+            data-i18n-attr="aria-label"
+            data-i18n-skip-text
+          >
+            <span aria-hidden="true" class="text-base leading-none">🇮🇩</span>
+            <span>ID</span>
+          </button>
+          <span class="text-gray-600" aria-hidden="true">|</span>
+          <button
+            type="button"
+            data-setlang="en"
+            class="inline-flex items-center gap-1 text-gray-900 hover:text-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 transition"
+            aria-label="English"
+            data-i18n="nav.language.en"
+            data-i18n-attr="aria-label"
+            data-i18n-skip-text
+          >
+            <span aria-hidden="true" class="text-base leading-none">🇬🇧</span>
+            <span>EN</span>
+          </button>
         </div>
       </div>
     </div>
