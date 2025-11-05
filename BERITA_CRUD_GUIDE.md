@@ -88,6 +88,27 @@ CREATE TABLE berita (
 - Added `sections.berita` object with translations:
   - title, subtitle, loading, empty, readMore, publishedDate
 
+### 7. Frontend Display (Homepage)
+**File**: `public/index.html`
+- Added "Berita & Artikel" section below Gelombang
+- Shows up to 6 latest published news
+- Responsive card layout (1 column mobile, 2 tablet, 3 desktop)
+- Bilingual support (auto-switches based on language)
+- Features:
+  - Image with hover zoom effect
+  - Title truncation (2 lines max)
+  - Content excerpt (3 lines max, 150 chars)
+  - Publication date
+  - "Read More" link
+  - Fallback image if none provided
+  - Empty state message if no published news
+
+**JavaScript Functions**:
+- `loadBeritaPublished()` - Fetches and renders published news
+- Auto-loads on page load
+- Re-renders on language change
+- Uses `published_only=true` query parameter to get only published items
+
 ## 🚀 Setup Instructions
 
 ### Step 1: Run Database Migration
@@ -150,6 +171,36 @@ git push origin main
 - Edit the berita
 - Toggle "Publikasikan berita" checkbox
 - Save changes
+- **Published news will automatically appear on homepage**
+
+## 🎨 Frontend Features (Homepage)
+
+### Berita Section Display
+The homepage (`index.html`) shows published news in a beautiful card layout:
+
+1. **Auto-Load**: News loads automatically on page load
+2. **Bilingual**: Shows correct language based on user selection
+3. **Responsive**: 
+   - Mobile: 1 column
+   - Tablet: 2 columns
+   - Desktop: 3 columns
+4. **Card Features**:
+   - Featured image (with fallback)
+   - Title (max 2 lines)
+   - Content excerpt (max 3 lines / 150 chars)
+   - Publication date
+   - Hover effects (zoom image, color transition)
+5. **Max Display**: Shows 6 latest published news
+6. **Empty State**: Friendly message when no news available
+
+### How It Works
+```javascript
+// Fetches only published news
+GET /api/berita_items?published_only=true
+
+// Backend returns only is_published=true items
+// Frontend renders based on current language (ID/EN)
+```
 
 ## 🔒 Security
 
@@ -243,10 +294,13 @@ The SQL migration includes 3 sample berita entries:
 - [ ] Image upload (Supabase Storage integration)
 - [ ] Category/Tags system
 - [ ] Search and filter
-- [ ] Frontend news display page
-- [ ] Pagination for large datasets
+- [x] ✅ Frontend news display on homepage
+- [ ] Dedicated news detail page (modal or separate page)
+- [ ] Pagination for large datasets (admin & frontend)
 - [ ] Draft auto-save
 - [ ] Scheduled publishing
+- [ ] Share buttons (WhatsApp, Facebook, Twitter)
+- [ ] Read more/less toggle for long content
 
 ## 📞 Support
 For issues or questions:

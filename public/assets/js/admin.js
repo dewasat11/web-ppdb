@@ -101,6 +101,7 @@
     brosur: "/api/brosur_items",
     kontak: "/api/kontak_items",
     kontakSettings: "/api/kontak_settings",
+    berita: "/api/berita_items",
   };
 
   const formatIDDate = (d) =>
@@ -5081,7 +5082,7 @@ Jazakumullahu khairan,
     if (tbody) renderLoadingRow(tbody, 4, "Memuat data berita...");
 
     try {
-      const result = await jsonRequest("/api/berita_items");
+      const result = await jsonRequest(INFORMASI_ENDPOINTS.berita);
       beritaItemsData = sortByOrderIndex(
         (result.data || []).map((item) => normalizeBeritaRecord(item))
       );
@@ -5202,12 +5203,12 @@ Jazakumullahu khairan,
       if (id) {
         payload.id = id;
         message = "Berita diperbarui";
-        await jsonRequest("/api/berita_items", {
+        await jsonRequest(INFORMASI_ENDPOINTS.berita, {
           method: "PUT",
           body: payload,
         });
       } else {
-        await jsonRequest("/api/berita_items", {
+        await jsonRequest(INFORMASI_ENDPOINTS.berita, {
           method: "POST",
           body: payload,
         });
@@ -5274,7 +5275,7 @@ Jazakumullahu khairan,
       return;
     }
     try {
-      await jsonRequest("/api/berita_items", {
+      await jsonRequest(INFORMASI_ENDPOINTS.berita, {
         method: "DELETE",
         body: { id },
       });
@@ -5316,7 +5317,7 @@ Jazakumullahu khairan,
       order_index: item.order_index,
     }));
     try {
-      await jsonRequest("/api/berita_items", {
+      await jsonRequest(INFORMASI_ENDPOINTS.berita, {
         method: "PUT",
         body: { items },
       });
