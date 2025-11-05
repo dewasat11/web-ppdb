@@ -126,10 +126,29 @@ Or via Supabase Dashboard:
 2. Copy contents of `sql/create_table_berita.sql`
 3. Run the query
 
-### Step 2: Verify API Routing
+### Step 2: Setup Storage Bucket (UNTUK UPLOAD GAMBAR) ⚠️ IMPORTANT!
+
+**Bucket `hero-images` harus dibuat manual via Dashboard:**
+
+1. **Buka Supabase Dashboard** → Storage
+2. **Create bucket** (atau gunakan yang sudah ada):
+   - Name: `hero-images`
+   - **Public bucket**: ✅ ENABLE (WAJIB!)
+   - File size limit: 2 MB
+   - Allowed MIME types: image/jpeg, image/png, image/webp
+3. **Jalankan SQL untuk RLS Policies**:
+   - Buka SQL Editor
+   - Copy & paste isi file: `sql/setup_storage_berita.sql`
+   - Run query
+
+**📖 Panduan Lengkap**: Lihat `SETUP_STORAGE_BERITA.md`
+
+**Note**: Jika bucket `hero-images` sudah ada (untuk hero slider), gunakan yang sama. Folder akan berbeda: `berita/` vs `hero/`.
+
+### Step 3: Verify API Routing
 The API routes are already configured in `api/index.py`. No action needed.
 
-### Step 3: Deploy to Vercel
+### Step 4: Deploy to Vercel
 ```bash
 # Commit changes
 git add .

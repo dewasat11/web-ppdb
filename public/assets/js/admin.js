@@ -5065,7 +5065,12 @@ Jazakumullahu khairan,
 
   function handleBeritaImageSelect(event) {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      console.log("[BERITA] No file selected");
+      return;
+    }
+
+    console.log("[BERITA] File selected:", file.name, "Size:", file.size, "Type:", file.type);
 
     // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
@@ -5081,7 +5086,7 @@ Jazakumullahu khairan,
       return;
     }
 
-    // Show preview
+    // Show preview immediately
     const reader = new FileReader();
     reader.onload = (e) => {
       const previewImg = $("#beritaPreviewImg");
@@ -5089,7 +5094,14 @@ Jazakumullahu khairan,
       if (previewImg && previewDiv) {
         previewImg.src = e.target.result;
         previewDiv.style.display = "block";
+        console.log("[BERITA] Preview shown");
+      } else {
+        console.error("[BERITA] Preview elements not found");
       }
+    };
+    reader.onerror = (error) => {
+      console.error("[BERITA] FileReader error:", error);
+      safeToastr.error("Gagal membaca file gambar");
     };
     reader.readAsDataURL(file);
   }
@@ -5221,44 +5233,66 @@ Jazakumullahu khairan,
   }
 
   async function uploadBeritaImage(file) {
-    if (!file) return null;
+    if (!file) {
+      console.warn("[BERITA] No file provided for upload");
+      return null;
+    }
 
     try {
       // Check if Supabase client is available
       if (typeof window.supabase === "undefined") {
-        throw new Error("Supabase client tidak tersedia");
+        console.error("[BERITA] Supabase client not available");
+        throw new Error("Supabase client tidak tersedia. Pastikan halaman sudah selesai dimuat.");
       }
+
+      console.log("[BERITA] Starting upload...");
+      console.log("[BERITA] File:", file.name, "Size:", file.size, "Type:", file.type);
 
       const fileExt = file.name.split(".").pop();
       const fileName = `berita_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `berita/${fileName}`;
 
-      console.log("[BERITA] Uploading image:", fileName);
+      console.log("[BERITA] Upload path:", filePath);
 
       // Upload to Supabase Storage (hero-images bucket)
-      const { data, error } = await window.supabase.storage
+      const { data: uploadData, error: uploadError } = await window.supabase.storage
         .from("hero-images")
         .upload(filePath, file, {
           cacheControl: "3600",
           upsert: false,
         });
 
-      if (error) {
-        console.error("[BERITA] Upload error:", error);
-        throw new Error(`Upload gagal: ${error.message}`);
+      if (uploadError) {
+        console.error("[BERITA] Upload error:", uploadError);
+        
+        // More specific error messages
+        if (uploadError.message?.includes("Bucket not found")) {
+          throw new Error("Bucket 'hero-images' tidak ditemukan. Pastikan bucket sudah dibuat di Supabase.");
+        } else if (uploadError.message?.includes("new row violates row-level security")) {
+          throw new Error("Akses ditolak. Periksa RLS policy untuk bucket 'hero-images'.");
+        } else {
+          throw new Error(`Upload gagal: ${uploadError.message || "Unknown error"}`);
+        }
       }
+
+      console.log("[BERITA] Upload data:", uploadData);
 
       // Get public URL
       const { data: urlData } = window.supabase.storage
         .from("hero-images")
         .getPublicUrl(filePath);
 
+      console.log("[BERITA] URL data:", urlData);
+
       if (!urlData?.publicUrl) {
+        console.error("[BERITA] No public URL returned");
         throw new Error("Gagal mendapatkan URL gambar");
       }
 
-      console.log("[BERITA] Upload success:", urlData.publicUrl);
-      return urlData.publicUrl;
+      const publicUrl = urlData.publicUrl;
+      console.log("[BERITA] ✅ Upload success! Public URL:", publicUrl);
+      
+      return publicUrl;
     } catch (error) {
       console.error("[BERITA] Upload error:", error);
       throw error;
@@ -5298,11 +5332,33 @@ Jazakumullahu khairan,
 
       if (file) {
         setButtonLoading(btn, true, "Mengupload gambar...");
-        imageUrl = await uploadBeritaImage(file);
-        
-        // Store URL in hidden field for future edits
-        const urlInput = $("#beritaImageUrl");
-        if (urlInput) urlInput.value = imageUrl;
+        try {
+          imageUrl = await uploadBeritaImage(file);
+          console.log("[BERITA] Image uploaded, URL:", imageUrl);
+          
+          // Store URL in hidden field for future edits
+          const urlInput = $("#beritaImageUrl");
+          if (urlInput) {
+            urlInput.value = imageUrl;
+            console.log("[BERITA] URL stored in hidden field");
+          }
+          
+          // Update preview with uploaded image URL
+          const previewImg = $("#beritaPreviewImg");
+          const previewDiv = $("#beritaImagePreview");
+          if (previewImg && previewDiv && imageUrl) {
+            previewImg.src = imageUrl;
+            previewDiv.style.display = "block";
+            console.log("[BERITA] Preview updated with uploaded URL");
+          } else {
+            console.warn("[BERITA] Preview elements not found or no URL");
+          }
+        } catch (uploadError) {
+          console.error("[BERITA] Upload failed:", uploadError);
+          setButtonLoading(btn, false);
+          safeToastr.error(uploadError.message || "Gagal mengupload gambar");
+          return; // Stop submission if upload fails
+        }
       }
 
       setButtonLoading(btn, true, id ? "Mengupdate..." : "Menyimpan...");
@@ -5340,6 +5396,17 @@ Jazakumullahu khairan,
         })
       );
       await loadBeritaItems();
+      
+      // Keep preview if image was uploaded
+      if (imageUrl) {
+        const previewImg = $("#beritaPreviewImg");
+        const previewDiv = $("#beritaImagePreview");
+        if (previewImg && previewDiv) {
+          previewImg.src = imageUrl;
+          previewDiv.style.display = "block";
+        }
+      }
+      
       resetBeritaForm();
     } catch (error) {
       console.error("[BERITA] Submit error:", error);

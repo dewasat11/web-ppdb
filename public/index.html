@@ -1025,7 +1025,12 @@
             const title = lang === "en" && berita.title_en ? berita.title_en : (berita.title_id || berita.title_en || "");
             const content = lang === "en" && berita.content_en ? berita.content_en : (berita.content_id || berita.content_en || "");
             const excerpt = content.length > 150 ? content.substring(0, 150) + "..." : content;
-            const imageUrl = berita.image_url || "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=600&h=400&fit=crop";
+            
+            // Use berita image if available, otherwise fallback
+            let imageUrl = berita.image_url;
+            if (!imageUrl || imageUrl.trim() === "") {
+              imageUrl = "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=600&h=400&fit=crop";
+            }
 
             return `
               <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 group">
