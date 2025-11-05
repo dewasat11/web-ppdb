@@ -68,32 +68,42 @@ class handler(BaseHTTPRequestHandler):
                     "detail": str(e)
                 })
 
-            nisn_candidates = []
+            identifiers = []
             if normalized_nisn:
-                nisn_candidates.append(normalized_nisn)
+                identifiers.append(normalized_nisn)
             if raw_nisn and raw_nisn != normalized_nisn:
-                nisn_candidates.append(raw_nisn)
-            nisn_candidates = list(dict.fromkeys([candidate for candidate in nisn_candidates if candidate]))
+                identifiers.append(raw_nisn)
+            identifiers = list(dict.fromkeys([candidate for candidate in identifiers if candidate]))
 
-            selected_nisn = None
+            pendaftar_filters = []
+            for candidate in identifiers:
+                for field in ("nisn", "nik", "nikcalon"):
+                    pendaftar_filters.append(f"{field}.eq.{candidate}")
+
             row = None
-            
-            for candidate in nisn_candidates:
-                print(f"[CEK_STATUS] Querying pendaftar with nisn={candidate}")
-                try:
-                    result = supa.table("pendaftar").select(
-                        "nisn,namalengkap,tanggallahir,tempatlahir,statusberkas,alasan,verifiedby,verifiedat,createdat,updatedat"
-                    ).eq("nisn", candidate).limit(1).execute()
-                except Exception as e:
-                    print(f"[CEK_STATUS] Error querying database for candidate {candidate}: {e}")
-                    traceback.print_exc()
-                    continue
+            selected_identifier = None
 
-                if result.data:
-                    row = result.data[0]
-                    selected_nisn = candidate
-                    print(f"[CEK_STATUS] Match found for candidate={candidate}")
-                    break
+            try:
+                print(f"[CEK_STATUS] Querying pendaftar with filters={pendaftar_filters}")
+                query = supa.table("pendaftar").select(
+                    "id,nisn,nik,nikcalon,namalengkap,tanggallahir,tempatlahir,statusberkas,alasan,verifiedby,verifiedat,createdat,updatedat"
+                )
+                if pendaftar_filters:
+                    query = query.or_(",".join(pendaftar_filters))
+                result = query.order("updatedat", desc=True).limit(1).execute()
+            except Exception as e:
+                print(f"[CEK_STATUS] Error querying database: {e}")
+                traceback.print_exc()
+                return send_json(500, {
+                    "ok": False,
+                    "error": "Database query error",
+                    "detail": str(e)
+                })
+
+            if result.data:
+                row = result.data[0]
+                selected_identifier = row.get("nisn") or row.get("nik") or row.get("nikcalon") or (identifiers[0] if identifiers else normalized_nisn)
+                print(f"[CEK_STATUS] Match found for identifier={selected_identifier}")
 
             if row is None:
                 print("[CEK_STATUS] NISN tidak ditemukan")
@@ -109,10 +119,11 @@ class handler(BaseHTTPRequestHandler):
             pembayaran_data = None
             try:
                 payment_filters = []
-                for candidate in nisn_candidates:
+                for candidate in identifiers:
                     payment_filters.append(f"nisn.eq.{candidate}")
                     payment_filters.append(f"nik.eq.{candidate}")
-                filter_string = ",".join(dict.fromkeys(payment_filters))
+                payment_filters = list(dict.fromkeys(payment_filters))
+                filter_string = ",".join(payment_filters)
 
                 print(f"[CEK_STATUS] Querying pembayaran with filters={filter_string}")
                 pembayaran_query = supa.table("pembayaran").select(
@@ -149,7 +160,10 @@ class handler(BaseHTTPRequestHandler):
 
             # Transform sesuai spec
             data = {
-                "nisn": row.get("nisn", "") or selected_nisn or normalized_nisn,
+                "id": row.get("id"),
+                "nisn": row.get("nisn", "") or selected_identifier or normalized_nisn,
+                "nik": row.get("nik"),
+                "nikcalon": row.get("nikcalon"),
                 "nama": row.get("namalengkap", ""),
                 "tanggalLahir": row.get("tanggallahir"),
                 "tempatLahir": row.get("tempatlahir"),
