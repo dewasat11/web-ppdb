@@ -1163,9 +1163,20 @@
                     </div>
 
                     <div class="mb-3">
-                      <label for="beritaImageUrl" class="form-label">URL Gambar (Opsional)</label>
-                      <input type="url" class="form-control" id="beritaImageUrl" placeholder="https://...jpg">
-                      <small class="text-muted">Kosongkan jika tidak ada gambar</small>
+                      <label for="beritaImageFile" class="form-label">Gambar Berita (Opsional)</label>
+                      <input type="file" class="form-control" id="beritaImageFile" accept="image/*">
+                      <small class="text-muted">Format: JPG, PNG, WebP (Max 2MB)</small>
+                      
+                      <!-- Hidden field to store image URL -->
+                      <input type="hidden" id="beritaImageUrl">
+                      
+                      <!-- Preview -->
+                      <div id="beritaImagePreview" class="mt-2" style="display:none;">
+                        <img id="beritaPreviewImg" src="" class="img-thumbnail" style="max-height: 150px;">
+                        <button type="button" class="btn btn-sm btn-danger ms-2" onclick="clearBeritaImage()">
+                          <i class="bi bi-trash"></i> Hapus
+                        </button>
+                      </div>
                     </div>
                     
                     <div class="mb-3">

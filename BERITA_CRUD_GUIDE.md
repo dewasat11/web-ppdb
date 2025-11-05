@@ -66,7 +66,11 @@ CREATE TABLE berita (
 **Form Fields**:
 - Judul/Title (ID & EN)
 - Konten/Content (ID & EN) - textarea
-- Image URL (optional)
+- **Image Upload** (file input, max 2MB) - NEW! ✨
+  - Supports JPG, PNG, WebP
+  - Auto-upload to Supabase Storage
+  - Image preview before save
+  - Delete/replace image option
 - Published status (checkbox)
 - Auto-generated order
 
@@ -147,7 +151,11 @@ git push origin main
 2. Fill in "Judul" (Indonesia) and switch to English tab
 3. Fill in "Title" (English)
 4. Add content in both languages
-5. (Optional) Add image URL
+5. (Optional) Upload gambar:
+   - Click "Pilih File"
+   - Select image (JPG/PNG/WebP, max 2MB)
+   - Preview akan muncul otomatis
+   - Gambar auto-upload saat klik "Simpan"
 6. Check "Publikasikan berita" to make it public
 7. Click "Simpan Berita"
 
@@ -291,7 +299,7 @@ The SQL migration includes 3 sample berita entries:
 
 ## 🔄 Future Enhancements
 - [ ] Rich text editor (Quill/TinyMCE)
-- [ ] Image upload (Supabase Storage integration)
+- [x] ✅ Image upload (Supabase Storage integration) - DONE!
 - [ ] Category/Tags system
 - [ ] Search and filter
 - [x] ✅ Frontend news display on homepage

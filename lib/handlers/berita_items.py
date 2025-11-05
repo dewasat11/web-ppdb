@@ -122,12 +122,18 @@ class handler(BaseHTTPRequestHandler):
                     order_index = 1
 
             # Build insert payload
+            image_url = payload.get("image_url")
+            if image_url and isinstance(image_url, str):
+                image_url = image_url.strip() or None
+            else:
+                image_url = None
+                
             insert_payload = {
                 "title_id": title_id,
                 "title_en": title_en,
                 "content_id": content_id,
                 "content_en": content_en,
-                "image_url": payload.get("image_url", "").strip() or None,
+                "image_url": image_url,
                 "is_published": payload.get("is_published", False),
                 ORDER_FIELD: order_index,
             }
@@ -240,7 +246,11 @@ class handler(BaseHTTPRequestHandler):
                 update_fields["content_en"] = content
                 
             if "image_url" in payload:
-                update_fields["image_url"] = payload["image_url"].strip() or None
+                img_val = payload["image_url"]
+                if img_val and isinstance(img_val, str):
+                    update_fields["image_url"] = img_val.strip() or None
+                else:
+                    update_fields["image_url"] = None
                 
             if "is_published" in payload:
                 update_fields["is_published"] = bool(payload["is_published"])

@@ -5055,7 +5055,58 @@ Jazakumullahu khairan,
         safeToastr.info("Form direset");
       });
     }
+
+    // Image file input handler
+    const fileInput = $("#beritaImageFile");
+    if (fileInput) {
+      fileInput.addEventListener("change", handleBeritaImageSelect);
+    }
   }
+
+  function handleBeritaImageSelect(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      safeToastr.error("Ukuran file terlalu besar. Maksimal 2MB");
+      event.target.value = "";
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      safeToastr.error("File harus berupa gambar (JPG, PNG, WebP)");
+      event.target.value = "";
+      return;
+    }
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const previewImg = $("#beritaPreviewImg");
+      const previewDiv = $("#beritaImagePreview");
+      if (previewImg && previewDiv) {
+        previewImg.src = e.target.result;
+        previewDiv.style.display = "block";
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearBeritaImage() {
+    const fileInput = $("#beritaImageFile");
+    const urlInput = $("#beritaImageUrl");
+    const previewDiv = $("#beritaImagePreview");
+    
+    if (fileInput) fileInput.value = "";
+    if (urlInput) urlInput.value = "";
+    if (previewDiv) previewDiv.style.display = "none";
+    
+    safeToastr.info("Gambar dihapus");
+  }
+
+  window.clearBeritaImage = clearBeritaImage;
 
   function resetBeritaForm() {
     const form = $("#beritaForm");
@@ -5070,6 +5121,10 @@ Jazakumullahu khairan,
     });
     const imgField = $("#beritaImageUrl");
     if (imgField) imgField.value = "";
+    const fileInput = $("#beritaImageFile");
+    if (fileInput) fileInput.value = "";
+    const previewDiv = $("#beritaImagePreview");
+    if (previewDiv) previewDiv.style.display = "none";
     const pubField = $("#beritaIsPublished");
     if (pubField) pubField.checked = false;
     const btn = $("#btnSaveBerita");
@@ -5165,12 +5220,56 @@ Jazakumullahu khairan,
     tbody.innerHTML = rows;
   }
 
+  async function uploadBeritaImage(file) {
+    if (!file) return null;
+
+    try {
+      // Check if Supabase client is available
+      if (typeof window.supabase === "undefined") {
+        throw new Error("Supabase client tidak tersedia");
+      }
+
+      const fileExt = file.name.split(".").pop();
+      const fileName = `berita_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `berita/${fileName}`;
+
+      console.log("[BERITA] Uploading image:", fileName);
+
+      // Upload to Supabase Storage (hero-images bucket)
+      const { data, error } = await window.supabase.storage
+        .from("hero-images")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (error) {
+        console.error("[BERITA] Upload error:", error);
+        throw new Error(`Upload gagal: ${error.message}`);
+      }
+
+      // Get public URL
+      const { data: urlData } = window.supabase.storage
+        .from("hero-images")
+        .getPublicUrl(filePath);
+
+      if (!urlData?.publicUrl) {
+        throw new Error("Gagal mendapatkan URL gambar");
+      }
+
+      console.log("[BERITA] Upload success:", urlData.publicUrl);
+      return urlData.publicUrl;
+    } catch (error) {
+      console.error("[BERITA] Upload error:", error);
+      throw error;
+    }
+  }
+
   async function handleBeritaSubmit(event) {
     event.preventDefault();
 
     const id = parseId($("#beritaId")?.value);
     const values = collectBeritaValues();
-    const imageUrl = ($("#beritaImageUrl")?.value || "").trim();
     const isPublished = $("#beritaIsPublished")?.checked || false;
 
     const missing = BERITA_LANGS.filter(
@@ -5191,14 +5290,32 @@ Jazakumullahu khairan,
     setButtonLoading(btn, true, id ? "Mengupdate..." : "Menyimpan...");
 
     try {
+      let imageUrl = ($("#beritaImageUrl")?.value || "").trim() || null;
+
+      // Check if there's a new image file to upload
+      const fileInput = $("#beritaImageFile");
+      const file = fileInput?.files?.[0];
+
+      if (file) {
+        setButtonLoading(btn, true, "Mengupload gambar...");
+        imageUrl = await uploadBeritaImage(file);
+        
+        // Store URL in hidden field for future edits
+        const urlInput = $("#beritaImageUrl");
+        if (urlInput) urlInput.value = imageUrl;
+      }
+
+      setButtonLoading(btn, true, id ? "Mengupdate..." : "Menyimpan...");
+
       const payload = {
         title_id: values.id.title,
         content_id: values.id.content,
         title_en: values.en.title,
         content_en: values.en.content,
-        image_url: imageUrl || null,
+        image_url: imageUrl,
         is_published: isPublished,
       };
+      
       let message = "Berita ditambahkan";
       if (id) {
         payload.id = id;
@@ -5251,8 +5368,21 @@ Jazakumullahu khairan,
         contentField.value =
           normalized[lang === "en" ? "content_en" : "content"] || "";
     });
+    
+    // Handle image
     const imgField = $("#beritaImageUrl");
     if (imgField) imgField.value = item.image_url || "";
+    
+    // Show existing image preview
+    if (item.image_url) {
+      const previewImg = $("#beritaPreviewImg");
+      const previewDiv = $("#beritaImagePreview");
+      if (previewImg && previewDiv) {
+        previewImg.src = item.image_url;
+        previewDiv.style.display = "block";
+      }
+    }
+    
     const pubField = $("#beritaIsPublished");
     if (pubField) pubField.checked = Boolean(item.is_published);
     const btn = $("#btnSaveBerita");
