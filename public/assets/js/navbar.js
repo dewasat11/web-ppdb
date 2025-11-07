@@ -10,7 +10,7 @@
     dropdownButtons.forEach((btn) => {
       const targetId = btn.getAttribute('data-dropdown-toggle');
       if (!targetId) return;
-      const menu = nav.querySelector(`#${CSS.escape(targetId)}`);
+      const menu = document.getElementById(targetId);
       if (!menu) return;
       const caret = btn.querySelector('[data-dropdown-caret]');
 
