@@ -72,14 +72,64 @@
       .text-xl { font-size: 1.125rem !important; line-height: 1.75rem !important; }
     }
 
-    /* Navbar responsive improvements */
-    @media (max-width: 768px) {
-      .navbar-brand span {
-        font-size: 0.875rem !important;
-        max-width: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    /* Navbar mobile fixes - Simple and working */
+    @media (max-width: 767px) {
+      /* Navbar container */
+      nav.sticky {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 50 !important;
+      }
+      
+      /* Navbar inner container */
+      nav .max-w-7xl {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+      }
+      
+      /* Logo responsive */
+      nav img.h-16,
+      nav img[alt*="Logo"] {
+        max-height: 48px !important;
+        height: 48px !important;
+        width: auto !important;
+      }
+      
+      /* Navbar row */
+      nav > div > div.flex {
+        min-height: 64px !important;
+        height: auto !important;
+      }
+      
+      /* Mobile menu button - ensure it's visible and clickable */
+      nav button[type="button"]:not([aria-label="Close menu"]) {
+        min-width: 44px !important;
+        min-height: 44px !important;
+        width: 44px !important;
+        height: 44px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0.5rem !important;
+      }
+      
+      /* Hide desktop nav */
+      nav .hidden.md\:block {
+        display: none !important;
+      }
+      
+      /* Show mobile button */
+      nav .md\:hidden {
+        display: flex !important;
+      }
+    }
+    
+    @media (max-width: 640px) {
+      /* Smaller logo on very small screens */
+      nav img.h-16,
+      nav img[alt*="Logo"] {
+        max-height: 40px !important;
+        height: 40px !important;
       }
     }
 
@@ -139,11 +189,72 @@
       }
     }
 
-    /* Mobile menu improvements */
-    @media (max-width: 768px) {
+    /* Mobile menu - Simple and working */
+    @media (max-width: 767px) {
+      /* Mobile menu panel */
       .mobile-menu {
-        max-width: 280px;
-        width: 85vw;
+        width: 280px !important;
+        max-width: 85vw !important;
+      }
+      
+      /* Mobile menu logo */
+      .mobile-menu img {
+        max-height: 48px !important;
+        height: 48px !important;
+      }
+      
+      /* Mobile menu links - ensure touch targets */
+      .mobile-menu a {
+        min-height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+      }
+      
+      /* Mobile menu summary */
+      .mobile-menu summary {
+        min-height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        cursor: pointer !important;
+        list-style: none !important;
+      }
+      
+      .mobile-menu summary::-webkit-details-marker {
+        display: none !important;
+      }
+      
+      .mobile-menu summary::marker {
+        display: none !important;
+      }
+      
+      /* Mobile menu sub-items */
+      .mobile-menu details > div {
+        padding-left: 1rem !important;
+        border-left: 2px solid #e5e7eb !important;
+      }
+      
+      .mobile-menu details a {
+        font-size: 0.875rem !important;
+        min-height: 40px !important;
+      }
+      
+      /* Details arrow rotation */
+      .mobile-menu details[open] summary i {
+        transform: rotate(180deg) !important;
+      }
+    }
+    
+    @media (max-width: 640px) {
+      .mobile-menu {
+        width: 260px !important;
+        max-width: 80vw !important;
+      }
+      
+      .mobile-menu a,
+      .mobile-menu summary {
+        font-size: 0.9rem !important;
+        padding: 0.625rem 0.875rem !important;
       }
     }
 
@@ -250,42 +361,95 @@
 
         <!-- Mobile menu button -->
         <div class="md:hidden">
-          <button @click="mobileMenuOpen=!mobileMenuOpen" class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-brand-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 transition">
-            <i class="bi" :class="mobileMenuOpen ? 'bi-x-lg' : 'bi-list'"></i>
+          <button 
+            @click="mobileMenuOpen = !mobileMenuOpen" 
+            type="button"
+            aria-label="Toggle menu"
+            :aria-expanded="mobileMenuOpen"
+            class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-brand-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <i class="bi text-xl" :class="mobileMenuOpen ? 'bi-x-lg' : 'bi-list'"></i>
           </button>
         </div>
       </div>
     </div>
 
     <!-- Mobile Backdrop -->
-    <div x-cloak x-show="mobileMenuOpen" @click="mobileMenuOpen=false" class="md:hidden fixed inset-0 z-40 bg-black/50"></div>
+    <div 
+      x-cloak 
+      x-show="mobileMenuOpen" 
+      @click="mobileMenuOpen = false" 
+      x-transition
+      class="md:hidden fixed inset-0 z-40 bg-black/50"></div>
 
     <!-- Mobile Menu -->
-    <div x-cloak x-show="mobileMenuOpen" x-transition class="md:hidden fixed inset-y-0 left-0 z-50 mobile-menu bg-white shadow-xl border-r border-gray-200 overflow-y-auto">
-      <div class="flex items-center justify-between p-4 border-b border-gray-200">
+    <div 
+      x-cloak 
+      x-show="mobileMenuOpen" 
+      x-transition
+      @click.away="mobileMenuOpen = false"
+      class="md:hidden fixed inset-y-0 left-0 z-50 mobile-menu bg-white shadow-2xl border-r border-gray-200 overflow-y-auto">
+      <div class="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
         <div class="flex items-center">
-          <img src="/assets/img/logo-alikhsan.png" class="h-16 w-auto" alt="Logo Pondok Pesantren Al Ikhsan Beji" />
+          <img src="/assets/img/logo-alikhsan.png" alt="Logo Al Ikhsan" class="h-12 w-auto" />
         </div>
-        <button @click="mobileMenuOpen=false" class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition"><i class="bi bi-x-lg"></i></button>
+        <button 
+          @click="mobileMenuOpen = false" 
+          type="button"
+          aria-label="Close menu"
+          class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100">
+          <i class="bi bi-x-lg text-xl"></i>
+        </button>
       </div>
 
-      <div class="px-2 pt-4 pb-3 space-y-1">
-        <a href="/" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-700 hover:bg-gray-50 transition" data-i18n="nav.home">Beranda</a>
+      <div class="px-2 pt-4 pb-6 space-y-1">
+        <a 
+          href="/" 
+          @click="mobileMenuOpen = false"
+          class="bg-brand-100 text-brand-700 block px-4 py-3 rounded-md text-base font-medium" 
+          data-i18n="nav.home">Beranda</a>
 
         <details class="px-1">
-          <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium transition" data-i18n="nav.info">Informasi</summary>
-          <div class="pl-6 space-y-1 mt-2">
-            <a href="/alur-pendaftaran.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50" data-i18n="nav.flow">Alur Pendaftaran</a>
-            <a href="/syarat-pendaftaran.html" aria-current="page" class="block px-3 py-2 text-sm rounded-md font-semibold bg-brand-50 text-brand-700" data-i18n="nav.requirements">Syarat Pendaftaran</a>
-            <a href="/biaya.html" class="block px-3 py-2 text-sm rounded-md hover:bg-gray-50" data-i18n="nav.fees">Biaya</a>
+          <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-4 py-3 rounded-md text-base font-medium flex items-center justify-between list-none" data-i18n="nav.info">
+            <span>Informasi</span>
+            <i class="bi bi-chevron-down text-xs"></i>
+          </summary>
+          <div class="pl-4 space-y-1 mt-1">
+            <a 
+              href="/alur-pendaftaran.html" 
+              @click="mobileMenuOpen = false"
+              class="block px-4 py-2 text-sm rounded-md hover:bg-gray-50" 
+              data-i18n="nav.flow">Alur Pendaftaran</a>
+            <a 
+              href="/syarat-pendaftaran.html" 
+              @click="mobileMenuOpen = false"
+              aria-current="page"
+              class="block px-4 py-2 text-sm rounded-md font-semibold bg-brand-50 text-brand-700" 
+              data-i18n="nav.requirements">Syarat Pendaftaran</a>
+            <a 
+              href="/biaya.html" 
+              @click="mobileMenuOpen = false"
+              class="block px-4 py-2 text-sm rounded-md hover:bg-gray-50" 
+              data-i18n="nav.fees">Biaya</a>
           </div>
         </details>
 
-        <a href="/brosur.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50 transition" data-i18n="nav.brochure">Brosur</a>
-        <a href="/kontak.html" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50 transition" data-i18n="nav.contact">Kontak</a>
+        <a 
+          href="/brosur.html" 
+          @click="mobileMenuOpen = false"
+          class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50" 
+          data-i18n="nav.brochure">Brosur</a>
+        <a 
+          href="/kontak.html" 
+          @click="mobileMenuOpen = false"
+          class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50" 
+          data-i18n="nav.contact">Kontak</a>
 
-        <div class="pt-4 pb-2 px-2">
-          <a href="/login.html" class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center transition" data-i18n="nav.admin">Admin</a>
+        <div class="pt-4 pb-2 px-2 border-t border-gray-200 mt-4">
+          <a 
+            href="/login.html" 
+            @click="mobileMenuOpen = false"
+            class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center" 
+            data-i18n="nav.admin">Admin</a>
         </div>
       </div>
     </div>

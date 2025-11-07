@@ -73,54 +73,65 @@
       .text-xl { font-size: 1.125rem !important; line-height: 1.75rem !important; }
     }
 
-    /* Navbar responsive improvements */
-    @media (max-width: 768px) {
-      .navbar-brand span {
-        font-size: 0.875rem !important;
-        max-width: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      
-      /* Navbar mobile fixes */
+    /* Navbar mobile fixes - Simple and working */
+    @media (max-width: 767px) {
+      /* Navbar container */
       nav.sticky {
         position: sticky !important;
+        top: 0 !important;
+        z-index: 50 !important;
       }
       
-      /* Logo size mobile */
-      nav img {
+      /* Navbar inner container */
+      nav .max-w-7xl {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+      }
+      
+      /* Logo responsive */
+      nav img.h-12,
+      nav img[alt="Logo Al Ikhsan"] {
         max-height: 48px !important;
-        height: auto !important;
+        height: 48px !important;
         width: auto !important;
       }
       
-      /* Mobile menu button */
-      nav button[aria-label] {
-        min-width: 44px !important;
-        min-height: 44px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-      }
-      
-      /* Ensure navbar height is consistent */
-      nav .flex.justify-between {
+      /* Navbar row */
+      nav > div > div.flex {
         min-height: 64px !important;
         height: auto !important;
+      }
+      
+      /* Mobile menu button - ensure it's visible and clickable */
+      nav button[type="button"][aria-label="Toggle menu"],
+      nav button[type="button"][aria-label="Close menu"] {
+        min-width: 44px !important;
+        min-height: 44px !important;
+        width: 44px !important;
+        height: 44px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0.5rem !important;
+      }
+      
+      /* Hide desktop nav */
+      nav .hidden.md\:block {
+        display: none !important;
+      }
+      
+      /* Show mobile button */
+      nav .md\:hidden {
+        display: flex !important;
       }
     }
     
     @media (max-width: 640px) {
       /* Smaller logo on very small screens */
-      nav img {
+      nav img.h-12,
+      nav img[alt="Logo Al Ikhsan"] {
         max-height: 40px !important;
-      }
-      
-      /* Reduce padding on mobile */
-      nav .max-w-7xl {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
+        height: 40px !important;
       }
     }
 
@@ -229,86 +240,66 @@
       }
     }
 
-    /* Mobile menu improvements */
-    @media (max-width: 768px) {
+    /* Mobile menu - Simple and working */
+    @media (max-width: 767px) {
+      /* Mobile menu panel */
       .mobile-menu {
-        max-width: 280px;
-        width: 85vw;
+        width: 280px !important;
+        max-width: 85vw !important;
       }
       
-      /* Mobile menu fixes */
+      /* Mobile menu logo */
       .mobile-menu img {
         max-height: 48px !important;
-        height: auto !important;
+        height: 48px !important;
       }
       
-      /* Mobile menu backdrop */
-      .mobile-menu + div[x-cloak],
-      nav + div[x-cloak] {
-        backdrop-filter: blur(2px);
+      /* Mobile menu links - ensure touch targets */
+      .mobile-menu a {
+        min-height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
       }
       
-      /* Mobile menu items */
-      .mobile-menu a,
+      /* Mobile menu summary */
       .mobile-menu summary {
         min-height: 44px !important;
         display: flex !important;
         align-items: center !important;
-        padding: 0.75rem 1rem !important;
-        font-size: 1rem !important;
+        justify-content: space-between !important;
+        cursor: pointer !important;
+        list-style: none !important;
       }
       
-      /* Mobile menu details/summary */
-      .mobile-menu details summary {
-        list-style: none;
-        cursor: pointer;
+      .mobile-menu summary::-webkit-details-marker {
+        display: none !important;
       }
       
-      .mobile-menu details summary::-webkit-details-marker {
-        display: none;
-      }
-      
-      .mobile-menu details summary::marker {
-        display: none;
+      .mobile-menu summary::marker {
+        display: none !important;
       }
       
       /* Mobile menu sub-items */
-      .mobile-menu details div {
-        border-left: 2px solid #e5e7eb;
-        margin-left: 0.5rem;
-        padding-left: 0.5rem;
+      .mobile-menu details > div {
+        padding-left: 1rem !important;
+        border-left: 2px solid #e5e7eb !important;
       }
       
-      /* Details summary arrow animation */
+      .mobile-menu details a {
+        font-size: 0.875rem !important;
+        min-height: 40px !important;
+      }
+      
+      /* Details arrow rotation */
       .mobile-menu details[open] summary i {
-        transform: rotate(180deg);
-      }
-      
-      /* Ensure mobile menu is above everything */
-      .mobile-menu {
-        z-index: 9999 !important;
-        max-height: 100vh;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-      
-      /* Mobile backdrop z-index */
-      div[x-cloak][x-show].bg-black {
-        z-index: 9998 !important;
-      }
-      
-      /* Prevent body scroll when menu open */
-      body.menu-open {
-        overflow: hidden !important;
-        position: fixed !important;
-        width: 100% !important;
+        transform: rotate(180deg) !important;
       }
     }
     
     @media (max-width: 640px) {
       .mobile-menu {
-        width: 80vw;
-        max-width: 260px;
+        width: 260px !important;
+        max-width: 80vw !important;
       }
       
       .mobile-menu a,
@@ -436,26 +427,14 @@
   </header>
     <!-- NAVBAR -->
     <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur supports-backdrop-blur:bg-white/85 shadow-lg" 
-         x-data="{ 
-           mobileMenuOpen: false, 
-           profileDropdownOpen: false,
-           lockBodyScroll() {
-             if (this.mobileMenuOpen && window.innerWidth < 768) {
-               document.body.style.overflow = 'hidden';
-             } else {
-               document.body.style.overflow = '';
-             }
-           }
-         }"
-         x-effect="lockBodyScroll()"
-         @resize.window="lockBodyScroll()">
+         x-data="{ mobileMenuOpen: false, profileDropdownOpen: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16 min-h-[64px]">
         <!-- Logo -->
         <div class="flex-shrink-0 flex items-center">
           <a href="/" class="flex items-center">
             <!-- TODO: ganti src logo -->
-            <img src="/assets/img/logo-alikhsan.png" alt="Logo Al Ikhsan" class="h-12 sm:h-16 w-auto max-h-[64px] object-contain" />
+            <img src="/assets/img/logo-alikhsan.png" alt="Logo Al Ikhsan" class="h-16 w-auto" />
           </a>
         </div>
 
@@ -489,15 +468,14 @@
         </div>
 
         <!-- Mobile menu button -->
-        <div class="md:hidden flex items-center">
+        <div class="md:hidden">
           <button 
-            @click="mobileMenuOpen=!mobileMenuOpen" 
+            @click="mobileMenuOpen = !mobileMenuOpen" 
             type="button"
             aria-label="Toggle menu"
-            aria-expanded="false"
             :aria-expanded="mobileMenuOpen"
-            class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-brand-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500 min-w-[44px] min-h-[44px]">
-            <i class="bi text-2xl" :class="mobileMenuOpen ? 'bi-x-lg' : 'bi-list'"></i>
+            class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-brand-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <i class="bi text-xl" :class="mobileMenuOpen ? 'bi-x-lg' : 'bi-list'"></i>
           </button>
         </div>
       </div>
@@ -507,36 +485,26 @@
     <div 
       x-cloak 
       x-show="mobileMenuOpen" 
-      @click="mobileMenuOpen=false" 
-      x-transition:enter="transition-opacity ease-linear duration-300"
-      x-transition:enter-start="opacity-0"
-      x-transition:enter-end="opacity-100"
-      x-transition:leave="transition-opacity ease-linear duration-300"
-      x-transition:leave-start="opacity-100"
-      x-transition:leave-end="opacity-0"
-      class="md:hidden fixed inset-0 z-[9998] bg-black/50 backdrop-blur-sm"></div>
+      @click="mobileMenuOpen = false" 
+      x-transition
+      class="md:hidden fixed inset-0 z-40 bg-black/50"></div>
 
     <!-- Mobile Menu -->
     <div 
       x-cloak 
       x-show="mobileMenuOpen" 
-      x-transition:enter="transition-transform ease-out duration-300"
-      x-transition:enter-start="-translate-x-full"
-      x-transition:enter-end="translate-x-0"
-      x-transition:leave="transition-transform ease-in duration-300"
-      x-transition:leave-start="translate-x-0"
-      x-transition:leave-end="-translate-x-full"
-      @click.away="mobileMenuOpen=false"
-      class="md:hidden fixed inset-y-0 left-0 z-[9999] mobile-menu bg-white shadow-2xl border-r border-gray-200 overflow-y-auto">
-      <div class="flex items-center justify-between p-4 border-b border-gray-200 bg-white sticky top-0 z-10">
+      x-transition
+      @click.away="mobileMenuOpen = false"
+      class="md:hidden fixed inset-y-0 left-0 z-50 mobile-menu bg-white shadow-2xl border-r border-gray-200 overflow-y-auto">
+      <div class="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
         <div class="flex items-center">
-          <img src="/assets/img/logo-alikhsan.png" alt="Logo Al Ikhsan" class="h-12 w-auto max-h-[48px] object-contain" />
+          <img src="/assets/img/logo-alikhsan.png" alt="Logo Al Ikhsan" class="h-12 w-auto" />
         </div>
         <button 
-          @click="mobileMenuOpen=false" 
+          @click="mobileMenuOpen = false" 
           type="button"
           aria-label="Close menu"
-          class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 min-w-[44px] min-h-[44px] flex items-center justify-center">
+          class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100">
           <i class="bi bi-x-lg text-xl"></i>
         </button>
       </div>
@@ -544,50 +512,50 @@
       <div class="px-2 pt-4 pb-6 space-y-1">
         <a 
           href="/" 
-          @click="mobileMenuOpen=false"
-          class="bg-brand-100 text-brand-700 block px-4 py-3 rounded-md text-base font-medium min-h-[44px] flex items-center" 
+          @click="mobileMenuOpen = false"
+          class="bg-brand-100 text-brand-700 block px-4 py-3 rounded-md text-base font-medium" 
           data-i18n="nav.home">Beranda</a>
 
         <details class="px-1">
-          <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-4 py-3 rounded-md text-base font-medium min-h-[44px] flex items-center justify-between list-none" data-i18n="nav.info">
+          <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-4 py-3 rounded-md text-base font-medium flex items-center justify-between" data-i18n="nav.info">
             <span>Informasi</span>
-            <i class="bi bi-chevron-down text-xs transition-transform"></i>
+            <i class="bi bi-chevron-down text-xs"></i>
           </summary>
-          <div class="pl-4 space-y-1 mt-1 border-l-2 border-gray-200 ml-2">
+          <div class="pl-4 space-y-1 mt-1">
             <a 
               href="/alur-pendaftaran.html" 
-              @click="mobileMenuOpen=false"
-              class="block px-4 py-2.5 text-sm rounded-md hover:bg-gray-50 min-h-[40px] flex items-center" 
+              @click="mobileMenuOpen = false"
+              class="block px-4 py-2 text-sm rounded-md hover:bg-gray-50" 
               data-i18n="nav.flow">Alur Pendaftaran</a>
             <a 
               href="/syarat-pendaftaran.html" 
-              @click="mobileMenuOpen=false"
-              class="block px-4 py-2.5 text-sm rounded-md hover:bg-gray-50 min-h-[40px] flex items-center" 
+              @click="mobileMenuOpen = false"
+              class="block px-4 py-2 text-sm rounded-md hover:bg-gray-50" 
               data-i18n="nav.requirements">Syarat Pendaftaran</a>
             <a 
               href="/biaya.html" 
-              @click="mobileMenuOpen=false"
-              class="block px-4 py-2.5 text-sm rounded-md hover:bg-gray-50 min-h-[40px] flex items-center" 
+              @click="mobileMenuOpen = false"
+              class="block px-4 py-2 text-sm rounded-md hover:bg-gray-50" 
               data-i18n="nav.fees">Biaya</a>
           </div>
         </details>
 
         <a 
           href="/brosur.html" 
-          @click="mobileMenuOpen=false"
-          class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 min-h-[44px] flex items-center" 
+          @click="mobileMenuOpen = false"
+          class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50" 
           data-i18n="nav.brochure">Brosur</a>
         <a 
           href="/kontak.html" 
-          @click="mobileMenuOpen=false"
-          class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 min-h-[44px] flex items-center" 
+          @click="mobileMenuOpen = false"
+          class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50" 
           data-i18n="nav.contact">Kontak</a>
 
         <div class="pt-4 pb-2 px-2 border-t border-gray-200 mt-4">
           <a 
             href="/login.html" 
-            @click="mobileMenuOpen=false"
-            class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center min-h-[44px] flex items-center justify-center" 
+            @click="mobileMenuOpen = false"
+            class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center" 
             data-i18n="nav.admin">Admin</a>
         </div>
       </div>
