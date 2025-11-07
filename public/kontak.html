@@ -356,85 +356,85 @@
       </div>
     </div>
 
-    <!-- Mobile Backdrop -->
-    <div
-      id="mobileNavBackdrop"
-      class="md:hidden fixed inset-0 z-40 bg-black/50 hidden"
-      data-mobile-backdrop></div>
-
-    <!-- Mobile Menu -->
-    <div
-      id="mobileNavMenu"
-      class="md:hidden fixed inset-y-0 left-0 z-50 mobile-menu bg-white shadow-2xl border-r border-gray-200 overflow-y-auto hidden"
-      data-mobile-menu
-      role="dialog"
-      aria-modal="true">
-      <div class="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
-        <div class="flex items-center">
-          <img src="/assets/img/logo-alikhsan.png" alt="Logo Al Ikhsan" class="h-12 w-auto" />
-        </div>
-        <button 
-          type="button"
-          aria-label="Close menu"
-          class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-          data-close-mobile>
-          <i class="bi bi-x-lg text-xl"></i>
-        </button>
-      </div>
-
-      <div class="px-2 pt-4 pb-6 space-y-1">
-        <a 
-          href="/" 
-          class="bg-brand-100 text-brand-700 block px-4 py-3 rounded-md text-base font-medium" 
-          data-i18n="nav.home"
-          data-close-mobile>Beranda</a>
-
-        <details class="px-1">
-          <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-4 py-3 rounded-md text-base font-medium flex items-center justify-between" data-i18n="nav.info">
-            <span>Informasi</span>
-            <i class="bi bi-chevron-down text-xs"></i>
-          </summary>
-          <div class="pl-4 space-y-1 mt-1">
-            <a 
-              href="/alur-pendaftaran.html" 
-              class="block px-4 py-2 text-sm rounded-md hover:bg-gray-50" 
-              data-i18n="nav.flow"
-              data-close-mobile>Alur Pendaftaran</a>
-            <a 
-              href="/syarat-pendaftaran.html" 
-              class="block px-4 py-2 text-sm rounded-md hover:bg-gray-50" 
-              data-i18n="nav.requirements"
-              data-close-mobile>Syarat Pendaftaran</a>
-            <a 
-              href="/biaya.html" 
-              class="block px-4 py-2 text-sm rounded-md hover:bg-gray-50" 
-              data-i18n="nav.fees"
-              data-close-mobile>Biaya</a>
-          </div>
-        </details>
-
-        <a 
-          href="/brosur.html" 
-          class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50" 
-          data-i18n="nav.brochure"
-          data-close-mobile>Brosur</a>
-        <a 
-          href="/kontak.html" 
-          class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50" 
-          data-i18n="nav.contact"
-          data-close-mobile>Kontak</a>
-
-        <div class="pt-4 pb-2 px-2 border-t border-gray-200 mt-4">
-          <a 
-            href="/login.html" 
-            class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center" 
-            data-i18n="nav.admin"
-            data-close-mobile>Admin</a>
-        </div>
-      </div>
-    </div>
   </nav>
 
+  <!-- MOBILE NAV OVERLAY -->
+  <div
+    id="mobileNavBackdrop"
+    class="md:hidden absolute inset-0 z-[120] bg-black/60 hidden"
+    data-mobile-backdrop></div>
+
+  <div
+    id="mobileNavMenu"
+    class="md:hidden absolute inset-y-0 left-0 z-[121] mobile-menu bg-white shadow-2xl border-r border-gray-200 overflow-y-auto hidden"
+    data-mobile-menu
+    role="dialog"
+    aria-modal="true">
+    <div class="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+      <div class="flex items-center">
+        <img src="/assets/img/logo-alikhsan.png" alt="Logo Al Ikhsan" class="h-12 w-auto" />
+      </div>
+      <button 
+        type="button"
+        aria-label="Close menu"
+        class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+        data-close-mobile>
+        <i class="bi bi-x-lg text-xl"></i>
+      </button>
+    </div>
+
+    <div class="px-2 pt-4 pb-6 space-y-1">
+      <a 
+        href="/" 
+        class="bg-brand-100 text-brand-700 block px-4 py-3 rounded-md text-base font-medium" 
+        data-i18n="nav.home"
+        data-close-mobile>Beranda</a>
+
+      <details class="px-1">
+        <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-4 py-3 rounded-md text-base font-medium flex items-center justify-between" data-i18n="nav.info">
+          <span>Informasi</span>
+          <i class="bi bi-chevron-down text-xs"></i>
+        </summary>
+        <div class="pl-4 space-y-1 mt-1">
+          <a 
+            href="/alur-pendaftaran.html" 
+            class="block px-4 py-2 text-sm rounded-md hover:bg-gray-50" 
+            data-i18n="nav.flow"
+            data-close-mobile>Alur Pendaftaran</a>
+          <a 
+            href="/syarat-pendaftaran.html" 
+            class="block px-4 py-2 text-sm rounded-md hover:bg-gray-50" 
+            data-i18n="nav.requirements"
+            data-close-mobile>Syarat Pendaftaran</a>
+          <a 
+            href="/biaya.html" 
+            class="block px-4 py-2 text-sm rounded-md hover:bg-gray-50" 
+            data-i18n="nav.fees"
+            data-close-mobile>Biaya</a>
+        </div>
+      </details>
+
+      <a 
+        href="/brosur.html" 
+        class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50" 
+        data-i18n="nav.brochure"
+        data-close-mobile>Brosur</a>
+      <a 
+        href="/kontak.html" 
+        class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50" 
+        data-i18n="nav.contact"
+        data-close-mobile>Kontak</a>
+
+      <div class="pt-4 pb-2 px-2 border-t border-gray-200 mt-4">
+        <a 
+          href="/login.html" 
+          class="w-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-3 rounded-lg text-base font-medium shadow-md hover:shadow-lg block text-center" 
+          data-i18n="nav.admin"
+          data-close-mobile>Admin</a>
+      </div>
+    </div>
+  </div>
+  <!-- END MOBILE NAV OVERLAY -->
   <!-- MAIN -->
   <main class="flex-1 container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold text-gray-900 mb-6" data-i18n="pages.contact.heading">Kontak Kami</h1>

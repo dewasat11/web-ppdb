@@ -49,8 +49,14 @@
     });
 
     const mobileToggle = nav.querySelector('[data-mobile-toggle]');
-    const mobileMenu = nav.querySelector('[data-mobile-menu]');
-    const mobileBackdrop = nav.querySelector('[data-mobile-backdrop]');
+    const mobileMenuId = mobileToggle?.getAttribute('aria-controls');
+    const mobileMenu =
+      (mobileMenuId ? document.getElementById(mobileMenuId) : null) ||
+      nav.querySelector('[data-mobile-menu]') ||
+      document.querySelector('[data-mobile-menu]');
+    const mobileBackdrop =
+      nav.querySelector('[data-mobile-backdrop]') ||
+      document.querySelector('[data-mobile-backdrop]');
     const mobileIcons = nav.querySelectorAll('[data-mobile-icon]');
 
     const setMobileIcons = (isOpen) => {
@@ -65,35 +71,44 @@
     };
 
     const closeMobileMenu = () => {
-      if (!mobileMenu) return;
-      mobileMenu.classList.add(CLOSE_CLASS);
+      mobileMenu?.classList.add(CLOSE_CLASS);
       mobileBackdrop?.classList.add(CLOSE_CLASS);
+      document.body.classList.remove('overflow-hidden');
       mobileToggle?.setAttribute('aria-expanded', 'false');
       setMobileIcons(false);
-      document.body.classList.remove('overflow-hidden');
     };
 
     const openMobileMenu = () => {
-      if (!mobileMenu) return;
+      if (!mobileMenu) {
+        mobileToggle?.setAttribute('aria-expanded', 'false');
+        setMobileIcons(false);
+        return false;
+      }
       mobileMenu.classList.remove(CLOSE_CLASS);
       mobileBackdrop?.classList.remove(CLOSE_CLASS);
+      document.body.classList.add('overflow-hidden');
       mobileToggle?.setAttribute('aria-expanded', 'true');
       setMobileIcons(true);
-      document.body.classList.add('overflow-hidden');
+      return true;
     };
 
     mobileToggle?.addEventListener('click', () => {
       const expanded = mobileToggle.getAttribute('aria-expanded') === 'true';
       if (expanded) {
         closeMobileMenu();
-      } else {
-        openMobileMenu();
+      } else if (!openMobileMenu()) {
+        closeMobileMenu();
       }
     });
 
     mobileBackdrop?.addEventListener('click', closeMobileMenu);
 
-    nav.querySelectorAll('[data-close-mobile]').forEach((el) => {
+    const closeMobileElements = [
+      ...nav.querySelectorAll('[data-close-mobile]'),
+      ...(mobileMenu ? mobileMenu.querySelectorAll('[data-close-mobile]') : []),
+    ];
+
+    closeMobileElements.forEach((el) => {
       el.addEventListener('click', closeMobileMenu);
     });
 
