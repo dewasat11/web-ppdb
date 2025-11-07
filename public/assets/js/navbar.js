@@ -70,10 +70,43 @@
       });
     };
 
+    const updateOverlayPosition = () => {
+      const scrollY =
+        window.scrollY ||
+        window.pageYOffset ||
+        document.documentElement.scrollTop ||
+        0;
+      const topValue = `${scrollY}px`;
+      if (mobileMenu) {
+        mobileMenu.style.top = topValue;
+        mobileMenu.style.bottom = 'auto';
+        mobileMenu.style.height = '100vh';
+      }
+      if (mobileBackdrop) {
+        mobileBackdrop.style.top = topValue;
+        mobileBackdrop.style.bottom = 'auto';
+        mobileBackdrop.style.height = '100vh';
+      }
+    };
+
+    const resetOverlayPosition = () => {
+      if (mobileMenu) {
+        mobileMenu.style.removeProperty('top');
+        mobileMenu.style.removeProperty('bottom');
+        mobileMenu.style.removeProperty('height');
+      }
+      if (mobileBackdrop) {
+        mobileBackdrop.style.removeProperty('top');
+        mobileBackdrop.style.removeProperty('bottom');
+        mobileBackdrop.style.removeProperty('height');
+      }
+    };
+
     const closeMobileMenu = () => {
       mobileMenu?.classList.add(CLOSE_CLASS);
       mobileBackdrop?.classList.add(CLOSE_CLASS);
       document.body.classList.remove('overflow-hidden');
+      resetOverlayPosition();
       mobileToggle?.setAttribute('aria-expanded', 'false');
       setMobileIcons(false);
     };
@@ -84,6 +117,7 @@
         setMobileIcons(false);
         return false;
       }
+      updateOverlayPosition();
       mobileMenu.classList.remove(CLOSE_CLASS);
       mobileBackdrop?.classList.remove(CLOSE_CLASS);
       document.body.classList.add('overflow-hidden');
