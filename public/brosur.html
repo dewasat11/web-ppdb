@@ -292,52 +292,52 @@
       </div>
     </div>
   </header>
-
   <!-- NAVBAR -->
   <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur supports-backdrop-blur:bg-white/85 shadow-lg" data-nav-root>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
+      <div class="flex justify-between items-center h-16 min-h-[64px]">
         <!-- Logo -->
         <div class="flex-shrink-0 flex items-center">
           <a href="/" class="flex items-center">
-            <img src="/assets/img/logo-alikhsan.png" class="h-16 w-auto" alt="Logo Pondok Pesantren Al Ikhsan Beji" />
+            <img src="/assets/img/logo-alikhsan.png" alt="Logo Al Ikhsan" class="h-16 w-auto" />
           </a>
         </div>
 
         <!-- Desktop Navigation -->
         <div class="hidden md:block">
           <div class="flex items-baseline space-x-4">
-            <a href="/" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium transition" data-i18n="nav.home">Beranda</a>
+            <a href="/" class="text-brand-700 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.home">Beranda</a>
 
             <!-- Dropdown Informasi -->
             <div class="relative">
               <button 
                 type="button"
-                class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1 transition"
+                class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium flex items-center transition"
                 data-dropdown-toggle="desktopInfoDropdown"
                 aria-expanded="false"
                 aria-controls="desktopInfoDropdown"
                 aria-haspopup="true">
                 <span data-i18n="nav.info">Informasi</span>
-                <i class="bi bi-caret-down-fill text-xs transition-transform duration-200" data-dropdown-caret></i>
+                <i class="bi bi-caret-down-fill ml-1 text-xs transition-transform duration-200" data-dropdown-caret></i>
               </button>
               <div
                 id="desktopInfoDropdown"
-                class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100 hidden">
+                class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100 hidden"
+                role="menu">
                 <a href="/alur-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-i18n="nav.flow">Alur Pendaftaran</a>
                 <a href="/syarat-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-i18n="nav.requirements">Syarat Pendaftaran</a>
                 <a href="/biaya.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-i18n="nav.fees">Biaya</a>
               </div>
             </div>
 
-            <a href="/brosur.html" aria-current="page" class="px-3 py-2 rounded-md text-sm font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 transition" data-i18n="nav.brochure">Brosur</a>
-            <a href="/kontak.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium transition" data-i18n="nav.contact">Kontak</a>
+            <a href="/brosur.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.brochure">Brosur</a>
+            <a href="/kontak.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.contact">Kontak</a>
           </div>
         </div>
 
         <!-- CTA Button Desktop -->
         <div class="hidden md:block">
-          <a href="/login" class="bg-brand-700 hover:bg-brand-800 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition" data-i18n="nav.admin">Admin</a>
+          <a href="/login" class="bg-brand-700 hover:bg-brand-800 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg" data-i18n="nav.admin">Admin</a>
         </div>
 
         <!-- Mobile menu button -->
@@ -357,13 +357,13 @@
     </div>
 
     <!-- Mobile Backdrop -->
-    <div 
+    <div
       id="mobileNavBackdrop"
       class="md:hidden fixed inset-0 z-40 bg-black/50 hidden"
       data-mobile-backdrop></div>
 
     <!-- Mobile Menu -->
-    <div 
+    <div
       id="mobileNavMenu"
       class="md:hidden fixed inset-y-0 left-0 z-50 mobile-menu bg-white shadow-2xl border-r border-gray-200 overflow-y-auto hidden"
       data-mobile-menu
@@ -390,7 +390,7 @@
           data-close-mobile>Beranda</a>
 
         <details class="px-1">
-          <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-4 py-3 rounded-md text-base font-medium flex items-center justify-between list-none" data-i18n="nav.info">
+          <summary class="cursor-pointer text-gray-700 hover:text-brand-700 hover:bg-gray-50 px-4 py-3 rounded-md text-base font-medium flex items-center justify-between" data-i18n="nav.info">
             <span>Informasi</span>
             <i class="bi bi-chevron-down text-xs"></i>
           </summary>
@@ -415,8 +415,7 @@
 
         <a 
           href="/brosur.html" 
-          aria-current="page"
-          class="block px-4 py-3 rounded-md text-base font-semibold bg-brand-50 text-brand-700" 
+          class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50" 
           data-i18n="nav.brochure"
           data-close-mobile>Brosur</a>
         <a 
