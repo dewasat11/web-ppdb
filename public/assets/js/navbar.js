@@ -2,6 +2,28 @@
   const navs = document.querySelectorAll('[data-nav-root]');
   if (!navs.length) return;
 
+  const ensureLayerStyles = () => {
+    if (document.getElementById('nav-layer-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'nav-layer-styles';
+    style.textContent = `
+      [data-nav-root] {
+        z-index: 1300 !important;
+      }
+      [data-dropdown-menu] {
+        z-index: 1310 !important;
+      }
+      [data-mobile-backdrop] {
+        z-index: 1400 !important;
+      }
+      [data-mobile-menu] {
+        z-index: 1410 !important;
+      }
+    `;
+    document.head?.appendChild(style);
+  };
+  ensureLayerStyles();
+
   const CLOSE_CLASS = 'hidden';
 
   navs.forEach((nav) => {
@@ -13,6 +35,9 @@
       const menu = document.getElementById(targetId);
       if (!menu) return;
       const caret = btn.querySelector('[data-dropdown-caret]');
+      menu.setAttribute('data-dropdown-menu', 'true');
+
+      menu.style.zIndex = '1310';
 
       const closeDropdown = () => {
         if (menu.classList.contains(CLOSE_CLASS)) return;
@@ -58,6 +83,9 @@
       nav.querySelector('[data-mobile-backdrop]') ||
       document.querySelector('[data-mobile-backdrop]');
     const mobileIcons = nav.querySelectorAll('[data-mobile-icon]');
+
+    mobileMenu?.style && (mobileMenu.style.zIndex = '1410');
+    mobileBackdrop?.style && (mobileBackdrop.style.zIndex = '1400');
 
     const setMobileIcons = (isOpen) => {
       mobileIcons.forEach((icon) => {
