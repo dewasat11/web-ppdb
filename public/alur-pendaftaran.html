@@ -304,7 +304,7 @@
         <!-- Desktop Navigation -->
         <div class="hidden md:block">
           <div class="flex items-baseline space-x-4">
-            <a href="/" class="text-brand-700 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.home">Beranda</a>
+            <a href="/" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-nav-link data-i18n="nav.home">Beranda</a>
 
             <!-- Dropdown Informasi -->
             <div class="relative">
@@ -322,14 +322,14 @@
                 id="desktopInfoDropdown"
                 class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100 hidden"
                 role="menu">
-                <a href="/alur-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-i18n="nav.flow">Alur Pendaftaran</a>
-                <a href="/syarat-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-i18n="nav.requirements">Syarat Pendaftaran</a>
-                <a href="/biaya.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-i18n="nav.fees">Biaya</a>
+                <a href="/alur-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-nav-link data-i18n="nav.flow">Alur Pendaftaran</a>
+                <a href="/syarat-pendaftaran.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-nav-link data-i18n="nav.requirements">Syarat Pendaftaran</a>
+                <a href="/biaya.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" data-nav-link data-i18n="nav.fees">Biaya</a>
               </div>
             </div>
 
-            <a href="/brosur.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.brochure">Brosur</a>
-            <a href="/kontak.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-i18n="nav.contact">Kontak</a>
+            <a href="/brosur.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-nav-link data-i18n="nav.brochure">Brosur</a>
+            <a href="/kontak.html" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md text-sm font-medium" data-nav-link data-i18n="nav.contact">Kontak</a>
           </div>
         </div>
 
@@ -384,8 +384,8 @@
     <div class="px-2 pt-4 pb-6 space-y-1">
       <a 
         href="/" 
-        class="bg-brand-100 text-brand-700 block px-4 py-3 rounded-md text-base font-medium" 
-        data-i18n="nav.home"
+        class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:text-brand-700 hover:bg-gray-50" 
+        data-nav-link data-i18n="nav.home"
         data-close-mobile>Beranda</a>
 
       <details class="px-1">
@@ -397,17 +397,17 @@
           <a 
             href="/alur-pendaftaran.html" 
             class="block px-4 py-2 text-sm rounded-md hover:bg-gray-50" 
-            data-i18n="nav.flow"
+            data-nav-link data-i18n="nav.flow"
             data-close-mobile>Alur Pendaftaran</a>
           <a 
             href="/syarat-pendaftaran.html" 
             class="block px-4 py-2 text-sm rounded-md hover:bg-gray-50" 
-            data-i18n="nav.requirements"
+            data-nav-link data-i18n="nav.requirements"
             data-close-mobile>Syarat Pendaftaran</a>
           <a 
             href="/biaya.html" 
             class="block px-4 py-2 text-sm rounded-md hover:bg-gray-50" 
-            data-i18n="nav.fees"
+            data-nav-link data-i18n="nav.fees"
             data-close-mobile>Biaya</a>
         </div>
       </details>
@@ -415,12 +415,12 @@
       <a 
         href="/brosur.html" 
         class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50" 
-        data-i18n="nav.brochure"
+        data-nav-link data-i18n="nav.brochure"
         data-close-mobile>Brosur</a>
       <a 
         href="/kontak.html" 
         class="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50" 
-        data-i18n="nav.contact"
+        data-nav-link data-i18n="nav.contact"
         data-close-mobile>Kontak</a>
 
       <div class="pt-4 pb-2 px-2 border-t border-gray-200 mt-4">

@@ -22,27 +22,120 @@
       }
       [data-mobile-menu] {
         position: fixed !important;
-        top: clamp(0.75rem, 3vw, 1.5rem) !important;
-        right: clamp(0.75rem, 4vw, 1.75rem) !important;
-        left: auto !important;
-        bottom: auto !important;
-        width: min(360px, calc(100vw - 2.5rem)) !important;
-        max-height: calc(100vh - 2.5rem) !important;
+        top: clamp(0.5rem, 2vw, 1rem) !important;
+        bottom: clamp(0.5rem, 2vw, 1.25rem) !important;
+        left: clamp(0.5rem, 4vw, 1.5rem) !important;
+        right: auto !important;
+        width: min(340px, calc(100vw - 2.5rem)) !important;
+        max-width: 90vw !important;
         border-radius: 1.25rem !important;
         border: 1px solid rgba(15, 23, 42, 0.08) !important;
         z-index: 1410 !important;
-        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.15) !important;
+        box-shadow: 0 25px 50px rgba(15, 23, 42, 0.2) !important;
       }
       @media (max-width: 420px) {
         [data-mobile-menu] {
           width: calc(100vw - 1.25rem) !important;
-          right: 0.5rem !important;
+          left: 0.5rem !important;
         }
       }
     `;
     document.head?.appendChild(style);
   };
   ensureLayerStyles();
+
+  const DESKTOP_ACTIVE_CLASSES = ['text-brand-700', 'font-semibold'];
+  const MOBILE_EXTRA_ACTIVE_CLASSES = ['bg-brand-100'];
+  const ACTIVE_CLASS_POOL = Array.from(
+    new Set([...DESKTOP_ACTIVE_CLASSES, ...MOBILE_EXTRA_ACTIVE_CLASSES])
+  );
+
+  const normalizePath = (value) => {
+    if (!value) return null;
+    try {
+      const url = new URL(value, window.location.origin);
+      let path = url.pathname || '/';
+      path = path.replace(/\/index\.html$/i, '/');
+      if (path.endsWith('/') && path !== '/') {
+        path = path.slice(0, -1);
+      }
+      path = path.replace(/\.html$/i, '');
+      if (!path.startsWith('/')) {
+        path = `/${path}`;
+      }
+      if (!path) path = '/';
+      return path || '/';
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const initActiveLinks = (nav, mobileMenu) => {
+    const links = [
+      ...nav.querySelectorAll('a[data-nav-link]'),
+      ...(mobileMenu ? mobileMenu.querySelectorAll('a[data-nav-link]') : []),
+    ];
+    if (!links.length) return;
+
+    const clearActive = () => {
+      links.forEach((link) => {
+        ACTIVE_CLASS_POOL.forEach((cls) => link.classList.remove(cls));
+        link.removeAttribute('data-nav-active');
+      });
+    };
+
+    const setActive = (link) => {
+      DESKTOP_ACTIVE_CLASSES.forEach((cls) => link.classList.add(cls));
+      if (mobileMenu && mobileMenu.contains(link)) {
+        MOBILE_EXTRA_ACTIVE_CLASSES.forEach((cls) => link.classList.add(cls));
+      }
+      link.setAttribute('data-nav-active', 'true');
+    };
+
+    const applyActiveByPath = () => {
+      const currentPath = normalizePath(window.location.pathname) || '/';
+      clearActive();
+      let matched = false;
+
+      links.forEach((link) => {
+        const targetPath = normalizePath(link.getAttribute('href'));
+        if (targetPath && targetPath === currentPath) {
+          setActive(link);
+          matched = true;
+        }
+      });
+
+      if (!matched && currentPath !== '/') {
+        links.forEach((link) => {
+          const targetPath = normalizePath(link.getAttribute('href'));
+          if (!targetPath || targetPath === '/') return;
+          if (currentPath.startsWith(targetPath)) {
+            setActive(link);
+            matched = true;
+          }
+        });
+      }
+
+      if (!matched) {
+        links.forEach((link) => {
+          const targetPath = normalizePath(link.getAttribute('href'));
+          if (targetPath === '/') {
+            setActive(link);
+            matched = true;
+          }
+        });
+      }
+    };
+
+    applyActiveByPath();
+
+    links.forEach((link) => {
+      link.addEventListener('click', () => {
+        clearActive();
+        setActive(link);
+      });
+    });
+  };
 
   const CLOSE_CLASS = 'hidden';
 
@@ -207,5 +300,7 @@
         closeMobileMenu();
       }
     });
+
+    initActiveLinks(nav, mobileMenu);
   });
 })();
