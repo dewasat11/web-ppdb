@@ -14,10 +14,30 @@
         z-index: 1310 !important;
       }
       [data-mobile-backdrop] {
+        position: fixed !important;
+        inset: 0 !important;
         z-index: 1400 !important;
+        background: rgba(0, 0, 0, 0.55) !important;
+        backdrop-filter: blur(1px);
       }
       [data-mobile-menu] {
+        position: fixed !important;
+        top: clamp(0.75rem, 3vw, 1.5rem) !important;
+        right: clamp(0.75rem, 4vw, 1.75rem) !important;
+        left: auto !important;
+        bottom: auto !important;
+        width: min(360px, calc(100vw - 2.5rem)) !important;
+        max-height: calc(100vh - 2.5rem) !important;
+        border-radius: 1.25rem !important;
+        border: 1px solid rgba(15, 23, 42, 0.08) !important;
         z-index: 1410 !important;
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.15) !important;
+      }
+      @media (max-width: 420px) {
+        [data-mobile-menu] {
+          width: calc(100vw - 1.25rem) !important;
+          right: 0.5rem !important;
+        }
       }
     `;
     document.head?.appendChild(style);
@@ -84,8 +104,14 @@
       document.querySelector('[data-mobile-backdrop]');
     const mobileIcons = nav.querySelectorAll('[data-mobile-icon]');
 
+    mobileMenu?.setAttribute('data-nav-compact', 'true');
+    mobileBackdrop?.setAttribute('data-nav-compact', 'true');
+
     mobileMenu?.style && (mobileMenu.style.zIndex = '1410');
     mobileBackdrop?.style && (mobileBackdrop.style.zIndex = '1400');
+
+    const isCompactMenu =
+      mobileMenu?.getAttribute('data-nav-compact') === 'true';
 
     const setMobileIcons = (isOpen) => {
       mobileIcons.forEach((icon) => {
@@ -104,6 +130,7 @@
         window.pageYOffset ||
         document.documentElement.scrollTop ||
         0;
+      if (isCompactMenu) return;
       const topValue = `${scrollY}px`;
       if (mobileMenu) {
         mobileMenu.style.top = topValue;
@@ -118,6 +145,7 @@
     };
 
     const resetOverlayPosition = () => {
+      if (isCompactMenu) return;
       if (mobileMenu) {
         mobileMenu.style.removeProperty('top');
         mobileMenu.style.removeProperty('bottom');
