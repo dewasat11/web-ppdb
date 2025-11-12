@@ -433,7 +433,7 @@
         "placeholder": "Masukkan NISN (10 digit)",
         "title": "NISN harus 10 digit angka"
       },
-      "helper": "Masukkan NISN Anda yang terdiri dari <strong>10 digit angka</strong> (contoh: <code>1234567890</code>).",
+      "helper": "Masukkan NISN Anda (contoh: <code>1234567890).",
       "button": "Cek Status",
       "checking": "Memeriksa..."
     },

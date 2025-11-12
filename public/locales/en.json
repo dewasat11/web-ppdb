@@ -433,7 +433,7 @@
         "placeholder": "Enter NISN (10 digits)",
         "title": "NISN must be 10 digits."
       },
-      "helper": "Enter your NISN consisting of <strong>10 numeric digits</strong> (example: <code>1234567890</code>).",
+      "helper": "Enter your NISN (example: 1234567890).",
       "button": "Check Status",
       "checking": "Checking..."
     },
