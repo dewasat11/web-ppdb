@@ -114,7 +114,9 @@
     "fees": {
       "heading": "Fees",
       "intro": "Here is the breakdown of registration and tuition fees at Al Ikhsan Islamic Boarding School:",
+      "badge": "Fee Overview",
       "loading": "Loading fee information...",
+      "lastUpdated": "Last updated:",
       "empty": "No fee information is available yet.",
       "note": "Note: Fees are subject to change. For more details, please contact the administration office.",
       "error": "Failed to load fee information. Please try again.",
@@ -129,6 +131,7 @@
       "loading": "Loading brochures...",
       "empty": "No brochures are available at the moment.",
       "error": "Failed to load brochures. Please try again later.",
+      "lastUpdated": "Last updated:",
       "defaultButton": "Download PDF"
     },
     "contact": {
@@ -137,6 +140,7 @@
       "loading": "Loading contact information...",
       "empty": "Contact information is not available yet.",
       "error": "Failed to load contact information.",
+      "lastUpdated": "Last updated:",
       "locationHeading": "Our Location",
       "map": {
         "loading": "Loading map...",

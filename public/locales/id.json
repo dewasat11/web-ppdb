@@ -114,7 +114,9 @@
     "fees": {
       "heading": "Biaya Pendaftaran",
       "intro": "Berikut adalah rincian biaya pendaftaran dan pendidikan di Pondok Pesantren Al Ikhsan Beji:",
+      "badge": "Informasi Biaya",
       "loading": "Memuat data biaya...",
+      "lastUpdated": "Terakhir diperbarui:",
       "empty": "Belum ada data biaya.",
       "note": "Catatan: Biaya dapat berubah sewaktu-waktu. Untuk informasi lebih lanjut, silakan hubungi bagian administrasi.",
       "error": "Gagal memuat data biaya. Silakan coba lagi.",
@@ -129,6 +131,7 @@
       "loading": "Memuat daftar brosur...",
       "empty": "Belum ada brosur yang tersedia saat ini.",
       "error": "Gagal memuat brosur. Silakan coba beberapa saat lagi.",
+      "lastUpdated": "Terakhir diperbarui:",
       "defaultButton": "Unduh PDF"
     },
     "contact": {
@@ -137,6 +140,7 @@
       "loading": "Memuat data kontak...",
       "empty": "Kontak belum tersedia.",
       "error": "Gagal memuat kontak.",
+      "lastUpdated": "Terakhir diperbarui:",
       "locationHeading": "Lokasi Kami",
       "map": {
         "loading": "Memuat peta lokasi...",

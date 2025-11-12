@@ -7,11 +7,13 @@
   <meta name="csrf-token" content="{{CSRF_TOKEN}}" />
   <meta name="description" content="Brosur Resmi PPDSB Pondok Pesantren Al Ikhsan Beji - Unduh brosur program, fasilitas, biaya, dan alur pendaftaran." data-i18n="meta.description.brochure" data-i18n-attr="content" data-i18n-skip-text />
   <meta name="keywords" content="Brosur PPDSB, Pondok Pesantren Al Ikhsan Beji, pendaftaran santri, pesantren Beji, Depok" />
+  <meta name="theme-color" content="#14532d" />
 
   <link rel="preconnect" href="https://fonts.gstatic.com" />
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="/manifest.webmanifest">
 
   <title data-i18n="meta.title.brochure">Brosur – PPDSB Pondok Pesantren Al Ikhsan Beji</title>
 
@@ -438,8 +440,9 @@
   <!-- MAIN -->
   <main class="flex-1 container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold text-gray-900 mb-6" data-i18n="pages.brochure.heading">Brosur Pendaftaran</h1>
-    <div class="prose max-w-none">
+    <div class="prose max-w-none space-y-3">
       <p data-i18n="pages.brochure.intro">Unduh brosur resmi untuk melihat program pendidikan, fasilitas, biaya, dan alur pendaftaran santri di Pondok Pesantren Al Ikhsan Beji:</p>
+      <p class="text-sm text-gray-500" id="brosurLastUpdate"></p>
       <div class="brosur-grid" id="brosurContainer">
         <div class="text-gray-500" data-i18n="pages.brochure.loading">Memuat daftar brosur...</div>
       </div>
@@ -497,6 +500,20 @@
         return stored.startsWith("en") ? "en" : "id";
       };
 
+      const formatTimestamp = (value, lang) => {
+        if (!value) return "";
+        const ts = typeof value === "number" ? value : Date.parse(value);
+        if (Number.isNaN(ts)) return "";
+        const locale = lang === "en" ? "en-US" : "id-ID";
+        return new Date(ts).toLocaleString(locale, {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      };
+
       const selectBrosurField = (item = {}, field, lang) => {
         const normalized = lang === "en" ? "en" : "id";
         if (normalized === "en") {
@@ -548,11 +565,13 @@
 
       function renderBrosurContent(items) {
         const container = document.getElementById("brosurContainer");
+        const infoEl = document.getElementById("brosurLastUpdate");
         if (!container) return;
 
         if (!items || !items.length) {
           const emptyText = escapeHtml(translate("pages.brochure.empty", "Belum ada brosur yang tersedia saat ini."));
           container.innerHTML = `<div class="text-gray-500">${emptyText}</div>`;
+          if (infoEl) infoEl.textContent = "";
           return;
         }
 
@@ -560,6 +579,21 @@
         container.innerHTML = items
           .map((item, index) => buildBrosurCard(item, index, lang))
           .join("");
+
+        if (infoEl) {
+          const latestTimestamp = items.reduce((max, item) => {
+            const ts = item?.updated_at
+              ? Date.parse(item.updated_at)
+              : item?.created_at
+              ? Date.parse(item.created_at)
+              : 0;
+            return Number.isNaN(ts) ? max : Math.max(max, ts);
+          }, 0);
+
+          infoEl.textContent = latestTimestamp
+            ? `${translate("pages.brochure.lastUpdated", lang === "en" ? "Last updated:" : "Terakhir diperbarui:")} ${formatTimestamp(latestTimestamp, lang)}`
+            : "";
+        }
       }
 
       async function loadBrosurContent({ force = false } = {}) {
@@ -569,10 +603,12 @@
         }
 
         const container = document.getElementById("brosurContainer");
+        const infoEl = document.getElementById("brosurLastUpdate");
         if (!container) return;
 
         const loadingText = escapeHtml(translate("pages.brochure.loading", "Memuat daftar brosur..."));
         container.innerHTML = `<div class="text-gray-500">${loadingText}</div>`;
+        if (infoEl) infoEl.textContent = "";
 
         try {
           const response = await fetch("/api/brosur_items");
@@ -698,5 +734,6 @@
   </script>
 
   <script src="/assets/js/navbar.js" defer></script>
+  <script src="/assets/js/pwa.js" defer></script>
 </body>
 </html>

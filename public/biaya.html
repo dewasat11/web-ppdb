@@ -5,11 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Rincian biaya pendaftaran dan pendidikan PPDSB Pondok Pesantren Al Ikhsan Beji. Transparansi biaya untuk calon santri dan wali." data-i18n="meta.description.fees" data-i18n-attr="content" data-i18n-skip-text>
   <meta name="keywords" content="Biaya Pondok Pesantren Al Ikhsan Beji, biaya pendaftaran, biaya tahfidz, biaya MTs MA PPDSB">
+  <meta name="theme-color" content="#14532d">
   <title data-i18n="meta.title.fees">Biaya Pendaftaran – PPDSB Pondok Pesantren Al Ikhsan Beji</title>
 
   <script src="/i18n.js" defer></script>
 
+  <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="/manifest.webmanifest">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="/assets/css/tailwind.css" />
@@ -180,6 +184,80 @@
       .container {
         padding-left: 1rem !important;
         padding-right: 1rem !important;
+      }
+    }
+
+    /* Fees table layout */
+    .fees-table-wrapper {
+      border-radius: 1.5rem;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      box-shadow: 0 25px 60px rgba(15, 23, 42, 0.08);
+      background: #fff;
+    }
+    .fees-table-wrapper table {
+      width: 100%;
+    }
+    .fees-table-wrapper th {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+    }
+    [data-fees-table] tbody tr:nth-child(even) {
+      background-color: rgba(249, 250, 251, 0.7);
+    }
+    [data-fees-table] td,
+    [data-fees-table] th {
+      white-space: nowrap;
+    }
+    @media (max-width: 768px) {
+      .fees-table-wrapper {
+        border-radius: 1rem;
+        box-shadow: 0 15px 40px rgba(15, 23, 42, 0.08);
+      }
+      [data-fees-table] td,
+      [data-fees-table] th {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+      }
+    }
+    @media (max-width: 640px) {
+      .fees-table-wrapper {
+        border-radius: 1rem;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        box-shadow: 0 20px 30px rgba(15, 23, 42, 0.08);
+      }
+      [data-fees-table] table {
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      [data-fees-table] thead {
+        display: none;
+      }
+      [data-fees-table] tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      [data-fees-table] tbody tr {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid rgba(15, 23, 42, 0.05);
+        border-radius: 0.85rem;
+        padding: 0.85rem;
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
+        background: #fff;
+      }
+      [data-fees-table] tbody tr td {
+        white-space: normal !important;
+        padding: 0.25rem 0 !important;
+      }
+      [data-fees-table] tbody tr td:first-child {
+        font-weight: 600;
+        color: #0f172a;
+      }
+      [data-fees-table] tbody tr td:last-child {
+        color: #047857;
+        font-weight: 700;
+        font-size: 1rem;
       }
     }
 
@@ -391,25 +469,37 @@
   </div>
   <!-- END MOBILE NAV OVERLAY -->
   <!-- MAIN -->
-  <main class="flex-1 container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-6" data-i18n="pages.fees.heading">Biaya Pendaftaran</h1>
-    <div class="prose max-w-none">
-      <p data-i18n="pages.fees.intro">Berikut adalah rincian biaya pendaftaran dan pendidikan di Pondok Pesantren Al Ikhsan Beji:</p>
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="pages.fees.table.label">Keterangan</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="pages.fees.table.amount">Biaya</th>
-          </tr>
-        </thead>
-        <tbody id="biayaTableBody" class="bg-white divide-y divide-gray-200">
-          <tr>
-            <td colspan="2" class="px-6 py-4 text-center text-gray-500" data-i18n="pages.fees.loading">Memuat data biaya...</td>
-          </tr>
-        </tbody>
-      </table>
-      <p class="mt-4" data-i18n="pages.fees.note">Catatan: Biaya dapat berubah sewaktu-waktu. Untuk informasi lebih lanjut, silakan hubungi bagian administrasi.</p>
-    </div>
+  <main class="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+    <header class="space-y-3 text-center sm:text-left">
+      <p class="text-sm uppercase tracking-[0.25em] text-brand-700 font-semibold" data-i18n="pages.fees.badge">Informasi Biaya</p>
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900" data-i18n="pages.fees.heading">Biaya Pendaftaran</h1>
+      <p class="text-gray-600 text-base sm:text-lg" data-i18n="pages.fees.intro">
+        Berikut adalah rincian biaya pendaftaran dan pendidikan di Pondok Pesantren Al Ikhsan Beji:
+      </p>
+      <p class="text-sm text-gray-500" id="biayaLastUpdate"></p>
+    </header>
+
+    <section class="fees-table-wrapper">
+      <div class="overflow-x-auto" data-fees-table>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-[0.25em]" data-i18n="pages.fees.table.label">Keterangan</th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-[0.25em]" data-i18n="pages.fees.table.amount">Biaya</th>
+            </tr>
+          </thead>
+          <tbody id="biayaTableBody" class="bg-white divide-y divide-gray-100 text-sm sm:text-base">
+            <tr>
+              <td colspan="2" class="px-6 py-4 text-center text-gray-500" data-i18n="pages.fees.loading">Memuat data biaya...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <p class="text-sm text-gray-500" data-i18n="pages.fees.note">
+      Catatan: Biaya dapat berubah sewaktu-waktu. Untuk informasi lebih lanjut, silakan hubungi bagian administrasi.
+    </p>
   </main>
 
   <!-- FOOTER -->
@@ -461,6 +551,20 @@
         return stored.startsWith("en") ? "en" : "id";
       };
 
+      const formatTimestamp = (value, lang) => {
+        if (!value) return "";
+        const ts = typeof value === "number" ? value : Date.parse(value);
+        if (Number.isNaN(ts)) return "";
+        const locale = lang === "en" ? "en-US" : "id-ID";
+        return new Date(ts).toLocaleString(locale, {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      };
+
       const selectBiayaField = (item = {}, field, lang) => {
         const normalized = lang === "en" ? "en" : "id";
         if (normalized === "en") {
@@ -483,6 +587,7 @@
 
       function renderBiayaContent(items) {
         const tbody = document.getElementById("biayaTableBody");
+        const infoEl = document.getElementById("biayaLastUpdate");
         if (!tbody) return;
 
         if (!items || !items.length) {
@@ -492,6 +597,7 @@
               <td colspan="2" class="px-6 py-4 text-center text-gray-500">${emptyText}</td>
             </tr>
           `;
+          if (infoEl) infoEl.textContent = "";
           return;
         }
 
@@ -508,6 +614,21 @@
             `;
           })
           .join("");
+
+        if (infoEl) {
+          const latestTimestamp = items.reduce((max, item) => {
+            const ts = item?.updated_at
+              ? Date.parse(item.updated_at)
+              : item?.created_at
+              ? Date.parse(item.created_at)
+              : 0;
+            return Number.isNaN(ts) ? max : Math.max(max, ts);
+          }, 0);
+
+          infoEl.textContent = latestTimestamp
+            ? `${translate("pages.fees.lastUpdated", lang === "en" ? "Last updated:" : "Terakhir diperbarui:")} ${formatTimestamp(latestTimestamp, lang)}`
+            : "";
+        }
       }
 
       async function loadBiayaContent({ force = false } = {}) {
@@ -517,6 +638,7 @@
         }
 
         const tbody = document.getElementById("biayaTableBody");
+        const infoEl = document.getElementById("biayaLastUpdate");
         if (!tbody) return;
 
         const loadingText = escapeHtml(translate("pages.fees.loading", "Memuat data biaya..."));
@@ -525,6 +647,7 @@
             <td colspan="2" class="px-6 py-4 text-center text-gray-500">${loadingText}</td>
           </tr>
         `;
+        if (infoEl) infoEl.textContent = "";
 
         try {
           const response = await fetch("/api/biaya_items");
@@ -652,5 +775,6 @@
     })();
   </script>
   <script src="/assets/js/navbar.js" defer></script>
+  <script src="/assets/js/pwa.js" defer></script>
 </body>
 </html>

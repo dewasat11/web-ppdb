@@ -1,0 +1,47 @@
+{
+  "name": "PPDSB Pondok Pesantren Al Ikhsan Beji",
+  "short_name": "PPDSB",
+  "description": "Portal resmi Penerimaan Peserta Didik & Santri Baru Pondok Pesantren Al Ikhsan Beji.",
+  "lang": "id",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#14532d",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo-bimi.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Daftar Santri",
+      "short_name": "Daftar",
+      "url": "/daftar.html"
+    },
+    {
+      "name": "Biaya Pendidikan",
+      "short_name": "Biaya",
+      "url": "/biaya.html"
+    },
+    {
+      "name": "Syarat Pendaftaran",
+      "short_name": "Syarat",
+      "url": "/syarat-pendaftaran.html"
+    }
+  ]
+}
